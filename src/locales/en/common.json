@@ -479,7 +479,8 @@
     "subtitle": "Manage users, projects, and system settings",
     "tabs": {
       "overview": "Overview",
-      "users": "Users"
+      "users": "Users",
+      "projects": "Projects"
     },
     "stats": {
       "totalUsers": "Total Users",
@@ -500,7 +501,13 @@
       "subscription": "Subscription",
       "projects": "Projects",
       "aiUsage": "AI Usage",
-      "actions": "Actions"
+      "actions": "Actions",
+      "projectName": "Project Name",
+      "owner": "Owner",
+      "status": "Status",
+      "dnaAssessed": "DNA Assessed",
+      "teamSize": "Team Size",
+      "created": "Created"
     },
     "roles": {
       "user": "User",
@@ -517,10 +524,31 @@
     "saveChanges": "Save Changes",
     "saving": "Saving...",
     "loadingUsers": "Loading users...",
+    "loadingProjects": "Loading projects...",
     "noUsers": "No users found",
+    "noProjects": "No projects found",
+    "noProjectsFiltered": "No projects match your filters",
+    "projectManagement": "Project Management",
+    "projectManagementDesc": "View and manage all projects across users",
+    "searchProjects": "Search projects or users...",
+    "filterByStatus": "Filter by status",
+    "filterByDNA": "Filter by DNA",
+    "allStatuses": "All Statuses",
+    "allProjects": "All Projects",
+    "assessed": "Assessed",
+    "unassessed": "Unassessed",
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "viewProject": "View",
+    "showingProjects": "Showing {{count}} of {{total}} projects",
+    "assessedCount": "{{count}} assessed",
     "errors": {
       "fetchUsers": "Failed to fetch users",
       "fetchStats": "Failed to fetch statistics",
+      "fetchProjects": "Failed to fetch projects",
       "updateRoles": "Failed to update roles"
     },
     "success": {

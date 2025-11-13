@@ -479,7 +479,8 @@
     "subtitle": "Administrer brugere, projekter og systemindstillinger",
     "tabs": {
       "overview": "Oversigt",
-      "users": "Brugere"
+      "users": "Brugere",
+      "projects": "Projekter"
     },
     "stats": {
       "totalUsers": "Brugere i Alt",
@@ -500,7 +501,13 @@
       "subscription": "Abonnement",
       "projects": "Projekter",
       "aiUsage": "AI Forbrug",
-      "actions": "Handlinger"
+      "actions": "Handlinger",
+      "projectName": "Projektnavn",
+      "owner": "Ejer",
+      "status": "Status",
+      "dnaAssessed": "DNA Vurderet",
+      "teamSize": "Teamstørrelse",
+      "created": "Oprettet"
     },
     "roles": {
       "user": "Bruger",
@@ -517,10 +524,31 @@
     "saveChanges": "Gem Ændringer",
     "saving": "Gemmer...",
     "loadingUsers": "Indlæser brugere...",
+    "loadingProjects": "Indlæser projekter...",
     "noUsers": "Ingen brugere fundet",
+    "noProjects": "Ingen projekter fundet",
+    "noProjectsFiltered": "Ingen projekter matcher dine filtre",
+    "projectManagement": "Projekthåndtering",
+    "projectManagementDesc": "Se og administrer alle projekter på tværs af brugere",
+    "searchProjects": "Søg projekter eller brugere...",
+    "filterByStatus": "Filtrer efter status",
+    "filterByDNA": "Filtrer efter DNA",
+    "allStatuses": "Alle Statusser",
+    "allProjects": "Alle Projekter",
+    "assessed": "Vurderet",
+    "unassessed": "Ikke Vurderet",
+    "status": {
+      "active": "Aktiv",
+      "completed": "Færdig",
+      "archived": "Arkiveret"
+    },
+    "viewProject": "Se",
+    "showingProjects": "Viser {{count}} af {{total}} projekter",
+    "assessedCount": "{{count}} vurderet",
     "errors": {
       "fetchUsers": "Kunne ikke hente brugere",
       "fetchStats": "Kunne ikke hente statistik",
+      "fetchProjects": "Kunne ikke hente projekter",
       "updateRoles": "Kunne ikke opdatere roller"
     },
     "success": {
