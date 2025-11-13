@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
+import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 
 interface Project {
   id: string;
@@ -17,6 +18,8 @@ interface Project {
   timeline_end?: string;
   team_size?: number;
   status: string;
+  dna_code?: string;
+  morphology?: any;
 }
 
 export default function Projects() {
@@ -26,6 +29,7 @@ export default function Projects() {
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [morphologyWizardOpen, setMorphologyWizardOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const fetchProjects = async () => {
@@ -55,6 +59,11 @@ export default function Projects() {
   const handleEdit = (project: Project) => {
     setSelectedProject(project);
     setEditDialogOpen(true);
+  };
+
+  const handleAssess = (project: Project) => {
+    setSelectedProject(project);
+    setMorphologyWizardOpen(true);
   };
 
   if (loading) {
@@ -118,6 +127,7 @@ export default function Projects() {
                 project={project}
                 onEdit={handleEdit}
                 onDelete={fetchProjects}
+                onAssess={handleAssess}
               />
             ))}
           </div>
@@ -136,6 +146,15 @@ export default function Projects() {
           project={selectedProject}
           onSuccess={fetchProjects}
         />
+
+        {selectedProject && (
+          <MorphologyWizard
+            open={morphologyWizardOpen}
+            onOpenChange={setMorphologyWizardOpen}
+            projectId={selectedProject.id}
+            onSuccess={fetchProjects}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

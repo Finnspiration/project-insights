@@ -182,5 +182,146 @@
       "teamSizeMax": "Teamstørrelse skal være mindre end 10000",
       "endDateAfterStart": "Slutdato skal være efter startdato"
     }
+  },
+  "morphology": {
+    "title": "Morfologisk Vurdering",
+    "subtitle": "Karakteriser dit projekt på tværs af 12 nøgledimensioner",
+    "step": "Trin",
+    "of": "af",
+    "next": "Næste",
+    "previous": "Forrige",
+    "finish": "Generer DNA-kode",
+    "finishing": "Genererer...",
+    "save": "Gem Vurdering",
+    "cancel": "Annuller",
+    "success": "Vurdering gemt!",
+    "error": "Kunne ikke gemme vurdering",
+    "aiSuggestion": "AI Forslag",
+    "confidence": "Tillid",
+    "dimensions": {
+      "complexity": {
+        "title": "Kompleksitetsniveau",
+        "description": "Hvor forudsigelig og ordnet er dit projektmiljø?",
+        "options": {
+          "simple": "Simpel - Klar årsag-virkning, bedste praksis virker",
+          "complicated": "Kompliceret - Ekspertanalyse nødvendig, god praksis",
+          "complex": "Kompleks - Fremvoksende mønstre, eksperimentering påkrævet",
+          "chaotic": "Kaotisk - Ingen klare mønstre, hurtig handling nødvendig"
+        }
+      },
+      "stakeholder": {
+        "title": "Interessentdynamik",
+        "description": "Hvad er arten af interessentrelationer?",
+        "options": {
+          "unified": "Forenet - Delt vision og mål",
+          "cooperative": "Samarbejdende - Tilpassede interesser, samarbejdende",
+          "competitive": "Konkurrerende - Divergerende interesser, forhandling nødvendig",
+          "adversarial": "Antagonistisk - Modstridende agendaer, høj spænding"
+        }
+      },
+      "knowledge": {
+        "title": "Vidensintensitet",
+        "description": "Hvilken type vidensarbejde dominerer?",
+        "options": {
+          "routine": "Rutinemæssig - Standardiserede, gentagelige processer",
+          "adaptive": "Adaptiv - Kontekstuel tilpasning af kendte metoder",
+          "innovative": "Innovativ - Skabelse af nye løsninger",
+          "breakthrough": "Gennembrud - Fundamentale nye opdagelser"
+        }
+      },
+      "cultural": {
+        "title": "Kulturel Kontekst",
+        "description": "Hvad er projektets kulturelle spænd?",
+        "options": {
+          "mono": "Mono - Enkelt kulturel kontekst",
+          "crossfunctional": "Tværfaglig - Flere afdelinger",
+          "crossorg": "Tværorganisatorisk - Flere organisationer",
+          "crosscultural": "Tværkulturel - Flere nationale kulturer"
+        }
+      },
+      "temporal": {
+        "title": "Temporal Dynamik",
+        "description": "Hvad er tidshorisont og rytme?",
+        "options": {
+          "sprint": "Sprint - Uger, hurtige iterationer",
+          "project": "Projekt - Måneder, definerede milepæle",
+          "program": "Program - År, flere faser",
+          "transformation": "Transformation - Flerårig systemisk forandring"
+        }
+      },
+      "organizational": {
+        "title": "Organisatorisk Stadium",
+        "description": "Hvilket organisatorisk paradigme dominerer? (Laloux model)",
+        "options": {
+          "red": "Rød - Magtdrevet, kommando & kontrol",
+          "amber": "Rav - Procesdrevet, hierarkisk stabilitet",
+          "orange": "Orange - Præstationsdrevet, meritokratisk",
+          "green": "Grøn - Værdidrevet, konsensussøgende",
+          "teal": "Turkis - Formålsdrevet, selvorganiserende"
+        }
+      },
+      "challenge": {
+        "title": "Primær Udfordring",
+        "description": "Hvad er den dominerende type udfordring?",
+        "options": {
+          "technical": "Teknisk - Ingeniør, teknologiproblemer",
+          "social": "Social - Teamdynamik, samarbejde",
+          "political": "Politisk - Magt, ressourcefordeling",
+          "cognitive": "Kognitiv - Forståelse, meningsskabelse",
+          "adaptive": "Adaptiv - Værdier, overbevisninger, identitetsskift"
+        }
+      },
+      "development": {
+        "title": "Indre Udviklingsbehov",
+        "description": "Hvilken indre udviklingsdimension er mest kritisk?",
+        "options": {
+          "being": "Væren - Selvbevidsthed, nærvær, værdier",
+          "thinking": "Tænkning - Kritisk tænkning, perspektivtagning",
+          "relating": "Relationsdannelse - Empati, medfølelse, forbindelse",
+          "collaborating": "Samarbejde - Medskabelse, tillid, inklusivitet",
+          "acting": "Handling - Mod, optimisme, udholdenhed"
+        }
+      },
+      "resources": {
+        "title": "Ressourcekarakteristika",
+        "description": "Hvad er ressourcetilgængeligheden?",
+        "options": {
+          "rich": "Rig - Rigelige ressourcer, flere muligheder",
+          "balanced": "Afbalanceret - Tilstrækkelige ressourcer, omhyggelig planlægning",
+          "constrained": "Begrænset - Begrænsede ressourcer, afvejninger nødvendige",
+          "scarce": "Knappe - Alvorlige begrænsninger, kreative løsninger essentielle"
+        }
+      },
+      "change": {
+        "title": "Forandringsintensitet",
+        "description": "Hvad er omfanget af forandring involveret?",
+        "options": {
+          "incremental": "Trinvis - Små forbedringer, kontinuitet",
+          "transitional": "Overgangsmæssig - Planlagt udskiftning af nuværende tilstand",
+          "transformational": "Transformerende - Grundlæggende skift i tankegang",
+          "disruptive": "Forstyrrende - Revolutionær, ødelægger gammelt paradigme"
+        }
+      },
+      "information": {
+        "title": "Informationsflow",
+        "description": "Hvordan bevæger information sig i projektet?",
+        "options": {
+          "centralized": "Centraliseret - Enkelt kilde, top-down",
+          "hierarchical": "Hierarkisk - Kommandokæde, formelle kanaler",
+          "network": "Netværk - Indbyrdes forbundne knudepunkter, uformelle flows",
+          "distributed": "Distribueret - Fuldt decentraliseret, peer-to-peer"
+        }
+      },
+      "risk": {
+        "title": "Risikoprofil",
+        "description": "Hvad er den samlede risikoeksponering?",
+        "options": {
+          "low": "Lav - Forudsigelig, minimal usikkerhed",
+          "moderate": "Moderat - Nogle ukendte, håndterbar",
+          "high": "Høj - Betydelig usikkerhed, omhyggelig overvågning",
+          "extreme": "Ekstrem - Store trusler, krisepotentiale"
+        }
+      }
+    }
   }
 }
