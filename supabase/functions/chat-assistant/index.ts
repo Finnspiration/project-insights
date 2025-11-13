@@ -14,9 +14,16 @@ serve(async (req) => {
   try {
     const { message, context } = await req.json();
     
+    // Regular client for user operations (respects RLS)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Admin client for profile creation (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Get user info and language preference
@@ -35,10 +42,10 @@ serve(async (req) => {
       .eq('id', user.id)
       .single();
 
-    // If profile doesn't exist, create it
+    // If profile doesn't exist, create it using admin client (bypasses RLS)
     if (!profile) {
-      console.log('User profile not found, creating one for user:', user.id);
-      const { data: newProfile, error: createError } = await supabase
+      console.log('User profile not found, creating with admin client for user:', user.id);
+      const { data: newProfile, error: createError } = await supabaseAdmin
         .from('user_profiles')
         .insert({
           id: user.id,
@@ -50,11 +57,12 @@ serve(async (req) => {
         .single();
       
       if (createError || !newProfile) {
-        console.error('Error creating user profile:', createError);
+        console.error('Error creating user profile with admin client:', createError);
         throw new Error('Failed to create user profile');
       }
       
       profile = newProfile;
+      console.log('Successfully created user profile for:', user.id);
     }
 
     // At this point, profile is guaranteed to exist
