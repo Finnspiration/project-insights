@@ -1,41 +1,53 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Plus, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
+  const { t } = useTranslation('common');
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            PRISM
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
-            <Button onClick={handleSignOut} variant="outline">
-              Sign Out
-            </Button>
+    <DashboardLayout>
+      <div className="container mx-auto px-4 py-8">
+        {/* Empty State */}
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-2xl mx-auto">
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl rounded-full" />
+            <Sparkles className="relative h-24 w-24 text-primary" />
+          </div>
+          
+          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {t('dashboard.welcome')}
+          </h2>
+          
+          <p className="text-lg text-muted-foreground mb-8 max-w-md">
+            {t('dashboard.emptyState')}
+          </p>
+          
+          <Button size="lg" className="gap-2">
+            <Plus className="h-5 w-5" />
+            {t('dashboard.createProject')}
+          </Button>
+
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+            <div className="p-4 border rounded-lg bg-card">
+              <div className="text-3xl mb-2">🎯</div>
+              <h3 className="font-semibold mb-1">{t('dashboard.quickStart.step1')}</h3>
+              <p className="text-sm text-muted-foreground">{t('dashboard.quickStart.step1Desc')}</p>
+            </div>
+            <div className="p-4 border rounded-lg bg-card">
+              <div className="text-3xl mb-2">📊</div>
+              <h3 className="font-semibold mb-1">{t('dashboard.quickStart.step2')}</h3>
+              <p className="text-sm text-muted-foreground">{t('dashboard.quickStart.step2Desc')}</p>
+            </div>
+            <div className="p-4 border rounded-lg bg-card">
+              <div className="text-3xl mb-2">💡</div>
+              <h3 className="font-semibold mb-1">{t('dashboard.quickStart.step3')}</h3>
+              <p className="text-sm text-muted-foreground">{t('dashboard.quickStart.step3Desc')}</p>
+            </div>
           </div>
         </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Welcome to PRISM</h2>
-          <p className="text-muted-foreground mb-8">
-            Your project intelligence platform is ready. Start creating your first project to reveal the invisible dimensions.
-          </p>
-          <Button size="lg">Create Your First Project</Button>
-        </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

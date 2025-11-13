@@ -84,5 +84,41 @@
     "success": {
       "signUp": "Account created successfully! Signing you in..."
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "projects": "Projects",
+    "navigation": "Navigation",
+    "welcome": "Welcome to PRISM",
+    "emptyState": "Your project intelligence platform is ready. Start creating your first project to reveal the invisible dimensions.",
+    "createProject": "Create Your First Project",
+    "quickStart": {
+      "step1": "Characterize",
+      "step1Desc": "Define your project's DNA",
+      "step2": "Visualize",
+      "step2Desc": "See hidden patterns",
+      "step3": "Discover",
+      "step3Desc": "Uncover blind spots"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "signOut": "Sign Out",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "saved": "Settings saved successfully!",
+    "saveFailed": "Failed to save settings",
+    "language": {
+      "title": "Language",
+      "description": "Choose your preferred language for the interface"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "description": "Your current subscription information",
+      "tier": "Plan",
+      "status": "Status",
+      "plan": "Plan",
+      "aiMessages": "AI Messages This Month"
+    }
   }
 }
