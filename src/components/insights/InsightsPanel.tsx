@@ -41,8 +41,35 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
   const { profile } = useAuth();
   const [insights, setInsights] = useState<Insight | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingExisting, setLoadingExisting] = useState(true);
 
   const userLanguage = profile?.preferred_language || 'en';
+
+  // Fetch existing insights on mount
+  const fetchExistingInsights = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('patterns')
+        .eq('id', projectId)
+        .single();
+
+      if (error) throw error;
+
+      if (data?.patterns && data.patterns.recommendations) {
+        setInsights(data.patterns);
+      }
+    } catch (error) {
+      console.error('Error fetching existing insights:', error);
+    } finally {
+      setLoadingExisting(false);
+    }
+  };
+
+  // Load existing insights on mount
+  useState(() => {
+    fetchExistingInsights();
+  });
 
   const generateInsights = async () => {
     setLoading(true);
@@ -68,7 +95,7 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
       }
 
       setInsights(data);
-      toast.success('Insights generated successfully!');
+      toast.success(t('insights.success') || 'Insights generated and saved successfully!');
     } catch (error) {
       console.error('Error generating insights:', error);
     } finally {
@@ -88,6 +115,17 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
         return 'secondary';
     }
   };
+
+  if (loadingExisting) {
+    return (
+      <Card>
+        <CardContent className="text-center py-12">
+          <RefreshCw className="h-8 w-8 mx-auto mb-4 text-muted-foreground animate-spin" />
+          <p className="text-muted-foreground">Loading insights...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!insights) {
     return (

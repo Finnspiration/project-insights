@@ -226,49 +226,71 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
     const insights = JSON.parse(toolCall.function.arguments);
     console.log("Insights generated successfully");
 
-    // Store blind spots in database if projectId is provided
-    if (projectId && insights.blindSpots && insights.blindSpots.length > 0) {
+    // Store insights and blind spots in database if projectId is provided
+    if (projectId) {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
       const supabase = createClient(supabaseUrl, supabaseKey);
 
-      console.log(`Storing ${insights.blindSpots.length} blind spots for project ${projectId}`);
+      // Store full insights in patterns field of projects table
+      console.log(`Storing insights for project ${projectId}`);
+      const { error: updateError } = await supabase
+        .from('projects')
+        .update({
+          patterns: {
+            ...insights,
+            generated_at: new Date().toISOString(),
+            language: language
+          }
+        })
+        .eq('id', projectId);
 
-      // Delete existing blind spots for this project (from this generation)
-      await supabase
-        .from('blind_spots')
-        .delete()
-        .eq('project_id', projectId);
-
-      // Prepare blind spots data for insertion
-      const blindSpotsToInsert = insights.blindSpots.map((bs: any) => ({
-        project_id: projectId,
-        title: language === 'da' 
-          ? { en: bs.title, da: bs.title }
-          : { en: bs.title, da: bs.title },
-        description: language === 'da'
-          ? { en: bs.description, da: bs.description }
-          : { en: bs.description, da: bs.description },
-        priority: bs.impact || 'medium',
-        confidence: 0.7, // Default confidence
-        evidence: { text: bs.evidence },
-        consequences: language === 'da'
-          ? { en: bs.evidence, da: bs.evidence }
-          : { en: bs.evidence, da: bs.evidence },
-        recommendations: language === 'da'
-          ? { en: 'Address this blind spot', da: 'Adresser denne blinde vinkel' }
-          : { en: 'Address this blind spot', da: 'Adresser denne blinde vinkel' },
-        status: 'unaddressed'
-      }));
-
-      const { error: insertError } = await supabase
-        .from('blind_spots')
-        .insert(blindSpotsToInsert);
-
-      if (insertError) {
-        console.error('Error storing blind spots:', insertError);
+      if (updateError) {
+        console.error('Error storing insights:', updateError);
       } else {
-        console.log('Blind spots stored successfully');
+        console.log('Insights stored successfully in projects table');
+      }
+
+      // Store blind spots in dedicated table
+      if (insights.blindSpots && insights.blindSpots.length > 0) {
+        console.log(`Storing ${insights.blindSpots.length} blind spots for project ${projectId}`);
+
+        // Delete existing blind spots for this project
+        await supabase
+          .from('blind_spots')
+          .delete()
+          .eq('project_id', projectId);
+
+        // Prepare blind spots data for insertion
+        const blindSpotsToInsert = insights.blindSpots.map((bs: any) => ({
+          project_id: projectId,
+          title: language === 'da' 
+            ? { en: bs.title, da: bs.title }
+            : { en: bs.title, da: bs.title },
+          description: language === 'da'
+            ? { en: bs.description, da: bs.description }
+            : { en: bs.description, da: bs.description },
+          priority: bs.impact || 'medium',
+          confidence: 0.7,
+          evidence: { text: bs.evidence },
+          consequences: language === 'da'
+            ? { en: bs.evidence, da: bs.evidence }
+            : { en: bs.evidence, da: bs.evidence },
+          recommendations: language === 'da'
+            ? { en: 'Address this blind spot', da: 'Adresser denne blinde vinkel' }
+            : { en: 'Address this blind spot', da: 'Adresser denne blinde vinkel' },
+          status: 'unaddressed'
+        }));
+
+        const { error: insertError } = await supabase
+          .from('blind_spots')
+          .insert(blindSpotsToInsert);
+
+        if (insertError) {
+          console.error('Error storing blind spots:', insertError);
+        } else {
+          console.log('Blind spots stored successfully');
+        }
       }
     }
 
