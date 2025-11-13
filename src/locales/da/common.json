@@ -92,6 +92,31 @@
     "welcome": "Velkommen til PRISM",
     "emptyState": "Din projektintelligensplatform er klar. Begynd at oprette dit første projekt for at afsløre de usynlige dimensioner.",
     "createProject": "Opret Dit Første Projekt",
+    "overview": "Oversigt",
+    "recentProjects": "Seneste Projekter",
+    "recommendedActions": "Anbefalede Handlinger",
+    "assessed": "Vurderet",
+    "unassessed": "Ikke Vurderet",
+    "view": "Se",
+    "assess": "Vurder",
+    "stats": {
+      "totalProjects": "Projekter i Alt",
+      "assessed": "Vurderet",
+      "unassessed": "Ikke Vurderet",
+      "documents": "Dokumenter",
+      "aiUsed": "AI-beskeder Brugt",
+      "aiRemaining": "AI-beskeder Tilbage"
+    },
+    "recommendations": {
+      "completeAssessments": "Fuldfør Morfologiske Vurderinger",
+      "completeAssessmentsDesc": "Du har {{count}} projekter, der venter på vurdering",
+      "uploadDocuments": "Upload Projektdokumenter",
+      "uploadDocumentsDesc": "Tilføj dokumenter for at låse op for dybere AI-indsigter",
+      "lowAiMessages": "AI-beskeder Løber Tør",
+      "lowAiMessagesDesc": "Overvej at opgradere for flere AI-samtaler",
+      "viewProjects": "Se Projekter",
+      "viewSettings": "Se Indstillinger"
+    },
     "quickStart": {
       "step1": "Karakteriser",
       "step1Desc": "Definer dit projekts DNA",
