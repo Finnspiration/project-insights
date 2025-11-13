@@ -92,6 +92,31 @@
     "welcome": "Welcome to PRISM",
     "emptyState": "Your project intelligence platform is ready. Start creating your first project to reveal the invisible dimensions.",
     "createProject": "Create Your First Project",
+    "overview": "Overview",
+    "recentProjects": "Recent Projects",
+    "recommendedActions": "Recommended Actions",
+    "assessed": "Assessed",
+    "unassessed": "Unassessed",
+    "view": "View",
+    "assess": "Assess",
+    "stats": {
+      "totalProjects": "Total Projects",
+      "assessed": "Assessed",
+      "unassessed": "Unassessed",
+      "documents": "Documents",
+      "aiUsed": "AI Messages Used",
+      "aiRemaining": "AI Messages Left"
+    },
+    "recommendations": {
+      "completeAssessments": "Complete Morphology Assessments",
+      "completeAssessmentsDesc": "You have {{count}} projects waiting for assessment",
+      "uploadDocuments": "Upload Project Documents",
+      "uploadDocumentsDesc": "Add documents to unlock deeper AI insights",
+      "lowAiMessages": "AI Messages Running Low",
+      "lowAiMessagesDesc": "Consider upgrading for more AI conversations",
+      "viewProjects": "View Projects",
+      "viewSettings": "View Settings"
+    },
     "quickStart": {
       "step1": "Characterize",
       "step1Desc": "Define your project's DNA",
