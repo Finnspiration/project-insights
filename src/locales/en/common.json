@@ -205,8 +205,10 @@
       "descriptionMax": "Description must be less than 500 characters",
       "teamSizeMin": "Team size must be at least 1",
       "teamSizeMax": "Team size must be less than 10000",
-      "endDateAfterStart": "End date must be after start date"
+      "endDateAfterStart": "End date must be after start date",
+      "atLeastOneName": "At least one language name is required"
     },
+    "nameHelper": "Fill in at least one language. The other will be copied automatically if left empty.",
     "documents": {
       "title": "Documents",
       "upload": "Upload Documents",

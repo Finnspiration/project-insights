@@ -38,16 +38,16 @@ export function CreateProjectDialog({ open, onOpenChange, onSuccess }: CreatePro
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validation schema
+  // Validation schema - only requires at least one language
   const projectSchema = z.object({
     nameEn: z.string()
       .trim()
-      .min(1, { message: t('projects.validation.nameRequired') })
-      .max(100, { message: t('projects.validation.nameMax') }),
+      .max(100, { message: t('projects.validation.nameMax') })
+      .optional(),
     nameDa: z.string()
       .trim()
-      .min(1, { message: t('projects.validation.nameRequired') })
-      .max(100, { message: t('projects.validation.nameMax') }),
+      .max(100, { message: t('projects.validation.nameMax') })
+      .optional(),
     descriptionEn: z.string()
       .trim()
       .max(500, { message: t('projects.validation.descriptionMax') })
@@ -64,6 +64,15 @@ export function CreateProjectDialog({ open, onOpenChange, onSuccess }: CreatePro
       .max(10000, { message: t('projects.validation.teamSizeMax') })
       .optional(),
   }).refine(
+    (data) => {
+      // At least one language name is required
+      return (data.nameEn && data.nameEn.trim()) || (data.nameDa && data.nameDa.trim());
+    },
+    {
+      message: t('projects.validation.atLeastOneName'),
+      path: ['nameEn'],
+    }
+  ).refine(
     (data) => {
       if (data.timeline_start && data.timeline_end) {
         return new Date(data.timeline_end) > new Date(data.timeline_start);
@@ -97,15 +106,19 @@ export function CreateProjectDialog({ open, onOpenChange, onSuccess }: CreatePro
     setIsSubmitting(true);
 
     try {
+      // Auto-copy name to other language if empty
+      const finalNameEn = data.nameEn?.trim() || data.nameDa?.trim() || '';
+      const finalNameDa = data.nameDa?.trim() || data.nameEn?.trim() || '';
+
       // Prepare multilingual JSONB fields
       const name = {
-        en: data.nameEn,
-        da: data.nameDa,
+        en: finalNameEn,
+        da: finalNameDa,
       };
 
       const description = {
-        en: data.descriptionEn || '',
-        da: data.descriptionDa || '',
+        en: data.descriptionEn?.trim() || data.descriptionDa?.trim() || '',
+        da: data.descriptionDa?.trim() || data.descriptionEn?.trim() || '',
       };
 
       // Insert project
@@ -171,6 +184,9 @@ export function CreateProjectDialog({ open, onOpenChange, onSuccess }: CreatePro
                             maxLength={100}
                           />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          {t('projects.nameHelper')}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -210,6 +226,9 @@ export function CreateProjectDialog({ open, onOpenChange, onSuccess }: CreatePro
                             maxLength={100}
                           />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          {t('projects.nameHelper')}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

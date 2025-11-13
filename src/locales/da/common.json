@@ -205,8 +205,10 @@
       "descriptionMax": "Beskrivelse skal være mindre end 500 tegn",
       "teamSizeMin": "Teamstørrelse skal være mindst 1",
       "teamSizeMax": "Teamstørrelse skal være mindre end 10000",
-      "endDateAfterStart": "Slutdato skal være efter startdato"
+      "endDateAfterStart": "Slutdato skal være efter startdato",
+      "atLeastOneName": "Mindst ét sprognavn er påkrævet"
     },
+    "nameHelper": "Udfyld mindst ét sprog. Det andet sprog kopieres automatisk hvis det er tomt.",
     "documents": {
       "title": "Dokumenter",
       "upload": "Upload Dokumenter",
