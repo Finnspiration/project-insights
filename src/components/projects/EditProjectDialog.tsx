@@ -46,16 +46,16 @@ export function EditProjectDialog({ open, onOpenChange, project, onSuccess }: Ed
   const { t } = useTranslation('common');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validation schema
+  // Validation schema - only requires at least one language
   const projectSchema = z.object({
     nameEn: z.string()
       .trim()
-      .min(1, { message: t('projects.validation.nameRequired') })
-      .max(100, { message: t('projects.validation.nameMax') }),
+      .max(100, { message: t('projects.validation.nameMax') })
+      .optional(),
     nameDa: z.string()
       .trim()
-      .min(1, { message: t('projects.validation.nameRequired') })
-      .max(100, { message: t('projects.validation.nameMax') }),
+      .max(100, { message: t('projects.validation.nameMax') })
+      .optional(),
     descriptionEn: z.string()
       .trim()
       .max(500, { message: t('projects.validation.descriptionMax') })
@@ -72,6 +72,15 @@ export function EditProjectDialog({ open, onOpenChange, project, onSuccess }: Ed
       .max(10000, { message: t('projects.validation.teamSizeMax') })
       .optional(),
   }).refine(
+    (data) => {
+      // At least one language name is required
+      return (data.nameEn && data.nameEn.trim()) || (data.nameDa && data.nameDa.trim());
+    },
+    {
+      message: t('projects.validation.atLeastOneName'),
+      path: ['nameEn'],
+    }
+  ).refine(
     (data) => {
       if (data.timeline_start && data.timeline_end) {
         return new Date(data.timeline_end) > new Date(data.timeline_start);
@@ -120,14 +129,18 @@ export function EditProjectDialog({ open, onOpenChange, project, onSuccess }: Ed
     setIsSubmitting(true);
 
     try {
+      // Auto-copy name to other language if empty
+      const finalNameEn = data.nameEn?.trim() || data.nameDa?.trim() || '';
+      const finalNameDa = data.nameDa?.trim() || data.nameEn?.trim() || '';
+
       const name = {
-        en: data.nameEn,
-        da: data.nameDa,
+        en: finalNameEn,
+        da: finalNameDa,
       };
 
       const description = {
-        en: data.descriptionEn || '',
-        da: data.descriptionDa || '',
+        en: data.descriptionEn?.trim() || data.descriptionDa?.trim() || '',
+        da: data.descriptionDa?.trim() || data.descriptionEn?.trim() || '',
       };
 
       const { error } = await supabase
@@ -192,6 +205,9 @@ export function EditProjectDialog({ open, onOpenChange, project, onSuccess }: Ed
                             maxLength={100}
                           />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          {t('projects.nameHelper')}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -231,6 +247,9 @@ export function EditProjectDialog({ open, onOpenChange, project, onSuccess }: Ed
                             maxLength={100}
                           />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          {t('projects.nameHelper')}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
