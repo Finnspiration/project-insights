@@ -386,5 +386,39 @@
       "score": "Score",
       "target": "Target"
     }
+  },
+  "insights": {
+    "title": "AI Insights",
+    "generate": "Generate Insights",
+    "generating": "Generating insights...",
+    "regenerate": "Regenerate",
+    "error": "Failed to generate insights",
+    "rateLimit": "Rate limit exceeded. Please try again later.",
+    "noCredits": "AI credits exhausted. Please add credits.",
+    "noData": "No insights generated yet. Click 'Generate Insights' to analyze your project.",
+    "recommendations": {
+      "title": "Strategic Recommendations",
+      "description": "Actionable recommendations to improve project success",
+      "priority": "Priority"
+    },
+    "blindSpots": {
+      "title": "Blind Spots Detected",
+      "description": "Potential overlooked dimensions and risks",
+      "impact": "Impact",
+      "evidence": "Evidence"
+    },
+    "interventions": {
+      "title": "Suggested Interventions",
+      "description": "Practical workshops and interventions",
+      "type": "Type",
+      "timeframe": "Timeframe",
+      "types": {
+        "workshop": "Workshop",
+        "coaching": "Coaching",
+        "process": "Process",
+        "tool": "Tool",
+        "retreat": "Retreat"
+      }
+    }
   }
 }
