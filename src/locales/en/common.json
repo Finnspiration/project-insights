@@ -122,6 +122,35 @@
     }
   },
   "projects": {
+    "title": "Projects",
+    "emptyState": {
+      "title": "No Projects Yet",
+      "description": "Create your first project to start revealing invisible dimensions",
+      "action": "Create Project"
+    },
+    "card": {
+      "teamSize": "Team Size",
+      "timeline": "Timeline",
+      "to": "to",
+      "status": "Status",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View Details"
+    },
+    "delete": {
+      "title": "Delete Project",
+      "description": "Are you sure you want to delete this project? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "success": "Project deleted successfully",
+      "error": "Failed to delete project"
+    },
+    "edit": {
+      "title": "Edit Project",
+      "description": "Update your project information",
+      "success": "Project updated successfully",
+      "error": "Failed to update project"
+    },
     "create": {
       "title": "Create New Project",
       "description": "Start revealing the invisible dimensions of your project",
