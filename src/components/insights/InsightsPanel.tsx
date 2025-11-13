@@ -52,6 +52,7 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
           morphology,
           language: userLanguage,
           projectName,
+          projectId,
         },
       });
 

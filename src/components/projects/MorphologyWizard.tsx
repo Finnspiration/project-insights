@@ -67,10 +67,42 @@ const DIMENSIONS: DimensionKey[] = [
 ];
 
 export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: MorphologyWizardProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [currentStep, setCurrentStep] = useState(0);
   const [morphology, setMorphology] = useState<MorphologyData>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<any>(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  // Fetch AI suggestions when wizard opens
+  useState(() => {
+    if (open && projectId && !aiSuggestions && !loadingSuggestions) {
+      fetchAiSuggestions();
+    }
+  });
+
+  const fetchAiSuggestions = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-documents', {
+        body: { 
+          projectId,
+          language: i18n.language 
+        }
+      });
+
+      if (error) {
+        console.error('Error fetching AI suggestions:', error);
+      } else if (data?.morphologySuggestions) {
+        setAiSuggestions(data);
+        toast.success(t('morphology.aiSuggestionsLoaded') || 'AI suggestions loaded from your documents');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
 
   const currentDimension = DIMENSIONS[currentStep];
   const totalSteps = DIMENSIONS.length;
@@ -158,6 +190,10 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
 
   const isStepComplete = morphology[currentDimension] !== undefined;
   const canFinish = DIMENSIONS.every(dim => morphology[dim] !== undefined);
+  
+  // Get AI suggestion for current dimension
+  const currentSuggestion = aiSuggestions?.morphologySuggestions?.[currentDimension];
+  const options = getOptions(currentDimension);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -193,6 +229,41 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
               {t(`morphology.dimensions.${currentDimension}.description`)}
             </p>
           </div>
+
+          {loadingSuggestions && (
+            <div className="bg-muted/50 border border-border rounded-lg p-4 text-sm text-muted-foreground">
+              {t('morphology.analyzingDocuments') || 'Analyzing your documents...'}
+            </div>
+          )}
+
+          {currentSuggestion && !loadingSuggestions && (
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
+              <div className="flex items-start gap-2">
+                <span className="text-primary">✨</span>
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium text-primary">
+                    {t('morphology.aiSuggests') || 'AI suggests'}: {options.find(o => o.value === currentSuggestion.value)?.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('morphology.confidence') || 'Confidence'}: {Math.round(currentSuggestion.confidence * 100)}%
+                  </p>
+                  {currentSuggestion.evidence && (
+                    <p className="text-xs italic text-muted-foreground mt-2">
+                      "{currentSuggestion.evidence.slice(0, 150)}..."
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSelection(currentSuggestion.value)}
+                >
+                  {t('morphology.accept') || 'Accept'}
+                </Button>
+              </div>
+            </div>
+          )}
 
           <RadioGroup
             value={morphology[currentDimension] || ''}

@@ -119,21 +119,35 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
       if (uploadError) throw uploadError;
 
       // Create document record
-      const { error: dbError } = await supabase.from('documents').insert({
+      const { data: newDoc, error: dbError } = await supabase.from('documents').insert({
         project_id: projectId,
         filename: file.name,
         file_path: filePath,
         file_type: file.type,
         file_size: file.size,
-      });
+      }).select().single();
 
       if (dbError) throw dbError;
 
-      toast.success(t('projects.documents.uploadSuccess'));
+      toast.success(t('documents.uploadSuccess'));
+      
+      // Trigger document processing in background
+      if (newDoc?.id) {
+        supabase.functions.invoke('process-document', {
+          body: { documentId: newDoc.id }
+        }).then(({ error }) => {
+          if (error) {
+            console.error('Error processing document:', error);
+          } else {
+            console.log('Document processing started');
+          }
+        });
+      }
+
       onUploadSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading file:', error);
-      toast.error(t('projects.documents.uploadError'));
+      toast.error(error.message);
     } finally {
       setUploading(false);
     }

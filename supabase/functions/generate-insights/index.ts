@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { morphology, language = "en", projectName } = await req.json();
+    const { morphology, language = "en", projectName, projectId } = await req.json();
     
     if (!morphology) {
       return new Response(
@@ -28,6 +28,34 @@ serve(async (req) => {
     console.log("Generating insights for project:", projectName);
     console.log("Language:", language);
     console.log("Morphology:", morphology);
+
+    // Fetch document analysis context if projectId is provided
+    let documentContext = '';
+    if (projectId) {
+      try {
+        const analyzeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/analyze-documents`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ projectId, language })
+        });
+
+        if (analyzeResponse.ok) {
+          const analysisData = await analyzeResponse.json();
+          if (analysisData?.patterns) {
+            documentContext = `\n\nDocument Analysis Context:
+- Dominant metaphors: ${JSON.stringify(analysisData.patterns.metaphors)}
+- Key themes: ${analysisData.patterns.dominantThemes?.join(', ')}
+- Emotional tone: ${analysisData.patterns.emotionalTone}
+- Power dynamics: ${analysisData.patterns.powerDynamics}`;
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching document analysis:', err);
+      }
+    }
 
     // Construct system prompt based on language
     const systemPrompts = {
@@ -68,7 +96,7 @@ Morphology Assessment:
 - Resources: ${morphology.resources || "N/A"}
 - Change Intensity: ${morphology.change || "N/A"}
 - Information Flow: ${morphology.information || "N/A"}
-- Risk Profile: ${morphology.risk || "N/A"}
+- Risk Profile: ${morphology.risk || "N/A"}${documentContext}
 
 Generate comprehensive insights with specific, actionable recommendations.`,
       da: `Analyser denne projektmorfologi og generer indsigter:
@@ -87,7 +115,7 @@ Morfologisk Vurdering:
 - Ressourcer: ${morphology.resources || "N/A"}
 - Forandringsintensitet: ${morphology.change || "N/A"}
 - Informationsflow: ${morphology.information || "N/A"}
-- Risikoprofil: ${morphology.risk || "N/A"}
+- Risikoprofil: ${morphology.risk || "N/A"}${documentContext}
 
 Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
     };
