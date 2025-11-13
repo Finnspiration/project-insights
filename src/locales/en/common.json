@@ -248,6 +248,14 @@
     "success": "Assessment saved successfully!",
     "error": "Failed to save assessment",
     "aiSuggestion": "AI Suggestion",
+    "visualBox": {
+      "title": "Morphological Box",
+      "description": "12-dimensional project assessment matrix"
+    },
+    "reassess": "Re-assess",
+    "showDnaCode": "Show Raw DNA Code",
+    "copyDna": "Copy",
+    "dnaCopied": "DNA code copied to clipboard",
     "confidence": "Confidence",
     "dimensions": {
       "complexity": {

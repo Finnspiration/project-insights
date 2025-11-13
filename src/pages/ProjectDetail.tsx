@@ -18,6 +18,7 @@ import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
+import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
 
 interface Project {
   id: string;
@@ -244,27 +245,12 @@ export default function ProjectDetail() {
           </TabsContent>
 
           <TabsContent value="morphology">
-            {project.dna_code && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Project DNA Code</CardTitle>
-                  <CardDescription>
-                    Generated from 12-dimensional morphological assessment
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-muted p-4 rounded-lg">
-                    <code className="text-sm font-mono">{project.dna_code}</code>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => setMorphologyWizardOpen(true)}
-                  >
-                    Re-assess Project
-                  </Button>
-                </CardContent>
-              </Card>
+            {project.dna_code && project.morphology && (
+              <MorphologicalBox
+                morphology={project.morphology}
+                dnaCode={project.dna_code}
+                onReassess={() => setMorphologyWizardOpen(true)}
+              />
             )}
           </TabsContent>
         </Tabs>
