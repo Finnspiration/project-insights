@@ -342,5 +342,49 @@
         }
       }
     }
+  },
+  "visualizations": {
+    "title": "Visualiseringer",
+    "culturalWeather": {
+      "title": "Kulturelt Vejrkort",
+      "description": "Projektkultur og atmosfærevisualisation",
+      "temperature": "Temperatur",
+      "weather": "Vejr",
+      "cold": "Koldt",
+      "warm": "Varmt",
+      "conditions": {
+        "sunny": "Solrigt - Tilpasset & Energisk",
+        "cloudy": "Overskyet - Nogen Modstand",
+        "rainy": "Regnfuldt - Udfordrende",
+        "stormy": "Stormfuldt - Høj Spænding"
+      }
+    },
+    "uJourney": {
+      "title": "U-Rejse Tidslinje",
+      "description": "Teori U bevidsthedsrejse",
+      "phases": {
+        "downloading": "Downloading",
+        "seeing": "At Se",
+        "sensing": "At Sanse",
+        "presencing": "Nærvær",
+        "crystallizing": "Krystallisering",
+        "prototyping": "Prototyping",
+        "performing": "Udførelse"
+      },
+      "current": "Nuværende Fase"
+    },
+    "idgRadar": {
+      "title": "Indre Udviklingsmål Radar",
+      "description": "IDG profilvurdering",
+      "dimensions": {
+        "being": "Væren",
+        "thinking": "Tænkning",
+        "relating": "Relationsdannelse",
+        "collaborating": "Samarbejde",
+        "acting": "Handling"
+      },
+      "score": "Score",
+      "target": "Mål"
+    }
   }
 }

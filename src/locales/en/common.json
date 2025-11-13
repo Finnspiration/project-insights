@@ -342,5 +342,49 @@
         }
       }
     }
+  },
+  "visualizations": {
+    "title": "Visualizations",
+    "culturalWeather": {
+      "title": "Cultural Weather Map",
+      "description": "Project culture and atmosphere visualization",
+      "temperature": "Temperature",
+      "weather": "Weather",
+      "cold": "Cold",
+      "warm": "Warm",
+      "conditions": {
+        "sunny": "Sunny - Aligned & Energized",
+        "cloudy": "Cloudy - Some Resistance",
+        "rainy": "Rainy - Challenging",
+        "stormy": "Stormy - High Tension"
+      }
+    },
+    "uJourney": {
+      "title": "U-Journey Timeline",
+      "description": "Theory U consciousness journey",
+      "phases": {
+        "downloading": "Downloading",
+        "seeing": "Seeing",
+        "sensing": "Sensing",
+        "presencing": "Presencing",
+        "crystallizing": "Crystallizing",
+        "prototyping": "Prototyping",
+        "performing": "Performing"
+      },
+      "current": "Current Phase"
+    },
+    "idgRadar": {
+      "title": "Inner Development Goals Radar",
+      "description": "IDG profile assessment",
+      "dimensions": {
+        "being": "Being",
+        "thinking": "Thinking",
+        "relating": "Relating",
+        "collaborating": "Collaborating",
+        "acting": "Acting"
+      },
+      "score": "Score",
+      "target": "Target"
+    }
   }
 }
