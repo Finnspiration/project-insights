@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "signIn": "Sign In",
+    "startFree": "Start Free"
+  },
+  "hero": {
+    "headline": "See What You Cannot See",
+    "subheadline": "PRISM reveals the invisible dimensions of your projects—culture, politics, consciousness—so you can navigate complexity with wisdom.",
+    "ctaPrimary": "Start Free",
+    "ctaSecondary": "Watch Demo"
+  },
+  "features": {
+    "sectionTitle": "Why PRISM?",
+    "feature1": {
+      "title": "Multi-Dimensional Intelligence",
+      "description": "Go beyond tasks and timelines. See your project's culture, politics, and human dynamics."
+    },
+    "feature2": {
+      "title": "AI-Powered Insights",
+      "description": "Discover blind spots systematically. AI analyzes your project and reveals what you're missing."
+    },
+    "feature3": {
+      "title": "Theory-Driven Visualizations",
+      "description": "Evidence-based approach combining organizational theory with adaptive visual intelligence."
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "step1": {
+      "title": "Characterize Your Project",
+      "description": "Quick assessment of your project's complexity, culture, and dynamics"
+    },
+    "step2": {
+      "title": "Upload Documents",
+      "description": "Optional: Let AI analyze your project documents for deeper insights"
+    },
+    "step3": {
+      "title": "Discover Blind Spots",
+      "description": "Get visualizations and AI-powered insights revealing hidden patterns"
+    }
+  },
+  "cta": {
+    "ready": "Ready to see your project's full reality?",
+    "startFree": "Start Free",
+    "noCard": "No credit card required"
+  },
+  "footer": {
+    "tagline": "Revealing the invisible dimensions of projects",
+    "about": "About",
+    "features": "Features",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "copyright": "© 2025 PRISM. All rights reserved."
+  }
+}

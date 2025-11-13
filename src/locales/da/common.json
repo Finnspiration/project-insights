@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "features": "Funktioner",
+    "pricing": "Priser",
+    "about": "Om",
+    "signIn": "Log Ind",
+    "startFree": "Start Gratis"
+  },
+  "hero": {
+    "headline": "Se Hvad Du Ikke Kan Se",
+    "subheadline": "PRISM afslører de usynlige dimensioner af dine projekter—kultur, politik, bevidsthed—så du kan navigere kompleksitet med visdom.",
+    "ctaPrimary": "Start Gratis",
+    "ctaSecondary": "Se Demo"
+  },
+  "features": {
+    "sectionTitle": "Hvorfor PRISM?",
+    "feature1": {
+      "title": "Flerdimensionel Intelligens",
+      "description": "Gå ud over opgaver og tidslinjer. Se dit projekts kultur, politik og menneskelige dynamik."
+    },
+    "feature2": {
+      "title": "AI-Drevne Indsigter",
+      "description": "Opdag blinde vinkler systematisk. AI analyserer dit projekt og afslører hvad du mangler."
+    },
+    "feature3": {
+      "title": "Teoridrevne Visualiseringer",
+      "description": "Evidensbaseret tilgang der kombinerer organisationsteori med adaptiv visuel intelligens."
+    }
+  },
+  "howItWorks": {
+    "title": "Sådan Virker Det",
+    "step1": {
+      "title": "Karakteriser Dit Projekt",
+      "description": "Hurtig vurdering af dit projekts kompleksitet, kultur og dynamik"
+    },
+    "step2": {
+      "title": "Upload Dokumenter",
+      "description": "Valgfrit: Lad AI analysere dine projektdokumenter for dybere indsigter"
+    },
+    "step3": {
+      "title": "Opdag Blinde Vinkler",
+      "description": "Få visualiseringer og AI-drevne indsigter der afslører skjulte mønstre"
+    }
+  },
+  "cta": {
+    "ready": "Klar til at se dit projekts fulde virkelighed?",
+    "startFree": "Start Gratis",
+    "noCard": "Intet kreditkort påkrævet"
+  },
+  "footer": {
+    "tagline": "Afslører de usynlige dimensioner af projekter",
+    "about": "Om",
+    "features": "Funktioner",
+    "pricing": "Priser",
+    "contact": "Kontakt",
+    "copyright": "© 2025 PRISM. Alle rettigheder forbeholdes."
+  }
+}
