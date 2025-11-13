@@ -1,0 +1,157 @@
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { Target } from 'lucide-react';
+
+interface IDGRadarChartProps {
+  morphology: any;
+}
+
+const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
+
+export function IDGRadarChart({ morphology }: IDGRadarChartProps) {
+  const { t } = useTranslation('common');
+
+  // Calculate scores based on morphology
+  const calculateScores = () => {
+    const development = morphology?.development || 'thinking';
+    const organizational = morphology?.organizational || 'orange';
+    const challenge = morphology?.challenge || 'technical';
+
+    // Base scores
+    const scores: Record<string, number> = {
+      being: 50,
+      thinking: 50,
+      relating: 50,
+      collaborating: 50,
+      acting: 50,
+    };
+
+    // Boost primary development dimension
+    if (development && scores[development] !== undefined) {
+      scores[development] += 30;
+    }
+
+    // Organizational stage influences
+    if (organizational === 'green' || organizational === 'teal') {
+      scores.relating += 15;
+      scores.collaborating += 15;
+    }
+    if (organizational === 'orange') {
+      scores.thinking += 15;
+      scores.acting += 10;
+    }
+    if (organizational === 'red' || organizational === 'amber') {
+      scores.acting += 15;
+    }
+
+    // Challenge type influences
+    if (challenge === 'cognitive') {
+      scores.thinking += 10;
+    }
+    if (challenge === 'social') {
+      scores.relating += 10;
+    }
+    if (challenge === 'adaptive') {
+      scores.being += 10;
+    }
+
+    // Normalize to 0-100
+    Object.keys(scores).forEach((key) => {
+      scores[key] = Math.min(100, Math.max(0, scores[key]));
+    });
+
+    return scores;
+  };
+
+  const scores = calculateScores();
+
+  const data = IDG_DIMENSIONS.map((dim) => ({
+    dimension: t(`visualizations.idgRadar.dimensions.${dim}`),
+    score: scores[dim],
+    fullMark: 100,
+  }));
+
+  // Calculate average score
+  const avgScore = Math.round(
+    IDG_DIMENSIONS.reduce((sum, dim) => sum + scores[dim], 0) / IDG_DIMENSIONS.length
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Target className="h-5 w-5 text-primary" />
+          {t('visualizations.idgRadar.title')}
+        </CardTitle>
+        <CardDescription>
+          {t('visualizations.idgRadar.description')}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {/* Average Score */}
+          <div className="flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-primary">{avgScore}</div>
+              <p className="text-sm text-muted-foreground">Average Score</p>
+            </div>
+          </div>
+
+          {/* Radar Chart */}
+          <ResponsiveContainer width="100%" height={300}>
+            <RadarChart data={data}>
+              <PolarGrid stroke="hsl(var(--border))" />
+              <PolarAngleAxis
+                dataKey="dimension"
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+              />
+              <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+              <Radar
+                name="Score"
+                dataKey="score"
+                stroke="hsl(var(--primary))"
+                fill="hsl(var(--primary))"
+                fillOpacity={0.3}
+                strokeWidth={2}
+                className="animate-fade-in"
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+
+          {/* Dimension Scores */}
+          <div className="space-y-2">
+            {IDG_DIMENSIONS.map((dim) => (
+              <div key={dim} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium capitalize">
+                    {t(`visualizations.idgRadar.dimensions.${dim}`)}
+                  </span>
+                  <span className="text-muted-foreground">{scores[dim]}/100</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-500 rounded-full"
+                    style={{ width: `${scores[dim]}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Context Info */}
+          <div className="grid grid-cols-2 gap-4 text-center text-sm">
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-muted-foreground mb-1">Primary Focus</p>
+              <p className="font-medium capitalize">{morphology?.development || 'N/A'}</p>
+            </div>
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-muted-foreground mb-1">Org Stage</p>
+              <p className="font-medium capitalize">{morphology?.organizational || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

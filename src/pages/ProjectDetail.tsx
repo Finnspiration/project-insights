@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { DocumentUpload } from '@/components/projects/DocumentUpload';
+import { CulturalWeatherMap } from '@/components/visualizations/CulturalWeatherMap';
+import { UJourneyTimeline } from '@/components/visualizations/UJourneyTimeline';
+import { IDGRadarChart } from '@/components/visualizations/IDGRadarChart';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
@@ -192,6 +195,9 @@ export default function ProjectDetail() {
         <Tabs defaultValue="documents" className="space-y-6">
           <TabsList>
             <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
+            <TabsTrigger value="visualizations" disabled={!project.dna_code}>
+              Visualizations
+            </TabsTrigger>
             <TabsTrigger value="morphology" disabled={!project.dna_code}>
               Morphology
             </TabsTrigger>
@@ -206,6 +212,16 @@ export default function ProjectDetail() {
               documents={documents}
               onUploadSuccess={fetchDocuments}
             />
+          </TabsContent>
+
+          <TabsContent value="visualizations" className="space-y-6">
+            {project.dna_code && project.morphology && (
+              <>
+                <CulturalWeatherMap morphology={project.morphology} />
+                <UJourneyTimeline morphology={project.morphology} />
+                <IDGRadarChart morphology={project.morphology} />
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="morphology">
