@@ -13,6 +13,7 @@ import { CulturalWeatherMap } from '@/components/visualizations/CulturalWeatherM
 import { UJourneyTimeline } from '@/components/visualizations/UJourneyTimeline';
 import { IDGRadarChart } from '@/components/visualizations/IDGRadarChart';
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
+import { BlindSpotsPanel } from '@/components/insights/BlindSpotsPanel';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
@@ -199,6 +200,9 @@ export default function ProjectDetail() {
             <TabsTrigger value="insights" disabled={!project.dna_code}>
               AI Insights
             </TabsTrigger>
+            <TabsTrigger value="blind-spots">
+              Blind Spots
+            </TabsTrigger>
             <TabsTrigger value="visualizations" disabled={!project.dna_code}>
               Visualizations
             </TabsTrigger>
@@ -215,7 +219,7 @@ export default function ProjectDetail() {
             />
           </TabsContent>
 
-          <TabsContent value="insights">
+          <TabsContent value="insights" className="space-y-6">
             {project.dna_code && project.morphology && (
               <InsightsPanel
                 projectId={project.id}
@@ -223,6 +227,10 @@ export default function ProjectDetail() {
                 morphology={project.morphology}
               />
             )}
+          </TabsContent>
+
+          <TabsContent value="blind-spots" className="space-y-6">
+            <BlindSpotsPanel projectId={project.id} />
           </TabsContent>
 
           <TabsContent value="visualizations" className="space-y-6">
