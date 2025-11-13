@@ -473,5 +473,59 @@
       "noCredits": "AI credits exhausted",
       "noCreditsDesc": "You've used all your AI messages for this month. Upgrade your plan to continue."
     }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Manage users, projects, and system settings",
+    "tabs": {
+      "overview": "Overview",
+      "users": "Users"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "newLast30Days": "+{{count}} new in last 30 days",
+      "totalProjects": "Total Projects",
+      "active": "active",
+      "last30Days": "last 30 days",
+      "documents": "Documents",
+      "totalUploaded": "Total uploaded",
+      "aiMessages": "AI Messages",
+      "avgPerUser": "avg per user"
+    },
+    "userManagement": "User Management",
+    "userManagementDesc": "View and manage user roles and permissions",
+    "table": {
+      "email": "Email",
+      "roles": "Roles",
+      "subscription": "Subscription",
+      "projects": "Projects",
+      "aiUsage": "AI Usage",
+      "actions": "Actions"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "super_admin": "Super Admin"
+    },
+    "roleDescriptions": {
+      "admin": "Can view and manage all projects and users",
+      "super_admin": "Full system access including role management"
+    },
+    "manageRoles": "Manage Roles",
+    "manageRolesFor": "Manage roles for {{email}}",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "loadingUsers": "Loading users...",
+    "noUsers": "No users found",
+    "errors": {
+      "fetchUsers": "Failed to fetch users",
+      "fetchStats": "Failed to fetch statistics",
+      "updateRoles": "Failed to update roles"
+    },
+    "success": {
+      "rolesUpdated": "Roles Updated",
+      "rolesUpdatedDesc": "User roles have been updated successfully"
+    }
   }
 }

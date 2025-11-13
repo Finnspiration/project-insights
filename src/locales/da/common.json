@@ -473,5 +473,59 @@
       "noCredits": "AI-kreditter opbrugt",
       "noCreditsDesc": "Du har brugt alle dine AI-beskeder for denne måned. Opgrader din plan for at fortsætte."
     }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Administrer brugere, projekter og systemindstillinger",
+    "tabs": {
+      "overview": "Oversigt",
+      "users": "Brugere"
+    },
+    "stats": {
+      "totalUsers": "Brugere i Alt",
+      "newLast30Days": "+{{count}} nye de sidste 30 dage",
+      "totalProjects": "Projekter i Alt",
+      "active": "aktive",
+      "last30Days": "sidste 30 dage",
+      "documents": "Dokumenter",
+      "totalUploaded": "Uploadet i alt",
+      "aiMessages": "AI-beskeder",
+      "avgPerUser": "gennemsnit pr. bruger"
+    },
+    "userManagement": "Brugerhåndtering",
+    "userManagementDesc": "Se og administrer brugerroller og tilladelser",
+    "table": {
+      "email": "E-mail",
+      "roles": "Roller",
+      "subscription": "Abonnement",
+      "projects": "Projekter",
+      "aiUsage": "AI Forbrug",
+      "actions": "Handlinger"
+    },
+    "roles": {
+      "user": "Bruger",
+      "admin": "Admin",
+      "super_admin": "Super Admin"
+    },
+    "roleDescriptions": {
+      "admin": "Kan se og administrere alle projekter og brugere",
+      "super_admin": "Fuld systemadgang inklusiv rollestyring"
+    },
+    "manageRoles": "Administrer Roller",
+    "manageRolesFor": "Administrer roller for {{email}}",
+    "cancel": "Annuller",
+    "saveChanges": "Gem Ændringer",
+    "saving": "Gemmer...",
+    "loadingUsers": "Indlæser brugere...",
+    "noUsers": "Ingen brugere fundet",
+    "errors": {
+      "fetchUsers": "Kunne ikke hente brugere",
+      "fetchStats": "Kunne ikke hente statistik",
+      "updateRoles": "Kunne ikke opdatere roller"
+    },
+    "success": {
+      "rolesUpdated": "Roller Opdateret",
+      "rolesUpdatedDesc": "Brugerroller er blevet opdateret"
+    }
   }
 }

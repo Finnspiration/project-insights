@@ -1,6 +1,7 @@
-import { Home, FolderKanban, Settings } from 'lucide-react';
+import { Home, FolderKanban, Settings, Shield } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useTranslation } from 'react-i18next';
+import { useAdmin } from '@/contexts/AdminContext';
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,7 @@ const menuItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const { t } = useTranslation('common');
+  const { isAdmin } = useAdmin();
   const collapsed = state === 'collapsed';
 
   return (
@@ -43,6 +45,17 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Admin Panel">
+                    <NavLink to="/admin" className="hover:bg-accent" activeClassName="bg-accent text-accent-foreground font-medium">
+                      <Shield className="h-4 w-4" />
+                      {!collapsed && <span>{t('admin.title')}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
