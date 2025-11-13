@@ -54,5 +54,35 @@
     "pricing": "Pricing",
     "contact": "Contact",
     "copyright": "© 2025 PRISM. All rights reserved."
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signInButton": "Sign In",
+    "signUpButton": "Create Account",
+    "signingIn": "Signing in...",
+    "signingUp": "Creating account...",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordsMatch": "Passwords must match",
+      "confirmRequired": "Please confirm your password",
+      "signInFailed": "Invalid email or password",
+      "signUpFailed": "Sign up failed. Please try again.",
+      "userExists": "An account with this email already exists"
+    },
+    "success": {
+      "signUp": "Account created successfully! Signing you in..."
+    }
   }
 }

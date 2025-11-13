@@ -54,5 +54,35 @@
     "pricing": "Priser",
     "contact": "Kontakt",
     "copyright": "© 2025 PRISM. Alle rettigheder forbeholdes."
+  },
+  "auth": {
+    "signIn": "Log Ind",
+    "signUp": "Tilmeld",
+    "email": "E-mail",
+    "password": "Adgangskode",
+    "confirmPassword": "Bekræft Adgangskode",
+    "forgotPassword": "Glemt adgangskode?",
+    "noAccount": "Har du ikke en konto?",
+    "hasAccount": "Har du allerede en konto?",
+    "signInButton": "Log Ind",
+    "signUpButton": "Opret Konto",
+    "signingIn": "Logger ind...",
+    "signingUp": "Opretter konto...",
+    "emailPlaceholder": "dig@eksempel.dk",
+    "passwordPlaceholder": "••••••••",
+    "errors": {
+      "emailRequired": "E-mail er påkrævet",
+      "emailInvalid": "Indtast venligst en gyldig e-mail",
+      "passwordRequired": "Adgangskode er påkrævet",
+      "passwordMin": "Adgangskode skal være mindst 8 tegn",
+      "passwordsMatch": "Adgangskoder skal matche",
+      "confirmRequired": "Bekræft venligst din adgangskode",
+      "signInFailed": "Ugyldig e-mail eller adgangskode",
+      "signUpFailed": "Tilmelding mislykkedes. Prøv venligst igen.",
+      "userExists": "En konto med denne e-mail eksisterer allerede"
+    },
+    "success": {
+      "signUp": "Konto oprettet! Logger dig ind..."
+    }
   }
 }

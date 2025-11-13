@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -72,10 +73,14 @@ export default function Navbar() {
               </SelectContent>
             </Select>
 
-            <Button variant="ghost">{t('nav.signIn')}</Button>
-            <Button className="gradient-primary text-white">
-              {t('nav.startFree')}
-            </Button>
+            <Link to="/auth">
+              <Button variant="ghost">{t('nav.signIn')}</Button>
+            </Link>
+            <Link to="/auth">
+              <Button className="gradient-primary text-white">
+                {t('nav.startFree')}
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -122,25 +127,28 @@ export default function Navbar() {
               {t('nav.about')}
             </a>
 
-            <div className="pt-4 space-y-3">
-              <Select value={i18n.language} onValueChange={changeLanguage}>
-                <SelectTrigger className="w-full">
-                  <Globe className="h-4 w-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">🇬🇧 English</SelectItem>
-                  <SelectItem value="da">🇩🇰 Dansk</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Language Selector */}
+            <Select value={i18n.language} onValueChange={changeLanguage}>
+              <SelectTrigger className="w-full">
+                <Globe className="h-4 w-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">🇬🇧 English</SelectItem>
+                <SelectItem value="da">🇩🇰 Dansk</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <Button variant="ghost" className="w-full">
+            <Link to="/auth" className="block">
+              <Button variant="ghost" className="w-full justify-start">
                 {t('nav.signIn')}
               </Button>
+            </Link>
+            <Link to="/auth" className="block">
               <Button className="w-full gradient-primary text-white">
                 {t('nav.startFree')}
               </Button>
-            </div>
+            </Link>
           </div>
         )}
       </div>
