@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Users, Edit, Trash2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -34,15 +34,18 @@ interface Project {
   timeline_end?: string;
   team_size?: number;
   status: string;
+  dna_code?: string;
+  morphology?: any;
 }
 
 interface ProjectCardProps {
   project: Project;
   onEdit: (project: Project) => void;
   onDelete: () => void;
+  onAssess?: (project: Project) => void;
 }
 
-export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCardProps) {
   const { t } = useTranslation('common');
   const { profile } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -92,7 +95,16 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
           )}
         </CardHeader>
 
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-3">
+          {/* DNA Code Badge */}
+          {project.dna_code && (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="font-mono text-xs">
+                DNA: {project.dna_code.split('-').slice(0, 3).join('-')}...
+              </Badge>
+            </div>
+          )}
+
           {project.timeline_start && project.timeline_end && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
@@ -113,7 +125,18 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
           )}
         </CardContent>
 
-        <CardFooter className="gap-2">
+        <CardFooter className="gap-2 flex-wrap">
+          {!project.dna_code && onAssess && (
+            <Button
+              variant="default"
+              size="sm"
+              className="gap-2"
+              onClick={() => onAssess(project)}
+            >
+              <Sparkles className="h-4 w-4" />
+              Assess Project
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"

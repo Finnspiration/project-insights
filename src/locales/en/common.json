@@ -182,5 +182,146 @@
       "teamSizeMax": "Team size must be less than 10000",
       "endDateAfterStart": "End date must be after start date"
     }
+  },
+  "morphology": {
+    "title": "Morphological Assessment",
+    "subtitle": "Characterize your project across 12 key dimensions",
+    "step": "Step",
+    "of": "of",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Generate DNA Code",
+    "finishing": "Generating...",
+    "save": "Save Assessment",
+    "cancel": "Cancel",
+    "success": "Assessment saved successfully!",
+    "error": "Failed to save assessment",
+    "aiSuggestion": "AI Suggestion",
+    "confidence": "Confidence",
+    "dimensions": {
+      "complexity": {
+        "title": "Complexity Level",
+        "description": "How predictable and ordered is your project environment?",
+        "options": {
+          "simple": "Simple - Clear cause-effect, best practices work",
+          "complicated": "Complicated - Expert analysis needed, good practices",
+          "complex": "Complex - Emergent patterns, experimentation required",
+          "chaotic": "Chaotic - No clear patterns, rapid action needed"
+        }
+      },
+      "stakeholder": {
+        "title": "Stakeholder Dynamics",
+        "description": "What's the nature of stakeholder relationships?",
+        "options": {
+          "unified": "Unified - Shared vision and goals",
+          "cooperative": "Cooperative - Aligned interests, collaborative",
+          "competitive": "Competitive - Divergent interests, negotiation needed",
+          "adversarial": "Adversarial - Conflicting agendas, high tension"
+        }
+      },
+      "knowledge": {
+        "title": "Knowledge Intensity",
+        "description": "What type of knowledge work dominates?",
+        "options": {
+          "routine": "Routine - Standardized, repeatable processes",
+          "adaptive": "Adaptive - Contextual adjustment of known methods",
+          "innovative": "Innovative - Creating new solutions",
+          "breakthrough": "Breakthrough - Fundamental new discoveries"
+        }
+      },
+      "cultural": {
+        "title": "Cultural Context",
+        "description": "What's the cultural span of the project?",
+        "options": {
+          "mono": "Mono - Single cultural context",
+          "crossfunctional": "Cross-functional - Multiple departments",
+          "crossorg": "Cross-org - Multiple organizations",
+          "crosscultural": "Cross-cultural - Multiple national cultures"
+        }
+      },
+      "temporal": {
+        "title": "Temporal Dynamics",
+        "description": "What's the time horizon and rhythm?",
+        "options": {
+          "sprint": "Sprint - Weeks, fast iterations",
+          "project": "Project - Months, defined milestones",
+          "program": "Program - Years, multiple phases",
+          "transformation": "Transformation - Multi-year systemic change"
+        }
+      },
+      "organizational": {
+        "title": "Organizational Stage",
+        "description": "What organizational paradigm dominates? (Laloux model)",
+        "options": {
+          "red": "Red - Power-driven, command & control",
+          "amber": "Amber - Process-driven, hierarchical stability",
+          "orange": "Orange - Achievement-driven, meritocratic",
+          "green": "Green - Values-driven, consensus-seeking",
+          "teal": "Teal - Purpose-driven, self-organizing"
+        }
+      },
+      "challenge": {
+        "title": "Primary Challenge",
+        "description": "What's the dominant type of challenge?",
+        "options": {
+          "technical": "Technical - Engineering, technology problems",
+          "social": "Social - Team dynamics, collaboration",
+          "political": "Political - Power, resource allocation",
+          "cognitive": "Cognitive - Understanding, sensemaking",
+          "adaptive": "Adaptive - Values, beliefs, identity shifts"
+        }
+      },
+      "development": {
+        "title": "Inner Development Needs",
+        "description": "Which inner development dimension is most critical?",
+        "options": {
+          "being": "Being - Self-awareness, presence, values",
+          "thinking": "Thinking - Critical thinking, perspective-taking",
+          "relating": "Relating - Empathy, compassion, connection",
+          "collaborating": "Collaborating - Co-creation, trust, inclusivity",
+          "acting": "Acting - Courage, optimism, perseverance"
+        }
+      },
+      "resources": {
+        "title": "Resource Characteristics",
+        "description": "What's the resource availability situation?",
+        "options": {
+          "rich": "Rich - Abundant resources, multiple options",
+          "balanced": "Balanced - Adequate resources, careful planning",
+          "constrained": "Constrained - Limited resources, trade-offs needed",
+          "scarce": "Scarce - Severe limitations, creative solutions essential"
+        }
+      },
+      "change": {
+        "title": "Change Intensity",
+        "description": "What's the magnitude of change involved?",
+        "options": {
+          "incremental": "Incremental - Small improvements, continuity",
+          "transitional": "Transitional - Planned replacement of current state",
+          "transformational": "Transformational - Fundamental shift in mindset",
+          "disruptive": "Disruptive - Revolutionary, destroys old paradigm"
+        }
+      },
+      "information": {
+        "title": "Information Flow",
+        "description": "How does information move in the project?",
+        "options": {
+          "centralized": "Centralized - Single source, top-down",
+          "hierarchical": "Hierarchical - Chain of command, formal channels",
+          "network": "Network - Interconnected nodes, informal flows",
+          "distributed": "Distributed - Fully decentralized, peer-to-peer"
+        }
+      },
+      "risk": {
+        "title": "Risk Profile",
+        "description": "What's the overall risk exposure?",
+        "options": {
+          "low": "Low - Predictable, minimal uncertainty",
+          "moderate": "Moderate - Some unknowns, manageable",
+          "high": "High - Significant uncertainty, careful monitoring",
+          "extreme": "Extreme - Major threats, crisis potential"
+        }
+      }
+    }
   }
 }
