@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Plus, Sparkles } from 'lucide-react';
+import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 
 export default function Dashboard() {
   const { t } = useTranslation('common');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   return (
     <DashboardLayout>
@@ -24,10 +27,19 @@ export default function Dashboard() {
             {t('dashboard.emptyState')}
           </p>
           
-          <Button size="lg" className="gap-2">
+          <Button size="lg" className="gap-2" onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-5 w-5" />
             {t('dashboard.createProject')}
           </Button>
+
+          <CreateProjectDialog
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+            onSuccess={() => {
+              // TODO: Refresh projects list
+              console.log('Project created successfully');
+            }}
+          />
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <div className="p-4 border rounded-lg bg-card">

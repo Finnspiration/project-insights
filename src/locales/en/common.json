@@ -120,5 +120,38 @@
       "plan": "Plan",
       "aiMessages": "AI Messages This Month"
     }
+  },
+  "projects": {
+    "create": {
+      "title": "Create New Project",
+      "description": "Start revealing the invisible dimensions of your project",
+      "nameLabel": "Project Name",
+      "namePlaceholder": "My Innovation Project",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Brief description of your project...",
+      "timelineLabel": "Timeline",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "teamSizeLabel": "Team Size",
+      "teamSizePlaceholder": "5",
+      "multilingualNote": "Both English and Danish names will be used based on user language preference",
+      "nameEn": "Name (English)",
+      "nameDa": "Name (Danish)",
+      "descriptionEn": "Description (English)",
+      "descriptionDa": "Description (Danish)",
+      "cancel": "Cancel",
+      "create": "Create Project",
+      "creating": "Creating...",
+      "success": "Project created successfully!",
+      "error": "Failed to create project"
+    },
+    "validation": {
+      "nameRequired": "Project name is required",
+      "nameMax": "Project name must be less than 100 characters",
+      "descriptionMax": "Description must be less than 500 characters",
+      "teamSizeMin": "Team size must be at least 1",
+      "teamSizeMax": "Team size must be less than 10000",
+      "endDateAfterStart": "End date must be after start date"
+    }
   }
 }
