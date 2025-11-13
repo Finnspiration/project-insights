@@ -122,6 +122,35 @@
     }
   },
   "projects": {
+    "title": "Projekter",
+    "emptyState": {
+      "title": "Ingen Projekter Endnu",
+      "description": "Opret dit første projekt for at begynde at afsløre usynlige dimensioner",
+      "action": "Opret Projekt"
+    },
+    "card": {
+      "teamSize": "Teamstørrelse",
+      "timeline": "Tidslinje",
+      "to": "til",
+      "status": "Status",
+      "edit": "Rediger",
+      "delete": "Slet",
+      "view": "Se Detaljer"
+    },
+    "delete": {
+      "title": "Slet Projekt",
+      "description": "Er du sikker på, at du vil slette dette projekt? Denne handling kan ikke fortrydes.",
+      "cancel": "Annuller",
+      "confirm": "Slet",
+      "success": "Projekt slettet",
+      "error": "Kunne ikke slette projekt"
+    },
+    "edit": {
+      "title": "Rediger Projekt",
+      "description": "Opdater dine projektoplysninger",
+      "success": "Projekt opdateret",
+      "error": "Kunne ikke opdatere projekt"
+    },
     "create": {
       "title": "Opret Nyt Projekt",
       "description": "Begynd at afsløre de usynlige dimensioner af dit projekt",
