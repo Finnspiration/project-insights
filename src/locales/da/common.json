@@ -120,5 +120,38 @@
       "plan": "Plan",
       "aiMessages": "AI-beskeder Denne Måned"
     }
+  },
+  "projects": {
+    "create": {
+      "title": "Opret Nyt Projekt",
+      "description": "Begynd at afsløre de usynlige dimensioner af dit projekt",
+      "nameLabel": "Projektnavn",
+      "namePlaceholder": "Mit Innovationsprojekt",
+      "descriptionLabel": "Beskrivelse",
+      "descriptionPlaceholder": "Kort beskrivelse af dit projekt...",
+      "timelineLabel": "Tidslinje",
+      "startDate": "Startdato",
+      "endDate": "Slutdato",
+      "teamSizeLabel": "Teamstørrelse",
+      "teamSizePlaceholder": "5",
+      "multilingualNote": "Både engelske og danske navne vil blive brugt baseret på brugerens sprogpræference",
+      "nameEn": "Navn (Engelsk)",
+      "nameDa": "Navn (Dansk)",
+      "descriptionEn": "Beskrivelse (Engelsk)",
+      "descriptionDa": "Beskrivelse (Dansk)",
+      "cancel": "Annuller",
+      "create": "Opret Projekt",
+      "creating": "Opretter...",
+      "success": "Projekt oprettet!",
+      "error": "Kunne ikke oprette projekt"
+    },
+    "validation": {
+      "nameRequired": "Projektnavn er påkrævet",
+      "nameMax": "Projektnavn skal være mindre end 100 tegn",
+      "descriptionMax": "Beskrivelse skal være mindre end 500 tegn",
+      "teamSizeMin": "Teamstørrelse skal være mindst 1",
+      "teamSizeMax": "Teamstørrelse skal være mindre end 10000",
+      "endDateAfterStart": "Slutdato skal være efter startdato"
+    }
   }
 }
