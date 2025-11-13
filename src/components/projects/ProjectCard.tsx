@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import {
@@ -47,6 +48,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCardProps) {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -78,7 +80,7 @@ export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCard
 
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -125,7 +127,7 @@ export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCard
           )}
         </CardContent>
 
-        <CardFooter className="gap-2 flex-wrap">
+        <CardFooter className="gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
           {!project.dna_code && onAssess && (
             <Button
               variant="default"
