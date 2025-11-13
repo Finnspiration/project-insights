@@ -420,5 +420,31 @@
         "retreat": "Retreat"
       }
     }
+  },
+  "aiChat": {
+    "title": "PRISM AI Assistent",
+    "welcome": "Hej! Jeg er din PRISM AI-assistent. Hvordan kan jeg hjælpe dig i dag?",
+    "contextAware": "Jeg ved, hvilken side du er på, og kan give kontekstspecifik vejledning.",
+    "placeholder": "Spørg mig om hvad som helst...",
+    "suggestedQuestions": "Foreslåede spørgsmål:",
+    "suggestions": {
+      "dashboard1": "Hvordan får jeg mest ud af PRISM?",
+      "dashboard2": "Hvad skal jeg gøre først med mine projekter?",
+      "dashboard3": "Forklar den morfologiske vurdering for mig",
+      "project1": "Hvad fortæller disse visualiseringer mig?",
+      "project2": "Hvordan kan jeg adressere de opdagede blinde vinkler?",
+      "project3": "Hvad betyder mit projekts DNA-kode?",
+      "projects1": "Hvordan skal jeg strukturere mine projekter?",
+      "projects2": "Hvad er den bedste måde at vurdere et nyt projekt på?",
+      "general1": "Hvad er PRISM?",
+      "general2": "Hvordan hjælper PRISM med projektstyring?"
+    },
+    "errors": {
+      "general": "Fejl",
+      "rateLimit": "Hastighedsgrænse nået",
+      "rateLimitDesc": "For mange forespørgsler. Prøv igen om et øjeblik.",
+      "noCredits": "AI-kreditter opbrugt",
+      "noCreditsDesc": "Du har brugt alle dine AI-beskeder for denne måned. Opgrader din plan for at fortsætte."
+    }
   }
 }

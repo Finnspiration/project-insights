@@ -420,5 +420,31 @@
         "retreat": "Retreat"
       }
     }
+  },
+  "aiChat": {
+    "title": "PRISM AI Assistant",
+    "welcome": "Hi! I'm your PRISM AI assistant. How can I help you today?",
+    "contextAware": "I'm aware of what page you're on and can provide context-specific guidance.",
+    "placeholder": "Ask me anything...",
+    "suggestedQuestions": "Suggested questions:",
+    "suggestions": {
+      "dashboard1": "How can I get the most out of PRISM?",
+      "dashboard2": "What should I do first with my projects?",
+      "dashboard3": "Explain the morphological assessment to me",
+      "project1": "What do these visualizations tell me?",
+      "project2": "How can I address the detected blind spots?",
+      "project3": "What does my project's DNA code mean?",
+      "projects1": "How should I structure my projects?",
+      "projects2": "What's the best way to assess a new project?",
+      "general1": "What is PRISM?",
+      "general2": "How does PRISM help with project management?"
+    },
+    "errors": {
+      "general": "Error",
+      "rateLimit": "Rate limit reached",
+      "rateLimitDesc": "Too many requests. Please try again in a moment.",
+      "noCredits": "AI credits exhausted",
+      "noCreditsDesc": "You've used all your AI messages for this month. Upgrade your plan to continue."
+    }
   }
 }
