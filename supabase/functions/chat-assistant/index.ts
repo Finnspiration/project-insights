@@ -44,25 +44,45 @@ serve(async (req) => {
 
     // If profile doesn't exist, create it using admin client (bypasses RLS)
     if (!profile) {
-      console.log('User profile not found, creating with admin client for user:', user.id);
-      const { data: newProfile, error: createError } = await supabaseAdmin
+      console.log('User profile not found, attempting to create or fetch for user:', user.id);
+      
+      // Use UPSERT to handle race conditions - if profile exists, just ignore the insert
+      const { data: upsertedProfile, error: upsertError } = await supabaseAdmin
         .from('user_profiles')
-        .insert({
+        .upsert({
           id: user.id,
           preferred_language: 'en',
           subscription_tier: 'free',
           ai_messages_used_this_month: 0
+        }, {
+          onConflict: 'id',
+          ignoreDuplicates: true
         })
         .select()
         .single();
       
-      if (createError || !newProfile) {
-        console.error('Error creating user profile with admin client:', createError);
-        throw new Error('Failed to create user profile');
+      // If upsert fails for reasons other than duplicate, try to fetch the profile
+      if (upsertError) {
+        console.log('Upsert had issue, attempting to fetch existing profile:', upsertError.code);
+        
+        // Try to fetch with admin client
+        const { data: existingProfile, error: fetchError } = await supabaseAdmin
+          .from('user_profiles')
+          .select('preferred_language, ai_messages_used_this_month, subscription_tier')
+          .eq('id', user.id)
+          .single();
+        
+        if (fetchError || !existingProfile) {
+          console.error('Failed to fetch or create user profile:', fetchError);
+          throw new Error('Failed to access user profile');
+        }
+        
+        profile = existingProfile;
+        console.log('Successfully fetched existing profile for:', user.id);
+      } else {
+        profile = upsertedProfile;
+        console.log('Successfully created/fetched user profile for:', user.id);
       }
-      
-      profile = newProfile;
-      console.log('Successfully created user profile for:', user.id);
     }
 
     // At this point, profile is guaranteed to exist
