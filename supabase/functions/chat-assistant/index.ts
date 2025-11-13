@@ -29,12 +29,35 @@ serve(async (req) => {
     }
 
     // Get user profile for language preference
-    const { data: profile } = await supabase
+    let { data: profile } = await supabase
       .from('user_profiles')
       .select('preferred_language, ai_messages_used_this_month, subscription_tier')
       .eq('id', user.id)
       .single();
 
+    // If profile doesn't exist, create it
+    if (!profile) {
+      console.log('User profile not found, creating one for user:', user.id);
+      const { data: newProfile, error: createError } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: user.id,
+          preferred_language: 'en',
+          subscription_tier: 'free',
+          ai_messages_used_this_month: 0
+        })
+        .select()
+        .single();
+      
+      if (createError || !newProfile) {
+        console.error('Error creating user profile:', createError);
+        throw new Error('Failed to create user profile');
+      }
+      
+      profile = newProfile;
+    }
+
+    // At this point, profile is guaranteed to exist
     if (!profile) {
       throw new Error('User profile not found');
     }
