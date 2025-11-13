@@ -84,5 +84,41 @@
     "success": {
       "signUp": "Konto oprettet! Logger dig ind..."
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "projects": "Projekter",
+    "navigation": "Navigation",
+    "welcome": "Velkommen til PRISM",
+    "emptyState": "Din projektintelligensplatform er klar. Begynd at oprette dit første projekt for at afsløre de usynlige dimensioner.",
+    "createProject": "Opret Dit Første Projekt",
+    "quickStart": {
+      "step1": "Karakteriser",
+      "step1Desc": "Definer dit projekts DNA",
+      "step2": "Visualiser",
+      "step2Desc": "Se skjulte mønstre",
+      "step3": "Opdag",
+      "step3Desc": "Afslør blinde vinkler"
+    }
+  },
+  "settings": {
+    "title": "Indstillinger",
+    "signOut": "Log Ud",
+    "saveChanges": "Gem Ændringer",
+    "saving": "Gemmer...",
+    "saved": "Indstillinger gemt!",
+    "saveFailed": "Kunne ikke gemme indstillinger",
+    "language": {
+      "title": "Sprog",
+      "description": "Vælg dit foretrukne sprog til grænsefladen"
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "description": "Dine aktuelle abonnementsoplysninger",
+      "tier": "Plan",
+      "status": "Status",
+      "plan": "Plan",
+      "aiMessages": "AI-beskeder Denne Måned"
+    }
   }
 }
