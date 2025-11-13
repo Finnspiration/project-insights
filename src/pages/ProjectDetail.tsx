@@ -12,6 +12,7 @@ import { DocumentUpload } from '@/components/projects/DocumentUpload';
 import { CulturalWeatherMap } from '@/components/visualizations/CulturalWeatherMap';
 import { UJourneyTimeline } from '@/components/visualizations/UJourneyTimeline';
 import { IDGRadarChart } from '@/components/visualizations/IDGRadarChart';
+import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
@@ -195,14 +196,14 @@ export default function ProjectDetail() {
         <Tabs defaultValue="documents" className="space-y-6">
           <TabsList>
             <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
+            <TabsTrigger value="insights" disabled={!project.dna_code}>
+              AI Insights
+            </TabsTrigger>
             <TabsTrigger value="visualizations" disabled={!project.dna_code}>
               Visualizations
             </TabsTrigger>
             <TabsTrigger value="morphology" disabled={!project.dna_code}>
               Morphology
-            </TabsTrigger>
-            <TabsTrigger value="insights" disabled>
-              Insights (Coming Soon)
             </TabsTrigger>
           </TabsList>
 
@@ -212,6 +213,16 @@ export default function ProjectDetail() {
               documents={documents}
               onUploadSuccess={fetchDocuments}
             />
+          </TabsContent>
+
+          <TabsContent value="insights">
+            {project.dna_code && project.morphology && (
+              <InsightsPanel
+                projectId={project.id}
+                projectName={projectName}
+                morphology={project.morphology}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="visualizations" className="space-y-6">

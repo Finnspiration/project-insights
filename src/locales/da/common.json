@@ -386,5 +386,39 @@
       "score": "Score",
       "target": "Mål"
     }
+  },
+  "insights": {
+    "title": "AI Indsigter",
+    "generate": "Generer Indsigter",
+    "generating": "Genererer indsigter...",
+    "regenerate": "Generer Igen",
+    "error": "Kunne ikke generere indsigter",
+    "rateLimit": "Grænse overskredet. Prøv igen senere.",
+    "noCredits": "AI-kredit opbrugt. Tilføj venligst kredit.",
+    "noData": "Ingen indsigter genereret endnu. Klik 'Generer Indsigter' for at analysere dit projekt.",
+    "recommendations": {
+      "title": "Strategiske Anbefalinger",
+      "description": "Handlingsorienterede anbefalinger til at forbedre projektsucces",
+      "priority": "Prioritet"
+    },
+    "blindSpots": {
+      "title": "Blinde Vinkler Opdaget",
+      "description": "Potentielle oversete dimensioner og risici",
+      "impact": "Påvirkning",
+      "evidence": "Bevis"
+    },
+    "interventions": {
+      "title": "Foreslåede Interventioner",
+      "description": "Praktiske workshops og interventioner",
+      "type": "Type",
+      "timeframe": "Tidsramme",
+      "types": {
+        "workshop": "Workshop",
+        "coaching": "Coaching",
+        "process": "Proces",
+        "tool": "Værktøj",
+        "retreat": "Retreat"
+      }
+    }
   }
 }
