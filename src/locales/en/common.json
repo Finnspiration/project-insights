@@ -453,6 +453,38 @@
       }
     }
   },
+  "blindSpots": {
+    "title": "Blind Spots",
+    "description": "Potential blind spots and overlooked dimensions detected in your project",
+    "loading": "Loading blind spots...",
+    "noData": "No blind spots detected yet. Generate insights to discover potential blind spots.",
+    "unaddressed": "Unaddressed",
+    "acknowledged": "Acknowledged",
+    "addressed": "Addressed",
+    "noUnaddressed": "No unaddressed blind spots",
+    "noAcknowledged": "No acknowledged blind spots",
+    "noAddressed": "No addressed blind spots",
+    "priority": {
+      "high": "High Priority",
+      "medium": "Medium Priority",
+      "low": "Low Priority"
+    },
+    "status": {
+      "unaddressed": "Unaddressed",
+      "acknowledged": "Acknowledged",
+      "addressed": "Addressed"
+    },
+    "evidence": "Evidence",
+    "consequences": "Potential Consequences",
+    "recommendations": "Recommendations",
+    "confidence": "confidence",
+    "acknowledge": "Acknowledge",
+    "markAsAddressed": "Mark as Addressed",
+    "markedAsAcknowledged": "Marked as acknowledged",
+    "markedAsAddressed": "Marked as addressed",
+    "addressedOn": "Addressed on",
+    "updateError": "Failed to update blind spot"
+  },
   "aiChat": {
     "title": "PRISM AI Assistant",
     "welcome": "Hi! I'm your PRISM AI assistant. How can I help you today?",

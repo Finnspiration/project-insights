@@ -453,6 +453,38 @@
       }
     }
   },
+  "blindSpots": {
+    "title": "Blinde Vinkler",
+    "description": "Potentielle blinde vinkler og oversete dimensioner opdaget i dit projekt",
+    "loading": "Indlæser blinde vinkler...",
+    "noData": "Ingen blinde vinkler opdaget endnu. Generer indsigter for at opdage potentielle blinde vinkler.",
+    "unaddressed": "Ikke Adresseret",
+    "acknowledged": "Anerkendt",
+    "addressed": "Adresseret",
+    "noUnaddressed": "Ingen ikke-adresserede blinde vinkler",
+    "noAcknowledged": "Ingen anerkendte blinde vinkler",
+    "noAddressed": "Ingen adresserede blinde vinkler",
+    "priority": {
+      "high": "Høj Prioritet",
+      "medium": "Mellem Prioritet",
+      "low": "Lav Prioritet"
+    },
+    "status": {
+      "unaddressed": "Ikke Adresseret",
+      "acknowledged": "Anerkendt",
+      "addressed": "Adresseret"
+    },
+    "evidence": "Bevis",
+    "consequences": "Potentielle Konsekvenser",
+    "recommendations": "Anbefalinger",
+    "confidence": "tillid",
+    "acknowledge": "Anerkend",
+    "markAsAddressed": "Marker som Adresseret",
+    "markedAsAcknowledged": "Markeret som anerkendt",
+    "markedAsAddressed": "Markeret som adresseret",
+    "addressedOn": "Adresseret den",
+    "updateError": "Kunne ikke opdatere blind vinkel"
+  },
   "aiChat": {
     "title": "PRISM AI Assistent",
     "welcome": "Hej! Jeg er din PRISM AI-assistent. Hvordan kan jeg hjælpe dig i dag?",

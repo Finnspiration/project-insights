@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -224,6 +225,52 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
 
     const insights = JSON.parse(toolCall.function.arguments);
     console.log("Insights generated successfully");
+
+    // Store blind spots in database if projectId is provided
+    if (projectId && insights.blindSpots && insights.blindSpots.length > 0) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      console.log(`Storing ${insights.blindSpots.length} blind spots for project ${projectId}`);
+
+      // Delete existing blind spots for this project (from this generation)
+      await supabase
+        .from('blind_spots')
+        .delete()
+        .eq('project_id', projectId);
+
+      // Prepare blind spots data for insertion
+      const blindSpotsToInsert = insights.blindSpots.map((bs: any) => ({
+        project_id: projectId,
+        title: language === 'da' 
+          ? { en: bs.title, da: bs.title }
+          : { en: bs.title, da: bs.title },
+        description: language === 'da'
+          ? { en: bs.description, da: bs.description }
+          : { en: bs.description, da: bs.description },
+        priority: bs.impact || 'medium',
+        confidence: 0.7, // Default confidence
+        evidence: { text: bs.evidence },
+        consequences: language === 'da'
+          ? { en: bs.evidence, da: bs.evidence }
+          : { en: bs.evidence, da: bs.evidence },
+        recommendations: language === 'da'
+          ? { en: 'Address this blind spot', da: 'Adresser denne blinde vinkel' }
+          : { en: 'Address this blind spot', da: 'Adresser denne blinde vinkel' },
+        status: 'unaddressed'
+      }));
+
+      const { error: insertError } = await supabase
+        .from('blind_spots')
+        .insert(blindSpotsToInsert);
+
+      if (insertError) {
+        console.error('Error storing blind spots:', insertError);
+      } else {
+        console.log('Blind spots stored successfully');
+      }
+    }
 
     return new Response(
       JSON.stringify(insights),
