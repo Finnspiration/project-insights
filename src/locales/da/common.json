@@ -181,6 +181,25 @@
       "teamSizeMin": "Teamstørrelse skal være mindst 1",
       "teamSizeMax": "Teamstørrelse skal være mindre end 10000",
       "endDateAfterStart": "Slutdato skal være efter startdato"
+    },
+    "documents": {
+      "title": "Dokumenter",
+      "upload": "Upload Dokumenter",
+      "uploadDescription": "Upload projektdokumenter til AI-analyse (PDF, Word, Excel, osv.)",
+      "dragDrop": "Træk og slip filer her, eller klik for at vælge",
+      "maxSize": "Maksimal filstørrelse: 50MB",
+      "supported": "Understøttede formater: PDF, DOCX, XLSX, TXT, MD",
+      "uploading": "Uploader...",
+      "uploadSuccess": "Dokument uploadet",
+      "uploadError": "Kunne ikke uploade dokument",
+      "delete": "Slet",
+      "deleteConfirm": "Er du sikker på, at du vil slette dette dokument?",
+      "deleteSuccess": "Dokument slettet",
+      "deleteError": "Kunne ikke slette dokument",
+      "noDocuments": "Ingen dokumenter uploadet endnu",
+      "fileName": "Filnavn",
+      "fileSize": "Størrelse",
+      "uploadedAt": "Uploadet"
     }
   },
   "morphology": {
