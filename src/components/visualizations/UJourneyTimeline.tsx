@@ -172,13 +172,6 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
     return (
       <svg width={width} height={height} className="mx-auto" viewBox={`0 0 ${width} ${height}`}>
         <defs>
-          {/* Golden gradient for the U curve */}
-          <linearGradient id="uGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#DAA520" stopOpacity="0.9" />
-            <stop offset="50%" stopColor="#FFD700" stopOpacity="1" />
-            <stop offset="100%" stopColor="#DAA520" stopOpacity="0.9" />
-          </linearGradient>
-
           {/* Glow filter for current phase */}
           <filter id="phaseGlow">
             <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
@@ -189,57 +182,13 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           </filter>
         </defs>
 
-        {/* Third stroke layer for hand-drawn depth */}
-        <path
-          d={`
-            M ${phases[0].x} ${phases[0].y}
-            C ${phases[0].x + 85} ${phases[0].y + 95}, ${phases[1].x - 25} ${phases[1].y - 15}, ${phases[1].x} ${phases[1].y}
-            S ${phases[2].x - 130} ${phases[2].y - 25}, ${phases[2].x} ${phases[2].y}
-            S ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[3].x} ${phases[3].y}
-            C ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[4].x - 85} ${phases[4].y + 95}, ${phases[4].x} ${phases[4].y}
-          `}
-          fill="none"
-          stroke="#B8860B"
-          strokeWidth="18"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.35"
-          transform="translate(-2, 2)"
-        />
-
-        {/* Secondary stroke for hand-drawn effect */}
-        <path
-          d={`
-            M ${phases[0].x} ${phases[0].y}
-            C ${phases[0].x + 85} ${phases[0].y + 95}, ${phases[1].x - 25} ${phases[1].y - 15}, ${phases[1].x} ${phases[1].y}
-            S ${phases[2].x - 130} ${phases[2].y - 25}, ${phases[2].x} ${phases[2].y}
-            S ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[3].x} ${phases[3].y}
-            C ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[4].x - 85} ${phases[4].y + 95}, ${phases[4].x} ${phases[4].y}
-          `}
-          fill="none"
-          stroke="url(#uGradient)"
-          strokeWidth="16"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.65"
-          transform="translate(1.5, -1.5)"
-        />
-
-        {/* Main U-curve path with smooth bezier and golden color */}
-        <path
-          d={`
-            M ${phases[0].x} ${phases[0].y}
-            C ${phases[0].x + 85} ${phases[0].y + 95}, ${phases[1].x - 25} ${phases[1].y - 15}, ${phases[1].x} ${phases[1].y}
-            S ${phases[2].x - 130} ${phases[2].y - 25}, ${phases[2].x} ${phases[2].y}
-            S ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[3].x} ${phases[3].y}
-            C ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[4].x - 85} ${phases[4].y + 95}, ${phases[4].x} ${phases[4].y}
-          `}
-          fill="none"
-          stroke="#DAA520"
-          strokeWidth="22"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.9"
+        {/* Background Image - Golden U */}
+        <image 
+          href={goldenUBackground}
+          width={width}
+          height={height}
+          preserveAspectRatio="xMidYMid meet"
+          opacity={0.85}
         />
 
         {/* Phase labels with descriptions */}
