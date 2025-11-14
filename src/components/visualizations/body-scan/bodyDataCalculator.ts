@@ -46,10 +46,10 @@ export interface BodyData {
 }
 
 const HEALTH_COLORS = {
-  healthy: 'hsl(var(--chart-1))',
-  attention: 'hsl(var(--chart-3))',
-  critical: 'hsl(var(--chart-4))',
-  danger: 'hsl(var(--chart-5))'
+  healthy: '#10B981',    // Green (success)
+  attention: '#F59E0B',  // Yellow/Orange (warning)
+  critical: '#EF4444',   // Red (destructive)
+  danger: '#DC2626'      // Dark red (extreme danger)
 };
 
 function getComplexityColor(complexity?: string): string {
