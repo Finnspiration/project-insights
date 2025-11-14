@@ -4,9 +4,12 @@ interface FacePartProps {
     eyes: 'calm' | 'focused' | 'sharp' | 'stressed';
     tension: number;
   };
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function FacePart({ data }: FacePartProps) {
+export function FacePart({ data, isHovered, onHover, onLeave }: FacePartProps) {
   const { expression, eyes, tension } = data;
   
   const getMouthPath = (expr: string): string => {
@@ -32,25 +35,41 @@ export function FacePart({ data }: FacePartProps) {
   const eyeShape = getEyeShape(eyes);
   
   return (
-    <g>
+    <g
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className="cursor-pointer"
+    >
+      {/* Hover highlight circle */}
+      {isHovered && (
+        <circle
+          r="25"
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
+          opacity="0.6"
+          className="transition-all duration-300"
+        />
+      )}
+      
       {/* Left eye */}
       <path
         d={eyeShape.left}
         stroke="white"
-        strokeWidth="2.5"
+        strokeWidth={isHovered ? 3 : 2.5}
         fill="none"
         strokeLinecap="round"
-        className="transition-all duration-500"
+        className="transition-all duration-300"
       />
       
       {/* Right eye */}
       <path
         d={eyeShape.right}
         stroke="white"
-        strokeWidth="2.5"
+        strokeWidth={isHovered ? 3 : 2.5}
         fill="none"
         strokeLinecap="round"
-        className="transition-all duration-500"
+        className="transition-all duration-300"
       />
       
       {/* Pupils (for focused/sharp eyes) */}
@@ -65,10 +84,10 @@ export function FacePart({ data }: FacePartProps) {
       <path
         d={getMouthPath(expression)}
         stroke="white"
-        strokeWidth="2.5"
+        strokeWidth={isHovered ? 3 : 2.5}
         fill="none"
         strokeLinecap="round"
-        className="transition-all duration-500"
+        className="transition-all duration-300"
       />
       
       {/* Tension lines */}

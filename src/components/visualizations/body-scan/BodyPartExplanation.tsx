@@ -1,15 +1,28 @@
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface BodyPartExplanationProps {
   part: 'head' | 'face' | 'shoulders' | 'torso' | 'belly' | 'spine' | 'legs';
   data: any;
   morphology: any;
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function BodyPartExplanation({ part, data, morphology }: BodyPartExplanationProps) {
+export function BodyPartExplanation({ part, data, morphology, isHovered, onHover, onLeave }: BodyPartExplanationProps) {
   const { t } = useTranslation('common');
+  
+  const partNumbers: Record<string, number> = {
+    head: 1,
+    face: 2,
+    shoulders: 3,
+    torso: 4,
+    belly: 5,
+    spine: 6,
+    legs: 7
+  };
   
   const getStatus = (): 'healthy' | 'attention' | 'critical' | 'danger' => {
     if (part === 'head') {
@@ -83,16 +96,31 @@ export function BodyPartExplanation({ part, data, morphology }: BodyPartExplanat
   };
   
   return (
-    <div className="space-y-2">
+    <div 
+      className={cn(
+        "space-y-2 p-3 rounded-lg transition-all duration-300 cursor-pointer",
+        isHovered && "bg-primary/10 ring-2 ring-primary/50 shadow-lg"
+      )}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+    >
       <div className="flex items-center justify-between">
-        <h4 className="font-semibold text-sm">
-          {t(`visualizations.bodyScan.parts.${part}`)}
-        </h4>
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all duration-300",
+            isHovered ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            {partNumbers[part]}
+          </span>
+          <h4 className="font-semibold text-sm">
+            {t(`visualizations.bodyScan.parts.${part}`)}
+          </h4>
+        </div>
         <Badge className={statusColors[status]}>
           {t(`visualizations.bodyScan.status.${status}`)}
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground ml-8">
         {getDescription()}
       </p>
     </div>

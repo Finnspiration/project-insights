@@ -5,16 +5,23 @@ interface ShouldersPartProps {
     tension: number;
     icons: string[];
   };
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function ShouldersPart({ data }: ShouldersPartProps) {
+export function ShouldersPart({ data, isHovered, onHover, onLeave }: ShouldersPartProps) {
   const { width, color, tension, icons } = data;
   
-  const shoulderWidth = 40 * width;
+  const shoulderWidth = 45 * width;
   const shoulderHeight = 15 + (tension * 5);
   
   return (
-    <g>
+    <g
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className="cursor-pointer"
+    >
       {/* Left shoulder */}
       <ellipse
         cx={-shoulderWidth / 2}
@@ -22,8 +29,10 @@ export function ShouldersPart({ data }: ShouldersPartProps) {
         rx={shoulderWidth / 3}
         ry={shoulderHeight}
         fill={color}
-        opacity="0.9"
-        className="transition-all duration-500"
+        opacity={isHovered ? 1 : 0.9}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
       {/* Right shoulder */}
@@ -33,32 +42,38 @@ export function ShouldersPart({ data }: ShouldersPartProps) {
         rx={shoulderWidth / 3}
         ry={shoulderHeight}
         fill={color}
-        opacity="0.9"
-        className="transition-all duration-500"
+        opacity={isHovered ? 1 : 0.9}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
-      {/* Left arm */}
+      {/* Left arm - longer and more visible */}
       <rect
-        x={-shoulderWidth / 2 - 8}
+        x={-shoulderWidth / 2 - 10}
         y="10"
-        width="10"
-        height="40"
-        rx="5"
+        width="12"
+        height="90"
+        rx="6"
         fill={color}
-        opacity="0.8"
-        className="transition-all duration-500"
+        opacity={isHovered ? 0.95 : 0.85}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
-      {/* Right arm */}
+      {/* Right arm - longer and more visible */}
       <rect
         x={shoulderWidth / 2 - 2}
         y="10"
-        width="10"
-        height="40"
-        rx="5"
+        width="12"
+        height="90"
+        rx="6"
         fill={color}
-        opacity="0.8"
-        className="transition-all duration-500"
+        opacity={isHovered ? 0.95 : 0.85}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
       {/* Warning icons */}

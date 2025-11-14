@@ -4,9 +4,12 @@ interface SpinePartProps {
     strength: number;
     segments: number;
   };
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function SpinePart({ data }: SpinePartProps) {
+export function SpinePart({ data, isHovered, onHover, onLeave }: SpinePartProps) {
   const { structure, strength, segments } = data;
   
   const spineColor = `hsl(var(--muted-foreground))`;
@@ -14,16 +17,32 @@ export function SpinePart({ data }: SpinePartProps) {
   
   if (structure === 'rigid') {
     return (
-      <g>
+      <g
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+        className="cursor-pointer"
+      >
+        {/* Hover highlight area */}
+        {isHovered && (
+          <rect
+            x="-15"
+            y="-10"
+            width="30"
+            height="160"
+            fill="white"
+            opacity="0.1"
+            rx="5"
+          />
+        )}
         <line
           x1="0"
           y1="0"
           x2="0"
           y2="140"
           stroke={spineColor}
-          strokeWidth="4"
-          opacity={opacity}
-          className="transition-all duration-500"
+          strokeWidth={isHovered ? 5 : 4}
+          opacity={isHovered ? opacity + 0.2 : opacity}
+          className="transition-all duration-300"
         />
       </g>
     );
@@ -31,16 +50,31 @@ export function SpinePart({ data }: SpinePartProps) {
   
   if (structure === 'hierarchical') {
     return (
-      <g>
+      <g
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+        className="cursor-pointer"
+      >
+        {isHovered && (
+          <rect
+            x="-15"
+            y="-10"
+            width="30"
+            height="160"
+            fill="white"
+            opacity="0.1"
+            rx="5"
+          />
+        )}
         {Array.from({ length: segments }).map((_, i) => (
           <circle
             key={i}
             cx="0"
             cy={i * (140 / (segments - 1))}
-            r="4"
+            r={isHovered ? 5 : 4}
             fill={spineColor}
-            opacity={opacity}
-            className="transition-all duration-500"
+            opacity={isHovered ? opacity + 0.2 : opacity}
+            className="transition-all duration-300"
           />
         ))}
         <line
@@ -49,8 +83,9 @@ export function SpinePart({ data }: SpinePartProps) {
           x2="0"
           y2="140"
           stroke={spineColor}
-          strokeWidth="2"
-          opacity={opacity * 0.6}
+          strokeWidth={isHovered ? 3 : 2}
+          opacity={(isHovered ? opacity + 0.2 : opacity) * 0.6}
+          className="transition-all duration-300"
         />
       </g>
     );
@@ -58,12 +93,34 @@ export function SpinePart({ data }: SpinePartProps) {
   
   if (structure === 'network') {
     return (
-      <g>
+      <g
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+        className="cursor-pointer"
+      >
+        {isHovered && (
+          <rect
+            x="-15"
+            y="-10"
+            width="30"
+            height="160"
+            fill="white"
+            opacity="0.1"
+            rx="5"
+          />
+        )}
         {Array.from({ length: segments }).map((_, i) => {
           const y = i * (140 / (segments - 1));
           return (
             <g key={i}>
-              <circle cx="0" cy={y} r="3" fill={spineColor} opacity={opacity} />
+              <circle 
+                cx="0" 
+                cy={y} 
+                r={isHovered ? 4 : 3} 
+                fill={spineColor} 
+                opacity={isHovered ? opacity + 0.2 : opacity}
+                className="transition-all duration-300"
+              />
               {i > 0 && (
                 <>
                   <line
@@ -72,8 +129,9 @@ export function SpinePart({ data }: SpinePartProps) {
                     x2="0"
                     y2={y}
                     stroke={spineColor}
-                    strokeWidth="2"
-                    opacity={opacity * 0.5}
+                    strokeWidth={isHovered ? 3 : 2}
+                    opacity={(isHovered ? opacity + 0.2 : opacity) * 0.5}
+                    className="transition-all duration-300"
                   />
                   <line
                     x1="-8"
@@ -81,8 +139,9 @@ export function SpinePart({ data }: SpinePartProps) {
                     x2="8"
                     y2={y}
                     stroke={spineColor}
-                    strokeWidth="1"
-                    opacity={opacity * 0.3}
+                    strokeWidth={isHovered ? 2 : 1}
+                    opacity={(isHovered ? opacity + 0.2 : opacity) * 0.3}
+                    className="transition-all duration-300"
                   />
                 </>
               )}
@@ -95,13 +154,35 @@ export function SpinePart({ data }: SpinePartProps) {
   
   // Distributed
   return (
-    <g>
+    <g
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className="cursor-pointer"
+    >
+      {isHovered && (
+        <rect
+          x="-20"
+          y="-10"
+          width="40"
+          height="160"
+          fill="white"
+          opacity="0.1"
+          rx="5"
+        />
+      )}
       {Array.from({ length: segments }).map((_, i) => {
         const y = i * (140 / (segments - 1));
         const offset = Math.sin(i) * 5;
         return (
           <g key={i}>
-            <circle cx={offset} cy={y} r="2.5" fill={spineColor} opacity={opacity} />
+            <circle 
+              cx={offset} 
+              cy={y} 
+              r={isHovered ? 3.5 : 2.5} 
+              fill={spineColor} 
+              opacity={isHovered ? opacity + 0.2 : opacity}
+              className="transition-all duration-300"
+            />
             {i > 0 && (
               <>
                 <line
@@ -110,9 +191,10 @@ export function SpinePart({ data }: SpinePartProps) {
                   x2={offset}
                   y2={y}
                   stroke={spineColor}
-                  strokeWidth="1.5"
-                  opacity={opacity * 0.4}
+                  strokeWidth={isHovered ? 2.5 : 1.5}
+                  opacity={(isHovered ? opacity + 0.2 : opacity) * 0.4}
                   strokeDasharray="2,2"
+                  className="transition-all duration-300"
                 />
                 {i % 2 === 0 && (
                   <line
@@ -121,8 +203,9 @@ export function SpinePart({ data }: SpinePartProps) {
                     x2={offset + 10}
                     y2={y}
                     stroke={spineColor}
-                    strokeWidth="1"
-                    opacity={opacity * 0.2}
+                    strokeWidth={isHovered ? 2 : 1}
+                    opacity={(isHovered ? opacity + 0.2 : opacity) * 0.2}
+                    className="transition-all duration-300"
                   />
                 )}
               </>
