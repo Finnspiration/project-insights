@@ -18,18 +18,20 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
   // Use i18n.language as source of truth with fallback
   const currentLanguage = (i18n.language || language) as 'en' | 'da';
 
-  // Calculate double helix points - 2 strands with 6 dimensions each
+  // Calculate double helix points - 12 dimensions evenly distributed
   // Using sinusoidal model for classic DNA helix shape
+  const totalWidth = 1000; // Total SVG width for distribution
+  const startX = 80;
+  const spacing = totalWidth / 11; // Divide space equally for 12 points (11 gaps)
+  
   const helixPoints = Array.from({ length: 12 }, (_, i) => {
-    const isTopStrand = i % 2 === 0;
-    const pairIndex = Math.floor(i / 2);
-    const xPosition = 80 + (pairIndex * 170); // Increased spacing to prevent overlap
+    const xPosition = startX + (i * spacing);
     
     // Sinusoidal Y calculation for helix shape
     const centerY = 150;
     const amplitude = 70;
-    const wavelength = 420;
-    const phase = isTopStrand ? 0 : Math.PI; // 180° offset between strands
+    const wavelength = 350;
+    const phase = (i % 2 === 0) ? 0 : Math.PI; // Alternate between top and bottom
     
     const yPosition = centerY + amplitude * Math.sin((xPosition / wavelength) * Math.PI * 2 + phase);
     
@@ -37,19 +39,15 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
       x: xPosition,
       y: yPosition,
       index: i,
-      strand: isTopStrand ? 1 : 2
+      strand: (i % 2 === 0) ? 1 : 2
     };
   });
 
-  // Base pair connections (connecting paired nucleotides)
-  const connections = [
-    { from: 0, to: 1 },   // Pair 1
-    { from: 2, to: 3 },   // Pair 2
-    { from: 4, to: 5 },   // Pair 3
-    { from: 6, to: 7 },   // Pair 4
-    { from: 8, to: 9 },   // Pair 5
-    { from: 10, to: 11 }, // Pair 6
-  ];
+  // Base pair connections - connect adjacent points
+  const connections = Array.from({ length: 6 }, (_, i) => ({
+    from: i * 2,
+    to: i * 2 + 1
+  }));
 
 
   const handleBadgeClick = (dimensionIndex: number) => {
@@ -140,25 +138,19 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
           opacity="0.8"
         />
         
-        {/* Base pair connections */}
+        {/* Base pair connections between strands */}
         {connections.map((pair, idx) => {
           const point1 = helixPoints[pair.from];
           const point2 = helixPoints[pair.to];
           const dimension = MORPHOLOGY_DIMENSIONS[pair.from];
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
-          // Match badge offsets
-          const isTopStrand1 = pair.from % 2 === 0;
-          const isTopStrand2 = pair.to % 2 === 0;
-          const offset1 = isTopStrand1 ? -60 : 60;
-          const offset2 = isTopStrand2 ? -60 : 60;
-          
           return (
             <line
               key={`connection-${idx}`}
-              x1={point1.x + offset1}
+              x1={point1.x}
               y1={point1.y}
-              x2={point2.x + offset2}
+              x2={point2.x}
               y2={point2.y}
               stroke={`hsl(${categoryColor})`}
               strokeWidth="3"
@@ -185,18 +177,13 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
           const dimension = dimensionWithOption;
           const option = dimension.options.find(opt => opt.value === segment);
           const translatedLabel = option ? t(option.translationKey, { lng: currentLanguage }) : segment;
-          
-          // Extract keyword (before dash) for badge, keep full text for tooltip
           const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
           const fullLabel = translatedLabel;
           
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
-          // CRITICAL FIX: Offset badges based on strand to prevent overlap
-          const isTopStrand = point.index % 2 === 0;
-          const horizontalOffset = isTopStrand ? -60 : 60; // Top left, bottom right
-          const badgeX = point.x + horizontalOffset;
-          const badgeWidth = 85;  // Smaller for keywords only
+          // Dynamic badge width based on text length
+          const estimatedWidth = Math.max(60, Math.min(100, shortLabel.length * 8 + 16));
           const badgeHeight = 28;
           
           return (
@@ -207,11 +194,11 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
             >
               {/* Badge background */}
               <rect
-                x={badgeX - badgeWidth/2}
+                x={point.x - estimatedWidth/2}
                 y={point.y - badgeHeight/2}
-                width={badgeWidth}
+                width={estimatedWidth}
                 height={badgeHeight}
-                rx="16"
+                rx="14"
                 fill={`hsl(${categoryColor})`}
                 className="transition-all hover:opacity-90"
                 style={{ pointerEvents: 'all' }}
@@ -219,9 +206,9 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
               
               {/* Keyword text */}
               <foreignObject
-                x={badgeX - badgeWidth/2 + 4}
+                x={point.x - estimatedWidth/2 + 4}
                 y={point.y - badgeHeight/2 + 4}
-                width={badgeWidth - 8}
+                width={estimatedWidth - 8}
                 height={badgeHeight - 8}
                 style={{ pointerEvents: 'none' }}
               >
