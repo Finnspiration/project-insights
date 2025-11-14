@@ -68,8 +68,15 @@ export function MorphologyDescription({ morphology, language, projectId }: Morph
         try {
           const { description: cachedDesc, morphology: cachedMorph, timestamp } = JSON.parse(cached);
           
+          // Check if description uses old format (capitalized headings)
+          const hasOldFormat = cachedDesc.includes('## Projekt Profil') || 
+                               cachedDesc.includes('## Project Profile') ||
+                               cachedDesc.includes('## Nøgle Karakteristika') ||
+                               cachedDesc.includes('## Key Characteristics');
+          
           // Check if cache is still valid (less than 1 hour old and morphology matches)
           const isValid = 
+            !hasOldFormat &&
             Date.now() - timestamp < 3600000 && 
             JSON.stringify(cachedMorph) === JSON.stringify(morphology);
           
