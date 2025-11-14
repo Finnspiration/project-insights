@@ -473,6 +473,70 @@
   },
   "visualizations": {
     "title": "Visualizations",
+    "bodyScan": {
+      "title": "Project Body Scan",
+      "description": "Visual health check of your project's vital signs",
+      "vitalSigns": "Vital Signs",
+      "parts": {
+        "head": "Strategy & Clarity",
+        "face": "Communication & Conflict",
+        "shoulders": "Capacity & Resources",
+        "torso": "Culture & Values",
+        "belly": "Change & Risk",
+        "spine": "Structure & Information Flow",
+        "legs": "Stability & Momentum"
+      },
+      "status": {
+        "healthy": "Healthy",
+        "attention": "Needs Attention",
+        "critical": "Critical",
+        "danger": "Danger Zone"
+      },
+      "descriptions": {
+        "head": {
+          "simple": "Clear strategic direction with straightforward goals",
+          "complicated": "Multiple interconnected elements requiring coordination",
+          "complex": "Emergent patterns requiring adaptive thinking",
+          "chaotic": "High uncertainty, rapid changes, unclear causality"
+        },
+        "face": {
+          "unified": "Strong alignment and cooperation among stakeholders",
+          "cooperative": "Generally positive collaboration with minor tensions",
+          "competitive": "Significant tensions and competing interests",
+          "adversarial": "Conflicting agendas and active resistance"
+        },
+        "shoulders": {
+          "rich": "Abundant resources and capacity",
+          "balanced": "Adequate resources with some constraints",
+          "constrained": "Limited resources requiring careful prioritization",
+          "scarce": "Critical resource shortage requiring immediate action"
+        },
+        "torso": {
+          "red": "Power-driven, top-down authority structure",
+          "amber": "Process-driven, hierarchical organization",
+          "orange": "Achievement-driven, competitive culture",
+          "green": "Consensus-driven, value-based culture",
+          "teal": "Purpose-driven, self-organizing culture"
+        },
+        "belly": {
+          "low": "Minimal risk, stable environment",
+          "moderate": "Manageable risks with mitigation strategies",
+          "high": "Significant risks requiring active management",
+          "extreme": "Critical risks threatening project success"
+        },
+        "spine": {
+          "centralized": "Single point of control and decision-making",
+          "hierarchical": "Multi-level structure with clear reporting lines",
+          "network": "Collaborative network with distributed connections",
+          "distributed": "Fully decentralized, self-organizing system"
+        },
+        "legs": {
+          "forward": "Strong momentum driving progress",
+          "neutral": "Steady pace with balanced stability",
+          "backward": "Low momentum, defensive posture"
+        }
+      }
+    },
     "culturalWeather": {
       "title": "Cultural Weather Map",
       "description": "Project culture and atmosphere visualization",

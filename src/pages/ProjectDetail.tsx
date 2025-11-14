@@ -13,6 +13,7 @@ import { DocumentUpload } from '@/components/projects/DocumentUpload';
 import { CulturalWeatherMap } from '@/components/visualizations/CulturalWeatherMap';
 import { UJourneyTimeline } from '@/components/visualizations/UJourneyTimeline';
 import { IDGRadarChart } from '@/components/visualizations/IDGRadarChart';
+import { ProjectBodyScan } from '@/components/visualizations/ProjectBodyScan';
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { BlindSpotsPanel } from '@/components/insights/BlindSpotsPanel';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
@@ -238,15 +239,42 @@ export default function ProjectDetail() {
 
           <TabsContent value="visualizations" className="space-y-6">
             {project.dna_code && project.morphology && (
-              <>
-                <CulturalWeatherMap morphology={project.morphology} />
-                <UJourneyTimeline 
-                  morphology={project.morphology}
-                  projectId={project.id}
-                  projectName={projectName}
-                />
-                <IDGRadarChart morphology={project.morphology} />
-              </>
+              <Tabs defaultValue="weather" className="space-y-6">
+                <TabsList>
+                  <TabsTrigger value="weather">
+                    {t('visualizations.culturalWeather.title')}
+                  </TabsTrigger>
+                  <TabsTrigger value="ujourney">
+                    {t('visualizations.uJourney.title')}
+                  </TabsTrigger>
+                  <TabsTrigger value="idg">
+                    {t('visualizations.idgRadar.title')}
+                  </TabsTrigger>
+                  <TabsTrigger value="bodyscan">
+                    {t('visualizations.bodyScan.title')}
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="weather">
+                  <CulturalWeatherMap morphology={project.morphology} />
+                </TabsContent>
+                
+                <TabsContent value="ujourney">
+                  <UJourneyTimeline 
+                    morphology={project.morphology}
+                    projectId={project.id}
+                    projectName={projectName}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="idg">
+                  <IDGRadarChart morphology={project.morphology} />
+                </TabsContent>
+                
+                <TabsContent value="bodyscan">
+                  <ProjectBodyScan morphology={project.morphology} />
+                </TabsContent>
+              </Tabs>
             )}
           </TabsContent>
 
