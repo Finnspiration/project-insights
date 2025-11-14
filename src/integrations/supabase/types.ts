@@ -134,6 +134,8 @@ export type Database = {
           patterns: Json | null
           status: string
           team_size: number | null
+          theory_u_analysis: Json | null
+          theory_u_analysis_updated_at: string | null
           timeline_end: string | null
           timeline_start: string | null
           updated_at: string
@@ -149,6 +151,8 @@ export type Database = {
           patterns?: Json | null
           status?: string
           team_size?: number | null
+          theory_u_analysis?: Json | null
+          theory_u_analysis_updated_at?: string | null
           timeline_end?: string | null
           timeline_start?: string | null
           updated_at?: string
@@ -164,6 +168,8 @@ export type Database = {
           patterns?: Json | null
           status?: string
           team_size?: number | null
+          theory_u_analysis?: Json | null
+          theory_u_analysis_updated_at?: string | null
           timeline_end?: string | null
           timeline_start?: string | null
           updated_at?: string

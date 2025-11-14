@@ -3,6 +3,9 @@ project_id = "ztyogejxlprnqxgoekml"
 [functions.analyze-documents]
 verify_jwt = true
 
+[functions.analyze-theory-u-position]
+verify_jwt = true
+
 [functions.chat-assistant]
 verify_jwt = true
 
