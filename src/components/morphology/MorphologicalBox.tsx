@@ -167,7 +167,7 @@ export function MorphologicalBox({
                     <DNAHelixVisualization 
                       morphology={morphology}
                       dnaCode={dnaCode}
-                      language={language}
+                      language={i18n.language as 'en' | 'da'}
                     />
                   </TabsContent>
                   
