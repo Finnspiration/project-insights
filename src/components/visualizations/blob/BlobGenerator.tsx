@@ -30,6 +30,9 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
     p5.push();
     p5.translate(p5.width / 2, p5.height / 2);
     
+    // Dynamic radius based on resources
+    const dynamicRadius = 120 * blobData.resourceScale;
+    
     // Apply rotation based on change intensity
     const elapsedSeconds = (p5.millis() - startTime) / 1000;
     if (blobData.rotationSpeed > 0) {
@@ -41,16 +44,19 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
     const pulseFactor = 1 + 0.1 * p5.sin(pulsePhase);
     
     // Draw outer glow (risk)
-    drawOuterGlow(p5, blobData, baseRadius * pulseFactor);
+    drawOuterGlow(p5, blobData, dynamicRadius * pulseFactor);
     
     // Draw main blob shape
-    drawBlobShape(p5, blobData, baseRadius * pulseFactor, elapsedSeconds);
+    drawBlobShape(p5, blobData, dynamicRadius * pulseFactor, elapsedSeconds);
+    
+    // Draw cultural gradient overlay
+    drawCulturalGradient(p5, blobData, dynamicRadius * pulseFactor);
     
     // Draw inner pattern
-    drawInnerPattern(p5, blobData, baseRadius * pulseFactor * 0.6);
+    drawInnerPattern(p5, blobData, dynamicRadius * pulseFactor * 0.6);
     
     // Draw core glow
-    drawCoreGlow(p5, blobData, baseRadius * pulseFactor * 0.3);
+    drawCoreGlow(p5, blobData, dynamicRadius * pulseFactor * 0.3);
     
     p5.pop();
   };
@@ -59,17 +65,22 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
 function drawOuterGlow(p5: any, data: BlobVisualData, radius: number) {
   if (data.outerGlowIntensity <= 0) return;
   
-  const glowSize = radius * 1.5;
-  const alpha = data.outerGlowIntensity * 100;
+  // Pulse effect for high-risk projects
+  const pulseFactor = data.outerGlowIntensity > 0.7 
+    ? 1 + 0.15 * p5.sin(p5.frameCount * 0.1) 
+    : 1;
   
-  // Parse the hex color
+  const glowSize = radius * 1.5 * pulseFactor;
+  const alpha = data.outerGlowIntensity * 120;
+  
   const color = p5.color(data.outerGlowColor);
   
-  for (let i = 0; i < 3; i++) {
+  // More glow layers for dramatic effect
+  for (let i = 0; i < 5; i++) {
     p5.noFill();
     p5.stroke(p5.red(color), p5.green(color), p5.blue(color), alpha / (i + 1));
-    p5.strokeWeight(20 - i * 5);
-    p5.circle(0, 0, glowSize + i * 20);
+    p5.strokeWeight(25 - i * 4);
+    p5.circle(0, 0, glowSize + i * 25);
   }
 }
 
@@ -132,77 +143,154 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
 }
 
 function drawInnerPattern(p5: any, data: BlobVisualData, radius: number) {
-  p5.push();
+  const h = data.baseHue;
+  const s = data.saturation;
+  const b = data.brightness;
   
-  const alpha = data.noiseIntensity * 150;
+  p5.colorMode(p5.HSB, 360, 100, 100);
   
   switch (data.innerPattern) {
     case 'grid':
-      // Grid pattern for routine work
-      p5.stroke(255, 255, 255, alpha);
+      // Structured grid pattern
+      p5.push();
+      p5.stroke(h, s * 0.6, b - 20, 150);
       p5.strokeWeight(1);
-      const gridSize = radius / 5;
-      for (let x = -radius; x < radius; x += gridSize) {
-        p5.line(x, -radius, x, radius);
-      }
-      for (let y = -radius; y < radius; y += gridSize) {
-        p5.line(-radius, y, radius, y);
-      }
-      break;
       
+      const gridSize = 20;
+      const gridExtent = radius;
+      
+      // Vertical lines
+      for (let x = -gridExtent; x <= gridExtent; x += gridSize) {
+        p5.line(x, -gridExtent, x, gridExtent);
+      }
+      
+      // Horizontal lines
+      for (let y = -gridExtent; y <= gridExtent; y += gridSize) {
+        p5.line(-gridExtent, y, gridExtent, y);
+      }
+      
+      p5.pop();
+      break;
+    
     case 'waves':
-      // Wave pattern for adaptive work
-      p5.stroke(255, 255, 255, alpha);
-      p5.strokeWeight(2);
+      // Animated wave pattern with noise intensity
+      p5.push();
       p5.noFill();
-      for (let i = 0; i < 5; i++) {
+      p5.stroke(h, s * 0.7, b - 15, 180);
+      p5.strokeWeight(2);
+      
+      const waveCount = 5;
+      const waveAmplitude = radius * 0.2 * data.noiseIntensity;
+      
+      for (let i = 0; i < waveCount; i++) {
         p5.beginShape();
-        for (let x = -radius; x < radius; x += 10) {
-          const y = p5.sin(x * 0.05 + i) * (radius / 5) - radius + i * (radius / 2.5);
+        for (let x = -radius; x <= radius; x += 10) {
+          const y = -radius + (i * radius * 2 / waveCount) + 
+                    waveAmplitude * p5.sin(x * 0.05 + p5.frameCount * 0.02);
           p5.vertex(x, y);
         }
         p5.endShape();
       }
-      break;
       
+      p5.pop();
+      break;
+    
     case 'particles':
-      // Particle pattern for innovative work
-      p5.fill(255, 255, 255, alpha);
+      // Animated particles
+      p5.push();
+      p5.fill(h, s * 0.8, b + 10, 200);
       p5.noStroke();
-      for (let i = 0; i < 30; i++) {
-        const angle = p5.random(p5.TWO_PI);
-        const r = p5.random(radius * 0.8);
+      
+      const particleCount = 30;
+      const particleRadius = radius * 0.8;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const angle = (i / particleCount) * p5.TWO_PI;
+        const r = particleRadius * (0.3 + 0.7 * p5.noise(i * 0.5, p5.frameCount * 0.01));
         const x = r * p5.cos(angle);
         const y = r * p5.sin(angle);
-        p5.circle(x, y, p5.random(2, 6));
+        const size = 3 + 5 * p5.noise(i * 0.3, p5.frameCount * 0.02);
+        
+        p5.circle(x, y, size);
       }
-      break;
       
+      p5.pop();
+      break;
+    
     case 'chaos':
-      // Chaotic pattern for breakthrough work
-      p5.stroke(255, 255, 255, alpha);
+      // Glitchy lines with noise intensity
+      p5.push();
+      p5.stroke(h, s * 0.9, b, 150);
       p5.strokeWeight(1);
-      for (let i = 0; i < 20; i++) {
+      
+      const chaosLines = Math.floor(40 * data.noiseIntensity);
+      
+      for (let i = 0; i < chaosLines; i++) {
         const x1 = p5.random(-radius, radius);
         const y1 = p5.random(-radius, radius);
-        const x2 = p5.random(-radius, radius);
-        const y2 = p5.random(-radius, radius);
+        const x2 = x1 + p5.random(-30, 30);
+        const y2 = y1 + p5.random(-30, 30);
+        
         p5.line(x1, y1, x2, y2);
       }
+      
+      p5.pop();
       break;
   }
   
-  p5.pop();
+  p5.colorMode(p5.RGB, 255);
 }
 
 function drawCoreGlow(p5: any, data: BlobVisualData, radius: number) {
-  const glowIntensity = data.coreGlow * 255;
+  p5.push();
   
-  // Radial gradient for inner glow
-  for (let r = radius; r > 0; r -= 5) {
-    const alpha = p5.map(r, 0, radius, glowIntensity, 0);
-    p5.fill(255, 255, 200, alpha);
+  // Multiple glow layers for depth
+  const layers = 5;
+  const maxRadius = radius;
+  
+  p5.colorMode(p5.HSB, 360, 100, 100);
+  
+  for (let i = layers; i > 0; i--) {
+    const r = (i / layers) * maxRadius;
+    const alpha = (data.coreGlow * 80) * (i / layers);
+    
+    // Warmer glow color for inner development
+    const glowHue = 50; // Warm golden color
+    const glowSat = 80;
+    const glowBright = 90;
+    
+    p5.fill(glowHue, glowSat, glowBright, alpha);
     p5.noStroke();
     p5.circle(0, 0, r * 2);
   }
+  
+  p5.colorMode(p5.RGB, 255);
+  p5.pop();
+}
+
+function drawCulturalGradient(p5: any, data: BlobVisualData, radius: number) {
+  if (data.colorSpread <= 1) return; // Mono = no gradient
+  
+  p5.push();
+  
+  // Create radial gradient with multiple colors for multicultural projects
+  const colors = data.colorSpread;
+  const angleStep = p5.TWO_PI / colors;
+  
+  p5.colorMode(p5.HSB, 360, 100, 100);
+  
+  for (let i = 0; i < colors; i++) {
+    const startAngle = i * angleStep;
+    const endAngle = (i + 1) * angleStep;
+    const hueShift = (360 / colors) * i;
+    const h = (data.baseHue + hueShift) % 360;
+    
+    p5.fill(h, data.saturation * 0.3, data.brightness, 30); // Subtle overlay
+    p5.noStroke();
+    
+    p5.arc(0, 0, radius * 2, radius * 2, startAngle, endAngle, p5.PIE);
+  }
+  
+  p5.colorMode(p5.RGB, 255);
+  p5.pop();
 }

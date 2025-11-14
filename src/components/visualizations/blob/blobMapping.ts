@@ -24,6 +24,9 @@ export interface BlobVisualData {
   
   // Pattern
   innerPattern: 'grid' | 'waves' | 'particles' | 'chaos'; // knowledge
+  
+  // Scale
+  resourceScale: number;    // 0.6-1.3 (resources)
 }
 
 // Complexity → Kontur-ujævnhed
@@ -189,6 +192,9 @@ export function mapMorphologyToBlob(morphology: any): BlobVisualData {
     outerGlowIntensity: riskData.intensity,
     
     // Pattern
-    innerPattern: mapKnowledge(morphology?.knowledge)
+    innerPattern: mapKnowledge(morphology?.knowledge),
+    
+    // Scale
+    resourceScale: resourceData.scale
   };
 }
