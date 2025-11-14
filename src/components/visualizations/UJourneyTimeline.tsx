@@ -189,10 +189,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         <path
           d={`
             M ${phases[0].x} ${phases[0].y}
-            Q ${phases[1].x - 30} ${phases[1].y - 20}, ${phases[1].x} ${phases[1].y}
-            Q ${phases[2].x - 40} ${phases[2].y - 10}, ${phases[2].x} ${phases[2].y}
-            Q ${phases[3].x + 40} ${phases[3].y - 10}, ${phases[3].x} ${phases[3].y}
-            Q ${phases[4].x + 30} ${phases[4].y - 20}, ${phases[4].x} ${phases[4].y}
+            C ${phases[0].x + 50} ${phases[0].y + 60}, ${phases[1].x - 50} ${phases[1].y + 20}, ${phases[1].x} ${phases[1].y}
+            C ${phases[1].x + 30} ${phases[1].y + 40}, ${phases[2].x - 80} ${phases[2].y + 20}, ${phases[2].x} ${phases[2].y}
+            C ${phases[2].x + 80} ${phases[2].y + 20}, ${phases[3].x - 30} ${phases[3].y + 40}, ${phases[3].x} ${phases[3].y}
+            C ${phases[3].x + 50} ${phases[3].y + 20}, ${phases[4].x - 50} ${phases[4].y + 60}, ${phases[4].x} ${phases[4].y}
           `}
           fill="none"
           stroke="url(#uGradient)"
@@ -207,10 +207,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         <path
           d={`
             M ${phases[0].x} ${phases[0].y}
-            Q ${phases[1].x - 30} ${phases[1].y - 20}, ${phases[1].x} ${phases[1].y}
-            Q ${phases[2].x - 40} ${phases[2].y - 10}, ${phases[2].x} ${phases[2].y}
-            Q ${phases[3].x + 40} ${phases[3].y - 10}, ${phases[3].x} ${phases[3].y}
-            Q ${phases[4].x + 30} ${phases[4].y - 20}, ${phases[4].x} ${phases[4].y}
+            C ${phases[0].x + 50} ${phases[0].y + 60}, ${phases[1].x - 50} ${phases[1].y + 20}, ${phases[1].x} ${phases[1].y}
+            C ${phases[1].x + 30} ${phases[1].y + 40}, ${phases[2].x - 80} ${phases[2].y + 20}, ${phases[2].x} ${phases[2].y}
+            C ${phases[2].x + 80} ${phases[2].y + 20}, ${phases[3].x - 30} ${phases[3].y + 40}, ${phases[3].x} ${phases[3].y}
+            C ${phases[3].x + 50} ${phases[3].y + 20}, ${phases[4].x - 50} ${phases[4].y + 60}, ${phases[4].x} ${phases[4].y}
           `}
           fill="none"
           stroke="hsl(var(--primary))"
