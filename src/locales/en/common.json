@@ -248,6 +248,12 @@
     "success": "Assessment saved successfully!",
     "error": "Failed to save assessment",
     "aiSuggestion": "AI Suggestion",
+    "category": {
+      "context": "Context",
+      "capacity": "Capacity",
+      "dynamics": "Dynamics",
+      "challenge_and_resources": "Challenges & Resources"
+    },
     "visualBox": {
       "title": "Morphological Box",
       "description": "12-dimensional project assessment matrix"
