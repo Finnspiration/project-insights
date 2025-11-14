@@ -131,7 +131,16 @@ ${language === 'da'
     }
 
     const aiData = await aiResponse.json();
-    const analysisText = aiData.choices[0].message.content;
+    let analysisText = aiData.choices[0].message.content;
+    
+    // Remove markdown code blocks if present
+    analysisText = analysisText.trim();
+    if (analysisText.startsWith('```json')) {
+      analysisText = analysisText.replace(/^```json\n/, '').replace(/\n```$/, '');
+    } else if (analysisText.startsWith('```')) {
+      analysisText = analysisText.replace(/^```\n/, '').replace(/\n```$/, '');
+    }
+    
     const analysis = JSON.parse(analysisText);
 
     // Cache the result in database
