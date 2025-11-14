@@ -8,9 +8,10 @@ interface DNAHelixVisualizationProps {
   morphology: Record<string, string>;
   dnaCode: string;
   language?: 'en' | 'da';
+  onMorphologyChange?: (morphology: Record<string, string>) => void;
 }
 
-export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: DNAHelixVisualizationProps) {
+export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', onMorphologyChange }: DNAHelixVisualizationProps) {
   const { t, i18n } = useTranslation('common');
   const [selectedDimension, setSelectedDimension] = useState<number | null>(null);
   
@@ -53,6 +54,26 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
 
   const handleBadgeClick = (dimensionIndex: number) => {
     setSelectedDimension(dimensionIndex);
+  };
+
+  const handleOptionSelect = (optionValue: string) => {
+    if (selectedDimension === null || !onMorphologyChange) return;
+    
+    const segment = dnaCode.split('-')[selectedDimension];
+    const dimensionWithOption = MORPHOLOGY_DIMENSIONS.find(dim => 
+      dim.options.some(opt => opt.value === segment)
+    );
+    
+    if (!dimensionWithOption) return;
+    
+    // Update morphology with new value
+    const updatedMorphology = { 
+      ...morphology, 
+      [dimensionWithOption.key]: optionValue 
+    };
+    
+    onMorphologyChange(updatedMorphology);
+    setSelectedDimension(null);
   };
 
   const selectedDimensionData = selectedDimension !== null ? (() => {
@@ -230,6 +251,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           translationKey: `morphology.dimensions.${selectedDimensionData.dimension.key}.options.${dnaCode.split('-')[selectedDimension!]}`
         }}
         allOptions={selectedDimensionData.dimension.options}
+        onOptionSelect={handleOptionSelect}
       />
     )}
     </>

@@ -26,6 +26,7 @@ interface DimensionDetailDialogProps {
     value: string;
     translationKey: string;
   }>;
+  onOptionSelect?: (optionValue: string) => void;
 }
 
 export function DimensionDetailDialog({
@@ -34,6 +35,7 @@ export function DimensionDetailDialog({
   dimension,
   selectedOption,
   allOptions,
+  onOptionSelect,
 }: DimensionDetailDialogProps) {
   const { t, i18n } = useTranslation('common');
   const currentLanguage = i18n.language as 'en' | 'da';
@@ -118,10 +120,16 @@ export function DimensionDetailDialog({
               return (
                 <div
                   key={option.value}
-                  className={`p-3 rounded-lg border transition-colors ${
+                  onClick={() => {
+                    if (!isSelected && onOptionSelect) {
+                      onOptionSelect(option.value);
+                      onOpenChange(false);
+                    }
+                  }}
+                  className={`p-3 rounded-lg border transition-all ${
                     isSelected 
                       ? 'border-primary/50 bg-primary/5' 
-                      : 'border-border bg-muted/30'
+                      : 'border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/30 cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center gap-2">

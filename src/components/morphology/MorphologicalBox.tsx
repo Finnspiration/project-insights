@@ -168,6 +168,7 @@ export function MorphologicalBox({
                       morphology={morphology}
                       dnaCode={dnaCode}
                       language={i18n.language as 'en' | 'da'}
+                      onMorphologyChange={onMorphologyChange}
                     />
                   </TabsContent>
                   
