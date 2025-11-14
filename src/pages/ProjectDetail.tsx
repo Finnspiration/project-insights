@@ -201,6 +201,9 @@ export default function ProjectDetail() {
         <Tabs defaultValue="documents" className="space-y-6">
           <TabsList>
             <TabsTrigger value="documents">{t('projectDetail.tabs.documents')} ({documents.length})</TabsTrigger>
+            <TabsTrigger value="morphology" disabled={!project.dna_code}>
+              {t('projectDetail.tabs.morphology')}
+            </TabsTrigger>
             <TabsTrigger value="insights" disabled={!project.dna_code}>
               {t('projectDetail.tabs.aiInsights')}
             </TabsTrigger>
@@ -210,9 +213,6 @@ export default function ProjectDetail() {
             <TabsTrigger value="visualizations" disabled={!project.dna_code}>
               {t('projectDetail.tabs.visualizations')}
             </TabsTrigger>
-            <TabsTrigger value="morphology" disabled={!project.dna_code}>
-              {t('projectDetail.tabs.morphology')}
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="documents">
@@ -221,6 +221,41 @@ export default function ProjectDetail() {
               documents={documents}
               onUploadSuccess={fetchDocuments}
             />
+          </TabsContent>
+
+          <TabsContent value="morphology">
+            {project.dna_code && project.morphology && (
+              <MorphologicalBox
+                morphology={project.morphology}
+                dnaCode={project.dna_code}
+                onReassess={() => setMorphologyWizardOpen(true)}
+                projectId={project.id}
+                language={i18n.language as 'en' | 'da'}
+                onMorphologyChange={async (updatedMorphology) => {
+                  // Generate new DNA code
+                  const dnaSegments = Object.entries(updatedMorphology).map(([_, value]) => value);
+                  const newDnaCode = dnaSegments.join('-');
+                  
+                  // Update database
+                  const { error } = await supabase
+                    .from('projects')
+                    .update({ 
+                      morphology: updatedMorphology,
+                      dna_code: newDnaCode 
+                    })
+                    .eq('id', id);
+                  
+                  if (!error) {
+                    // Update local state
+                    setProject(prev => prev ? { 
+                      ...prev, 
+                      morphology: updatedMorphology,
+                      dna_code: newDnaCode 
+                    } : null);
+                  }
+                }}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
@@ -275,41 +310,6 @@ export default function ProjectDetail() {
                   <ProjectBodyScan morphology={project.morphology} />
                 </TabsContent>
               </Tabs>
-            )}
-          </TabsContent>
-
-          <TabsContent value="morphology">
-            {project.dna_code && project.morphology && (
-              <MorphologicalBox
-                morphology={project.morphology}
-                dnaCode={project.dna_code}
-                onReassess={() => setMorphologyWizardOpen(true)}
-                projectId={project.id}
-                language={i18n.language as 'en' | 'da'}
-                onMorphologyChange={async (updatedMorphology) => {
-                  // Generate new DNA code
-                  const dnaSegments = Object.entries(updatedMorphology).map(([_, value]) => value);
-                  const newDnaCode = dnaSegments.join('-');
-                  
-                  // Update database
-                  const { error } = await supabase
-                    .from('projects')
-                    .update({ 
-                      morphology: updatedMorphology,
-                      dna_code: newDnaCode 
-                    })
-                    .eq('id', id);
-                  
-                  if (!error) {
-                    // Update local state
-                    setProject(prev => prev ? { 
-                      ...prev, 
-                      morphology: updatedMorphology,
-                      dna_code: newDnaCode 
-                    } : null);
-                  }
-                }}
-              />
             )}
           </TabsContent>
         </Tabs>
