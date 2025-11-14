@@ -250,6 +250,29 @@ export default function ProjectDetail() {
                 morphology={project.morphology}
                 dnaCode={project.dna_code}
                 onReassess={() => setMorphologyWizardOpen(true)}
+                onMorphologyChange={async (updatedMorphology) => {
+                  // Generate new DNA code
+                  const dnaSegments = Object.entries(updatedMorphology).map(([_, value]) => value);
+                  const newDnaCode = dnaSegments.join('-');
+                  
+                  // Update database
+                  const { error } = await supabase
+                    .from('projects')
+                    .update({ 
+                      morphology: updatedMorphology,
+                      dna_code: newDnaCode 
+                    })
+                    .eq('id', id);
+                  
+                  if (!error) {
+                    // Update local state
+                    setProject(prev => prev ? { 
+                      ...prev, 
+                      morphology: updatedMorphology,
+                      dna_code: newDnaCode 
+                    } : null);
+                  }
+                }}
               />
             )}
           </TabsContent>
