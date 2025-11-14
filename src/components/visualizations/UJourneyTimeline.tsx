@@ -163,11 +163,11 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
 
     // Positioned to match the golden U image
     const phases = [
-      { key: 'seeing', x: padding + 60, y: height * 0.12, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
-      { key: 'sensing', x: width * 0.28, y: height * 0.48, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
-      { key: 'presencing', x: width * 0.5, y: height * 0.78, label: 'Presencing', subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
-      { key: 'crystallizing', x: width * 0.72, y: height * 0.48, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
-      { key: 'prototyping', x: width - padding - 60, y: height * 0.12, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
+      { key: 'seeing', x: 224, y: 70, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
+      { key: 'sensing', x: 200, y: 250, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
+      { key: 'presencing', x: 390, y: 390, label: 'Presencing', subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
+      { key: 'crystallizing', x: 575, y: 250, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
+      { key: 'prototyping', x: 560, y: 70, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
     ];
 
     return (
@@ -211,10 +211,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
               <circle
                 cx={phase.x}
                 cy={phase.y}
-                r={isCurrentPhase ? 20 : 16}
+                r={isCurrentPhase ? 10 : 8}
                 fill={`url(#pearl-${phase.key})`}
                 stroke={isCurrentPhase ? '#ffffff' : '#e0e0e0'}
-                strokeWidth={isCurrentPhase ? 3 : 2}
+                strokeWidth={isCurrentPhase ? 2 : 1.5}
                 className="transition-all"
                 style={{
                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
@@ -227,7 +227,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                   <circle
                     cx={phase.x}
                     cy={phase.y}
-                    r="28"
+                    r="14"
                     fill="#FFD700"
                     opacity="0.3"
                     className="animate-pulse"
