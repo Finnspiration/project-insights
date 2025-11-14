@@ -183,6 +183,41 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       if (error) throw error;
       if (!analysisData) throw new Error('No analysis data returned');
 
+      // DEBUG: Log edge function output
+      console.log('🔍 EDGE FUNCTION OUTPUT (analyze-theory-u-position):');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('Raw response:', analysisData);
+      console.log('');
+      
+      if (analysisData.whyHere?.morphologyScoring) {
+        console.log('📊 MORFOLOGISK SCORING:');
+        console.log('  Fase:', analysisData.whyHere.morphologyScoring.phase);
+        console.log('  Confidence:', (analysisData.whyHere.morphologyScoring.confidence * 100).toFixed(1) + '%');
+        console.log('  Score:', analysisData.whyHere.morphologyScoring.score);
+        console.log('');
+        console.log('  Top bidrag til denne fase:');
+        analysisData.whyHere.morphologyScoring.topContributions?.slice(0, 5).forEach((contrib: string, i: number) => {
+          console.log(`    ${i + 1}. ${contrib}`);
+        });
+        console.log('');
+        
+        if (analysisData.whyHere.morphologyScoring.allPhaseScores) {
+          console.log('  Alle fase scores (top 3):');
+          analysisData.whyHere.morphologyScoring.allPhaseScores.forEach((phaseScore: any) => {
+            console.log(`    - ${phaseScore.phase}: ${phaseScore.score} points`);
+          });
+        }
+        console.log('');
+      }
+      
+      if (analysisData.whyHere?.aiNuance) {
+        console.log('🤖 AI NUANCE:');
+        console.log('  ', analysisData.whyHere.aiNuance);
+        console.log('');
+      }
+      
+      console.log('═══════════════════════════════════════════════════');
+
       // Transform AI response using helper
       const transformed = transformTheoryUData(analysisData);
       if (!transformed) {
