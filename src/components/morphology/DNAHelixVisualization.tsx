@@ -20,8 +20,8 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
 
   // Calculate double helix points - 12 dimensions evenly distributed
   // Using sinusoidal model for classic DNA helix shape
-  const totalWidth = 1000; // Total SVG width for distribution
-  const startX = 150;
+  const totalWidth = 1200; // Total SVG width for distribution
+  const startX = 200;
   const spacing = totalWidth / 11; // Divide space equally for 12 points (11 gaps)
   
   const helixPoints = Array.from({ length: 12 }, (_, i) => {
@@ -97,9 +97,9 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
     <>
       <div className="w-full overflow-x-auto">
     <svg 
-      viewBox="0 0 1300 300" 
+      viewBox="0 0 1600 300" 
       className="w-full h-auto min-h-[300px]"
-      style={{ minWidth: '1200px' }}
+      style={{ minWidth: '1400px' }}
     >
         {/* Gradients for the double helix strands */}
         <defs>
@@ -120,7 +120,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
         
         {/* Strand 1 - Top/Right strand */}
         <path
-          d="M 150,150 Q 235,80 320,150 Q 405,220 490,150 Q 575,80 660,150 Q 745,220 830,150 Q 915,80 1000,150 Q 1085,220 1170,150"
+          d="M 200,150 Q 295,80 390,150 Q 495,220 600,150 Q 705,80 810,150 Q 915,220 1020,150 Q 1125,80 1230,150 Q 1335,220 1400,150"
           stroke="url(#gradient-strand1)"
           fill="none"
           strokeWidth="12"
@@ -130,7 +130,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
         
         {/* Strand 2 - Bottom/Left strand */}
         <path
-          d="M 150,150 Q 235,220 320,150 Q 405,80 490,150 Q 575,220 660,150 Q 745,80 830,150 Q 915,220 1000,150 Q 1085,80 1170,150"
+          d="M 200,150 Q 295,220 390,150 Q 495,80 600,150 Q 705,220 810,150 Q 915,80 1020,150 Q 1125,220 1230,150 Q 1335,80 1400,150"
           stroke="url(#gradient-strand2)"
           fill="none"
           strokeWidth="12"
@@ -182,8 +182,8 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
           
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
-          // Dynamic badge width based on text length
-          const estimatedWidth = Math.max(70, Math.min(140, shortLabel.length * 9 + 24));
+          // Fully dynamic width based on text length - no max constraint
+          const estimatedWidth = Math.max(80, shortLabel.length * 10 + 32);
           const badgeHeight = 28;
           
           return (
