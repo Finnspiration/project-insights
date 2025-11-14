@@ -1,11 +1,12 @@
 import { ReactP5Wrapper } from 'react-p5-wrapper';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mapMorphologyToBlob } from './blob/blobMapping';
-import { detectArchetype } from './blob/blobArchetypes';
+import { detectArchetype, BlobArchetype } from './blob/blobArchetypes';
 import { blobSketch } from './blob/BlobGenerator';
 
 interface MorphologyBlobProps {
@@ -13,9 +14,30 @@ interface MorphologyBlobProps {
 }
 
 export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [archetype, setArchetype] = useState<BlobArchetype | null>(null);
+  const [isLoadingArchetype, setIsLoadingArchetype] = useState(true);
+  
+  useEffect(() => {
+    const loadArchetype = async () => {
+      if (!morphology) return;
+      
+      setIsLoadingArchetype(true);
+      try {
+        const blobData = mapMorphologyToBlob(morphology);
+        const result = await detectArchetype(blobData, morphology, i18n.language as 'en' | 'da');
+        setArchetype(result);
+      } catch (error) {
+        console.error('Error loading archetype:', error);
+      } finally {
+        setIsLoadingArchetype(false);
+      }
+    };
+    
+    loadArchetype();
+  }, [morphology, i18n.language]);
   
   if (!morphology) {
     return (
@@ -29,7 +51,23 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   }
   
   const blobData = mapMorphologyToBlob(morphology);
-  const archetype = detectArchetype(blobData);
+  
+  if (isLoadingArchetype) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[400px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  if (!archetype) {
+    return null;
+  }
   
   const handleHover = (zone: string | null, x: number, y: number) => {
     setHoveredZone(zone);
@@ -109,20 +147,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
               )}
             </div>
             
-            {/* Archetype Label */}
-            <div className="mt-4 flex items-center gap-2">
-              <span className="text-4xl">{archetype.icon}</span>
-              <div>
-                <h3 className="text-lg font-semibold" style={{ color: archetype.color }}>
-                  {t(archetype.nameKey)}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {t(archetype.descriptionKey)}
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {t('visualizations.blob.archetypeExplainer')}
-                </p>
-              </div>
+            {/* Archetype Badge */}
+            <div className="mt-4 text-center">
+              <Badge variant="outline" style={{ borderColor: archetype.color, color: archetype.color }}>
+                {archetype.icon} {archetype.description ? archetype.name : t(archetype.nameKey || '')}
+              </Badge>
+              <p className="text-sm text-muted-foreground mt-2">
+                {archetype.description || t(archetype.descriptionKey || '')}
+              </p>
             </div>
           </div>
           
