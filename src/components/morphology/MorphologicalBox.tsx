@@ -2,11 +2,13 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS, CATEGORY_ICONS, CategoryType } from '@/lib/morphologyConfig';
 import { DimensionRow } from './DimensionRow';
 import { MorphologyDescription } from './MorphologyDescription';
-import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield } from 'lucide-react';
+import { DNAHelixVisualization } from './DNAHelixVisualization';
+import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
@@ -133,7 +135,7 @@ export function MorphologicalBox({
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
                   <ChevronDown className={`h-4 w-4 transition-transform ${isCodeOpen ? 'rotate-180' : ''}`} />
-                  {t('morphology.showDnaCode') || 'Show Raw DNA Code'}
+                  {t('morphology.showDnaCode') || 'Show DNA Code'}
                 </Button>
               </CollapsibleTrigger>
               <Button
@@ -149,25 +151,51 @@ export function MorphologicalBox({
 
             <CollapsibleContent>
               <div className="bg-muted/50 p-4 rounded-lg mt-2">
-                <div className="flex flex-wrap gap-2">
-                  {dnaCode.split('-').map((segment, index) => {
-                    const dimension = MORPHOLOGY_DIMENSIONS[index];
-                    const categoryColor = dimension ? CATEGORY_COLORS[dimension.category] : 'hsl(var(--muted))';
-                    
-                    return (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="font-mono text-xs"
-                        style={{
-                          borderLeft: `3px solid ${categoryColor}`,
-                        }}
-                      >
-                        {segment}
-                      </Badge>
-                    );
-                  })}
-                </div>
+                <Tabs defaultValue="helix" className="w-full">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="helix" className="flex items-center gap-2">
+                      <Dna className="h-4 w-4" />
+                      {t('morphology.dnaHelix') || 'DNA Helix'}
+                    </TabsTrigger>
+                    <TabsTrigger value="list" className="flex items-center gap-2">
+                      <List className="h-4 w-4" />
+                      {t('morphology.listView') || 'List'}
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="helix">
+                    <DNAHelixVisualization 
+                      morphology={morphology}
+                      dnaCode={dnaCode}
+                      language={language}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="list">
+                    <div className="flex flex-wrap gap-2">
+                      {dnaCode.split('-').map((segment, index) => {
+                        const dimension = MORPHOLOGY_DIMENSIONS[index];
+                        if (!dimension) return null;
+                        
+                        const option = dimension.options.find(opt => opt.value === segment);
+                        const translatedLabel = option ? t(option.translationKey) : segment;
+                        const categoryColor = CATEGORY_COLORS[dimension.category];
+                        
+                        return (
+                          <Badge
+                            key={index}
+                            className="font-mono text-xs text-white border-none"
+                            style={{
+                              backgroundColor: `hsl(${categoryColor})`,
+                            }}
+                          >
+                            {translatedLabel}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </CollapsibleContent>
           </div>

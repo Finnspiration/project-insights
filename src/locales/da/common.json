@@ -269,6 +269,8 @@
       "dynamics": "Dynamik & Forandring",
       "challenge_and_resources": "Udfordring, Ressourcer & Risiko"
     },
+    "dnaHelix": "DNA Helix",
+    "listView": "Liste",
     "dimensions": {
       "complexity": {
         "title": "Kompleksitetsniveau",
