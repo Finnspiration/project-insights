@@ -163,11 +163,11 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
 
     // Positioned to match the golden U image
     const phases = [
-      { key: 'seeing', x: 230, y: 75, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
+      { key: 'seeing', x: 230, y: 77, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
       { key: 'sensing', x: 180, y: 255, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
-      { key: 'presencing', x: 383, y: 390, label: 'Presencing', subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
+      { key: 'presencing', x: 379, y: 388, label: 'Presencing', subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
       { key: 'crystallizing', x: 575, y: 253, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
-      { key: 'prototyping', x: 565, y: 75, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
+      { key: 'prototyping', x: 565, y: 77, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
     ];
 
     return (
@@ -211,7 +211,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
               <circle
                 cx={phase.x}
                 cy={phase.y}
-                r={isCurrentPhase ? 15 : 12}
+                r={isCurrentPhase ? 10.5 : 8.5}
                 fill={`url(#pearl-${phase.key})`}
                 stroke={isCurrentPhase ? '#ffffff' : '#e0e0e0'}
                 strokeWidth={isCurrentPhase ? 2 : 1.5}
@@ -227,7 +227,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                   <circle
                     cx={phase.x}
                     cy={phase.y}
-                    r="21"
+                    r="15"
                     fill="#FFD700"
                     opacity="0.3"
                     className="animate-pulse"
@@ -238,7 +238,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
               {/* Phase label */}
               <text
                 x={phase.key === 'sensing' ? phase.x - 25 : phase.key === 'crystallizing' ? phase.x + 25 : phase.x}
-                y={isCenter ? phase.y + 50 : (index < 2 ? phase.y - 30 : phase.y - 30)}
+                y={phase.key === 'sensing' || phase.key === 'crystallizing' ? phase.y + 5 : (isCenter ? phase.y + 50 : (index < 2 ? phase.y - 30 : phase.y - 30))}
                 textAnchor={phase.key === 'sensing' ? 'end' : phase.key === 'crystallizing' ? 'start' : 'middle'}
                 className={`font-bold ${isCurrentPhase ? 'text-lg' : 'text-sm'}`}
                 style={{ fontSize: isCurrentPhase ? '18px' : '16px', fill: '#ffffff' }}
@@ -249,7 +249,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
               {/* Phase subtitle */}
               <text
                 x={phase.key === 'sensing' ? phase.x - 25 : phase.key === 'crystallizing' ? phase.x + 25 : phase.x}
-                y={isCenter ? phase.y + 70 : (index < 2 ? phase.y - 12 : phase.y - 12)}
+                y={phase.key === 'sensing' || phase.key === 'crystallizing' ? phase.y + 20 : (isCenter ? phase.y + 70 : (index < 2 ? phase.y - 12 : phase.y - 12))}
                 textAnchor={phase.key === 'sensing' ? 'end' : phase.key === 'crystallizing' ? 'start' : 'middle'}
                 className="text-xs"
                 style={{ fontSize: '11px', fill: '#ffffff', opacity: 0.8 }}
