@@ -502,6 +502,12 @@
       },
       "socialField": "Social Field",
       "depth": "Depth",
+      "depths": {
+        "surface": "Surface",
+        "shallow": "Shallow",
+        "deep": "Deep",
+        "profound": "Profound"
+      },
       "openMHW": "Open M/H/W",
       "confident": "Confident",
       "whyThisPhase": "Why This Phase?",
