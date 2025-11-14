@@ -165,7 +165,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
     const phases = [
       { key: 'seeing', x: 230, y: 77, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
       { key: 'sensing', x: 180, y: 255, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
-      { key: 'presencing', x: 374, y: 386, label: 'Presencing', subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
+      { key: 'presencing', x: 373, y: 386, label: 'Presencing', subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
       { key: 'crystallizing', x: 575, y: 253, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
       { key: 'prototyping', x: 565, y: 77, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
     ];
