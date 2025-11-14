@@ -233,7 +233,28 @@
       "noDocuments": "No documents uploaded yet",
       "fileName": "File Name",
       "fileSize": "Size",
-      "uploadedAt": "Uploaded"
+      "uploadedAt": "Uploaded",
+      "description": "Upload project documents for AI analysis",
+      "tabs": {
+        "fileUpload": "File Upload",
+        "pasteText": "Paste Text"
+      },
+      "textTitle": "Document Title",
+      "textTitlePlaceholder": "E.g. \"Project Notes\" or \"Stakeholder Analysis\"",
+      "pasteArea": "Text Content",
+      "pasteAreaPlaceholder": "Copy and paste your text here...\n\nYou can paste meeting notes, project descriptions, emails, or other relevant text.",
+      "characters": "characters",
+      "longText": "Very long text - consider splitting",
+      "uploadText": "Upload Text",
+      "uploadingText": "Uploading...",
+      "textUploaded": "Text uploaded successfully",
+      "supportedFormats": "Supported: PDF, DOCX, XLSX, TXT, MD",
+      "browse": "Browse Files",
+      "uploaded": "Uploaded Documents",
+      "errors": {
+        "emptyText": "Please enter some text",
+        "noTitle": "Please provide a title"
+      }
     }
   },
   "projectDetail": {
