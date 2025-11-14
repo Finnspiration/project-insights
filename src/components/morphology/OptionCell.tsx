@@ -14,7 +14,7 @@ export function OptionCell({ translationKey, isSelected, categoryColor }: Option
   return (
     <div
       className={cn(
-        "relative px-3 py-2 text-center text-sm transition-all duration-200 rounded border",
+        "relative px-3 py-3 text-center text-sm transition-all duration-200 rounded border min-h-[60px] flex items-center justify-center",
         isSelected
           ? "bg-gradient-to-br from-primary/20 to-accent/20 border-primary/40 font-semibold text-foreground shadow-md"
           : "bg-muted/30 border-border/40 text-muted-foreground hover:bg-muted/50"
@@ -32,7 +32,7 @@ export function OptionCell({ translationKey, isSelected, categoryColor }: Option
           <Check className="h-3 w-3" />
         </div>
       )}
-      <span className="block truncate">{t(translationKey)}</span>
+      <span className="block leading-snug">{t(translationKey)}</span>
     </div>
   );
 }
