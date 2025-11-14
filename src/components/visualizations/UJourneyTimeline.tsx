@@ -127,6 +127,21 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     fetchAnalysis(true);
   };
 
+  const mapSocialFieldKey = (field: string): string => {
+    const mapping: Record<string, string> = {
+      'politeness': 'downloading',
+      'routine': 'downloading',
+      'debating': 'debating',
+      'conflict': 'debating',
+      'dialogue': 'dialogue',
+      'reflective dialogue': 'dialogue',
+      'collective creativity': 'collective_creativity',
+      'flow': 'collective_creativity',
+      'co-creation': 'collective_creativity'
+    };
+    return mapping[field?.toLowerCase()] || 'downloading';
+  };
+
   const getCurrentPhaseData = () => {
     if (!analysis?.currentPhase?.phase) return U_PHASES[2]; // default to sensing
     const phaseKey = analysis.currentPhase.phase.toLowerCase();
@@ -145,16 +160,67 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     return t('visualizations.theoryU.priority.low');
   };
 
-  const getReadinessColor = (status?: string) => {
-    if (status === 'green') return 'text-green-600 dark:text-green-400';
-    if (status === 'yellow') return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
+  const getReadinessColor = (status?: string): "default" | "secondary" | "outline" | "destructive" => {
+    if (!status) return 'secondary';
+    const s = status.toLowerCase();
+    if (s.includes('ready') || s.includes('yes') || s === 'green') return 'default';
+    if (s.includes('partial') || s.includes('maybe') || s === 'yellow') return 'secondary';
+    return 'outline';
   };
 
   const getReadinessIcon = (status?: string) => {
-    if (status === 'green') return '🟢';
-    if (status === 'yellow') return '🟡';
-    return '🔴';
+    if (!status) return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
+    const s = status.toLowerCase();
+    if (s.includes('ready') || s.includes('yes') || s === 'green') 
+      return <span className="text-green-500">🟢</span>;
+    if (s.includes('partial') || s.includes('maybe') || s === 'yellow') 
+      return <span className="text-yellow-500">🟡</span>;
+    return <span className="text-red-500">🔴</span>;
+  };
+
+  const getDefaultTheoryUResources = (language: 'en' | 'da') => {
+    if (language === 'da') {
+      return [
+        {
+          type: 'bog',
+          title: 'Theory U: Leading from the Future as It Emerges',
+          link: 'https://www.presencing.org/resource/books/theory-u',
+          relevance: 'Den originale Theory U bog af Otto Scharmer'
+        },
+        {
+          type: 'værktøj',
+          title: 'Presencing Institute Toolkit',
+          link: 'https://www.presencing.org/resource/tools',
+          relevance: 'Gratis værktøjer til Theory U praksis'
+        },
+        {
+          type: 'video',
+          title: 'Theory U MOOC',
+          link: 'https://www.edx.org/course/ulab',
+          relevance: 'Gratis online kursus i Theory U'
+        }
+      ];
+    }
+    return [
+      {
+        type: 'book',
+        title: 'Theory U: Leading from the Future as It Emerges',
+        link: 'https://www.presencing.org/resource/books/theory-u',
+        relevance: 'The original Theory U book by Otto Scharmer'
+      },
+      {
+        type: 'tool',
+        title: 'Presencing Institute Toolkit',
+        link: 'https://www.presencing.org/resource/tools',
+        relevance: 'Free tools for Theory U practice'
+      },
+      {
+        type: 'video',
+        title: 'Theory U MOOC',
+        link: 'https://www.edx.org/course/ulab',
+        relevance: 'Free online course in Theory U'
+      }
+    ];
   };
 
   if (loading) {
@@ -382,39 +448,111 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
           </div>
         </div>
 
-        {/* READINESS INDICATORS Section */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3">{t('visualizations.theoryU.readinessIndicators')}</h3>
-          <div className="grid md:grid-cols-3 gap-3">
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <span>{getReadinessIcon(analysis.readinessIndicators?.readyToDescend?.status)}</span>
-                {t('visualizations.theoryU.readyToDescend')}
-              </p>
-              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators?.readyToDescend?.status)}`}>
-                {analysis.readinessIndicators?.readyToDescend?.reason}
-              </p>
-            </div>
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <span>{getReadinessIcon(analysis.readinessIndicators?.readyToPresence?.status)}</span>
-                {t('visualizations.theoryU.readyToPresence')}
-              </p>
-              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators?.readyToPresence?.status)}`}>
-                {analysis.readinessIndicators?.readyToPresence?.reason}
-              </p>
-            </div>
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <span>{getReadinessIcon(analysis.readinessIndicators?.readyToAscend?.status)}</span>
-                {t('visualizations.theoryU.readyToAscend')}
-              </p>
-              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators?.readyToAscend?.status)}`}>
-                {analysis.readinessIndicators?.readyToAscend?.reason}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Readiness Indicators - Interactive */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('visualizations.theoryU.readinessIndicators')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="descend">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    {getReadinessIcon(analysis.readinessIndicators?.readyToDescend?.status)}
+                    <span className="font-semibold">{t('visualizations.theoryU.readyToDescend')}</span>
+                    <Badge variant={getReadinessColor(analysis.readinessIndicators?.readyToDescend?.status)} className="ml-2">
+                      {analysis.readinessIndicators?.readyToDescend?.status || 'unknown'}
+                    </Badge>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3 pt-2">
+                    <div>
+                      <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessWhy')}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {analysis.readinessIndicators?.readyToDescend?.reason}
+                      </p>
+                    </div>
+                    {(analysis.readinessIndicators?.readyToDescend as any)?.nextSteps && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessNextSteps')}</p>
+                        <ul className="list-disc pl-4 text-sm text-muted-foreground space-y-1">
+                          {(analysis.readinessIndicators?.readyToDescend as any).nextSteps.map((step: string, idx: number) => (
+                            <li key={idx}>{step}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="presence">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    {getReadinessIcon(analysis.readinessIndicators?.readyToPresence?.status)}
+                    <span className="font-semibold">{t('visualizations.theoryU.readyToPresence')}</span>
+                    <Badge variant={getReadinessColor(analysis.readinessIndicators?.readyToPresence?.status)} className="ml-2">
+                      {analysis.readinessIndicators?.readyToPresence?.status || 'unknown'}
+                    </Badge>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3 pt-2">
+                    <div>
+                      <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessWhy')}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {analysis.readinessIndicators?.readyToPresence?.reason}
+                      </p>
+                    </div>
+                    {(analysis.readinessIndicators?.readyToPresence as any)?.nextSteps && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessNextSteps')}</p>
+                        <ul className="list-disc pl-4 text-sm text-muted-foreground space-y-1">
+                          {(analysis.readinessIndicators?.readyToPresence as any).nextSteps.map((step: string, idx: number) => (
+                            <li key={idx}>{step}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="ascend">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    {getReadinessIcon(analysis.readinessIndicators?.readyToAscend?.status)}
+                    <span className="font-semibold">{t('visualizations.theoryU.readyToAscend')}</span>
+                    <Badge variant={getReadinessColor(analysis.readinessIndicators?.readyToAscend?.status)} className="ml-2">
+                      {analysis.readinessIndicators?.readyToAscend?.status || 'unknown'}
+                    </Badge>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3 pt-2">
+                    <div>
+                      <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessWhy')}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {analysis.readinessIndicators?.readyToAscend?.reason}
+                      </p>
+                    </div>
+                    {(analysis.readinessIndicators?.readyToAscend as any)?.nextSteps && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessNextSteps')}</p>
+                        <ul className="list-disc pl-4 text-sm text-muted-foreground space-y-1">
+                          {(analysis.readinessIndicators?.readyToAscend as any).nextSteps.map((step: string, idx: number) => (
+                            <li key={idx}>{step}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
 
         {/* THEORY U RESOURCES (Optional) */}
         {analysis.theoryUResources && analysis.theoryUResources.length > 0 && (
