@@ -198,36 +198,23 @@ export function MorphologicalBox({
                     />
                   </TabsContent>
                   
-                  <TabsContent value="list">
+                  <TabsContent value="list" className="mt-4">
                     <div className="flex flex-wrap gap-2">
-                      {dnaCode.split('-').map((segment, index) => {
-                        // CRITICAL FIX: Find dimension by option value, NOT by index
-                        const dimensionWithOption = MORPHOLOGY_DIMENSIONS.find(dim => 
-                          dim.options.some(opt => opt.value === segment)
-                        );
+                      {MORPHOLOGY_DIMENSIONS.map((dimension) => {
+                        const selectedValue = morphology[dimension.key];
+                        if (!selectedValue) return null;
                         
-                        if (!dimensionWithOption || !segment) {
-                          console.warn('No dimension found for list segment:', segment, 'at index', index);
-                          return null;
-                        }
-                        
-                        const dimension = dimensionWithOption;
-                        const option = dimension.options.find(opt => opt.value === segment);
-                        const translatedLabel = option ? t(option.translationKey) : segment;
+                        const option = dimension.options.find(opt => opt.value === selectedValue);
+                        const translatedLabel = option ? t(option.translationKey) : selectedValue;
                         const categoryColor = CATEGORY_COLORS[dimension.category];
                         
                         return (
-                          <Badge
-                            key={`${index}-${segment}`}
-                            className="font-mono text-xs text-white border-none whitespace-normal text-center max-w-[140px]"
-                            style={{
-                              backgroundColor: `hsl(${categoryColor})`,
-                              lineHeight: '1.3',
-                              padding: '6px 10px',
-                              minHeight: '28px',
-                            }}
+                          <Badge 
+                            key={dimension.key}
+                            className="font-mono text-xs text-white border-none"
+                            style={{ backgroundColor: `hsl(${categoryColor})` }}
                           >
-                            {translatedLabel}
+                            <span className="opacity-70">{t(dimension.translationKey)}:</span> {translatedLabel}
                           </Badge>
                         );
                       })}

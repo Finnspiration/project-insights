@@ -125,11 +125,10 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
   };
 
   const generateDNACode = (data: MorphologyData): string => {
-    const values = DIMENSIONS.map(dim => {
-      const value = data[dim] || 'unknown';
-      return value.charAt(0).toUpperCase() + value.slice(1);
-    });
-    return values.join('-');
+    return DIMENSIONS
+      .map(dim => data[dim])
+      .filter(Boolean)
+      .join('-');
   };
 
   const handleFinish = async () => {
