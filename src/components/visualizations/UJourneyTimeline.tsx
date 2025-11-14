@@ -237,9 +237,9 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
 
               {/* Phase label */}
               <text
-                x={phase.key === 'sensing' ? phase.x - 25 : phase.key === 'crystallizing' ? phase.x + 25 : phase.x}
+                x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x}
                 y={isCenter ? phase.y + 50 : phase.y - 7}
-                textAnchor={phase.key === 'sensing' ? 'end' : phase.key === 'crystallizing' ? 'start' : 'middle'}
+                textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'}
                 className={`font-bold ${isCurrentPhase ? 'text-lg' : 'text-sm'}`}
                 style={{ fontSize: isCurrentPhase ? '18px' : '16px', fill: '#ffffff' }}
               >
@@ -248,9 +248,9 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
               
               {/* Phase subtitle */}
               <text
-                x={phase.key === 'sensing' ? phase.x - 25 : phase.key === 'crystallizing' ? phase.x + 25 : phase.x}
+                x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x}
                 y={isCenter ? phase.y + 70 : phase.y + 8}
-                textAnchor={phase.key === 'sensing' ? 'end' : phase.key === 'crystallizing' ? 'start' : 'middle'}
+                textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'}
                 className="text-xs"
                 style={{ fontSize: '11px', fill: '#ffffff', opacity: 0.8 }}
               >
