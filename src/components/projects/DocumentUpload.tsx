@@ -313,7 +313,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
               </Label>
               <Input
                 id="text-title"
-                placeholder={t('documents.textTitlePlaceholder') || 'E.g. "Project Notes" or "Stakeholder Analysis"'}
+                placeholder={t('documents.textTitlePlaceholder') || "E.g. 'Project Notes' or 'Stakeholder Analysis'"}
                 value={textTitle}
                 onChange={(e) => setTextTitle(e.target.value)}
                 disabled={uploadingText}
