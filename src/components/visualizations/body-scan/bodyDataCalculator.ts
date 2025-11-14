@@ -9,6 +9,7 @@ export interface BodyData {
     expression: 'smile' | 'neutral' | 'tense' | 'frown';
     eyes: 'calm' | 'focused' | 'sharp' | 'stressed';
     tension: number;
+    color: string;
   };
   shoulders: {
     width: number;
@@ -31,6 +32,7 @@ export interface BodyData {
     structure: 'rigid' | 'hierarchical' | 'network' | 'distributed';
     strength: number;
     segments: number;
+    color: string;
   };
   legs: {
     stability: number;
@@ -103,6 +105,13 @@ function getStakeholderTension(stakeholder?: string): number {
   return map[stakeholder || 'unified'] || 0;
 }
 
+function getFaceColor(stakeholder?: string): string {
+  const tension = getStakeholderTension(stakeholder);
+  if (tension >= 0.7) return HEALTH_COLORS.critical; // Red
+  if (tension >= 0.3) return HEALTH_COLORS.attention; // Yellow
+  return HEALTH_COLORS.healthy; // Green
+}
+
 function getResourceWidth(resources?: string): number {
   const map: Record<string, number> = {
     rich: 1.3,
@@ -169,6 +178,13 @@ function getOrganizationalStrength(organizational?: string): number {
     teal: 1.0
   };
   return map[organizational || 'orange'] || 0.6;
+}
+
+function getTorsoHealthColor(organizational?: string): string {
+  const strength = getOrganizationalStrength(organizational);
+  if (strength >= 0.8) return HEALTH_COLORS.healthy; // Green (Teal, Green)
+  if (strength >= 0.5) return HEALTH_COLORS.attention; // Yellow (Orange, Amber)
+  return HEALTH_COLORS.critical; // Red (Red)
 }
 
 function getChangeStability(change?: string): number {
@@ -242,6 +258,13 @@ function getSpineSegments(information?: string): number {
   return map[information || 'hierarchical'] || 3;
 }
 
+function getSpineColor(information?: string, development?: string): string {
+  const strength = getDevelopmentStrength(development);
+  if (strength >= 0.8) return HEALTH_COLORS.healthy;
+  if (strength >= 0.6) return HEALTH_COLORS.attention;
+  return HEALTH_COLORS.critical;
+}
+
 function calculateStability(morphology: any): number {
   const resourceScore = { rich: 1, balanced: 0.7, constrained: 0.4, scarce: 0.2 }[morphology.resources || 'balanced'] || 0.7;
   const orgScore = { red: 0.3, amber: 0.5, orange: 0.6, green: 0.8, teal: 1.0 }[morphology.organizational || 'orange'] || 0.6;
@@ -298,7 +321,8 @@ export function calculateBodyData(morphology: any): BodyData {
     face: {
       expression: getStakeholderExpression(morphology?.stakeholder),
       eyes: getChallengeEyes(morphology?.challenge),
-      tension: getStakeholderTension(morphology?.stakeholder)
+      tension: getStakeholderTension(morphology?.stakeholder),
+      color: getFaceColor(morphology?.stakeholder)
     },
     
     shoulders: {
@@ -309,7 +333,7 @@ export function calculateBodyData(morphology: any): BodyData {
     },
     
     torso: {
-      color: getOrganizationalColor(morphology?.organizational),
+      color: getTorsoHealthColor(morphology?.organizational),
       openness: getCultureOpenness(morphology?.culture),
       heartStrength: getOrganizationalStrength(morphology?.organizational)
     },
@@ -324,7 +348,8 @@ export function calculateBodyData(morphology: any): BodyData {
     spine: {
       structure: getInformationStructure(morphology?.information),
       strength: getDevelopmentStrength(morphology?.inner_development),
-      segments: getSpineSegments(morphology?.information)
+      segments: getSpineSegments(morphology?.information),
+      color: getSpineColor(morphology?.information, morphology?.inner_development)
     },
     
     legs: {

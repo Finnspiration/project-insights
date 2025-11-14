@@ -33,6 +33,13 @@ export function BodyPartExplanation({ part, data, morphology, isHovered, onHover
       return 'danger';
     }
     
+    if (part === 'face') {
+      const tension = data.tension;
+      if (tension < 0.3) return 'healthy';
+      if (tension < 0.7) return 'attention';
+      return 'critical';
+    }
+    
     if (part === 'shoulders') {
       const resources = morphology?.resources;
       if (resources === 'rich') return 'healthy';
@@ -41,12 +48,26 @@ export function BodyPartExplanation({ part, data, morphology, isHovered, onHover
       return 'danger';
     }
     
+    if (part === 'torso') {
+      const heartStrength = data.heartStrength;
+      if (heartStrength >= 0.8) return 'healthy';
+      if (heartStrength >= 0.5) return 'attention';
+      return 'critical';
+    }
+    
     if (part === 'belly') {
       const risk = morphology?.risk;
       if (risk === 'low') return 'healthy';
       if (risk === 'moderate') return 'attention';
       if (risk === 'high') return 'critical';
       return 'danger';
+    }
+    
+    if (part === 'spine') {
+      const strength = data.strength;
+      if (strength >= 0.8) return 'healthy';
+      if (strength >= 0.6) return 'attention';
+      return 'critical';
     }
     
     if (part === 'legs') {
