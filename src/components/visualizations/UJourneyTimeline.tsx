@@ -107,14 +107,33 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
     if (!data) return null;
     
-    // If already in correct format, return as-is
+    // Map 7-phase AI system to 5-phase UI system
+    const mapPhaseToUI = (phase: string): string => {
+      const phaseMap: Record<string, string> = {
+        'downloading': 'seeing',      // Downloading mappes til Observere
+        'seeing': 'seeing',
+        'sensing': 'sensing',
+        'presencing': 'presencing',
+        'crystallizing': 'crystallizing',
+        'prototyping': 'prototyping',
+        'performing': 'prototyping'   // Performing mappes til Prototyping
+      };
+      return phaseMap[phase.toLowerCase()] || 'seeing'; // Fallback til seeing
+    };
+    
+    // If already in correct format, map the phase
     if (data.position && !data.currentPhase) {
-      return data as TheoryUAnalysis;
+      return {
+        ...data,
+        position: mapPhaseToUI(data.position)
+      } as TheoryUAnalysis;
     }
     
     // Transform from AI response format to component format
+    const rawPhase = data.currentPhase?.phase || data.position || 'downloading';
+    
     return {
-      position: data.currentPhase?.phase || data.position || 'downloading',
+      position: mapPhaseToUI(rawPhase),
       confidence: data.currentPhase?.confidence || data.confidence || 0,
       socialField: data.currentPhase?.socialField || data.socialField || 'downloading',
       depth: data.currentPhase?.depthLevel || data.depth || 'surface',
