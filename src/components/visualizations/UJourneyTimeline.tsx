@@ -170,6 +170,20 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       { key: 'prototyping', x: 565, y: 77, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
     ];
 
+    // Map AI's 7 phases to our 5 visualization phases
+    const mapPhaseToVisualization = (aiPhase: string): string => {
+      const phaseMap: Record<string, string> = {
+        'downloading': 'seeing',
+        'performing': 'prototyping'
+      };
+      return phaseMap[aiPhase] || aiPhase;
+    };
+
+    const mappedPhase = analysis?.position 
+      ? mapPhaseToVisualization(analysis.position) 
+      : null;
+
+
     return (
       <svg width={width} height={height} className="mx-auto" viewBox={`0 0 ${width} ${height}`}>
         <defs>
@@ -195,7 +209,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         {/* Phase labels with descriptions */}
         {phases.map((phase, index) => {
           const isCenter = index === 2;
-          const isCurrentPhase = phase.key === analysis?.position;
+          const isCurrentPhase = phase.key === mappedPhase;
           
           return (
             <g key={phase.key}>
