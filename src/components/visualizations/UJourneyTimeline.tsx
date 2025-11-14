@@ -136,7 +136,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         will: data.diagnostics?.openWill?.score || data.openMHW?.will || 0
       },
       whyHere: data.whyHere,
-      nextActions: data.nextActions || [],
+      nextActions: Array.isArray(data.nextActions) ? data.nextActions : [],
       readinessIndicators: data.readinessIndicators,
       theoryUResources: data.theoryUResources || []
     };
