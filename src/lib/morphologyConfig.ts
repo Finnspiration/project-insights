@@ -12,7 +12,7 @@ export type DimensionKey =
   | 'information' 
   | 'risk';
 
-export type CategoryType = 'context' | 'capacity' | 'dynamics' | 'resources' | 'challenge';
+export type CategoryType = 'context' | 'capacity' | 'dynamics' | 'challenge_and_resources';
 
 export interface DimensionOption {
   value: string;
@@ -97,7 +97,7 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
   {
     key: 'challenge',
     translationKey: 'morphology.dimensions.challenge.title',
-    category: 'challenge',
+    category: 'challenge_and_resources',
     options: [
       { value: 'technical', translationKey: 'morphology.dimensions.challenge.options.technical' },
       { value: 'social', translationKey: 'morphology.dimensions.challenge.options.social' },
@@ -121,7 +121,7 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
   {
     key: 'resources',
     translationKey: 'morphology.dimensions.resources.title',
-    category: 'resources',
+    category: 'challenge_and_resources',
     options: [
       { value: 'rich', translationKey: 'morphology.dimensions.resources.options.rich' },
       { value: 'balanced', translationKey: 'morphology.dimensions.resources.options.balanced' },
@@ -154,7 +154,7 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
   {
     key: 'risk',
     translationKey: 'morphology.dimensions.risk.title',
-    category: 'resources',
+    category: 'challenge_and_resources',
     options: [
       { value: 'low', translationKey: 'morphology.dimensions.risk.options.low' },
       { value: 'moderate', translationKey: 'morphology.dimensions.risk.options.moderate' },
@@ -168,6 +168,5 @@ export const CATEGORY_COLORS: Record<CategoryType, string> = {
   context: 'hsl(var(--primary))',
   capacity: 'hsl(var(--secondary))',
   dynamics: 'hsl(var(--accent))',
-  resources: 'hsl(var(--warning))',
-  challenge: 'hsl(var(--success))',
+  challenge_and_resources: 'hsl(var(--warning))',
 };
