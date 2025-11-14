@@ -37,9 +37,18 @@ export function MorphologicalBox({
   const [theoryUAnalysis, setTheoryUAnalysis] = useState<any>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
-  const handleSelect = (dimensionKey: string, value: string) => {
+  const handleSelect = async (dimensionKey: string, value: string) => {
     const updatedMorphology = { ...morphology, [dimensionKey]: value };
     onMorphologyChange?.(updatedMorphology);
+    
+    // Auto-sync Theory U data when morphology changes
+    if (projectId) {
+      console.log('🔄 Auto-syncing Theory U data after morphology change...');
+      // Wait a bit for the database to update before regenerating
+      setTimeout(() => {
+        regenerateMorphologyScoring();
+      }, 500);
+    }
   };
 
   const handleCopyDNA = () => {
