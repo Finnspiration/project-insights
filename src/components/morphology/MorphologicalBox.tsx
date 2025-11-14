@@ -9,6 +9,7 @@ import { DimensionRow } from './DimensionRow';
 import { MorphologyDescription } from './MorphologyDescription';
 import { DNAHelixVisualization } from './DNAHelixVisualization';
 import { MorphologyScoringTable } from './MorphologyScoringTable';
+import { RegenerateDNAButton } from '../projects/RegenerateDNAButton';
 import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -160,15 +161,23 @@ export function MorphologicalBox({
                   {t('morphology.showDnaCode') || 'Show DNA Code'}
                 </Button>
               </CollapsibleTrigger>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyDNA}
-                className="flex items-center gap-2"
-              >
-                <Copy className="h-4 w-4" />
-                {t('morphology.copyDna') || 'Copy'}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyDNA}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  {t('morphology.copyDna') || 'Copy'}
+                </Button>
+                {projectId && (
+                  <RegenerateDNAButton 
+                    projectId={projectId} 
+                    onSuccess={() => window.location.reload()}
+                  />
+                )}
+              </div>
             </div>
 
             <CollapsibleContent>
