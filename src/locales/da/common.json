@@ -501,6 +501,12 @@
       },
       "socialField": "Socialt Felt",
       "depth": "Dybde",
+      "depths": {
+        "surface": "Overflade",
+        "shallow": "Lav",
+        "deep": "Dyb",
+        "profound": "Dybtgående"
+      },
       "openMHW": "Open M/H/W",
       "confident": "Tillid",
       "whyThisPhase": "Hvorfor Denne Fase?",

@@ -123,7 +123,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       }
 
       // Call edge function
-      const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+      const { data: analysisData, error } = await supabase.functions.invoke('analyze-theory-u-position', {
         body: {
           projectId,
           morphology,
@@ -132,7 +132,35 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       });
 
       if (error) throw error;
-      setAnalysis(data as TheoryUAnalysis);
+      if (!analysisData) throw new Error('No analysis data returned');
+
+      // Transform AI response structure to match component expectations
+      const transformed = {
+        position: analysisData.currentPhase?.phase || analysisData.position,
+        confidence: analysisData.currentPhase?.confidence || analysisData.confidence,
+        socialField: analysisData.currentPhase?.socialField || analysisData.socialField,
+        depth: analysisData.currentPhase?.depthLevel || analysisData.depth,
+        openMHW: {
+          mind: analysisData.diagnostics?.openMind?.score || analysisData.openMHW?.mind || 0,
+          heart: analysisData.diagnostics?.openHeart?.score || analysisData.openMHW?.heart || 0,
+          will: analysisData.diagnostics?.openWill?.score || analysisData.openMHW?.will || 0
+        },
+        whyHere: analysisData.whyHere,
+        nextActions: analysisData.nextActions,
+        readinessIndicators: analysisData.readinessIndicators,
+        theoryUResources: analysisData.theoryUResources
+      };
+
+      // Cache the result
+      await supabase
+        .from('projects')
+        .update({ 
+          theory_u_analysis: transformed,
+          theory_u_analysis_updated_at: new Date().toISOString()
+        })
+        .eq('id', projectId);
+
+      setAnalysis(transformed);
     } catch (error) {
       console.error('Error fetching Theory U analysis:', error);
       toast({
@@ -408,7 +436,9 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
 
               <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
                 <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.depth')}</p>
-                <p className="text-xl font-semibold capitalize">{analysis.depth}</p>
+                <p className="text-xl font-semibold">
+                  {analysis.depth ? t(`visualizations.theoryU.depths.${analysis.depth.toLowerCase()}`) : '-'}
+                </p>
               </div>
 
               <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
