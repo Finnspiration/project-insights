@@ -263,6 +263,12 @@
       "error": "Kunne ikke generere analyse",
       "retry": "Prøv Igen"
     },
+    "categories": {
+      "context": "Projekt Kontekst",
+      "capacity": "Viden & Kapacitet",
+      "dynamics": "Dynamik & Forandring",
+      "challenge_and_resources": "Udfordring, Ressourcer & Risiko"
+    },
     "dimensions": {
       "complexity": {
         "title": "Kompleksitetsniveau",

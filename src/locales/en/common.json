@@ -263,6 +263,12 @@
       "error": "Failed to generate analysis",
       "retry": "Try Again"
     },
+    "categories": {
+      "context": "Project Context",
+      "capacity": "Knowledge & Capacity",
+      "dynamics": "Dynamics & Change",
+      "challenge_and_resources": "Challenge, Resources & Risk"
+    },
     "confidence": "Confidence",
     "dimensions": {
       "complexity": {
