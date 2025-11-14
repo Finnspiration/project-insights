@@ -466,6 +466,7 @@
           "moderate": "Moderat - Nogle ukendte, håndterbar",
           "high": "Høj - Betydelig usikkerhed, omhyggelig overvågning",
           "extreme": "Ekstrem - Store trusler, krisepotentiale"
+        }
       }
     },
     "blob": {
