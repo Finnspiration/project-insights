@@ -233,7 +233,28 @@
       "noDocuments": "Ingen dokumenter uploadet endnu",
       "fileName": "Filnavn",
       "fileSize": "Størrelse",
-      "uploadedAt": "Uploadet"
+      "uploadedAt": "Uploadet",
+      "description": "Upload projektdokumenter til AI-analyse",
+      "tabs": {
+        "fileUpload": "Fil Upload",
+        "pasteText": "Indsæt Tekst"
+      },
+      "textTitle": "Dokumenttitel",
+      "textTitlePlaceholder": "F.eks. \"Projektnoter\" eller \"Stakeholder analyse\"",
+      "pasteArea": "Tekstindhold",
+      "pasteAreaPlaceholder": "Kopier og indsæt din tekst her...\n\nDu kan indsætte mødenotater, projektbeskrivelser, e-mails eller anden relevant tekst.",
+      "characters": "tegn",
+      "longText": "Meget lang tekst - overvej at dele op",
+      "uploadText": "Upload Tekst",
+      "uploadingText": "Uploader...",
+      "textUploaded": "Tekst uploadet succesfuldt",
+      "supportedFormats": "Understøttet: PDF, DOCX, XLSX, TXT, MD",
+      "browse": "Gennemse Filer",
+      "uploaded": "Uploadede Dokumenter",
+      "errors": {
+        "emptyText": "Indtast venligst noget tekst",
+        "noTitle": "Angiv venligst en titel"
+      }
     }
   },
   "projectDetail": {
