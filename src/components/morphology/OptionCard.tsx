@@ -23,8 +23,13 @@ export function OptionCard({
 }: OptionCardProps) {
   const { t } = useTranslation('common');
   
-  const shortText = t(translationKeyShort, { defaultValue: translationKeyShort.split('.').pop() || '' });
-  const longText = t(translationKeyLong, { defaultValue: shortText });
+  // Better fallback: extract the option value (e.g., "simple" from "morphology.dimensions.complexity.options.simple.short")
+  const optionValue = translationKeyShort.split('.')[5] || 'N/A';
+  const shortText = t(translationKeyShort, { defaultValue: optionValue });
+  const longText = t(translationKeyLong, { defaultValue: optionValue });
+  
+  // Debug logging
+  console.log('OptionCard:', { translationKeyShort, translationKeyLong, shortText, longText });
 
   return (
     <Tooltip delayDuration={200}>
