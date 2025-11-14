@@ -11,33 +11,41 @@ const systemPrompts = {
 
 Generate a concise, structured project description based on the morphology.
 
-Format as markdown with these sections:
-## Project Profile
+Format as markdown with these sections (use sentence case for headings):
+## Project profile
 A 2-3 sentence overview capturing the essential nature of this project.
 
-## Key Characteristics
-- Bullet list of 3-4 defining traits based on the morphology
+## Key characteristics
+- Bullet list of 3-4 defining traits based on the morphology. Each bullet should be a clear statement without bold formatting.
 
-## Strategic Focus Areas
-- Bullet list of 2-3 critical areas to focus on
+## Strategic focus areas
+- Bullet list of 2-3 critical areas to focus on. Each bullet should be a clear statement without bold formatting.
 
-Keep it professional, specific, and actionable. Maximum 200 words total.`,
+IMPORTANT: 
+- Do NOT use bold formatting (**text**) anywhere
+- Use sentence case for all headings (e.g., "Project profile" not "Project Profile")
+- Keep bullets clear and readable without special formatting
+- Maximum 200 words total`,
   
   da: `Du er PRISM, en ekspert i projekt morfologisk analyse.
 
 Generer en kort, struktureret projektbeskrivelse baseret på morfologien.
 
-Format som markdown med disse sektioner:
-## Projekt Profil
+Format som markdown med disse sektioner (brug almindelig skrivemåde for overskrifter):
+## Projekt profil
 En 2-3 sætnings oversigt der fanger projektets essentielle natur.
 
-## Nøgle Karakteristika
-- Punktliste med 3-4 definerende træk baseret på morfologien
+## Nøgle karakteristika
+- Punktliste med 3-4 definerende træk baseret på morfologien. Hver punkt skal være en klar sætning uden fed formatering.
 
-## Strategiske Fokusområder
-- Punktliste med 2-3 kritiske områder at fokusere på
+## Strategiske fokusområder
+- Punktliste med 2-3 kritiske områder at fokusere på. Hver punkt skal være en klar sætning uden fed formatering.
 
-Hold det professionelt, specifikt og handlingsorienteret. Maksimalt 200 ord i alt.`
+VIGTIGT:
+- Brug IKKE fed formatering (**tekst**) nogen steder
+- Brug almindelig skrivemåde for alle overskrifter (f.eks. "Projekt profil" ikke "Projekt Profil")
+- Hold punkter klare og læsbare uden speciel formatering
+- Maksimalt 200 ord i alt`
 };
 
 serve(async (req) => {

@@ -90,19 +90,22 @@ export function MorphologyDescription({ morphology, language, projectId }: Morph
 
   // Parse simple markdown
   const parseMarkdown = (md: string) => {
-    return md
+    // Remove any bold formatting that might slip through
+    const cleanMd = md.replace(/\*\*/g, '');
+    
+    return cleanMd
       .split('\n')
       .map((line, i) => {
         if (line.startsWith('## ')) {
-          return <h2 key={i} className="text-base font-semibold mb-2 mt-4 first:mt-0">{line.replace('## ', '')}</h2>;
+          return <h2 key={i} className="text-base font-semibold mb-2 mt-4 first:mt-0 text-foreground">{line.replace('## ', '')}</h2>;
         }
         if (line.startsWith('- ')) {
-          return <li key={i} className="text-sm text-muted-foreground ml-4">{line.replace('- ', '')}</li>;
+          return <li key={i} className="text-sm text-muted-foreground ml-4 leading-relaxed">{line.replace('- ', '')}</li>;
         }
         if (line.trim() === '') {
           return <div key={i} className="h-2" />;
         }
-        return <p key={i} className="text-sm leading-relaxed">{line}</p>;
+        return <p key={i} className="text-sm leading-relaxed text-foreground">{line}</p>;
       });
   };
 
