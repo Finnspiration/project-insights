@@ -104,7 +104,17 @@ Returner KUN valid JSON:
     }
     
     const aiData = await aiResponse.json();
-    const generated = JSON.parse(aiData.choices[0].message.content);
+    const rawContent = aiData.choices[0].message.content;
+    
+    // Strip markdown code fences if present
+    let jsonContent = rawContent.trim();
+    if (jsonContent.startsWith('```json')) {
+      jsonContent = jsonContent.replace(/^```json\n/, '').replace(/\n```$/, '');
+    } else if (jsonContent.startsWith('```')) {
+      jsonContent = jsonContent.replace(/^```\n/, '').replace(/\n```$/, '');
+    }
+    
+    const generated = JSON.parse(jsonContent);
     
     console.log('AI generated archetype:', generated);
     
