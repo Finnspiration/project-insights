@@ -472,6 +472,70 @@
   },
   "visualizations": {
     "title": "Visualiseringer",
+    "bodyScan": {
+      "title": "Projekt Kropsscanning",
+      "description": "Visuelt sundhedstjek af dit projekts vitale tegn",
+      "vitalSigns": "Vitale Tegn",
+      "parts": {
+        "head": "Strategi & Klarhed",
+        "face": "Kommunikation & Konflikt",
+        "shoulders": "Kapacitet & Ressourcer",
+        "torso": "Kultur & Værdier",
+        "belly": "Forandring & Risiko",
+        "spine": "Struktur & Informationsflow",
+        "legs": "Stabilitet & Fremdrift"
+      },
+      "status": {
+        "healthy": "Sund",
+        "attention": "Kræver Opmærksomhed",
+        "critical": "Kritisk",
+        "danger": "Farezonen"
+      },
+      "descriptions": {
+        "head": {
+          "simple": "Klar strategisk retning med ligetil mål",
+          "complicated": "Flere sammenkoblede elementer kræver koordinering",
+          "complex": "Fremvoksende mønstre kræver adaptiv tænkning",
+          "chaotic": "Høj usikkerhed, hurtige ændringer, uklar kausalitet"
+        },
+        "face": {
+          "unified": "Stærk alignment og samarbejde blandt interessenter",
+          "cooperative": "Generelt positivt samarbejde med mindre spændinger",
+          "competitive": "Betydelige spændinger og konkurrerende interesser",
+          "adversarial": "Modstridende dagsordner og aktiv modstand"
+        },
+        "shoulders": {
+          "rich": "Rigelige ressourcer og kapacitet",
+          "balanced": "Tilstrækkelige ressourcer med nogle begrænsninger",
+          "constrained": "Begrænsede ressourcer kræver omhyggelig prioritering",
+          "scarce": "Kritisk ressourcemangel kræver øjeblikkelig handling"
+        },
+        "torso": {
+          "red": "Magtdrevet, top-down autoritetsstruktur",
+          "amber": "Procesdrevet, hierarkisk organisation",
+          "orange": "Præstationsdrevet, konkurrencepræget kultur",
+          "green": "Konsensusdrevet, værdibaseret kultur",
+          "teal": "Formålsdrevet, selvorganiserende kultur"
+        },
+        "belly": {
+          "low": "Minimal risiko, stabilt miljø",
+          "moderate": "Håndterbare risici med afbødningsstrategier",
+          "high": "Betydelige risici kræver aktiv styring",
+          "extreme": "Kritiske risici truer projektets succes"
+        },
+        "spine": {
+          "centralized": "Ét kontrolpunkt og beslutningstagning",
+          "hierarchical": "Flerlagret struktur med klare rapporteringslinjer",
+          "network": "Samarbejdsnetværk med distribuerede forbindelser",
+          "distributed": "Fuldt decentraliseret, selvorganiserende system"
+        },
+        "legs": {
+          "forward": "Stærk fremdrift driver fremskridt",
+          "neutral": "Stabilt tempo med balanceret stabilitet",
+          "backward": "Lav fremdrift, defensiv holdning"
+        }
+      }
+    },
     "culturalWeather": {
       "title": "Kulturelt Vejrkort",
       "description": "Projektkultur og atmosfærevisualisation",
