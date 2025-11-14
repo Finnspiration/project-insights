@@ -256,6 +256,13 @@
     "showDnaCode": "Vis DNA Kode",
     "copyDna": "Kopier",
     "dnaCopied": "DNA kode kopieret til udklipsholder",
+    "aiAnalysis": {
+      "title": "AI Projekt Analyse",
+      "loading": "Genererer analyse...",
+      "regenerate": "Regenerér",
+      "error": "Kunne ikke generere analyse",
+      "retry": "Prøv Igen"
+    },
     "dimensions": {
       "complexity": {
         "title": "Kompleksitetsniveau",

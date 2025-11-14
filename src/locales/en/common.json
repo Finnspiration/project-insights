@@ -256,6 +256,13 @@
     "showDnaCode": "Show Raw DNA Code",
     "copyDna": "Copy",
     "dnaCopied": "DNA code copied to clipboard",
+    "aiAnalysis": {
+      "title": "AI Project Analysis",
+      "loading": "Generating analysis...",
+      "regenerate": "Regenerate",
+      "error": "Failed to generate analysis",
+      "retry": "Try Again"
+    },
     "confidence": "Confidence",
     "dimensions": {
       "complexity": {
