@@ -1,5 +1,5 @@
 import { BodyData } from './bodyDataCalculator';
-import vitruvianBody from '@/assets/vitruvian-body.jpg';
+import vitruvianBody from '@/assets/vitruvian-body.png';
 import { HeadPart } from './parts/HeadPart';
 import { FacePart } from './parts/FacePart';
 import { ShouldersPart } from './parts/ShouldersPart';
