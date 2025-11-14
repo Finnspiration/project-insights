@@ -534,6 +534,28 @@
         "yourProject": "Dit projekt"
       },
       "glowTooltip": "Denne farve vises som ydre glød på visualiseringen",
+      "zones": {
+        "outerGlow": {
+          "title": "Ydre Glød - Risiko Zone",
+          "description": "Viser projektets risikoniveau gennem farve og intensitet"
+        },
+        "mainShape": {
+          "title": "Hovedform - Projekt DNA",
+          "description": "Form og kontur afspejler kompleksitet og interessenter"
+        },
+        "culturalOverlay": {
+          "title": "Kulturlag - Organisatorisk Context",
+          "description": "Farvegradienter viser kulturel mangfoldighed og modenhed"
+        },
+        "innerPattern": {
+          "title": "Indre Mønster - Videns Type",
+          "description": "Mønster afspejler projektets vidensintensitet"
+        },
+        "coreGlow": {
+          "title": "Kerne - Udviklingsfokus",
+          "description": "Den gyldne kerne viser fokus på indre udvikling"
+        }
+      },
       "archetypes": {
         "seed": {
           "name": "Frøet",

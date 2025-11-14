@@ -3,6 +3,7 @@ import { BlobVisualData } from './blobMapping';
 
 export interface BlobSketchProps {
   blobData: BlobVisualData;
+  onHover?: (zone: string | null, x: number, y: number) => void;
   [key: string]: any;
 }
 
@@ -10,15 +11,45 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
   let blobData: BlobVisualData;
   let baseRadius = 120;
   let startTime = 0;
+  let onHoverCallback: ((zone: string | null, x: number, y: number) => void) | undefined;
   
   p5.updateWithProps = (props: BlobSketchProps) => {
     blobData = props.blobData;
+    onHoverCallback = props.onHover;
   };
   
   p5.setup = () => {
     p5.createCanvas(500, 500);
     p5.noFill();
     startTime = p5.millis();
+  };
+  
+  p5.mouseMoved = () => {
+    if (!blobData || !onHoverCallback) return;
+    
+    const centerX = p5.width / 2;
+    const centerY = p5.height / 2;
+    const mouseXRel = p5.mouseX - centerX;
+    const mouseYRel = p5.mouseY - centerY;
+    const distance = p5.dist(0, 0, mouseXRel, mouseYRel);
+    const dynamicRadius = 120 * blobData.resourceScale;
+    
+    // Determine which zone the mouse is in
+    let zone: string | null = null;
+    
+    if (distance > dynamicRadius * 1.3) {
+      zone = 'outerGlow'; // Risk zone
+    } else if (distance > dynamicRadius * 0.9) {
+      zone = 'mainShape'; // Main blob
+    } else if (distance > dynamicRadius * 0.6) {
+      zone = 'culturalOverlay'; // Cultural layer
+    } else if (distance > dynamicRadius * 0.3) {
+      zone = 'innerPattern'; // Knowledge pattern
+    } else if (distance <= dynamicRadius * 0.3) {
+      zone = 'coreGlow'; // Development core
+    }
+    
+    onHoverCallback(zone, p5.mouseX, p5.mouseY);
   };
   
   p5.draw = () => {

@@ -535,6 +535,28 @@
         "yourProject": "Your project"
       },
       "glowTooltip": "This color appears as the outer glow on the visualization",
+      "zones": {
+        "outerGlow": {
+          "title": "Outer Glow - Risk Zone",
+          "description": "Shows project risk level through color and intensity"
+        },
+        "mainShape": {
+          "title": "Main Shape - Project DNA",
+          "description": "Shape and contour reflect complexity and stakeholders"
+        },
+        "culturalOverlay": {
+          "title": "Cultural Layer - Organizational Context",
+          "description": "Color gradients show cultural diversity and maturity"
+        },
+        "innerPattern": {
+          "title": "Inner Pattern - Knowledge Type",
+          "description": "Pattern reflects the project's knowledge intensity"
+        },
+        "coreGlow": {
+          "title": "Core - Development Focus",
+          "description": "The golden core shows focus on inner development"
+        }
+      },
       "archetypes": {
         "seed": {
           "name": "The Seed",
