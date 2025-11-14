@@ -128,7 +128,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
   };
 
   const getCurrentPhaseData = () => {
-    if (!analysis) return U_PHASES[2]; // default to sensing
+    if (!analysis?.currentPhase?.phase) return U_PHASES[2]; // default to sensing
     const phaseKey = analysis.currentPhase.phase.toLowerCase();
     return U_PHASES.find(p => p.key === phaseKey) || U_PHASES[2];
   };
