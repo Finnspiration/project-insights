@@ -103,6 +103,33 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Helper function to transform Theory U data structure
+  const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
+    if (!data) return null;
+    
+    // If already in correct format, return as-is
+    if (data.position && !data.currentPhase) {
+      return data as TheoryUAnalysis;
+    }
+    
+    // Transform from AI response format to component format
+    return {
+      position: data.currentPhase?.phase || data.position || 'downloading',
+      confidence: data.currentPhase?.confidence || data.confidence || 0,
+      socialField: data.currentPhase?.socialField || data.socialField || 'downloading',
+      depth: data.currentPhase?.depthLevel || data.depth || 'surface',
+      openMHW: {
+        mind: data.diagnostics?.openMind?.score || data.openMHW?.mind || 0,
+        heart: data.diagnostics?.openHeart?.score || data.openMHW?.heart || 0,
+        will: data.diagnostics?.openWill?.score || data.openMHW?.will || 0
+      },
+      whyHere: data.whyHere,
+      nextActions: data.nextActions || [],
+      readinessIndicators: data.readinessIndicators,
+      theoryUResources: data.theoryUResources || []
+    };
+  };
+
   const fetchAnalysis = async (forceRefresh = false) => {
     try {
       setLoading(true);
@@ -116,9 +143,12 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           .single();
 
         if (project?.theory_u_analysis) {
-          setAnalysis(project.theory_u_analysis as TheoryUAnalysis);
-          setLoading(false);
-          return;
+          const transformed = transformTheoryUData(project.theory_u_analysis);
+          if (transformed) {
+            setAnalysis(transformed);
+            setLoading(false);
+            return;
+          }
         }
       }
 
@@ -134,24 +164,13 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       if (error) throw error;
       if (!analysisData) throw new Error('No analysis data returned');
 
-      // Transform AI response structure to match component expectations
-      const transformed = {
-        position: analysisData.currentPhase?.phase || analysisData.position,
-        confidence: analysisData.currentPhase?.confidence || analysisData.confidence,
-        socialField: analysisData.currentPhase?.socialField || analysisData.socialField,
-        depth: analysisData.currentPhase?.depthLevel || analysisData.depth,
-        openMHW: {
-          mind: analysisData.diagnostics?.openMind?.score || analysisData.openMHW?.mind || 0,
-          heart: analysisData.diagnostics?.openHeart?.score || analysisData.openMHW?.heart || 0,
-          will: analysisData.diagnostics?.openWill?.score || analysisData.openMHW?.will || 0
-        },
-        whyHere: analysisData.whyHere,
-        nextActions: analysisData.nextActions,
-        readinessIndicators: analysisData.readinessIndicators,
-        theoryUResources: analysisData.theoryUResources
-      };
+      // Transform AI response using helper
+      const transformed = transformTheoryUData(analysisData);
+      if (!transformed) {
+        throw new Error('Failed to transform analysis data');
+      }
 
-      // Cache the result
+      // Cache the transformed result
       await supabase
         .from('projects')
         .update({ 
