@@ -121,20 +121,13 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       return phaseMap[phase.toLowerCase()] || 'seeing'; // Fallback til seeing
     };
     
-    // If already in correct format, map the phase
-    if (data.position && !data.currentPhase) {
-      return {
-        ...data,
-        position: mapPhaseToUI(data.position)
-      } as TheoryUAnalysis;
-    }
-    
     // Transform from AI response format to component format
-    const rawPhase = data.currentPhase?.phase || data.position || 'downloading';
+    // Read currentPhase directly (it's stored as a string like "crystallizing")
+    const rawPhase = data.currentPhase || data.whyHere?.morphologyScoring?.phase || data.position || 'downloading';
     
     return {
       position: mapPhaseToUI(rawPhase),
-      confidence: data.currentPhase?.confidence || data.confidence || 0,
+      confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
       socialField: data.currentPhase?.socialField || data.socialField || 'downloading',
       depth: data.currentPhase?.depthLevel || data.depth || 'surface',
       openMHW: {
