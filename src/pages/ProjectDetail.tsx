@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -250,6 +251,8 @@ export default function ProjectDetail() {
                 morphology={project.morphology}
                 dnaCode={project.dna_code}
                 onReassess={() => setMorphologyWizardOpen(true)}
+                projectId={project.id}
+                language={i18n.language as 'en' | 'da'}
                 onMorphologyChange={async (updatedMorphology) => {
                   // Generate new DNA code
                   const dnaSegments = Object.entries(updatedMorphology).map(([_, value]) => value);

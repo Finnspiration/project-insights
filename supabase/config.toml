@@ -1,1 +1,25 @@
 project_id = "ztyogejxlprnqxgoekml"
+
+[functions.analyze-documents]
+verify_jwt = true
+
+[functions.chat-assistant]
+verify_jwt = true
+
+[functions.generate-insights]
+verify_jwt = true
+
+[functions.process-document]
+verify_jwt = true
+
+[functions.generate-morphology-description]
+verify_jwt = true
+
+[functions.admin-get-stats]
+verify_jwt = true
+
+[functions.admin-get-users]
+verify_jwt = true
+
+[functions.admin-manage-roles]
+verify_jwt = true

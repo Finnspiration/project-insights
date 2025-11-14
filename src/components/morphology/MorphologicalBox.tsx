@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS, CategoryType } from '@/lib/morphologyConfig';
 import { DimensionRow } from './DimensionRow';
+import { MorphologyDescription } from './MorphologyDescription';
 import { Copy, ChevronDown, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -14,9 +15,18 @@ interface MorphologicalBoxProps {
   dnaCode: string;
   onReassess?: () => void;
   onMorphologyChange?: (morphology: Record<string, string>) => void;
+  projectId?: string;
+  language?: 'en' | 'da';
 }
 
-export function MorphologicalBox({ morphology, dnaCode, onReassess, onMorphologyChange }: MorphologicalBoxProps) {
+export function MorphologicalBox({ 
+  morphology, 
+  dnaCode, 
+  onReassess, 
+  onMorphologyChange,
+  projectId,
+  language = 'en'
+}: MorphologicalBoxProps) {
   const { t } = useTranslation('common');
   const [isCodeOpen, setIsCodeOpen] = useState(false);
 
@@ -101,6 +111,15 @@ export function MorphologicalBox({ morphology, dnaCode, onReassess, onMorphology
             </div>
           ))}
         </div>
+
+        {/* AI-Generated Description */}
+        {projectId && (
+          <MorphologyDescription 
+            morphology={morphology}
+            language={language}
+            projectId={projectId}
+          />
+        )}
 
         {/* DNA Code Section (Collapsible) */}
         <Collapsible open={isCodeOpen} onOpenChange={setIsCodeOpen}>
