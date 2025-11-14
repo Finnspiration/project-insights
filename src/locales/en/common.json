@@ -236,6 +236,15 @@
       "uploadedAt": "Uploaded"
     }
   },
+  "projectDetail": {
+    "tabs": {
+      "documents": "Documents",
+      "aiInsights": "AI Insights",
+      "blindSpots": "Blind Spots",
+      "visualizations": "Visualizations",
+      "morphology": "Morphology"
+    }
+  },
   "morphology": {
     "title": "Morphological Assessment",
     "subtitle": "Characterize your project across 12 key dimensions",

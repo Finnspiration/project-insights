@@ -236,6 +236,15 @@
       "uploadedAt": "Uploadet"
     }
   },
+  "projectDetail": {
+    "tabs": {
+      "documents": "Dokumenter",
+      "aiInsights": "AI Indsigter",
+      "blindSpots": "Blinde Vinkler",
+      "visualizations": "Visualiseringer",
+      "morphology": "Morfologi"
+    }
+  },
   "morphology": {
     "title": "Morfologisk Vurdering",
     "subtitle": "Karakteriser dit projekt på tværs af 12 nøgledimensioner",
