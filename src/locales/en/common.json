@@ -469,12 +469,17 @@
           "extreme": "Extreme - Major threats, crisis potential"
         }
       }
-    },
+    }
+  },
+  "visualizations": {
+    "title": "Visualizations",
     "blob": {
       "title": "Morphology Blob",
-      "description": "Abstract energy field showing project dynamics",
+      "description": "A living, generative form that visualizes your project's 'energy'. Color, shape, movement, and patterns reflect the 12 morphological dimensions. See how the project 'breathes' and evolves.",
       "noData": "No morphology data available. Please complete the project assessment first.",
       "properties": "Visual Properties",
+      "howToRead": "How to Read the Visualization",
+      "archetypeExplainer": "This archetype helps you quickly identify the project's 'personality' and typical challenges.",
       "vars": {
         "complexity": "Complexity",
         "roughness": "Roughness",
@@ -496,6 +501,18 @@
         "waves": "Waves",
         "particles": "Particles",
         "chaos": "Chaos"
+      },
+      "guide": {
+        "color": "Color",
+        "colorDesc": "Reflects organizational maturity (red/amber/orange/green/teal) and cultural diversity",
+        "shape": "Shape & Contour",
+        "shapeDesc": "Roughness = complexity, number of 'arms' = stakeholders, symmetry = information flow",
+        "pulse": "Pulsation",
+        "pulseDesc": "Speed reflects project tempo (sprint = fast, transformation = slow)",
+        "rotation": "Rotation",
+        "rotationDesc": "Movement shows change intensity (disruptive = fast rotation)",
+        "glow": "Glow",
+        "glowDesc": "Inner = development focus, outer = risk level (red pulsing = high risk)"
       },
       "archetypes": {
         "seed": {
@@ -523,10 +540,7 @@
           "description": "Unique configuration"
         }
       }
-    }
-  },
-  "visualizations": {
-    "title": "Visualizations",
+    },
     "bodyScan": {
       "title": "Project Body Scan",
       "description": "Visual health check of your project's vital signs",

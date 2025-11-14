@@ -468,12 +468,17 @@
           "extreme": "Ekstrem - Store trusler, krisepotentiale"
         }
       }
-    },
+    }
+  },
+  "visualizations": {
+    "title": "Visualiseringer",
     "blob": {
       "title": "Morfologi Blob",
-      "description": "Abstrakt energifelt der viser projektdynamik",
+      "description": "En levende, generativ form der visualiserer dit projekts 'energi'. Farve, form, bevægelse og mønstre afspejler de 12 morfologiske dimensioner. Se hvordan projektet 'ånder' og udvikler sig.",
       "noData": "Ingen morfologidata tilgængelig. Gennemfør venligst projektvurderingen først.",
       "properties": "Visuelle Egenskaber",
+      "howToRead": "Sådan Læses Visualiseringen",
+      "archetypeExplainer": "Denne arketype hjælper dig med hurtigt at identificere projektets 'personlighed' og typiske udfordringer.",
       "vars": {
         "complexity": "Kompleksitet",
         "roughness": "Ujævnhed",
@@ -495,6 +500,18 @@
         "waves": "Bølger",
         "particles": "Partikler",
         "chaos": "Kaos"
+      },
+      "guide": {
+        "color": "Farve",
+        "colorDesc": "Afspejler organisatorisk modenhed (rød/rav/orange/grøn/teal) og kulturel mangfoldighed",
+        "shape": "Form & Kontur",
+        "shapeDesc": "Ujævnhed = kompleksitet, antal 'arme' = interessenter, symmetri = informationsflow",
+        "pulse": "Pulsering",
+        "pulseDesc": "Hastighed afspejler projekttempo (sprint = hurtig, transformation = langsom)",
+        "rotation": "Rotation",
+        "rotationDesc": "Bevægelse viser forandringsintensitet (disruptiv = hurtig rotation)",
+        "glow": "Glød",
+        "glowDesc": "Indre = udviklingsfokus, ydre = risikoniveau (rød pulsering = høj risiko)"
       },
       "archetypes": {
         "seed": {
@@ -522,10 +539,7 @@
           "description": "Unik konfiguration"
         }
       }
-    }
-  },
-  "visualizations": {
-    "title": "Visualiseringer",
+    },
     "bodyScan": {
       "title": "Projekt Kropsscanning",
       "description": "Visuelt sundhedstjek af dit projekts vitale tegn",

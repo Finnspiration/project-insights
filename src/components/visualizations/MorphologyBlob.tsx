@@ -54,6 +54,9 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 <p className="text-sm text-muted-foreground">
                   {t(archetype.descriptionKey)}
                 </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {t('visualizations.blob.archetypeExplainer')}
+                </p>
               </div>
             </div>
           </div>
@@ -108,6 +111,47 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
             </div>
           </div>
         </div>
+        
+        {/* How to Read Guide */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">{t('visualizations.blob.howToRead')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3 text-sm">
+              <li className="flex gap-3">
+                <span className="text-xl">🎨</span>
+                <div>
+                  <strong>{t('visualizations.blob.guide.color')}</strong>: {t('visualizations.blob.guide.colorDesc')}
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-xl">🌊</span>
+                <div>
+                  <strong>{t('visualizations.blob.guide.shape')}</strong>: {t('visualizations.blob.guide.shapeDesc')}
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-xl">💓</span>
+                <div>
+                  <strong>{t('visualizations.blob.guide.pulse')}</strong>: {t('visualizations.blob.guide.pulseDesc')}
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-xl">🔄</span>
+                <div>
+                  <strong>{t('visualizations.blob.guide.rotation')}</strong>: {t('visualizations.blob.guide.rotationDesc')}
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-xl">✨</span>
+                <div>
+                  <strong>{t('visualizations.blob.guide.glow')}</strong>: {t('visualizations.blob.guide.glowDesc')}
+                </div>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );
