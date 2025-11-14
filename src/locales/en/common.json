@@ -467,6 +467,59 @@
           "moderate": "Moderate - Some unknowns, manageable",
           "high": "High - Significant uncertainty, careful monitoring",
           "extreme": "Extreme - Major threats, crisis potential"
+      }
+    },
+    "blob": {
+      "title": "Morphology Blob",
+      "description": "Abstract energy field showing project dynamics",
+      "noData": "No morphology data available. Please complete the project assessment first.",
+      "properties": "Visual Properties",
+      "vars": {
+        "complexity": "Complexity",
+        "roughness": "Roughness",
+        "stakeholder": "Stakeholders",
+        "arms": "arms",
+        "knowledge": "Knowledge",
+        "pattern": "Pattern",
+        "organizational": "Organization",
+        "baseColor": "Base color",
+        "temporal": "Tempo",
+        "pulse": "Pulse",
+        "change": "Change",
+        "rotation": "Rotation",
+        "risk": "Risk",
+        "glow": "Glow intensity"
+      },
+      "patterns": {
+        "grid": "Grid",
+        "waves": "Waves",
+        "particles": "Particles",
+        "chaos": "Chaos"
+      },
+      "archetypes": {
+        "seed": {
+          "name": "The Seed",
+          "description": "Healthy beginner project with clear focus"
+        },
+        "crystal": {
+          "name": "The Crystal",
+          "description": "Well-functioning project with good structure"
+        },
+        "jellyfish": {
+          "name": "The Jellyfish",
+          "description": "Coordination-intensive with many stakeholders"
+        },
+        "storm": {
+          "name": "The Storm Cloud",
+          "description": "CRITICAL - requires immediate intervention"
+        },
+        "octopus": {
+          "name": "The Octopus",
+          "description": "Ambitious transformation - watch coordination"
+        },
+        "unknown": {
+          "name": "Unknown Form",
+          "description": "Unique configuration"
         }
       }
     }

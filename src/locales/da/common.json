@@ -466,6 +466,59 @@
           "moderate": "Moderat - Nogle ukendte, håndterbar",
           "high": "Høj - Betydelig usikkerhed, omhyggelig overvågning",
           "extreme": "Ekstrem - Store trusler, krisepotentiale"
+      }
+    },
+    "blob": {
+      "title": "Morfologi Blob",
+      "description": "Abstrakt energifelt der viser projektdynamik",
+      "noData": "Ingen morfologidata tilgængelig. Gennemfør venligst projektvurderingen først.",
+      "properties": "Visuelle Egenskaber",
+      "vars": {
+        "complexity": "Kompleksitet",
+        "roughness": "Ujævnhed",
+        "stakeholder": "Interessenter",
+        "arms": "arme",
+        "knowledge": "Viden",
+        "pattern": "Mønster",
+        "organizational": "Organisation",
+        "baseColor": "Basisfarve",
+        "temporal": "Tempo",
+        "pulse": "Puls",
+        "change": "Forandring",
+        "rotation": "Rotation",
+        "risk": "Risiko",
+        "glow": "Glødintensitet"
+      },
+      "patterns": {
+        "grid": "Gitter",
+        "waves": "Bølger",
+        "particles": "Partikler",
+        "chaos": "Kaos"
+      },
+      "archetypes": {
+        "seed": {
+          "name": "Frøet",
+          "description": "Sundt begynderprojekt med klart fokus"
+        },
+        "crystal": {
+          "name": "Krystallen",
+          "description": "Velfungerende projekt med god struktur"
+        },
+        "jellyfish": {
+          "name": "Vandmanden",
+          "description": "Koordinationskrævende med mange interessenter"
+        },
+        "storm": {
+          "name": "Stormskyen",
+          "description": "KRITISK - kræver omgående intervention"
+        },
+        "octopus": {
+          "name": "Blæksprutten",
+          "description": "Ambitiøs transformation - pas på koordination"
+        },
+        "unknown": {
+          "name": "Ukendt Form",
+          "description": "Unik konfiguration"
         }
       }
     }
