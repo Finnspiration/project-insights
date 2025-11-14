@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Accordion } from '@/components/ui/accordion';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Sparkles, RefreshCw, ChevronDown, Copy, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS } from '@/lib/morphologyConfig';
@@ -136,6 +137,7 @@ export function MorphologicalBox({
   }, {} as Record<string, typeof MORPHOLOGY_DIMENSIONS>);
 
   return (
+    <TooltipProvider>
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -240,5 +242,6 @@ export function MorphologicalBox({
         </Collapsible>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 }

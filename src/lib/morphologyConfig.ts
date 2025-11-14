@@ -16,7 +16,8 @@ export type CategoryType = 'context' | 'capacity' | 'dynamics' | 'resources' | '
 
 export interface DimensionOption {
   value: string;
-  translationKey: string;
+  translationKeyShort: string;
+  translationKeyLong: string;
 }
 
 export interface DimensionConfig {
@@ -32,10 +33,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.complexity.title',
     category: 'context',
     options: [
-      { value: 'simple', translationKey: 'morphology.dimensions.complexity.options.simple' },
-      { value: 'complicated', translationKey: 'morphology.dimensions.complexity.options.complicated' },
-      { value: 'complex', translationKey: 'morphology.dimensions.complexity.options.complex' },
-      { value: 'chaotic', translationKey: 'morphology.dimensions.complexity.options.chaotic' },
+      { value: 'simple', translationKeyShort: 'morphology.dimensions.complexity.options.simple.short', translationKeyLong: 'morphology.dimensions.complexity.options.simple.long' },
+      { value: 'complicated', translationKeyShort: 'morphology.dimensions.complexity.options.complicated.short', translationKeyLong: 'morphology.dimensions.complexity.options.complicated.long' },
+      { value: 'complex', translationKeyShort: 'morphology.dimensions.complexity.options.complex.short', translationKeyLong: 'morphology.dimensions.complexity.options.complex.long' },
+      { value: 'chaotic', translationKeyShort: 'morphology.dimensions.complexity.options.chaotic.short', translationKeyLong: 'morphology.dimensions.complexity.options.chaotic.long' },
     ]
   },
   {
@@ -43,10 +44,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.stakeholder.title',
     category: 'context',
     options: [
-      { value: 'unified', translationKey: 'morphology.dimensions.stakeholder.options.unified' },
-      { value: 'cooperative', translationKey: 'morphology.dimensions.stakeholder.options.cooperative' },
-      { value: 'competitive', translationKey: 'morphology.dimensions.stakeholder.options.competitive' },
-      { value: 'adversarial', translationKey: 'morphology.dimensions.stakeholder.options.adversarial' },
+      { value: 'unified', translationKeyShort: 'morphology.dimensions.stakeholder.options.unified.short', translationKeyLong: 'morphology.dimensions.stakeholder.options.unified.long' },
+      { value: 'cooperative', translationKeyShort: 'morphology.dimensions.stakeholder.options.cooperative.short', translationKeyLong: 'morphology.dimensions.stakeholder.options.cooperative.long' },
+      { value: 'competitive', translationKeyShort: 'morphology.dimensions.stakeholder.options.competitive.short', translationKeyLong: 'morphology.dimensions.stakeholder.options.competitive.long' },
+      { value: 'adversarial', translationKeyShort: 'morphology.dimensions.stakeholder.options.adversarial.short', translationKeyLong: 'morphology.dimensions.stakeholder.options.adversarial.long' },
     ]
   },
   {
@@ -54,10 +55,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.knowledge.title',
     category: 'capacity',
     options: [
-      { value: 'routine', translationKey: 'morphology.dimensions.knowledge.options.routine' },
-      { value: 'adaptive', translationKey: 'morphology.dimensions.knowledge.options.adaptive' },
-      { value: 'innovative', translationKey: 'morphology.dimensions.knowledge.options.innovative' },
-      { value: 'breakthrough', translationKey: 'morphology.dimensions.knowledge.options.breakthrough' },
+      { value: 'routine', translationKeyShort: 'morphology.dimensions.knowledge.options.routine.short', translationKeyLong: 'morphology.dimensions.knowledge.options.routine.long' },
+      { value: 'adaptive', translationKeyShort: 'morphology.dimensions.knowledge.options.adaptive.short', translationKeyLong: 'morphology.dimensions.knowledge.options.adaptive.long' },
+      { value: 'innovative', translationKeyShort: 'morphology.dimensions.knowledge.options.innovative.short', translationKeyLong: 'morphology.dimensions.knowledge.options.innovative.long' },
+      { value: 'breakthrough', translationKeyShort: 'morphology.dimensions.knowledge.options.breakthrough.short', translationKeyLong: 'morphology.dimensions.knowledge.options.breakthrough.long' },
     ]
   },
   {
@@ -65,10 +66,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.cultural.title',
     category: 'context',
     options: [
-      { value: 'mono', translationKey: 'morphology.dimensions.cultural.options.mono' },
-      { value: 'crossfunctional', translationKey: 'morphology.dimensions.cultural.options.crossfunctional' },
-      { value: 'crossorg', translationKey: 'morphology.dimensions.cultural.options.crossorg' },
-      { value: 'crosscultural', translationKey: 'morphology.dimensions.cultural.options.crosscultural' },
+      { value: 'mono', translationKeyShort: 'morphology.dimensions.cultural.options.mono.short', translationKeyLong: 'morphology.dimensions.cultural.options.mono.long' },
+      { value: 'crossfunctional', translationKeyShort: 'morphology.dimensions.cultural.options.crossfunctional.short', translationKeyLong: 'morphology.dimensions.cultural.options.crossfunctional.long' },
+      { value: 'crossorg', translationKeyShort: 'morphology.dimensions.cultural.options.crossorg.short', translationKeyLong: 'morphology.dimensions.cultural.options.crossorg.long' },
+      { value: 'crosscultural', translationKeyShort: 'morphology.dimensions.cultural.options.crosscultural.short', translationKeyLong: 'morphology.dimensions.cultural.options.crosscultural.long' },
     ]
   },
   {
@@ -76,10 +77,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.temporal.title',
     category: 'dynamics',
     options: [
-      { value: 'sprint', translationKey: 'morphology.dimensions.temporal.options.sprint' },
-      { value: 'project', translationKey: 'morphology.dimensions.temporal.options.project' },
-      { value: 'program', translationKey: 'morphology.dimensions.temporal.options.program' },
-      { value: 'transformation', translationKey: 'morphology.dimensions.temporal.options.transformation' },
+      { value: 'sprint', translationKeyShort: 'morphology.dimensions.temporal.options.sprint.short', translationKeyLong: 'morphology.dimensions.temporal.options.sprint.long' },
+      { value: 'project', translationKeyShort: 'morphology.dimensions.temporal.options.project.short', translationKeyLong: 'morphology.dimensions.temporal.options.project.long' },
+      { value: 'program', translationKeyShort: 'morphology.dimensions.temporal.options.program.short', translationKeyLong: 'morphology.dimensions.temporal.options.program.long' },
+      { value: 'transformation', translationKeyShort: 'morphology.dimensions.temporal.options.transformation.short', translationKeyLong: 'morphology.dimensions.temporal.options.transformation.long' },
     ]
   },
   {
@@ -87,11 +88,11 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.organizational.title',
     category: 'capacity',
     options: [
-      { value: 'red', translationKey: 'morphology.dimensions.organizational.options.red' },
-      { value: 'amber', translationKey: 'morphology.dimensions.organizational.options.amber' },
-      { value: 'orange', translationKey: 'morphology.dimensions.organizational.options.orange' },
-      { value: 'green', translationKey: 'morphology.dimensions.organizational.options.green' },
-      { value: 'teal', translationKey: 'morphology.dimensions.organizational.options.teal' },
+      { value: 'red', translationKeyShort: 'morphology.dimensions.organizational.options.red.short', translationKeyLong: 'morphology.dimensions.organizational.options.red.long' },
+      { value: 'amber', translationKeyShort: 'morphology.dimensions.organizational.options.amber.short', translationKeyLong: 'morphology.dimensions.organizational.options.amber.long' },
+      { value: 'orange', translationKeyShort: 'morphology.dimensions.organizational.options.orange.short', translationKeyLong: 'morphology.dimensions.organizational.options.orange.long' },
+      { value: 'green', translationKeyShort: 'morphology.dimensions.organizational.options.green.short', translationKeyLong: 'morphology.dimensions.organizational.options.green.long' },
+      { value: 'teal', translationKeyShort: 'morphology.dimensions.organizational.options.teal.short', translationKeyLong: 'morphology.dimensions.organizational.options.teal.long' },
     ]
   },
   {
@@ -99,11 +100,11 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.challenge.title',
     category: 'challenge',
     options: [
-      { value: 'technical', translationKey: 'morphology.dimensions.challenge.options.technical' },
-      { value: 'social', translationKey: 'morphology.dimensions.challenge.options.social' },
-      { value: 'political', translationKey: 'morphology.dimensions.challenge.options.political' },
-      { value: 'cognitive', translationKey: 'morphology.dimensions.challenge.options.cognitive' },
-      { value: 'adaptive', translationKey: 'morphology.dimensions.challenge.options.adaptive' },
+      { value: 'technical', translationKeyShort: 'morphology.dimensions.challenge.options.technical.short', translationKeyLong: 'morphology.dimensions.challenge.options.technical.long' },
+      { value: 'social', translationKeyShort: 'morphology.dimensions.challenge.options.social.short', translationKeyLong: 'morphology.dimensions.challenge.options.social.long' },
+      { value: 'political', translationKeyShort: 'morphology.dimensions.challenge.options.political.short', translationKeyLong: 'morphology.dimensions.challenge.options.political.long' },
+      { value: 'cognitive', translationKeyShort: 'morphology.dimensions.challenge.options.cognitive.short', translationKeyLong: 'morphology.dimensions.challenge.options.cognitive.long' },
+      { value: 'adaptive', translationKeyShort: 'morphology.dimensions.challenge.options.adaptive.short', translationKeyLong: 'morphology.dimensions.challenge.options.adaptive.long' },
     ]
   },
   {
@@ -111,11 +112,11 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.development.title',
     category: 'capacity',
     options: [
-      { value: 'being', translationKey: 'morphology.dimensions.development.options.being' },
-      { value: 'thinking', translationKey: 'morphology.dimensions.development.options.thinking' },
-      { value: 'relating', translationKey: 'morphology.dimensions.development.options.relating' },
-      { value: 'collaborating', translationKey: 'morphology.dimensions.development.options.collaborating' },
-      { value: 'acting', translationKey: 'morphology.dimensions.development.options.acting' },
+      { value: 'being', translationKeyShort: 'morphology.dimensions.development.options.being.short', translationKeyLong: 'morphology.dimensions.development.options.being.long' },
+      { value: 'thinking', translationKeyShort: 'morphology.dimensions.development.options.thinking.short', translationKeyLong: 'morphology.dimensions.development.options.thinking.long' },
+      { value: 'relating', translationKeyShort: 'morphology.dimensions.development.options.relating.short', translationKeyLong: 'morphology.dimensions.development.options.relating.long' },
+      { value: 'collaborating', translationKeyShort: 'morphology.dimensions.development.options.collaborating.short', translationKeyLong: 'morphology.dimensions.development.options.collaborating.long' },
+      { value: 'acting', translationKeyShort: 'morphology.dimensions.development.options.acting.short', translationKeyLong: 'morphology.dimensions.development.options.acting.long' },
     ]
   },
   {
@@ -123,10 +124,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.resources.title',
     category: 'resources',
     options: [
-      { value: 'rich', translationKey: 'morphology.dimensions.resources.options.rich' },
-      { value: 'balanced', translationKey: 'morphology.dimensions.resources.options.balanced' },
-      { value: 'constrained', translationKey: 'morphology.dimensions.resources.options.constrained' },
-      { value: 'scarce', translationKey: 'morphology.dimensions.resources.options.scarce' },
+      { value: 'rich', translationKeyShort: 'morphology.dimensions.resources.options.rich.short', translationKeyLong: 'morphology.dimensions.resources.options.rich.long' },
+      { value: 'balanced', translationKeyShort: 'morphology.dimensions.resources.options.balanced.short', translationKeyLong: 'morphology.dimensions.resources.options.balanced.long' },
+      { value: 'constrained', translationKeyShort: 'morphology.dimensions.resources.options.constrained.short', translationKeyLong: 'morphology.dimensions.resources.options.constrained.long' },
+      { value: 'scarce', translationKeyShort: 'morphology.dimensions.resources.options.scarce.short', translationKeyLong: 'morphology.dimensions.resources.options.scarce.long' },
     ]
   },
   {
@@ -134,10 +135,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.change.title',
     category: 'dynamics',
     options: [
-      { value: 'incremental', translationKey: 'morphology.dimensions.change.options.incremental' },
-      { value: 'transitional', translationKey: 'morphology.dimensions.change.options.transitional' },
-      { value: 'transformational', translationKey: 'morphology.dimensions.change.options.transformational' },
-      { value: 'disruptive', translationKey: 'morphology.dimensions.change.options.disruptive' },
+      { value: 'incremental', translationKeyShort: 'morphology.dimensions.change.options.incremental.short', translationKeyLong: 'morphology.dimensions.change.options.incremental.long' },
+      { value: 'transitional', translationKeyShort: 'morphology.dimensions.change.options.transitional.short', translationKeyLong: 'morphology.dimensions.change.options.transitional.long' },
+      { value: 'transformational', translationKeyShort: 'morphology.dimensions.change.options.transformational.short', translationKeyLong: 'morphology.dimensions.change.options.transformational.long' },
+      { value: 'disruptive', translationKeyShort: 'morphology.dimensions.change.options.disruptive.short', translationKeyLong: 'morphology.dimensions.change.options.disruptive.long' },
     ]
   },
   {
@@ -145,21 +146,21 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
     translationKey: 'morphology.dimensions.information.title',
     category: 'dynamics',
     options: [
-      { value: 'centralized', translationKey: 'morphology.dimensions.information.options.centralized' },
-      { value: 'hierarchical', translationKey: 'morphology.dimensions.information.options.hierarchical' },
-      { value: 'network', translationKey: 'morphology.dimensions.information.options.network' },
-      { value: 'distributed', translationKey: 'morphology.dimensions.information.options.distributed' },
+      { value: 'centralized', translationKeyShort: 'morphology.dimensions.information.options.centralized.short', translationKeyLong: 'morphology.dimensions.information.options.centralized.long' },
+      { value: 'hierarchical', translationKeyShort: 'morphology.dimensions.information.options.hierarchical.short', translationKeyLong: 'morphology.dimensions.information.options.hierarchical.long' },
+      { value: 'network', translationKeyShort: 'morphology.dimensions.information.options.network.short', translationKeyLong: 'morphology.dimensions.information.options.network.long' },
+      { value: 'distributed', translationKeyShort: 'morphology.dimensions.information.options.distributed.short', translationKeyLong: 'morphology.dimensions.information.options.distributed.long' },
     ]
   },
   {
     key: 'risk',
     translationKey: 'morphology.dimensions.risk.title',
-    category: 'resources',
+    category: 'challenge',
     options: [
-      { value: 'low', translationKey: 'morphology.dimensions.risk.options.low' },
-      { value: 'moderate', translationKey: 'morphology.dimensions.risk.options.moderate' },
-      { value: 'high', translationKey: 'morphology.dimensions.risk.options.high' },
-      { value: 'extreme', translationKey: 'morphology.dimensions.risk.options.extreme' },
+      { value: 'low', translationKeyShort: 'morphology.dimensions.risk.options.low.short', translationKeyLong: 'morphology.dimensions.risk.options.low.long' },
+      { value: 'moderate', translationKeyShort: 'morphology.dimensions.risk.options.moderate.short', translationKeyLong: 'morphology.dimensions.risk.options.moderate.long' },
+      { value: 'high', translationKeyShort: 'morphology.dimensions.risk.options.high.short', translationKeyLong: 'morphology.dimensions.risk.options.high.long' },
+      { value: 'extreme', translationKeyShort: 'morphology.dimensions.risk.options.extreme.short', translationKeyLong: 'morphology.dimensions.risk.options.extreme.long' },
     ]
   },
 ];

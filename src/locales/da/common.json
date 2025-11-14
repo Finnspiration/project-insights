@@ -268,83 +268,95 @@
         "title": "Kompleksitetsniveau",
         "description": "Hvor forudsigelig og ordnet er dit projektmiljø?",
         "options": {
-          "simple": "Simpel - Klar årsag-virkning, bedste praksis virker",
-          "complicated": "Kompliceret - Ekspertanalyse nødvendig, god praksis",
-          "complex": "Kompleks - Fremvoksende mønstre, eksperimentering påkrævet",
-          "chaotic": "Kaotisk - Ingen klare mønstre, hurtig handling nødvendig"
+          "simple": {
+            "short": "Simpel",
+            "long": "Klar årsag-virkning, bedste praksis virker"
+          },
+          "complicated": {
+            "short": "Kompliceret",
+            "long": "Ekspertanalyse nødvendig"
+          },
+          "complex": {
+            "short": "Kompleks",
+            "long": "Fremvoksende mønstre, eksperimentering påkrævet"
+          },
+          "chaotic": {
+            "short": "Kaotisk",
+            "long": "Ingen klare mønstre, hurtig handling nødvendig"
+          }
         }
       },
       "stakeholder": {
         "title": "Interessentdynamik",
         "description": "Hvad er arten af interessentrelationer?",
         "options": {
-          "unified": "Forenet - Delt vision og mål",
-          "cooperative": "Samarbejdende - Tilpassede interesser, samarbejdende",
-          "competitive": "Konkurrerende - Divergerende interesser, forhandling nødvendig",
-          "adversarial": "Antagonistisk - Modstridende agendaer, høj spænding"
+          "unified": {"short": "Forenet", "long": "Delt vision og mål"},
+          "cooperative": {"short": "Samarbejdende", "long": "Tilpassede interesser"},
+          "competitive": {"short": "Konkurrerende", "long": "Divergerende interesser"},
+          "adversarial": {"short": "Antagonistisk", "long": "Modstridende agendaer"}
         }
       },
       "knowledge": {
         "title": "Vidensintensitet",
         "description": "Hvilken type vidensarbejde dominerer?",
         "options": {
-          "routine": "Rutinemæssig - Standardiserede, gentagelige processer",
-          "adaptive": "Adaptiv - Kontekstuel tilpasning af kendte metoder",
-          "innovative": "Innovativ - Skabelse af nye løsninger",
-          "breakthrough": "Gennembrud - Fundamentale nye opdagelser"
+          "routine": {"short": "Rutinemæssig", "long": "Standardiserede processer"},
+          "adaptive": {"short": "Adaptiv", "long": "Tilpasning af kendte metoder"},
+          "innovative": {"short": "Innovativ", "long": "Skabelse af nye løsninger"},
+          "breakthrough": {"short": "Gennembrud", "long": "Fundamentale opdagelser"}
         }
       },
       "cultural": {
         "title": "Kulturel Kontekst",
         "description": "Hvad er projektets kulturelle spænd?",
         "options": {
-          "mono": "Mono - Enkelt kulturel kontekst",
-          "crossfunctional": "Tværfaglig - Flere afdelinger",
-          "crossorg": "Tværorganisatorisk - Flere organisationer",
-          "crosscultural": "Tværkulturel - Flere nationale kulturer"
+          "mono": {"short": "Mono", "long": "Enkelt kulturel kontekst"},
+          "crossfunctional": {"short": "Tværfaglig", "long": "Flere afdelinger"},
+          "crossorg": {"short": "Tværorg", "long": "Flere organisationer"},
+          "crosscultural": {"short": "Tværkulturel", "long": "Flere kulturer"}
         }
       },
       "temporal": {
         "title": "Temporal Dynamik",
         "description": "Hvad er tidshorisont og rytme?",
         "options": {
-          "sprint": "Sprint - Uger, hurtige iterationer",
-          "project": "Projekt - Måneder, definerede milepæle",
-          "program": "Program - År, flere faser",
-          "transformation": "Transformation - Flerårig systemisk forandring"
+          "sprint": {"short": "Sprint", "long": "Uger, hurtige iterationer"},
+          "project": {"short": "Projekt", "long": "Måneder, milepæle"},
+          "program": {"short": "Program", "long": "År, flere faser"},
+          "transformation": {"short": "Transformation", "long": "Flerårig systemisk forandring"}
         }
       },
       "organizational": {
         "title": "Organisatorisk Stadium",
         "description": "Hvilket organisatorisk paradigme dominerer? (Laloux model)",
         "options": {
-          "red": "Rød - Magtdrevet, kommando & kontrol",
-          "amber": "Rav - Procesdrevet, hierarkisk stabilitet",
-          "orange": "Orange - Præstationsdrevet, meritokratisk",
-          "green": "Grøn - Værdidrevet, konsensussøgende",
-          "teal": "Turkis - Formålsdrevet, selvorganiserende"
+          "red": {"short": "Rød", "long": "Magtdrevet, kommando & kontrol"},
+          "amber": {"short": "Rav", "long": "Procesdrevet, hierarki"},
+          "orange": {"short": "Orange", "long": "Præstationsdrevet"},
+          "green": {"short": "Grøn", "long": "Værdidrevet, konsensus"},
+          "teal": {"short": "Turkis", "long": "Formålsdrevet, selvorganiserende"}
         }
       },
       "challenge": {
         "title": "Primær Udfordring",
         "description": "Hvad er den dominerende type udfordring?",
         "options": {
-          "technical": "Teknisk - Ingeniør, teknologiproblemer",
-          "social": "Social - Teamdynamik, samarbejde",
-          "political": "Politisk - Magt, ressourcefordeling",
-          "cognitive": "Kognitiv - Forståelse, meningsskabelse",
-          "adaptive": "Adaptiv - Værdier, overbevisninger, identitetsskift"
+          "technical": {"short": "Teknisk", "long": "Ingeniør, teknologi"},
+          "social": {"short": "Social", "long": "Teamdynamik, samarbejde"},
+          "political": {"short": "Politisk", "long": "Magt, ressourcer"},
+          "cognitive": {"short": "Kognitiv", "long": "Forståelse, meningsskabelse"},
+          "adaptive": {"short": "Adaptiv", "long": "Værdier, identitetsskift"}
         }
       },
       "development": {
         "title": "Indre Udviklingsbehov",
         "description": "Hvilken indre udviklingsdimension er mest kritisk?",
         "options": {
-          "being": "Væren - Selvbevidsthed, nærvær, værdier",
-          "thinking": "Tænkning - Kritisk tænkning, perspektivtagning",
-          "relating": "Relationsdannelse - Empati, medfølelse, forbindelse",
-          "collaborating": "Samarbejde - Medskabelse, tillid, inklusivitet",
-          "acting": "Handling - Mod, optimisme, udholdenhed"
+          "being": {"short": "Væren", "long": "Selvbevidsthed, nærvær"},
+          "thinking": {"short": "Tænkning", "long": "Kritisk tænkning"},
+          "relating": {"short": "Relationsdannelse", "long": "Empati, forbindelse"},
+          "collaborating": {"short": "Samarbejde", "long": "Medskabelse, tillid"},
+          "acting": {"short": "Handling", "long": "Mod, udholdenhed"}
         }
       },
       "resources": {

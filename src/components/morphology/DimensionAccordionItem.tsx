@@ -28,7 +28,7 @@ export function DimensionAccordionItem({
   const dimensionLabel = t(dimension.translationKey, { defaultValue: dimension.key });
   const selectedOption = dimension.options.find(opt => opt.value === selectedValue);
   const selectedLabel = selectedOption 
-    ? t(selectedOption.translationKey, { defaultValue: selectedOption.value })
+    ? t(selectedOption.translationKeyShort, { defaultValue: selectedOption.value })
     : '';
 
   return (
@@ -58,7 +58,8 @@ export function DimensionAccordionItem({
           {dimension.options.map((option) => (
             <OptionCard
               key={option.value}
-              translationKey={option.translationKey}
+              translationKeyShort={option.translationKeyShort}
+              translationKeyLong={option.translationKeyLong}
               isSelected={selectedValue === option.value}
               categoryColor={categoryColor}
               onSelect={onSelect && !disabled ? () => onSelect(option.value) : undefined}

@@ -3,15 +3,17 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OptionCellProps {
-  translationKey: string;
+  translationKeyShort: string;
+  translationKeyLong: string;
   isSelected: boolean;
   categoryColor: string;
   onSelect?: () => void;
   disabled?: boolean;
 }
 
-export function OptionCell({ translationKey, isSelected, categoryColor, onSelect, disabled }: OptionCellProps) {
+export function OptionCell({ translationKeyShort, translationKeyLong, isSelected, categoryColor, onSelect, disabled }: OptionCellProps) {
   const { t } = useTranslation('common');
+  const displayText = t(translationKeyShort, { defaultValue: translationKeyShort.split('.').pop() || '' });
 
   return (
     <button
@@ -39,7 +41,7 @@ export function OptionCell({ translationKey, isSelected, categoryColor, onSelect
           <Check className="h-3 w-3" />
         </div>
       )}
-      <span className="block">{t(translationKey)}</span>
+      <span className="block">{displayText}</span>
     </button>
   );
 }
