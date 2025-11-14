@@ -40,6 +40,7 @@ interface Document {
   file_type: string | null;
   file_size: number | null;
   uploaded_at: string;
+  processed: boolean | null;
 }
 
 export default function ProjectDetail() {
@@ -79,11 +80,11 @@ export default function ProjectDetail() {
     if (!id) return;
 
     try {
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('project_id', id)
-        .order('uploaded_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('documents')
+      .select('id, filename, file_path, file_type, file_size, uploaded_at, processed')
+      .eq('project_id', id)
+      .order('uploaded_at', { ascending: false });
 
       if (error) throw error;
       setDocuments(data || []);
