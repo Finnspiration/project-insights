@@ -98,6 +98,13 @@
     "assessed": "Vurderet",
     "unassessed": "Ikke Vurderet",
     "view": "Se",
+    "tabs": {
+      "documents": "Dokumenter",
+      "aiInsights": "AI Indsigter",
+      "blindSpots": "Blinde Vinkler",
+      "visualizations": "Visualiseringer",
+      "morphology": "Morfologi"
+    },
     "assess": "Vurder",
     "stats": {
       "totalProjects": "Projekter i Alt",
