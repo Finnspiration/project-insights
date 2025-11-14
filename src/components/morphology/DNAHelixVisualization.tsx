@@ -155,7 +155,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
             <g 
               key={`badge-${point.index}`}
               onClick={() => handleBadgeClick(point.index)}
-              className="cursor-pointer"
+              style={{ cursor: 'pointer' }}
             >
               {/* Badge background */}
               <rect
@@ -166,6 +166,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
                 rx="14"
                 fill={`hsl(${categoryColor})`}
                 className="transition-all hover:opacity-90"
+                style={{ pointerEvents: 'all' }}
               />
               
               {/* Badge text */}
@@ -173,8 +174,8 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
                 x={point.x}
                 y={point.y + 5}
                 textAnchor="middle"
-                className="fill-white text-sm font-mono font-bold pointer-events-none select-none"
-                style={{ fontSize: '12px' }}
+                className="fill-white text-sm font-mono font-bold select-none"
+                style={{ fontSize: '12px', pointerEvents: 'none' }}
               >
                 {translatedLabel}
               </text>
@@ -187,12 +188,15 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
       </svg>
     </div>
 
-    {selectedDimensionData && selectedDimensionData.option && (
+    {selectedDimensionData && (
       <DimensionDetailDialog
         open={selectedDimension !== null}
         onOpenChange={(open) => !open && setSelectedDimension(null)}
         dimension={selectedDimensionData.dimension}
-        selectedOption={selectedDimensionData.option}
+        selectedOption={selectedDimensionData.option || {
+          value: dnaCode.split('-')[selectedDimension!],
+          translationKey: `morphology.${MORPHOLOGY_DIMENSIONS[selectedDimension!].key}.${dnaCode.split('-')[selectedDimension!]}`
+        }}
         allOptions={selectedDimensionData.dimension.options}
       />
     )}
