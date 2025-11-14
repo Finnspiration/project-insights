@@ -467,6 +467,7 @@
           "moderate": "Moderate - Some unknowns, manageable",
           "high": "High - Significant uncertainty, careful monitoring",
           "extreme": "Extreme - Major threats, crisis potential"
+        }
       }
     },
     "blob": {
