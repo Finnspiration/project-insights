@@ -9,35 +9,47 @@ interface DNAHelixVisualizationProps {
 }
 
 export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: DNAHelixVisualizationProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
 
-  // Calculate helix points - alternating between top and bottom strands
+  // Calculate triple helix points - 3 strands with 4 dimensions each
   const helixPoints = [
-    // Top strand (even indices: 0, 2, 4, 6, 8, 10)
-    { x: 80, y: 80, index: 0 },
-    { x: 220, y: 40, index: 2 },
-    { x: 360, y: 80, index: 4 },
-    { x: 500, y: 40, index: 6 },
-    { x: 640, y: 80, index: 8 },
-    { x: 780, y: 40, index: 10 },
+    // Strand 1 (Top) - indices 0, 3, 6, 9
+    { x: 100, y: 80, index: 0, strand: 1 },
+    { x: 340, y: 60, index: 3, strand: 1 },
+    { x: 580, y: 80, index: 6, strand: 1 },
+    { x: 820, y: 60, index: 9, strand: 1 },
     
-    // Bottom strand (odd indices: 1, 3, 5, 7, 9, 11)
-    { x: 150, y: 220, index: 1 },
-    { x: 290, y: 260, index: 3 },
-    { x: 430, y: 220, index: 5 },
-    { x: 570, y: 260, index: 7 },
-    { x: 710, y: 220, index: 9 },
-    { x: 820, y: 260, index: 11 },
+    // Strand 2 (Middle) - indices 1, 4, 7, 10
+    { x: 180, y: 160, index: 1, strand: 2 },
+    { x: 420, y: 180, index: 4, strand: 2 },
+    { x: 660, y: 160, index: 7, strand: 2 },
+    { x: 820, y: 180, index: 10, strand: 2 },
+    
+    // Strand 3 (Bottom) - indices 2, 5, 8, 11
+    { x: 260, y: 240, index: 2, strand: 3 },
+    { x: 500, y: 260, index: 5, strand: 3 },
+    { x: 740, y: 240, index: 8, strand: 3 },
+    { x: 820, y: 220, index: 11, strand: 3 },
   ].sort((a, b) => a.index - b.index);
 
-  // Create base pair connections (connecting top and bottom strands)
-  const basePairs = [
+  // Create triangular connections between the 3 strands
+  const tripleConnections = [
+    // Group 1: indices 0, 1, 2
     { from: 0, to: 1 },
-    { from: 2, to: 3 },
+    { from: 1, to: 2 },
+    { from: 2, to: 0 },
+    // Group 2: indices 3, 4, 5
+    { from: 3, to: 4 },
     { from: 4, to: 5 },
+    { from: 5, to: 3 },
+    // Group 3: indices 6, 7, 8
     { from: 6, to: 7 },
-    { from: 8, to: 9 },
+    { from: 7, to: 8 },
+    { from: 8, to: 6 },
+    // Group 4: indices 9, 10, 11
+    { from: 9, to: 10 },
     { from: 10, to: 11 },
+    { from: 11, to: 9 },
   ];
 
   return (
@@ -47,26 +59,51 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
         className="w-full h-auto min-h-[320px]"
         style={{ minWidth: '900px' }}
       >
-        {/* Top helix curve */}
+        {/* Gradients for the three strands */}
+        <defs>
+          <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(220, 70%, 50%)" />
+            <stop offset="100%" stopColor="hsl(240, 70%, 50%)" />
+          </linearGradient>
+          <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(280, 65%, 60%)" />
+            <stop offset="100%" stopColor="hsl(300, 65%, 60%)" />
+          </linearGradient>
+          <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(340, 75%, 55%)" />
+            <stop offset="100%" stopColor="hsl(0, 75%, 55%)" />
+          </linearGradient>
+        </defs>
+        
+        {/* Strand 1 - Top strand (blue gradient) */}
         <path
-          d="M 80,80 Q 220,20 360,80 T 640,80 Q 780,20 780,40"
-          stroke="hsl(var(--border))"
+          d="M 100,80 Q 220,70 340,60 Q 460,70 580,80 Q 700,70 820,60"
+          stroke="url(#gradient1)"
           fill="none"
-          strokeWidth="2"
-          opacity="0.3"
+          strokeWidth="4"
+          opacity="0.7"
         />
         
-        {/* Bottom helix curve */}
+        {/* Strand 2 - Middle strand (purple gradient) */}
         <path
-          d="M 150,220 Q 290,280 430,220 T 710,220 Q 820,280 820,260"
-          stroke="hsl(var(--border))"
+          d="M 100,160 Q 260,150 420,180 Q 580,150 740,160 Q 780,170 820,180"
+          stroke="url(#gradient2)"
           fill="none"
-          strokeWidth="2"
-          opacity="0.3"
+          strokeWidth="4"
+          opacity="0.7"
         />
         
-        {/* Base pair connections */}
-        {basePairs.map((pair, idx) => {
+        {/* Strand 3 - Bottom strand (pink gradient) */}
+        <path
+          d="M 100,240 Q 220,230 340,250 Q 540,230 740,240 Q 780,225 820,220"
+          stroke="url(#gradient3)"
+          fill="none"
+          strokeWidth="4"
+          opacity="0.7"
+        />
+        
+        {/* Triangular connections between the 3 strands */}
+        {tripleConnections.map((pair, idx) => {
           const point1 = helixPoints[pair.from];
           const point2 = helixPoints[pair.to];
           return (
@@ -77,9 +114,9 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
               x2={point2.x}
               y2={point2.y}
               stroke="hsl(var(--muted-foreground))"
-              strokeWidth="1"
+              strokeWidth="2"
               strokeDasharray="4,4"
-              opacity="0.2"
+              opacity="0.5"
             />
           );
         })}
@@ -91,7 +128,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           if (!dimension || !segment) return null;
           
           const option = dimension.options.find(opt => opt.value === segment);
-          const translatedLabel = option ? t(option.translationKey) : segment;
+          const translatedLabel = option ? t(option.translationKey, { lng: language }) : segment;
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
           return (
@@ -119,7 +156,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
               </text>
               
               {/* Hover title (dimension name) */}
-              <title>{t(dimension.translationKey)}</title>
+              <title>{t(dimension.translationKey, { lng: language })}</title>
             </g>
           );
         })}
