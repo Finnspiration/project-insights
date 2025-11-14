@@ -157,68 +157,88 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   // Render U-curve with current position (redesigned to match Theory U reference)
   const renderUCurve = () => {
     const width = 800;
-    const height = 400;
+    const height = 500;
     const padding = 60;
 
     const phases = [
-      { key: 'seeing', x: padding + 20, y: height * 0.2, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
-      { key: 'sensing', x: width * 0.28, y: height * 0.45, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
-      { key: 'presencing', x: width * 0.5, y: height * 0.75, label: t('visualizations.theoryU.phases.presencing'), subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
-      { key: 'crystallizing', x: width * 0.72, y: height * 0.45, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
-      { key: 'prototyping', x: width - padding - 20, y: height * 0.2, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
+      { key: 'seeing', x: padding + 20, y: height * 0.18, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
+      { key: 'sensing', x: width * 0.25, y: height * 0.42, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
+      { key: 'presencing', x: width * 0.5, y: height * 0.72, label: t('visualizations.theoryU.phases.presencing'), subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
+      { key: 'crystallizing', x: width * 0.75, y: height * 0.42, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
+      { key: 'prototyping', x: width - padding - 20, y: height * 0.18, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
     ];
 
     return (
       <svg width={width} height={height} className="mx-auto" viewBox={`0 0 ${width} ${height}`}>
         <defs>
-          {/* Brush stroke filter for organic look */}
-          <filter id="brushStroke" x="-50%" y="-50%" width="200%" height="200%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="2" />
-            <feDisplacementMap in="SourceGraphic" scale="3" />
-          </filter>
-          
-          {/* Gradient for U-curve */}
+          {/* Golden gradient for the U curve */}
           <linearGradient id="uGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="hsl(var(--accent))" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="#DAA520" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#FFD700" stopOpacity="1" />
+            <stop offset="100%" stopColor="#DAA520" stopOpacity="0.9" />
           </linearGradient>
+
+          {/* Glow filter for current phase */}
+          <filter id="phaseGlow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
 
-        {/* Main U-curve with brush stroke aesthetic */}
+        {/* Third stroke layer for hand-drawn depth */}
         <path
           d={`
             M ${phases[0].x} ${phases[0].y}
-            C ${phases[0].x + 50} ${phases[0].y + 60}, ${phases[1].x - 50} ${phases[1].y + 20}, ${phases[1].x} ${phases[1].y}
-            C ${phases[1].x + 30} ${phases[1].y + 40}, ${phases[2].x - 80} ${phases[2].y + 20}, ${phases[2].x} ${phases[2].y}
-            C ${phases[2].x + 80} ${phases[2].y + 20}, ${phases[3].x - 30} ${phases[3].y + 40}, ${phases[3].x} ${phases[3].y}
-            C ${phases[3].x + 50} ${phases[3].y + 20}, ${phases[4].x - 50} ${phases[4].y + 60}, ${phases[4].x} ${phases[4].y}
+            C ${phases[0].x + 85} ${phases[0].y + 95}, ${phases[1].x - 25} ${phases[1].y - 15}, ${phases[1].x} ${phases[1].y}
+            S ${phases[2].x - 130} ${phases[2].y - 25}, ${phases[2].x} ${phases[2].y}
+            S ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[3].x} ${phases[3].y}
+            C ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[4].x - 85} ${phases[4].y + 95}, ${phases[4].x} ${phases[4].y}
           `}
           fill="none"
-          stroke="url(#uGradient)"
+          stroke="#B8860B"
           strokeWidth="18"
           strokeLinecap="round"
           strokeLinejoin="round"
-          filter="url(#brushStroke)"
-          opacity="0.7"
+          opacity="0.35"
+          transform="translate(-2, 2)"
         />
 
-        {/* Secondary stroke for depth */}
+        {/* Secondary stroke for hand-drawn effect */}
         <path
           d={`
             M ${phases[0].x} ${phases[0].y}
-            C ${phases[0].x + 50} ${phases[0].y + 60}, ${phases[1].x - 50} ${phases[1].y + 20}, ${phases[1].x} ${phases[1].y}
-            C ${phases[1].x + 30} ${phases[1].y + 40}, ${phases[2].x - 80} ${phases[2].y + 20}, ${phases[2].x} ${phases[2].y}
-            C ${phases[2].x + 80} ${phases[2].y + 20}, ${phases[3].x - 30} ${phases[3].y + 40}, ${phases[3].x} ${phases[3].y}
-            C ${phases[3].x + 50} ${phases[3].y + 20}, ${phases[4].x - 50} ${phases[4].y + 60}, ${phases[4].x} ${phases[4].y}
+            C ${phases[0].x + 85} ${phases[0].y + 95}, ${phases[1].x - 25} ${phases[1].y - 15}, ${phases[1].x} ${phases[1].y}
+            S ${phases[2].x - 130} ${phases[2].y - 25}, ${phases[2].x} ${phases[2].y}
+            S ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[3].x} ${phases[3].y}
+            C ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[4].x - 85} ${phases[4].y + 95}, ${phases[4].x} ${phases[4].y}
           `}
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke="url(#uGradient)"
+          strokeWidth="16"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.65"
+          transform="translate(1.5, -1.5)"
+        />
+
+        {/* Main U-curve path with smooth bezier and golden color */}
+        <path
+          d={`
+            M ${phases[0].x} ${phases[0].y}
+            C ${phases[0].x + 85} ${phases[0].y + 95}, ${phases[1].x - 25} ${phases[1].y - 15}, ${phases[1].x} ${phases[1].y}
+            S ${phases[2].x - 130} ${phases[2].y - 25}, ${phases[2].x} ${phases[2].y}
+            S ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[3].x} ${phases[3].y}
+            C ${phases[3].x + 25} ${phases[3].y - 15}, ${phases[4].x - 85} ${phases[4].y + 95}, ${phases[4].x} ${phases[4].y}
+          `}
+          fill="none"
+          stroke="#DAA520"
           strokeWidth="22"
           strokeLinecap="round"
           strokeLinejoin="round"
-          filter="url(#brushStroke)"
-          opacity="0.3"
+          opacity="0.9"
         />
 
         {/* Phase labels with descriptions */}
