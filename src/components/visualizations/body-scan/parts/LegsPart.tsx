@@ -4,9 +4,12 @@ interface LegsPartProps {
     momentum: number;
     stance: 'forward' | 'neutral' | 'backward';
   };
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function LegsPart({ data }: LegsPartProps) {
+export function LegsPart({ data, isHovered, onHover, onLeave }: LegsPartProps) {
   const { stability, momentum, stance } = data;
   
   const legColor = stability > 0.6 
@@ -24,53 +27,65 @@ export function LegsPart({ data }: LegsPartProps) {
   const offset = getStanceOffset();
   
   return (
-    <g>
-      {/* Left leg */}
+    <g
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className="cursor-pointer"
+    >
+      {/* Left leg - longer and more prominent */}
       <rect
-        x="-18"
+        x="-20"
         y="0"
-        width="12"
-        height="60"
-        rx="6"
+        width="15"
+        height="120"
+        rx="8"
         fill={legColor}
-        opacity="0.85"
+        opacity={isHovered ? 0.95 : 0.85}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
         transform={`translate(${offset.left}, 0)`}
-        className="transition-all duration-500"
+        className="transition-all duration-300"
       />
       
-      {/* Right leg */}
+      {/* Right leg - longer and more prominent */}
       <rect
-        x="6"
+        x="5"
         y="0"
-        width="12"
-        height="60"
-        rx="6"
+        width="15"
+        height="120"
+        rx="8"
         fill={legColor}
-        opacity="0.85"
+        opacity={isHovered ? 0.95 : 0.85}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
         transform={`translate(${offset.right}, 0)`}
-        className="transition-all duration-500"
+        className="transition-all duration-300"
       />
       
       {/* Left foot */}
       <ellipse
         cx={-12 + offset.left}
-        cy="68"
-        rx="10"
-        ry="6"
+        cy="128"
+        rx="12"
+        ry="7"
         fill={legColor}
-        opacity="0.9"
-        className="transition-all duration-500"
+        opacity={isHovered ? 1 : 0.9}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
       {/* Right foot */}
       <ellipse
         cx={12 + offset.right}
-        cy="68"
-        rx="10"
-        ry="6"
+        cy="128"
+        rx="12"
+        ry="7"
         fill={legColor}
-        opacity="0.9"
-        className="transition-all duration-500"
+        opacity={isHovered ? 1 : 0.9}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
       {/* Momentum indicator */}

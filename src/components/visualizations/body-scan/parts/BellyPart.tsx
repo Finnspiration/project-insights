@@ -5,15 +5,22 @@ interface BellyPartProps {
     pattern: 'solid' | 'dots' | 'stripes' | 'waves';
     turbulence: number;
   };
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function BellyPart({ data }: BellyPartProps) {
+export function BellyPart({ data, isHovered, onHover, onLeave }: BellyPartProps) {
   const { stability, color, pattern, turbulence } = data;
   
   const bellySize = 30 - (stability * 5);
   
   return (
-    <g>
+    <g
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className="cursor-pointer"
+    >
       <defs>
         {/* Dot pattern */}
         <pattern id="dots" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
@@ -38,8 +45,10 @@ export function BellyPart({ data }: BellyPartProps) {
         rx={bellySize}
         ry={bellySize * 0.9}
         fill={color}
-        opacity="0.85"
-        className="transition-all duration-500"
+        opacity={isHovered ? 0.95 : 0.85}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
       {/* Pattern overlay */}

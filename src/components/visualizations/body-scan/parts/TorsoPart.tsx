@@ -4,15 +4,22 @@ interface TorsoPartProps {
     openness: number;
     heartStrength: number;
   };
+  isHovered: boolean;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-export function TorsoPart({ data }: TorsoPartProps) {
+export function TorsoPart({ data, isHovered, onHover, onLeave }: TorsoPartProps) {
   const { color, openness, heartStrength } = data;
   
   const torsoWidth = 35 + (openness * 10);
   
   return (
-    <g>
+    <g
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className="cursor-pointer"
+    >
       {/* Main torso */}
       <ellipse
         cx="0"
@@ -20,8 +27,10 @@ export function TorsoPart({ data }: TorsoPartProps) {
         rx={torsoWidth}
         ry="35"
         fill={color}
-        opacity="0.85"
-        className="transition-all duration-500"
+        opacity={isHovered ? 0.95 : 0.85}
+        stroke={isHovered ? 'white' : 'none'}
+        strokeWidth={isHovered ? 2 : 0}
+        className="transition-all duration-300"
       />
       
       {/* Heart symbol */}

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -11,6 +12,7 @@ interface ProjectBodyScanProps {
 
 export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
   const { t } = useTranslation('common');
+  const [hoveredPart, setHoveredPart] = useState<string | null>(null);
   
   const bodyData = calculateBodyData(morphology);
   
@@ -26,7 +28,11 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left: SVG Body */}
           <div className="flex items-center justify-center bg-muted/20 rounded-lg p-8">
-            <BodyVisualization data={bodyData} />
+            <BodyVisualization 
+              data={bodyData}
+              hoveredPart={hoveredPart}
+              onHoverPart={setHoveredPart}
+            />
           </div>
           
           {/* Right: Explanations */}
@@ -40,6 +46,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="head" 
                   data={bodyData.head}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'head'}
+                  onHover={() => setHoveredPart('head')}
+                  onLeave={() => setHoveredPart(null)}
                 />
                 <Separator />
                 
@@ -47,6 +56,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="face" 
                   data={bodyData.face}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'face'}
+                  onHover={() => setHoveredPart('face')}
+                  onLeave={() => setHoveredPart(null)}
                 />
                 <Separator />
                 
@@ -54,6 +66,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="shoulders" 
                   data={bodyData.shoulders}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'shoulders'}
+                  onHover={() => setHoveredPart('shoulders')}
+                  onLeave={() => setHoveredPart(null)}
                 />
                 <Separator />
                 
@@ -61,6 +76,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="torso" 
                   data={bodyData.torso}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'torso'}
+                  onHover={() => setHoveredPart('torso')}
+                  onLeave={() => setHoveredPart(null)}
                 />
                 <Separator />
                 
@@ -68,6 +86,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="belly" 
                   data={bodyData.belly}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'belly'}
+                  onHover={() => setHoveredPart('belly')}
+                  onLeave={() => setHoveredPart(null)}
                 />
                 <Separator />
                 
@@ -75,6 +96,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="spine" 
                   data={bodyData.spine}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'spine'}
+                  onHover={() => setHoveredPart('spine')}
+                  onLeave={() => setHoveredPart(null)}
                 />
                 <Separator />
                 
@@ -82,6 +106,9 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   part="legs" 
                   data={bodyData.legs}
                   morphology={morphology}
+                  isHovered={hoveredPart === 'legs'}
+                  onHover={() => setHoveredPart('legs')}
+                  onLeave={() => setHoveredPart(null)}
                 />
               </div>
             </div>
