@@ -14,6 +14,7 @@ import { CulturalWeatherMap } from '@/components/visualizations/CulturalWeatherM
 import { UJourneyTimeline } from '@/components/visualizations/UJourneyTimeline';
 import { IDGRadarChart } from '@/components/visualizations/IDGRadarChart';
 import { ProjectBodyScan } from '@/components/visualizations/ProjectBodyScan';
+import { MorphologyBlob } from '@/components/visualizations/MorphologyBlob';
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { BlindSpotsPanel } from '@/components/insights/BlindSpotsPanel';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
@@ -288,6 +289,9 @@ export default function ProjectDetail() {
                   <TabsTrigger value="bodyscan">
                     {t('visualizations.bodyScan.title')}
                   </TabsTrigger>
+                  <TabsTrigger value="blob">
+                    {t('visualizations.blob.title')}
+                  </TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="weather">
@@ -308,6 +312,10 @@ export default function ProjectDetail() {
                 
                 <TabsContent value="bodyscan">
                   <ProjectBodyScan morphology={project.morphology} />
+                </TabsContent>
+                
+                <TabsContent value="blob">
+                  <MorphologyBlob morphology={project.morphology} />
                 </TabsContent>
               </Tabs>
             )}
