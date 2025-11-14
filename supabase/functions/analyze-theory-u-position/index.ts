@@ -97,6 +97,8 @@ serve(async (req) => {
     // STEP 3: Kombiner
     const finalAnalysis = {
       ...aiAnalysis,
+      currentPhase: morphologyAnalysis?.phase || aiAnalysis.currentPhase,
+      confidence: morphologyAnalysis?.confidence || aiAnalysis.confidence,
       whyHere: {
         ...aiAnalysis.whyHere,
         morphologyScoring: morphologyAnalysis ? {
