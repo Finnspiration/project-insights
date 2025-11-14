@@ -229,7 +229,14 @@
       "uploadedAt": "Uploaded"
     }
   },
-  "morphology": {
+    "morphology": {
+      "categories": {
+        "context": "Context",
+        "capacity": "Capacity", 
+        "dynamics": "Dynamics",
+        "resources": "Resources",
+        "challenge": "Challenge"
+      },
     "title": "Morphological Assessment",
     "subtitle": "Characterize your project across 12 key dimensions",
     "step": "Step",

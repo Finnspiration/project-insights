@@ -229,7 +229,14 @@
       "uploadedAt": "Uploadet"
     }
   },
-  "morphology": {
+    "morphology": {
+      "categories": {
+        "context": "Kontekst",
+        "capacity": "Kapacitet",
+        "dynamics": "Dynamik", 
+        "resources": "Ressourcer",
+        "challenge": "Udfordring"
+      },
     "title": "Morfologisk Vurdering",
     "subtitle": "Karakteriser dit projekt på tværs af 12 nøgledimensioner",
     "step": "Trin",
