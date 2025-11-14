@@ -198,18 +198,18 @@ export default function ProjectDetail() {
         {/* Tabs */}
         <Tabs defaultValue="documents" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
+            <TabsTrigger value="documents">{t('projectDetail.tabs.documents')} ({documents.length})</TabsTrigger>
             <TabsTrigger value="insights" disabled={!project.dna_code}>
-              AI Insights
+              {t('projectDetail.tabs.aiInsights')}
             </TabsTrigger>
             <TabsTrigger value="blind-spots">
-              Blind Spots
+              {t('projectDetail.tabs.blindSpots')}
             </TabsTrigger>
             <TabsTrigger value="visualizations" disabled={!project.dna_code}>
-              Visualizations
+              {t('projectDetail.tabs.visualizations')}
             </TabsTrigger>
             <TabsTrigger value="morphology" disabled={!project.dna_code}>
-              Morphology
+              {t('projectDetail.tabs.morphology')}
             </TabsTrigger>
           </TabsList>
 

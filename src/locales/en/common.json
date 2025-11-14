@@ -98,6 +98,13 @@
     "assessed": "Assessed",
     "unassessed": "Unassessed",
     "view": "View",
+    "tabs": {
+      "documents": "Documents",
+      "aiInsights": "AI Insights",
+      "blindSpots": "Blind Spots",
+      "visualizations": "Visualizations",
+      "morphology": "Morphology"
+    },
     "assess": "Assess",
     "stats": {
       "totalProjects": "Total Projects",
