@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS } from '@/lib/morphologyConfig';
+import { DimensionDetailDialog } from './DimensionDetailDialog';
 
 interface DNAHelixVisualizationProps {
   morphology: Record<string, string>;
@@ -10,6 +12,7 @@ interface DNAHelixVisualizationProps {
 
 export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: DNAHelixVisualizationProps) {
   const { t, i18n } = useTranslation('common');
+  const [selectedDimension, setSelectedDimension] = useState<number | null>(null);
   
   // Use i18n.language as source of truth with fallback
   const currentLanguage = (i18n.language || language) as 'en' | 'da';
@@ -47,8 +50,21 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
     { from: 10, to: 11 }, // Pair 6
   ];
 
+
+  const handleBadgeClick = (dimensionIndex: number) => {
+    setSelectedDimension(dimensionIndex);
+  };
+
+  const selectedDimensionData = selectedDimension !== null ? {
+    dimension: MORPHOLOGY_DIMENSIONS[selectedDimension],
+    option: MORPHOLOGY_DIMENSIONS[selectedDimension].options.find(
+      opt => opt.value === dnaCode.split('-')[selectedDimension]
+    ),
+  } : null;
+
   return (
-    <div className="w-full overflow-x-auto">
+    <>
+      <div className="w-full overflow-x-auto">
       <svg 
         viewBox="0 0 1100 300" 
         className="w-full h-auto min-h-[300px]"
@@ -136,7 +152,11 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
           return (
-            <g key={`badge-${point.index}`}>
+            <g 
+              key={`badge-${point.index}`}
+              onClick={() => handleBadgeClick(point.index)}
+              className="cursor-pointer"
+            >
               {/* Badge background */}
               <rect
                 x={point.x - 60}
@@ -145,7 +165,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
                 height="28"
                 rx="14"
                 fill={`hsl(${categoryColor})`}
-                className="transition-opacity hover:opacity-90 cursor-pointer"
+                className="transition-all hover:opacity-90"
               />
               
               {/* Badge text */}
@@ -166,5 +186,16 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
         })}
       </svg>
     </div>
+
+    {selectedDimensionData && selectedDimensionData.option && (
+      <DimensionDetailDialog
+        open={selectedDimension !== null}
+        onOpenChange={(open) => !open && setSelectedDimension(null)}
+        dimension={selectedDimensionData.dimension}
+        selectedOption={selectedDimensionData.option}
+        allOptions={selectedDimensionData.dimension.options}
+      />
+    )}
+    </>
   );
 }
