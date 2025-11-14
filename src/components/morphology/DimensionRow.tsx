@@ -36,7 +36,8 @@ export function DimensionRow({ dimension, selectedValue, onSelect, disabled }: D
         {dimension.options.map((option) => (
           <OptionCell
             key={option.value}
-            translationKey={option.translationKey}
+            translationKeyShort={option.translationKeyShort}
+            translationKeyLong={option.translationKeyLong}
             isSelected={selectedValue === option.value}
             categoryColor={categoryColor}
             onSelect={onSelect ? () => onSelect(option.value) : undefined}

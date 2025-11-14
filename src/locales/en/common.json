@@ -269,123 +269,264 @@
         "title": "Complexity Level",
         "description": "How predictable and ordered is your project environment?",
         "options": {
-          "simple": "Simple - Clear cause-effect, best practices work",
-          "complicated": "Complicated - Expert analysis needed, good practices",
-          "complex": "Complex - Emergent patterns, experimentation required",
-          "chaotic": "Chaotic - No clear patterns, rapid action needed"
+          "simple": {
+            "short": "Simple",
+            "long": "Clear cause-effect, best practices work"
+          },
+          "complicated": {
+            "short": "Complicated",
+            "long": "Expert analysis needed, good practices"
+          },
+          "complex": {
+            "short": "Complex",
+            "long": "Emergent patterns, experimentation required"
+          },
+          "chaotic": {
+            "short": "Chaotic",
+            "long": "No clear patterns, rapid action needed"
+          }
         }
       },
       "stakeholder": {
         "title": "Stakeholder Dynamics",
         "description": "What's the nature of stakeholder relationships?",
         "options": {
-          "unified": "Unified - Shared vision and goals",
-          "cooperative": "Cooperative - Aligned interests, collaborative",
-          "competitive": "Competitive - Divergent interests, negotiation needed",
-          "adversarial": "Adversarial - Conflicting agendas, high tension"
+          "unified": {
+            "short": "Unified",
+            "long": "Shared vision and goals"
+          },
+          "cooperative": {
+            "short": "Cooperative",
+            "long": "Aligned interests, collaborative"
+          },
+          "competitive": {
+            "short": "Competitive",
+            "long": "Divergent interests, negotiation needed"
+          },
+          "adversarial": {
+            "short": "Adversarial",
+            "long": "Conflicting agendas, high tension"
+          }
         }
       },
       "knowledge": {
         "title": "Knowledge Intensity",
         "description": "What type of knowledge work dominates?",
         "options": {
-          "routine": "Routine - Standardized, repeatable processes",
-          "adaptive": "Adaptive - Contextual adjustment of known methods",
-          "innovative": "Innovative - Creating new solutions",
-          "breakthrough": "Breakthrough - Fundamental new discoveries"
+          "routine": {
+            "short": "Routine",
+            "long": "Standardized, repeatable processes"
+          },
+          "adaptive": {
+            "short": "Adaptive",
+            "long": "Contextual adjustment of known methods"
+          },
+          "innovative": {
+            "short": "Innovative",
+            "long": "Creating new solutions"
+          },
+          "breakthrough": {
+            "short": "Breakthrough",
+            "long": "Fundamental new discoveries"
+          }
         }
       },
       "cultural": {
         "title": "Cultural Context",
         "description": "What's the cultural span of the project?",
         "options": {
-          "mono": "Mono - Single cultural context",
-          "crossfunctional": "Cross-functional - Multiple departments",
-          "crossorg": "Cross-org - Multiple organizations",
-          "crosscultural": "Cross-cultural - Multiple national cultures"
+          "mono": {
+            "short": "Mono-cultural",
+            "long": "Single cultural context"
+          },
+          "crossfunctional": {
+            "short": "Cross-functional",
+            "long": "Multiple departments"
+          },
+          "crossorg": {
+            "short": "Cross-org",
+            "long": "Multiple organizations"
+          },
+          "crosscultural": {
+            "short": "Cross-cultural",
+            "long": "Multiple national cultures"
+          }
         }
       },
       "temporal": {
         "title": "Temporal Dynamics",
         "description": "What's the time horizon and rhythm?",
         "options": {
-          "sprint": "Sprint - Weeks, fast iterations",
-          "project": "Project - Months, defined milestones",
-          "program": "Program - Years, multiple phases",
-          "transformation": "Transformation - Multi-year systemic change"
+          "sprint": {
+            "short": "Sprint",
+            "long": "Weeks, fast iterations"
+          },
+          "project": {
+            "short": "Project",
+            "long": "Months, defined milestones"
+          },
+          "program": {
+            "short": "Program",
+            "long": "Years, multiple phases"
+          },
+          "transformation": {
+            "short": "Transformation",
+            "long": "Multi-year systemic change"
+          }
         }
       },
       "organizational": {
         "title": "Organizational Stage",
         "description": "What organizational paradigm dominates? (Laloux model)",
         "options": {
-          "red": "Red - Power-driven, command & control",
-          "amber": "Amber - Process-driven, hierarchical stability",
-          "orange": "Orange - Achievement-driven, meritocratic",
-          "green": "Green - Values-driven, consensus-seeking",
-          "teal": "Teal - Purpose-driven, self-organizing"
+          "red": {
+            "short": "Red",
+            "long": "Power-driven, command & control"
+          },
+          "amber": {
+            "short": "Amber",
+            "long": "Process-driven, hierarchical stability"
+          },
+          "orange": {
+            "short": "Orange",
+            "long": "Achievement-driven, meritocratic"
+          },
+          "green": {
+            "short": "Green",
+            "long": "Values-driven, consensus-seeking"
+          },
+          "teal": {
+            "short": "Teal",
+            "long": "Purpose-driven, self-organizing"
+          }
         }
       },
       "challenge": {
         "title": "Primary Challenge",
         "description": "What's the dominant type of challenge?",
         "options": {
-          "technical": "Technical - Engineering, technology problems",
-          "social": "Social - Team dynamics, collaboration",
-          "political": "Political - Power, resource allocation",
-          "cognitive": "Cognitive - Understanding, sensemaking",
-          "adaptive": "Adaptive - Values, beliefs, identity shifts"
+          "technical": {
+            "short": "Technical",
+            "long": "Engineering, technology problems"
+          },
+          "social": {
+            "short": "Social",
+            "long": "Team dynamics, collaboration"
+          },
+          "political": {
+            "short": "Political",
+            "long": "Power, resource allocation"
+          },
+          "cognitive": {
+            "short": "Cognitive",
+            "long": "Understanding, sensemaking"
+          },
+          "adaptive": {
+            "short": "Adaptive",
+            "long": "Values, beliefs, identity shifts"
+          }
         }
       },
       "development": {
         "title": "Inner Development Needs",
         "description": "Which inner development dimension is most critical?",
         "options": {
-          "being": "Being - Self-awareness, presence, values",
-          "thinking": "Thinking - Critical thinking, perspective-taking",
-          "relating": "Relating - Empathy, compassion, connection",
-          "collaborating": "Collaborating - Co-creation, trust, inclusivity",
-          "acting": "Acting - Courage, optimism, perseverance"
+          "being": {
+            "short": "Being",
+            "long": "Self-awareness, presence, values"
+          },
+          "thinking": {
+            "short": "Thinking",
+            "long": "Critical thinking, perspective-taking"
+          },
+          "relating": {
+            "short": "Relating",
+            "long": "Empathy, compassion, connection"
+          },
+          "collaborating": {
+            "short": "Collaborating",
+            "long": "Co-creation, trust, inclusivity"
+          },
+          "acting": {
+            "short": "Acting",
+            "long": "Courage, optimism, perseverance"
+          }
         }
       },
       "resources": {
         "title": "Resource Characteristics",
         "description": "What's the resource availability situation?",
         "options": {
-          "rich": "Rich - Abundant resources, multiple options",
-          "balanced": "Balanced - Adequate resources, careful planning",
-          "constrained": "Constrained - Limited resources, trade-offs needed",
-          "scarce": "Scarce - Severe limitations, creative solutions essential"
+          "rich": {
+            "short": "Rich",
+            "long": "Abundant resources, multiple options"
+          },
+          "balanced": {
+            "short": "Balanced",
+            "long": "Adequate resources, careful planning"
+          },
+          "constrained": {
+            "short": "Constrained",
+            "long": "Limited resources, trade-offs needed"
+          },
+          "scarce": {
+            "short": "Scarce",
+            "long": "Severe limitations, creative solutions essential"
+          }
         }
       },
       "change": {
         "title": "Change Intensity",
         "description": "What's the magnitude of change involved?",
         "options": {
-          "incremental": "Incremental - Small improvements, continuity",
-          "transitional": "Transitional - Planned replacement of current state",
-          "transformational": "Transformational - Fundamental shift in mindset",
-          "disruptive": "Disruptive - Revolutionary, destroys old paradigm"
+          "incremental": {
+            "short": "Incremental",
+            "long": "Small improvements, continuity"
+          },
+          "transitional": {
+            "short": "Transitional",
+            "long": "Planned replacement of current state"
+          },
+          "transformational": {
+            "short": "Transformational",
+            "long": "Fundamental shift in mindset"
+          },
+          "disruptive": {
+            "short": "Disruptive",
+            "long": "Revolutionary, destroys old paradigm"
+          }
         }
       },
       "information": {
         "title": "Information Flow",
         "description": "How does information move in the project?",
         "options": {
-          "centralized": "Centralized - Single source, top-down",
-          "hierarchical": "Hierarchical - Chain of command, formal channels",
-          "network": "Network - Interconnected nodes, informal flows",
-          "distributed": "Distributed - Fully decentralized, peer-to-peer"
+          "centralized": {
+            "short": "Centralized",
+            "long": "Single source, top-down"
+          },
+          "hierarchical": {
+            "short": "Hierarchical",
+            "long": "Chain of command, formal channels"
+          },
+          "network": {
+            "short": "Network",
+            "long": "Interconnected nodes, informal flows"
+          },
+          "distributed": {
+            "short": "Distributed",
+            "long": "Fully decentralized, peer-to-peer"
+          }
         }
       },
       "risk": {
         "title": "Risk Profile",
         "description": "What's the overall risk exposure?",
         "options": {
-          "low": "Low - Predictable, minimal uncertainty",
-          "moderate": "Moderate - Some unknowns, manageable",
-          "high": "High - Significant uncertainty, careful monitoring",
-          "extreme": "Extreme - Major threats, crisis potential"
+          "low": {"short": "Low", "long": "Predictable, minimal uncertainty"},
+          "moderate": {"short": "Moderate", "long": "Some uncertainty, manageable"},
+          "high": {"short": "High", "long": "Significant uncertainty, careful monitoring"},
+          "extreme": {"short": "Extreme", "long": "High volatility, crisis potential"}
         }
       }
     }
