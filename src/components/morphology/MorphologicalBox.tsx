@@ -53,8 +53,7 @@ export function MorphologicalBox({
     context: { en: 'Project Context', da: 'Projekt Kontekst' },
     capacity: { en: 'Knowledge & Capacity', da: 'Viden & Kapacitet' },
     dynamics: { en: 'Dynamics & Change', da: 'Dynamik & Forandring' },
-    resources: { en: 'Resources & Risk', da: 'Ressourcer & Risiko' },
-    challenge: { en: 'Primary Challenge', da: 'Primær Udfordring' },
+    challenge_and_resources: { en: 'Challenge, Resources & Risk', da: 'Udfordring, Ressourcer & Risiko' },
   };
 
   return (
