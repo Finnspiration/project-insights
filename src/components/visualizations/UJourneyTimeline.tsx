@@ -424,9 +424,9 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
               <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
                 <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.openMHW')}</p>
                 <div className="flex gap-4 text-base font-semibold">
-                  <span><strong className="text-primary">M:</strong> {analysis.openMHW.mind}</span>
-                  <span><strong className="text-primary">H:</strong> {analysis.openMHW.heart}</span>
-                  <span><strong className="text-primary">W:</strong> {analysis.openMHW.will}</span>
+                  <span><strong className="text-primary">M:</strong> {analysis.openMHW?.mind || 0}</span>
+                  <span><strong className="text-primary">H:</strong> {analysis.openMHW?.heart || 0}</span>
+                  <span><strong className="text-primary">W:</strong> {analysis.openMHW?.will || 0}</span>
                 </div>
               </div>
             </div>
