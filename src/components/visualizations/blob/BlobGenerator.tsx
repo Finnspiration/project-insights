@@ -122,7 +122,7 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
   
   for (let angle = 0; angle < p5.TWO_PI; angle += angleStep) {
     // Arm modulation - creates tentacles/lobes
-    const armPhase = angle * (data.arms / 2);
+    const armPhase = angle * data.arms;
     const armMod = 1 + 0.3 * p5.sin(armPhase);
     
     // Perlin noise for roughness/complexity
@@ -158,7 +158,7 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
   // Redraw to apply fill
   p5.beginShape();
   for (let angle = 0; angle < p5.TWO_PI; angle += angleStep) {
-    const armPhase = angle * (data.arms / 2);
+    const armPhase = angle * data.arms;
     const armMod = 1 + 0.3 * p5.sin(armPhase);
     const noiseScale = data.roughness * 2;
     const noiseVal = p5.noise(angle * noiseScale, time * 0.3);

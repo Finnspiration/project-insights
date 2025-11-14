@@ -528,6 +528,7 @@
       },
       "riskGuide": {
         "title": "🎨 Risk Colors",
+        "layeredNote": "Note: The perceived color is a blend of base color (organizational) and overlay layers (cultural + risk)",
         "low": "Green = Low risk",
         "moderate": "Orange = Moderate risk",
         "high": "Orange-red = High risk",
