@@ -8,9 +8,11 @@ import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS, CATEGORY_ICONS, CategoryType } 
 import { DimensionRow } from './DimensionRow';
 import { MorphologyDescription } from './MorphologyDescription';
 import { DNAHelixVisualization } from './DNAHelixVisualization';
-import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List } from 'lucide-react';
+import { MorphologyScoringTable } from './MorphologyScoringTable';
+import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MorphologicalBoxProps {
   morphology: Record<string, string>;
@@ -31,6 +33,7 @@ export function MorphologicalBox({
 }: MorphologicalBoxProps) {
   const { t, i18n } = useTranslation('common');
   const [isCodeOpen, setIsCodeOpen] = useState(false);
+  const [theoryUAnalysis, setTheoryUAnalysis] = useState<any>(null);
 
   const handleSelect = (dimensionKey: string, value: string) => {
     const updatedMorphology = { ...morphology, [dimensionKey]: value };
@@ -57,6 +60,25 @@ export function MorphologicalBox({
     Zap,
     Shield,
   };
+
+  // Fetch Theory U analysis to get morphology scoring
+  useEffect(() => {
+    if (!projectId) return;
+
+    const fetchTheoryUAnalysis = async () => {
+      const { data } = await supabase
+        .from('projects')
+        .select('theory_u_analysis')
+        .eq('id', projectId)
+        .single();
+
+      if (data?.theory_u_analysis) {
+        setTheoryUAnalysis(data.theory_u_analysis);
+      }
+    };
+
+    fetchTheoryUAnalysis();
+  }, [projectId]);
 
   return (
     <Card>
@@ -161,6 +183,10 @@ export function MorphologicalBox({
                       <List className="h-4 w-4" />
                       {t('morphology.listView') || 'List'}
                     </TabsTrigger>
+                    <TabsTrigger value="scoring" className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      {t('morphology.scoringView') || 'Theory U Scoring'}
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="helix">
@@ -206,6 +232,20 @@ export function MorphologicalBox({
                         );
                       })}
                     </div>
+                  </TabsContent>
+
+                  <TabsContent value="scoring">
+                    {theoryUAnalysis?.whyHere?.morphologyScoring ? (
+                      <MorphologyScoringTable 
+                        morphologyScoring={theoryUAnalysis.whyHere.morphologyScoring}
+                        aiNuance={theoryUAnalysis.whyHere.aiNuance}
+                      />
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="mb-2">{t('morphology.scoring.notGenerated')}</p>
+                        <p className="text-sm">{t('morphology.scoring.visitTheoryU')}</p>
+                      </div>
+                    )}
                   </TabsContent>
                 </Tabs>
               </div>

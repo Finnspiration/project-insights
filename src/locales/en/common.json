@@ -318,7 +318,24 @@
     },
     "dnaHelix": "DNA Helix",
     "listView": "List",
+    "scoringView": "Theory U Scoring",
     "confidence": "Confidence",
+    "scoring": {
+      "title": "Morphology-Based Theory U Scoring",
+      "description": "Deterministic mapping from your 12 morphological dimensions to Theory U phases",
+      "noData": "No morphology scoring available yet",
+      "dominantPhase": "Dominant Phase (from morphology)",
+      "topContributions": "Top Contributing Dimensions",
+      "allPhases": "All Phase Scores",
+      "allPhasesDescription": "How each Theory U phase scores based on your morphology",
+      "dimension": "Dimension",
+      "value": "Value",
+      "contribution": "Points",
+      "noContributions": "No contributions for this phase",
+      "aiNuance": "AI Analysis & Nuance",
+      "notGenerated": "Morphology scoring not yet generated",
+      "visitTheoryU": "Visit the Theory U visualization tab to generate this analysis"
+    },
     "dimensions": {
       "complexity": {
         "title": "Complexity Level",
