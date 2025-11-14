@@ -363,40 +363,40 @@
         "title": "Ressourcekarakteristika",
         "description": "Hvad er ressourcetilgængeligheden?",
         "options": {
-          "rich": "Rig - Rigelige ressourcer, flere muligheder",
-          "balanced": "Afbalanceret - Tilstrækkelige ressourcer, omhyggelig planlægning",
-          "constrained": "Begrænset - Begrænsede ressourcer, afvejninger nødvendige",
-          "scarce": "Knappe - Alvorlige begrænsninger, kreative løsninger essentielle"
+          "rich": {"short": "Rig", "long": "Rigelige ressourcer"},
+          "balanced": {"short": "Balanceret", "long": "Tilstrækkelige ressourcer"},
+          "constrained": {"short": "Begrænset", "long": "Begrænsede ressourcer"},
+          "scarce": {"short": "Knappe", "long": "Alvorlige begrænsninger"}
         }
       },
       "change": {
         "title": "Forandringsintensitet",
         "description": "Hvad er omfanget af forandring involveret?",
         "options": {
-          "incremental": "Trinvis - Små forbedringer, kontinuitet",
-          "transitional": "Overgangsmæssig - Planlagt udskiftning af nuværende tilstand",
-          "transformational": "Transformerende - Grundlæggende skift i tankegang",
-          "disruptive": "Forstyrrende - Revolutionær, ødelægger gammelt paradigme"
+          "incremental": {"short": "Trinvis", "long": "Små forbedringer"},
+          "transitional": {"short": "Overgangsmæssig", "long": "Planlagt udskiftning"},
+          "transformational": {"short": "Transformerende", "long": "Grundlæggende skift"},
+          "disruptive": {"short": "Forstyrrende", "long": "Revolutionær"}
         }
       },
       "information": {
         "title": "Informationsflow",
         "description": "Hvordan bevæger information sig i projektet?",
         "options": {
-          "centralized": "Centraliseret - Enkelt kilde, top-down",
-          "hierarchical": "Hierarkisk - Kommandokæde, formelle kanaler",
-          "network": "Netværk - Indbyrdes forbundne knudepunkter, uformelle flows",
-          "distributed": "Distribueret - Fuldt decentraliseret, peer-to-peer"
+          "centralized": {"short": "Centraliseret", "long": "Enkelt kilde, top-down"},
+          "hierarchical": {"short": "Hierarkisk", "long": "Kommandokæde"},
+          "network": {"short": "Netværk", "long": "Indbyrdes forbundne knudepunkter"},
+          "distributed": {"short": "Distribueret", "long": "Fuldt decentraliseret"}
         }
       },
       "risk": {
         "title": "Risikoprofil",
         "description": "Hvad er den samlede risikoeksponering?",
         "options": {
-          "low": "Lav - Forudsigelig, minimal usikkerhed",
-          "moderate": "Moderat - Nogle ukendte, håndterbar",
-          "high": "Høj - Betydelig usikkerhed, omhyggelig overvågning",
-          "extreme": "Ekstrem - Store trusler, krisepotentiale"
+          "low": {"short": "Lav", "long": "Forudsigelig, minimal usikkerhed"},
+          "moderate": {"short": "Moderat", "long": "Nogen usikkerhed"},
+          "high": {"short": "Høj", "long": "Betydelig usikkerhed"},
+          "extreme": {"short": "Ekstrem", "long": "Store trusler, krisepotentiale"}
         }
       }
     }
