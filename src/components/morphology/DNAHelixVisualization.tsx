@@ -19,7 +19,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
   const helixPoints = Array.from({ length: 12 }, (_, i) => {
     const isTopStrand = i % 2 === 0;
     const pairIndex = Math.floor(i / 2);
-    const xPosition = 80 + (pairIndex * 140); // Spread evenly across width
+    const xPosition = 80 + (pairIndex * 170); // Increased spacing to prevent overlap
     
     // Sinusoidal Y calculation for helix shape
     const centerY = 150;
@@ -50,9 +50,9 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
   return (
     <div className="w-full overflow-x-auto">
       <svg 
-        viewBox="0 0 900 300" 
+        viewBox="0 0 1100 300" 
         className="w-full h-auto min-h-[300px]"
-        style={{ minWidth: '900px' }}
+        style={{ minWidth: '1100px' }}
       >
         {/* Gradients for the double helix strands */}
         <defs>
@@ -73,7 +73,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
         
         {/* Strand 1 - Top/Right strand */}
         <path
-          d="M 80,150 Q 150,80 220,150 Q 290,220 360,150 Q 430,80 500,150 Q 570,220 640,150 Q 710,80 780,150"
+          d="M 80,150 Q 165,80 250,150 Q 335,220 420,150 Q 505,80 590,150 Q 675,220 760,150 Q 845,80 930,150 Q 1015,220 1100,150"
           stroke="url(#gradient-strand1)"
           fill="none"
           strokeWidth="12"
@@ -83,7 +83,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
         
         {/* Strand 2 - Bottom/Left strand */}
         <path
-          d="M 80,150 Q 150,220 220,150 Q 290,80 360,150 Q 430,220 500,150 Q 570,80 640,150 Q 710,220 780,150"
+          d="M 80,150 Q 165,220 250,150 Q 335,80 420,150 Q 505,220 590,150 Q 675,80 760,150 Q 845,220 930,150 Q 1015,80 1100,150"
           stroke="url(#gradient-strand2)"
           fill="none"
           strokeWidth="12"
@@ -119,7 +119,20 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           if (!dimension || !segment) return null;
           
           const option = dimension.options.find(opt => opt.value === segment);
+          
+          // Debug translation
           const translatedLabel = option ? t(option.translationKey, { lng: currentLanguage }) : segment;
+          
+          console.log('DNA Badge Translation:', {
+            index: point.index,
+            segment,
+            translationKey: option?.translationKey,
+            currentLanguage,
+            i18nLanguage: i18n.language,
+            translatedLabel,
+            optionExists: !!option
+          });
+          
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
           return (
