@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import { getDocument } from "https://esm.sh/pdfjs-serverless@0.2.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,17 +52,32 @@ serve(async (req) => {
 
     // Extract text based on file type
     if (doc.file_type === 'application/pdf') {
-      // For PDFs, use a simple text extraction approach
-      // In production, you'd use a proper PDF parsing library
-      const arrayBuffer = await fileData.arrayBuffer();
-      const text = new TextDecoder().decode(arrayBuffer);
-      
-      // Simple extraction - looks for readable text between PDF markers
-      const textMatches = text.match(/\/T\s*\((.*?)\)/g) || [];
-      extractedText = textMatches
-        .map(match => match.replace(/\/T\s*\(|\)/g, ''))
-        .join(' ')
-        .slice(0, 50000); // Limit to 50k chars
+      try {
+        const arrayBuffer = await fileData.arrayBuffer();
+        const pdfDoc = await getDocument(new Uint8Array(arrayBuffer)).promise;
+        
+        console.log(`PDF has ${pdfDoc.numPages} pages`);
+        
+        let pdfText = '';
+        for (let i = 1; i <= pdfDoc.numPages; i++) {
+          const page = await pdfDoc.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items
+            .map((item: any) => item.str)
+            .join(' ');
+          pdfText += pageText + '\n';
+          console.log(`Page ${i}: extracted ${pageText.length} characters`);
+        }
+        
+        extractedText = pdfText.slice(0, 50000); // Limit to 50k chars
+        
+        if (extractedText.length === 0) {
+          console.warn('WARNING: No text extracted from PDF - might be scanned/image-based');
+        }
+      } catch (error) {
+        console.error('PDF extraction error:', error);
+        extractedText = '';
+      }
       
     } else if (doc.file_type === 'text/plain' || doc.file_type === 'text/markdown') {
       extractedText = await fileData.text();
