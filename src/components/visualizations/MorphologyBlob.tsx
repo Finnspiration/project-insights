@@ -1,5 +1,6 @@
 import { ReactP5Wrapper } from 'react-p5-wrapper';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -13,6 +14,8 @@ interface MorphologyBlobProps {
 
 export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   const { t } = useTranslation();
+  const [hoveredZone, setHoveredZone] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   
   if (!morphology) {
     return (
@@ -28,6 +31,47 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   const blobData = mapMorphologyToBlob(morphology);
   const archetype = detectArchetype(blobData);
   
+  const handleHover = (zone: string | null, x: number, y: number) => {
+    setHoveredZone(zone);
+    setTooltipPosition({ x, y });
+  };
+  
+  const getZoneInfo = (zone: string | null) => {
+    if (!zone) return null;
+    
+    const zoneMap: Record<string, { title: string; description: string; dimension: string }> = {
+      outerGlow: {
+        title: t('visualizations.blob.zones.outerGlow.title'),
+        description: t('visualizations.blob.zones.outerGlow.description'),
+        dimension: `${t('morphology.dimensions.risk')}: ${morphology.risk}`
+      },
+      mainShape: {
+        title: t('visualizations.blob.zones.mainShape.title'),
+        description: t('visualizations.blob.zones.mainShape.description'),
+        dimension: `${t('morphology.dimensions.complexity')}: ${morphology.complexity}, ${t('morphology.dimensions.stakeholder')}: ${morphology.stakeholder}`
+      },
+      culturalOverlay: {
+        title: t('visualizations.blob.zones.culturalOverlay.title'),
+        description: t('visualizations.blob.zones.culturalOverlay.description'),
+        dimension: `${t('morphology.dimensions.cultural')}: ${morphology.cultural}, ${t('morphology.dimensions.organizational')}: ${morphology.organizational}`
+      },
+      innerPattern: {
+        title: t('visualizations.blob.zones.innerPattern.title'),
+        description: t('visualizations.blob.zones.innerPattern.description'),
+        dimension: `${t('morphology.dimensions.knowledge')}: ${morphology.knowledge}`
+      },
+      coreGlow: {
+        title: t('visualizations.blob.zones.coreGlow.title'),
+        description: t('visualizations.blob.zones.coreGlow.description'),
+        dimension: `${t('morphology.dimensions.development')}: ${morphology.development}`
+      }
+    };
+    
+    return zoneMap[zone];
+  };
+  
+  const zoneInfo = getZoneInfo(hoveredZone);
+  
   return (
     <Card className="w-full">
       <CardHeader>
@@ -41,8 +85,28 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Left: Blob Canvas */}
           <div className="relative flex flex-col items-center">
-            <div className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden">
-              <ReactP5Wrapper sketch={blobSketch} blobData={blobData} />
+            <div className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
+              <ReactP5Wrapper sketch={blobSketch} blobData={blobData} onHover={handleHover} />
+              
+              {/* Floating tooltip */}
+              {hoveredZone && zoneInfo && (
+                <div 
+                  className="absolute pointer-events-none z-50 animate-fade-in"
+                  style={{ 
+                    left: `${tooltipPosition.x}px`, 
+                    top: `${tooltipPosition.y}px`,
+                    transform: 'translate(-50%, -120%)'
+                  }}
+                >
+                  <div className="bg-popover/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3 max-w-xs">
+                    <p className="text-sm font-semibold text-foreground mb-1">{zoneInfo.title}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{zoneInfo.description}</p>
+                    <Badge variant="secondary" className="text-xs">
+                      {zoneInfo.dimension}
+                    </Badge>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Archetype Label */}
