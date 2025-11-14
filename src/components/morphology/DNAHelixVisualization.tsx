@@ -21,7 +21,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
   // Calculate double helix points - 12 dimensions evenly distributed
   // Using sinusoidal model for classic DNA helix shape
   const totalWidth = 1000; // Total SVG width for distribution
-  const startX = 80;
+  const startX = 150;
   const spacing = totalWidth / 11; // Divide space equally for 12 points (11 gaps)
   
   const helixPoints = Array.from({ length: 12 }, (_, i) => {
@@ -96,11 +96,11 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
   return (
     <>
       <div className="w-full overflow-x-auto">
-      <svg 
-        viewBox="0 0 1100 300" 
-        className="w-full h-auto min-h-[300px]"
-        style={{ minWidth: '1100px' }}
-      >
+    <svg 
+      viewBox="0 0 1300 300" 
+      className="w-full h-auto min-h-[300px]"
+      style={{ minWidth: '1200px' }}
+    >
         {/* Gradients for the double helix strands */}
         <defs>
           {/* Strand 1: Blue to Purple to Red */}
@@ -120,7 +120,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
         
         {/* Strand 1 - Top/Right strand */}
         <path
-          d="M 80,150 Q 165,80 250,150 Q 335,220 420,150 Q 505,80 590,150 Q 675,220 760,150 Q 845,80 930,150 Q 1015,220 1100,150"
+          d="M 150,150 Q 235,80 320,150 Q 405,220 490,150 Q 575,80 660,150 Q 745,220 830,150 Q 915,80 1000,150 Q 1085,220 1170,150"
           stroke="url(#gradient-strand1)"
           fill="none"
           strokeWidth="12"
@@ -130,7 +130,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
         
         {/* Strand 2 - Bottom/Left strand */}
         <path
-          d="M 80,150 Q 165,220 250,150 Q 335,80 420,150 Q 505,220 590,150 Q 675,80 760,150 Q 845,220 930,150 Q 1015,80 1100,150"
+          d="M 150,150 Q 235,220 320,150 Q 405,80 490,150 Q 575,220 660,150 Q 745,80 830,150 Q 915,220 1000,150 Q 1085,80 1170,150"
           stroke="url(#gradient-strand2)"
           fill="none"
           strokeWidth="12"
