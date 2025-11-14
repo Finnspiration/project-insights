@@ -150,12 +150,12 @@ export default function ProjectDetail() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
               <Edit className="h-4 w-4 mr-2" />
-              Edit
+              {t('projectDetail.edit')}
             </Button>
             {!project.dna_code && (
               <Button onClick={() => setMorphologyWizardOpen(true)}>
                 <Sparkles className="h-4 w-4 mr-2" />
-                Assess Project
+                {t('projectDetail.assessProject')}
               </Button>
             )}
           </div>
@@ -164,12 +164,12 @@ export default function ProjectDetail() {
         {/* Project Info */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Project Information</CardTitle>
+            <CardTitle>{t('projectDetail.projectInformation')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {projectDescription && (
               <div>
-                <h3 className="text-sm font-medium mb-1">Description</h3>
+                <h3 className="text-sm font-medium mb-1">{t('projectDetail.description')}</h3>
                 <p className="text-muted-foreground">{projectDescription}</p>
               </div>
             )}
