@@ -327,6 +327,7 @@
     "regenerateError": "Failed to regenerate DNA codes",
     "regenerateSkipped": "All DNA codes are already correct",
     "regenerateNoProjects": "No projects found to regenerate",
+    "refreshScoring": "Refresh Scoring",
     "confidence": "Confidence",
     "scoring": {
       "title": "Morphology-Based Theory U Scoring",

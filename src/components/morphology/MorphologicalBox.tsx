@@ -35,6 +35,7 @@ export function MorphologicalBox({
   const { t, i18n } = useTranslation('common');
   const [isCodeOpen, setIsCodeOpen] = useState(false);
   const [theoryUAnalysis, setTheoryUAnalysis] = useState<any>(null);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const handleSelect = (dimensionKey: string, value: string) => {
     const updatedMorphology = { ...morphology, [dimensionKey]: value };
@@ -62,11 +63,45 @@ export function MorphologicalBox({
     Shield,
   };
 
-  // Fetch Theory U analysis to get morphology scoring
+  // Auto-regenerate morphology scoring if missing
+  const regenerateMorphologyScoring = async () => {
+    if (!projectId) return;
+    
+    setIsRegenerating(true);
+    console.log('🔄 Regenerating morphology scoring...');
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+        body: { 
+          projectId, 
+          morphology, 
+          language: i18n.language 
+        }
+      });
+      
+      if (error) {
+        console.error('Error regenerating morphology scoring:', error);
+        toast.error(t('morphology.regenerateError') || 'Failed to regenerate morphology scoring');
+        return;
+      }
+      
+      if (data) {
+        setTheoryUAnalysis(data);
+        toast.success(t('morphology.regenerateSuccess') || 'Morphology scoring updated!');
+      }
+    } catch (error) {
+      console.error('Error regenerating morphology scoring:', error);
+      toast.error(t('morphology.regenerateError') || 'Failed to regenerate morphology scoring');
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  // Fetch Theory U analysis and auto-regenerate if morphologyScoring is missing
   useEffect(() => {
     if (!projectId) return;
 
-    const fetchTheoryUAnalysis = async () => {
+    const fetchOrGenerateAnalysis = async () => {
       const { data } = await supabase
         .from('projects')
         .select('theory_u_analysis')
@@ -75,10 +110,16 @@ export function MorphologicalBox({
 
       if (data?.theory_u_analysis) {
         setTheoryUAnalysis(data.theory_u_analysis);
+        
+        // Auto-regenerate if morphologyScoring is missing
+        if (!data.theory_u_analysis.whyHere?.morphologyScoring) {
+          console.log('⚠️ Morphology scoring missing - auto-regenerating...');
+          await regenerateMorphologyScoring();
+        }
       }
     };
 
-    fetchTheoryUAnalysis();
+    fetchOrGenerateAnalysis();
   }, [projectId]);
 
   return (
@@ -183,20 +224,33 @@ export function MorphologicalBox({
             <CollapsibleContent>
               <div className="bg-muted/50 p-4 rounded-lg mt-2">
                 <Tabs defaultValue="helix" className="w-full">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="helix" className="flex items-center gap-2">
-                      <Dna className="h-4 w-4" />
-                      {t('morphology.dnaHelix') || 'DNA Helix'}
-                    </TabsTrigger>
-                    <TabsTrigger value="list" className="flex items-center gap-2">
-                      <List className="h-4 w-4" />
-                      {t('morphology.listView') || 'List'}
-                    </TabsTrigger>
-                    <TabsTrigger value="scoring" className="flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4" />
-                      {t('morphology.scoringView') || 'Theory U Scoring'}
-                    </TabsTrigger>
-                  </TabsList>
+                  <div className="flex items-center justify-between mb-4">
+                    <TabsList>
+                      <TabsTrigger value="helix" className="flex items-center gap-2">
+                        <Dna className="h-4 w-4" />
+                        {t('morphology.dnaHelix') || 'DNA Helix'}
+                      </TabsTrigger>
+                      <TabsTrigger value="list" className="flex items-center gap-2">
+                        <List className="h-4 w-4" />
+                        {t('morphology.listView') || 'List'}
+                      </TabsTrigger>
+                      <TabsTrigger value="scoring" className="flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4" />
+                        {t('morphology.scoringView') || 'Theory U Scoring'}
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={regenerateMorphologyScoring}
+                      disabled={isRegenerating || !projectId}
+                      className="flex items-center gap-2"
+                    >
+                      <RefreshCw className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+                      {t('morphology.refreshScoring') || 'Refresh'}
+                    </Button>
+                  </div>
                   
                   <TabsContent value="helix">
                     <DNAHelixVisualization 

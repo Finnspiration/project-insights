@@ -327,6 +327,7 @@
     "regenerateError": "Kunne ikke regenerere DNA koder",
     "regenerateSkipped": "Alle DNA koder er allerede korrekte",
     "regenerateNoProjects": "Ingen projekter fundet til regenerering",
+    "refreshScoring": "Opdater Scoring",
     "scoring": {
       "title": "Morfologi-Baseret Theory U Scoring",
       "description": "Deterministisk mapping fra dine 12 morfologiske dimensioner til Theory U faser",
