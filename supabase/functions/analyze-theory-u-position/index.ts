@@ -28,7 +28,7 @@ serve(async (req) => {
     // Fetch processed documents
     const { data: documents, error: docsError } = await supabase
       .from('documents')
-      .select('content, filename')
+      .select('content, filename, processed')
       .eq('project_id', projectId)
       .eq('processed', true);
 
@@ -36,61 +36,100 @@ serve(async (req) => {
       console.error('Error fetching documents:', docsError);
     }
 
+    // Check for unprocessed documents
+    const { data: unprocessedDocs } = await supabase
+      .from('documents')
+      .select('filename')
+      .eq('project_id', projectId)
+      .eq('processed', false);
+
     const hasDocuments = documents && documents.length > 0;
+    const hasUnprocessed = unprocessedDocs && unprocessedDocs.length > 0;
+    
     const documentText = hasDocuments 
       ? documents.map(d => `[${d.filename}]\n${d.content}`).join('\n\n')
       : 'No documents uploaded yet.';
+    
+    const documentStatus = hasUnprocessed ? 'processing' : (hasDocuments ? 'ready' : 'none');
+    const processingFiles = hasUnprocessed ? unprocessedDocs.map(d => d.filename) : [];
 
     // Prepare Theory U analysis prompt
     const systemPrompt = language === 'da' 
       ? `Du er en Theory U ekspert. Analyser projektet baseret på BÅDE morfologisk assessment OG dokumentindhold.
 
-Theory U faserne er:
-- Downloading: Ser med gamle øjne, reproducerer mønstre
-- Seeing: Ser med friske øjne, observerer fra kanten
-- Sensing: Ser fra hele systemet, dyb lytning
-- Presencing: Forbindelse til kilde, tilstedeværelse
-- Crystallizing: Krystalliserer vision og intention
-- Prototyping: Prototyper det nye
-- Performing: Udfører og implementerer
+KRITISK: HELE dit output SKAL være på DANSK. Ingen engelske ord eller sætninger.
 
-Social Field kvaliteter:
-- Downloading: Høflighed, rutine
-- Debating: Debat, konflikt, positioner
-- Dialogue: Reflekterende dialog, åbent sind
-- Collective Creativity: Flow, co-kreation, åben vilje
+Theory U faserne er:
+- downloading: Ser med gamle øjne, reproducerer mønstre
+- seeing: Ser med friske øjne, observerer fra kanten
+- sensing: Ser fra hele systemet, dyb lytning
+- presencing: Forbindelse til kilde, tilstedeværelse
+- crystallizing: Krystalliserer vision og intention
+- prototyping: Prototyper det nye
+- performing: Udfører og implementerer
+
+Social Field kvaliteter (brug disse PRÆCISE keys):
+- downloading: Høflighed, rutine
+- debating: Debat, konflikt, positioner
+- dialogue: Reflekterende dialog, åbent sind
+- collective_creativity: Flow, co-kreation, åben vilje
 
 Returner struktureret JSON med:
-1. currentPhase: Præcis fase, confidence (0-1), socialField, depthLevel
+1. currentPhase: { phase: "sensing", confidence: 0.85, socialField: "dialogue", depthLevel: "Surface/Deep" }
 2. diagnostics: Open Mind/Heart/Will scores (0-10) med konkret evidens
-3. whyHere: Morfologi evidens + dokument citater med analyse
-4. nextActions: 3 konkrete handlinger prioriteret (high/medium/low)
-5. readinessIndicators: Vurdering af parathed til næste faser
-6. theoryUResources: Relevante ressourcer`
+3. whyHere: { 
+     morphologySynthesis: "KORT sammenhængende forklaring på dansk af hvorfor projektet er i denne fase baseret på morfologien",
+     morphologyEvidence: [...],
+     documentEvidence: [...] eller documentStatus: "processing", processingFiles: [...]
+   }
+4. nextActions: [
+     {
+       "priority": 1,
+       "action": "Gennemfør 'sensing walks' med nøglepersoner",
+       "rationale": "For at udvikle dyb lytning...",
+       "theoryUPrinciple": "Sensing kræver...",
+       "timeframe": "1-2 uger",
+       "expectedImpact": "Større indsigt i..."
+     }
+   ]
+5. readinessIndicators: { 
+     readyToDescend: { status: "green/yellow/red", reason: "...", nextSteps: ["...", "..."] },
+     readyToPresence: { status: "green/yellow/red", reason: "...", nextSteps: ["...", "..."] },
+     readyToAscend: { status: "green/yellow/red", reason: "...", nextSteps: ["...", "..."] }
+   }
+6. theoryUResources: Minimum 2-3 fase-specifikke ressourcer på dansk`
       : `You are a Theory U expert. Analyze the project based on BOTH morphological assessment AND document content.
 
 Theory U phases are:
-- Downloading: Seeing with old eyes, reproducing patterns
-- Seeing: Seeing with fresh eyes, observing from the edge
-- Sensing: Seeing from the whole system, deep listening
-- Presencing: Connection to source, presence
-- Crystallizing: Crystallizing vision and intention
-- Prototyping: Prototyping the new
-- Performing: Performing and implementing
+- downloading: Seeing with old eyes, reproducing patterns
+- seeing: Seeing with fresh eyes, observing from the edge
+- sensing: Seeing from the whole system, deep listening
+- presencing: Connection to source, presence
+- crystallizing: Crystallizing vision and intention
+- prototyping: Prototyping the new
+- performing: Performing and implementing
 
-Social Field qualities:
-- Downloading: Politeness, routine
-- Debating: Debate, conflict, positions
-- Dialogue: Reflective dialogue, open mind
-- Collective Creativity: Flow, co-creation, open will
+Social Field qualities (use these EXACT keys):
+- downloading: Politeness, routine
+- debating: Debate, conflict, positions
+- dialogue: Reflective dialogue, open mind
+- collective_creativity: Flow, co-creation, open will
 
 Return structured JSON with:
-1. currentPhase: Precise phase, confidence (0-1), socialField, depthLevel
+1. currentPhase: { phase: "sensing", confidence: 0.85, socialField: "dialogue", depthLevel: "Surface/Deep" }
 2. diagnostics: Open Mind/Heart/Will scores (0-10) with concrete evidence
-3. whyHere: Morphology evidence + document quotes with analysis
-4. nextActions: 3 concrete actions prioritized (high/medium/low)
-5. readinessIndicators: Assessment of readiness for next phases
-6. theoryUResources: Relevant resources`;
+3. whyHere: { 
+     morphologySynthesis: "SHORT coherent explanation of why project is in this phase based on morphology",
+     morphologyEvidence: [...],
+     documentEvidence: [...] or documentStatus: "processing", processingFiles: [...]
+   }
+4. nextActions: 3 concrete actions with priority, action, rationale, theoryUPrinciple, timeframe, expectedImpact
+5. readinessIndicators: { 
+     readyToDescend: { status: "green/yellow/red", reason: "...", nextSteps: ["...", "..."] },
+     readyToPresence: { status: "green/yellow/red", reason: "...", nextSteps: ["...", "..."] },
+     readyToAscend: { status: "green/yellow/red", reason: "...", nextSteps: ["...", "..."] }
+   }
+6. theoryUResources: Minimum 2-3 phase-specific resources`;
 
     const userPrompt = `Morphological Assessment:
 ${JSON.stringify(morphology, null, 2)}
@@ -98,8 +137,11 @@ ${JSON.stringify(morphology, null, 2)}
 Project Documents:
 ${documentText}
 
+Document Status: ${documentStatus}
+${hasUnprocessed ? `Processing: ${processingFiles.join(', ')}` : ''}
+
 ${language === 'da' 
-  ? 'Analyser hvor projektet er på Theory U rejsen, hvorfor, og hvad de skal gøre ved det. Returner valid JSON.'
+  ? 'Analyser hvor projektet er på Theory U rejsen, hvorfor, og hvad de skal gøre ved det. ALT SKAL VÆRE PÅ DANSK. Returner valid JSON.'
   : 'Analyze where the project is on the Theory U journey, why, and what to do about it. Return valid JSON.'}`;
 
     // Call Lovable AI
