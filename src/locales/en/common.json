@@ -512,8 +512,29 @@
         "rotation": "Rotation",
         "rotationDesc": "Movement shows change intensity (disruptive = fast rotation)",
         "glow": "Glow",
-        "glowDesc": "Inner = development focus, outer = risk level (red pulsing = high risk)"
+        "glowDesc": "Inner (yellow) = development focus, outer (colored) = risk level",
+        "layers": "Layers",
+        "layersDesc": "All elements are drawn as layers on top of each other to create depth and show complexity"
       },
+      "layersExplainer": "The visualization is built in layers from background to foreground",
+      "layerOrder": {
+        "title": "Visualization Layers (background → foreground)",
+        "coreGlow": "Core glow (inner development)",
+        "innerPattern": "Inner pattern (knowledge)",
+        "culturalOverlay": "Cultural overlay",
+        "mainShape": "Main shape (morphology)",
+        "outerGlow": "Outer glow (risk)",
+        "note": "Layers are drawn on top of each other – this is intentional, not a bug!"
+      },
+      "riskGuide": {
+        "title": "🎨 Risk Colors",
+        "low": "Green = Low risk",
+        "moderate": "Orange = Moderate risk",
+        "high": "Orange-red = High risk",
+        "extreme": "Red = Extreme risk",
+        "yourProject": "Your project"
+      },
+      "glowTooltip": "This color appears as the outer glow on the visualization",
       "archetypes": {
         "seed": {
           "name": "The Seed",

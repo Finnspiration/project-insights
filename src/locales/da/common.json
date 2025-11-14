@@ -511,8 +511,29 @@
         "rotation": "Rotation",
         "rotationDesc": "Bevægelse viser forandringsintensitet (disruptiv = hurtig rotation)",
         "glow": "Glød",
-        "glowDesc": "Indre = udviklingsfokus, ydre = risikoniveau (rød pulsering = høj risiko)"
+        "glowDesc": "Indre (gul) = udviklingsfokus, ydre (farvet) = risikoniveau",
+        "layers": "Lag",
+        "layersDesc": "Alle elementer tegnes som lag oven på hinanden for at skabe dybde og vise kompleksitet"
       },
+      "layersExplainer": "Visualiseringen er opbygget i lag fra baggrund til forgrund",
+      "layerOrder": {
+        "title": "Visualiseringens Lag (baggrund → forgrund)",
+        "coreGlow": "Kerne-glød (indre udvikling)",
+        "innerPattern": "Indre mønster (viden)",
+        "culturalOverlay": "Kulturelt overlay",
+        "mainShape": "Hovedform (morfologi)",
+        "outerGlow": "Ydre glød (risiko)",
+        "note": "Lagene tegnes oven på hinanden – det er intentionelt, ikke en fejl!"
+      },
+      "riskGuide": {
+        "title": "🎨 Risiko Farver",
+        "low": "Grøn = Lav risiko",
+        "moderate": "Orange = Moderat risiko",
+        "high": "Orange-rød = Høj risiko",
+        "extreme": "Rød = Ekstrem risiko",
+        "yourProject": "Dit projekt"
+      },
+      "glowTooltip": "Denne farve vises som ydre glød på visualiseringen",
       "archetypes": {
         "seed": {
           "name": "Frøet",
