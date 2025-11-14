@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Loader2, RefreshCw, TrendingDown, TrendingUp, AlertCircle, BookOpen, MapPin, Lightbulb, BarChart3, FileText, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import goldenUBackground from '@/assets/golden-u-background.jpg';
 
 interface UJourneyTimelineProps {
   morphology: any;
