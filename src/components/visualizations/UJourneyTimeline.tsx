@@ -145,13 +145,13 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     return t('visualizations.theoryU.priority.low');
   };
 
-  const getReadinessColor = (status: string) => {
+  const getReadinessColor = (status?: string) => {
     if (status === 'green') return 'text-green-600 dark:text-green-400';
     if (status === 'yellow') return 'text-yellow-600 dark:text-yellow-400';
     return 'text-red-600 dark:text-red-400';
   };
 
-  const getReadinessIcon = (status: string) => {
+  const getReadinessIcon = (status?: string) => {
     if (status === 'green') return '🟢';
     if (status === 'yellow') return '🟡';
     return '🔴';
@@ -301,7 +301,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
                 {t('visualizations.theoryU.morphologyEvidence')}
               </h4>
               <div className="space-y-2">
-                {analysis.whyHere.morphologyEvidence.map((evidence, idx) => (
+                {analysis.whyHere?.morphologyEvidence?.map((evidence, idx) => (
                   <div key={idx} className="text-sm">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge variant="secondary" className="text-xs capitalize">
@@ -322,9 +322,9 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
                 <span className="text-primary">📄</span>
                 {t('visualizations.theoryU.documentEvidence')}
               </h4>
-              {analysis.whyHere.documentEvidence.length > 0 ? (
+              {analysis.whyHere?.documentEvidence?.length > 0 ? (
                 <Accordion type="single" collapsible>
-                  {analysis.whyHere.documentEvidence.slice(0, 3).map((evidence, idx) => (
+                  {analysis.whyHere?.documentEvidence?.slice(0, 3).map((evidence, idx) => (
                     <AccordionItem key={idx} value={`doc-${idx}`}>
                       <AccordionTrigger className="text-sm hover:no-underline">
                         <span className="text-left line-clamp-1">"{evidence.quote.substring(0, 50)}..."</span>
@@ -351,7 +351,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
         <div>
           <h3 className="text-lg font-semibold mb-3">{t('visualizations.theoryU.yourNextActions')}</h3>
           <div className="space-y-3">
-            {analysis.nextActions.map((action, idx) => (
+            {analysis.nextActions?.map((action, idx) => (
               <div
                 key={idx}
                 className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -388,29 +388,29 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
           <div className="grid md:grid-cols-3 gap-3">
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <span>{getReadinessIcon(analysis.readinessIndicators.readyToDescend.status)}</span>
+                <span>{getReadinessIcon(analysis.readinessIndicators?.readyToDescend?.status)}</span>
                 {t('visualizations.theoryU.readyToDescend')}
               </p>
-              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators.readyToDescend.status)}`}>
-                {analysis.readinessIndicators.readyToDescend.reason}
+              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators?.readyToDescend?.status)}`}>
+                {analysis.readinessIndicators?.readyToDescend?.reason}
               </p>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <span>{getReadinessIcon(analysis.readinessIndicators.readyToPresence.status)}</span>
+                <span>{getReadinessIcon(analysis.readinessIndicators?.readyToPresence?.status)}</span>
                 {t('visualizations.theoryU.readyToPresence')}
               </p>
-              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators.readyToPresence.status)}`}>
-                {analysis.readinessIndicators.readyToPresence.reason}
+              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators?.readyToPresence?.status)}`}>
+                {analysis.readinessIndicators?.readyToPresence?.reason}
               </p>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                <span>{getReadinessIcon(analysis.readinessIndicators.readyToAscend.status)}</span>
+                <span>{getReadinessIcon(analysis.readinessIndicators?.readyToAscend?.status)}</span>
                 {t('visualizations.theoryU.readyToAscend')}
               </p>
-              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators.readyToAscend.status)}`}>
-                {analysis.readinessIndicators.readyToAscend.reason}
+              <p className={`text-xs ${getReadinessColor(analysis.readinessIndicators?.readyToAscend?.status)}`}>
+                {analysis.readinessIndicators?.readyToAscend?.reason}
               </p>
             </div>
           </div>
