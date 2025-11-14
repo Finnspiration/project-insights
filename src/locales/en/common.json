@@ -441,8 +441,9 @@
       }
     },
     "uJourney": {
-      "title": "U-Journey Timeline",
-      "description": "Theory U consciousness journey",
+      "title": "Theory U Journey Timeline",
+      "description": "Visualization of the project's consciousness journey through Theory U phases",
+      "current": "Current phase",
       "phases": {
         "downloading": "Downloading",
         "seeing": "Seeing",
@@ -451,8 +452,54 @@
         "crystallizing": "Crystallizing",
         "prototyping": "Prototyping",
         "performing": "Performing"
+      }
+    },
+    "theoryU": {
+      "title": "Theory U Action Dashboard",
+      "description": "In-depth analysis of your Theory U position with concrete action recommendations",
+      "analyzing": "Analyzing project...",
+      "noAnalysis": "No analysis available yet",
+      "runAnalysis": "Run Analysis",
+      "refresh": "Refresh",
+      "errorTitle": "Analysis Failed",
+      "errorDescription": "An error occurred while analyzing the project. Please try again.",
+      "whereYouAre": "Where You Are",
+      "phase": "Phase",
+      "socialField": "Social Field",
+      "depth": "Depth",
+      "confidence": "Confidence",
+      "whyThisPhase": "Why This Phase?",
+      "morphologyEvidence": "Morphology Evidence",
+      "documentEvidence": "Document Evidence",
+      "noDocuments": "No documents uploaded yet. Dashboard becomes more accurate with documents.",
+      "yourNextActions": "Your Next 3 Actions",
+      "readinessIndicators": "Readiness Indicators",
+      "readyToDescend": "Ready to go deeper?",
+      "readyToPresence": "Ready to presence?",
+      "readyToAscend": "Ready to ascend?",
+      "resources": "Theory U Resources",
+      "priority": {
+        "high": "HIGH",
+        "medium": "MEDIUM",
+        "low": "LOW"
       },
-      "current": "Current Phase"
+      "impact": {
+        "high": "High impact",
+        "medium": "Medium impact",
+        "low": "Low impact"
+      },
+      "socialFields": {
+        "downloading": "Downloading",
+        "debating": "Debating",
+        "dialogue": "Dialogue",
+        "collective_creativity": "Collective Creativity"
+      },
+      "diagnostics": {
+        "title": "Open M/H/W",
+        "openMind": "Open Mind",
+        "openHeart": "Open Heart",
+        "openWill": "Open Will"
+      }
     },
     "idgRadar": {
       "title": "Inner Development Goals Radar",

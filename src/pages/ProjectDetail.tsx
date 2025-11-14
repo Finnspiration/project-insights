@@ -239,7 +239,11 @@ export default function ProjectDetail() {
             {project.dna_code && project.morphology && (
               <>
                 <CulturalWeatherMap morphology={project.morphology} />
-                <UJourneyTimeline morphology={project.morphology} />
+                <UJourneyTimeline 
+                  morphology={project.morphology}
+                  projectId={project.id}
+                  projectName={projectName}
+                />
                 <IDGRadarChart morphology={project.morphology} />
               </>
             )}
