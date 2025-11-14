@@ -3,10 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS, CategoryType } from '@/lib/morphologyConfig';
+import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS, CATEGORY_ICONS, CategoryType } from '@/lib/morphologyConfig';
 import { DimensionRow } from './DimensionRow';
 import { MorphologyDescription } from './MorphologyDescription';
-import { Copy, ChevronDown, RefreshCw } from 'lucide-react';
+import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
@@ -27,7 +27,7 @@ export function MorphologicalBox({
   projectId,
   language = 'en'
 }: MorphologicalBoxProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [isCodeOpen, setIsCodeOpen] = useState(false);
 
   const handleSelect = (dimensionKey: string, value: string) => {
@@ -49,11 +49,11 @@ export function MorphologicalBox({
     return acc;
   }, {} as Record<CategoryType, typeof MORPHOLOGY_DIMENSIONS>);
 
-  const categoryLabels: Record<CategoryType, { en: string; da: string }> = {
-    context: { en: 'Project Context', da: 'Projekt Kontekst' },
-    capacity: { en: 'Knowledge & Capacity', da: 'Viden & Kapacitet' },
-    dynamics: { en: 'Dynamics & Change', da: 'Dynamik & Forandring' },
-    challenge_and_resources: { en: 'Challenge, Resources & Risk', da: 'Udfordring, Ressourcer & Risiko' },
+  const iconMap: Record<string, React.ElementType> = {
+    Globe,
+    Brain,
+    Zap,
+    Shield,
   };
 
   return (
@@ -88,11 +88,17 @@ export function MorphologicalBox({
               {/* Category Header */}
               <div className="flex items-center gap-2 mb-3">
                 <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: CATEGORY_COLORS[category] }}
-                />
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  {categoryLabels[category].en}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: `hsl(${CATEGORY_COLORS[category]})` }}
+                >
+                  {(() => {
+                    const IconComponent = iconMap[CATEGORY_ICONS[category]];
+                    return <IconComponent className="h-4 w-4 text-white" />;
+                  })()}
+                </div>
+                <h3 className="text-sm font-semibold uppercase tracking-wide"
+                    style={{ color: `hsl(${CATEGORY_COLORS[category]})` }}>
+                  {t(`morphology.categories.${category}`)}
                 </h3>
               </div>
 
