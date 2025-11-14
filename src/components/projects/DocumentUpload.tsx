@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText, Trash2, Download } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, RefreshCw } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +24,7 @@ interface Document {
   file_type: string | null;
   file_size: number | null;
   uploaded_at: string;
+  processed: boolean | null;
 }
 
 interface DocumentUploadProps {
@@ -75,7 +76,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
   };
 
   const handleFiles = async (files: FileList) => {
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    const maxSize = 50 * 1024 * 1024;
     const allowedTypes = [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -88,19 +89,14 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-
-      // Validate file size
       if (file.size > maxSize) {
         toast.error(`${file.name}: File too large (max 50MB)`);
         continue;
       }
-
-      // Validate file type
       if (!allowedTypes.includes(file.type) && !file.name.endsWith('.md')) {
         toast.error(`${file.name}: Unsupported file type`);
         continue;
       }
-
       await uploadFile(file);
     }
   };
@@ -110,213 +106,176 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
     try {
       const fileExt = file.name.split('.').pop();
       const filePath = `${projectId}/${crypto.randomUUID()}.${fileExt}`;
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('project-documents')
-        .upload(filePath, file);
-
+      const { error: uploadError } = await supabase.storage.from('project-documents').upload(filePath, file);
       if (uploadError) throw uploadError;
 
-      // Create document record
       const { data: newDoc, error: dbError } = await supabase.from('documents').insert({
         project_id: projectId,
         filename: file.name,
         file_path: filePath,
         file_type: file.type,
         file_size: file.size,
+        processed: false,
       }).select().single();
 
       if (dbError) throw dbError;
-
       toast.success(t('documents.uploadSuccess'));
       
-      // Trigger document processing in background
       if (newDoc?.id) {
-        supabase.functions.invoke('process-document', {
-          body: { documentId: newDoc.id }
-        }).then(({ error }) => {
-          if (error) {
-            console.error('Error processing document:', error);
+        try {
+          const { error: processError } = await supabase.functions.invoke('process-document', {
+            body: { documentId: newDoc.id }
+          });
+          if (processError) {
+            console.error('Error starting document processing:', processError);
+            toast.error('Document uploaded but processing failed. Click "Process" to retry.');
           } else {
-            console.log('Document processing started');
+            toast.success('Processing started...');
           }
-        });
+        } catch (e) {
+          console.error('Exception:', e);
+        }
       }
-
       onUploadSuccess();
     } catch (error: any) {
-      console.error('Error uploading file:', error);
-      toast.error(error.message);
+      console.error('Upload error:', error);
+      toast.error(t('documents.uploadError'));
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!documentToDelete) return;
-
+  const processDocument = async (documentId: string, filename: string) => {
     try {
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('project-documents')
-        .remove([documentToDelete.file_path]);
-
-      if (storageError) throw storageError;
-
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from('documents')
-        .delete()
-        .eq('id', documentToDelete.id);
-
-      if (dbError) throw dbError;
-
-      toast.success(t('projects.documents.deleteSuccess'));
-      setDeleteDialogOpen(false);
-      setDocumentToDelete(null);
-      onUploadSuccess();
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      toast.error(t('projects.documents.deleteError'));
+      toast.loading(`Processing ${filename}...`, { id: `process-${documentId}` });
+      const { error } = await supabase.functions.invoke('process-document', { body: { documentId } });
+      if (error) {
+        console.error('Process error:', error);
+        toast.error(`Failed: ${error.message}`, { id: `process-${documentId}` });
+      } else {
+        toast.success(`Started!`, { id: `process-${documentId}` });
+        setTimeout(onUploadSuccess, 2000);
+      }
+    } catch (error: any) {
+      toast.error(`Failed: ${error.message}`, { id: `process-${documentId}` });
     }
   };
 
-  const handleDownload = async (doc: Document) => {
+  const downloadDocument = async (doc: Document) => {
     try {
-      const { data, error } = await supabase.storage
-        .from('project-documents')
-        .download(doc.file_path);
-
+      const { data, error } = await supabase.storage.from('project-documents').download(doc.file_path);
       if (error) throw error;
-
-      // Create download link
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = doc.filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.filename;
+      link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading file:', error);
-      toast.error('Failed to download file');
+      toast.error('Failed to download');
+    }
+  };
+
+  const confirmDelete = (doc: Document) => {
+    setDocumentToDelete(doc);
+    setDeleteDialogOpen(true);
+  };
+
+  const deleteDocument = async () => {
+    if (!documentToDelete) return;
+    try {
+      await supabase.storage.from('project-documents').remove([documentToDelete.file_path]);
+      await supabase.from('documents').delete().eq('id', documentToDelete.id);
+      toast.success(t('documents.deleteSuccess'));
+      onUploadSuccess();
+    } catch (error) {
+      toast.error(t('documents.deleteError'));
+    } finally {
+      setDeleteDialogOpen(false);
+      setDocumentToDelete(null);
     }
   };
 
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            {t('projects.documents.title')}
-          </CardTitle>
-          <CardDescription>{t('projects.documents.uploadDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Upload Area */}
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive ? 'border-primary bg-primary/5' : 'border-border'
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <input
-              type="file"
-              id="file-upload"
-              className="hidden"
-              onChange={handleChange}
-              multiple
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.md"
-            />
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-sm font-medium mb-2">{t('projects.documents.dragDrop')}</p>
-              <p className="text-xs text-muted-foreground mb-1">
-                {t('projects.documents.maxSize')}
-              </p>
-              <p className="text-xs text-muted-foreground">{t('projects.documents.supported')}</p>
-            </label>
-          </div>
-
-          {uploading && (
-            <div className="text-center text-sm text-muted-foreground">
-              {t('projects.documents.uploading')}
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          {t('documents.title')}
+        </CardTitle>
+        <CardDescription>{t('documents.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div
+          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            dragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+          }`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <input type="file" id="file-upload" className="hidden" onChange={handleChange} multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.md" disabled={uploading} />
+          <div className="flex flex-col items-center gap-4">
+            <Upload className="w-12 h-12 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-medium mb-1">{t('documents.dragDrop')}</p>
+              <p className="text-xs text-muted-foreground mb-4">{t('documents.supportedFormats')}</p>
+              <label htmlFor="file-upload">
+                <Button variant="outline" disabled={uploading} className="cursor-pointer" asChild>
+                  <span>{uploading ? t('documents.uploading') : t('documents.browse')}</span>
+                </Button>
+              </label>
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Documents List */}
-          {documents.length > 0 ? (
-            <div className="space-y-2">
-              {documents.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50"
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{doc.filename}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(doc.file_size)} •{' '}
-                        {format(new Date(doc.uploaded_at), 'MMM dd, yyyy')}
-                      </p>
+        {documents.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="font-semibold">{t('documents.uploaded')}</h3>
+            {documents.map((doc) => (
+              <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
+                <div className="flex items-center gap-3 flex-1">
+                  <FileText className="w-8 h-8 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{doc.filename}</p>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span className={doc.processed ? 'text-green-600' : 'text-amber-600'}>
+                        {doc.processed ? '✓ Processed' : '⏳ Not processed'}
+                      </span>
+                      <span>{formatFileSize(doc.file_size)}</span>
+                      <span>{format(new Date(doc.uploaded_at), 'PPp')}</span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDownload(doc)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setDocumentToDelete(doc);
-                        setDeleteDialogOpen(true);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-sm text-muted-foreground py-4">
-              {t('projects.documents.noDocuments')}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+                <div className="flex items-center gap-2">
+                  {!doc.processed && (
+                    <Button variant="outline" size="sm" onClick={() => processDocument(doc.id, doc.filename)}>
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                      Process
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => downloadDocument(doc)}><Download className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => confirmDelete(doc)}><Trash2 className="w-4 h-4" /></Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('projects.documents.delete')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('projects.documents.deleteConfirm')}
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('documents.delete')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('documents.deleteConfirm')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t('projects.create.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {t('projects.documents.delete')}
-            </AlertDialogAction>
+            <AlertDialogCancel>{t('morphology.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteDocument}>{t('documents.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </Card>
   );
 }
