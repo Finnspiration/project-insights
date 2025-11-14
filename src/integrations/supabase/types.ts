@@ -123,6 +123,45 @@ export type Database = {
           },
         ]
       }
+      morphology_archetypes: {
+        Row: {
+          color: string
+          created_at: string | null
+          description: Json
+          icon: string
+          id: string
+          morphology_data: Json
+          morphology_hash: string
+          name: Json
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          description: Json
+          icon: string
+          id?: string
+          morphology_data: Json
+          morphology_hash: string
+          name: Json
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          description?: Json
+          icon?: string
+          id?: string
+          morphology_data?: Json
+          morphology_hash?: string
+          name?: Json
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           created_at: string

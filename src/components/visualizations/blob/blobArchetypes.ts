@@ -1,14 +1,16 @@
 import { BlobVisualData } from './blobMapping';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface BlobArchetype {
   name: string;
-  nameKey: string; // Translation key
+  nameKey?: string; // Translation key (optional, for hardcoded)
   icon: string;
   color: string;
-  descriptionKey: string;
+  descriptionKey?: string; // Translation key (optional, for hardcoded)
+  description?: string; // Direct text (for AI-generated)
 }
 
-export function detectArchetype(blobData: BlobVisualData): BlobArchetype {
+function detectHardcodedArchetype(blobData: BlobVisualData): BlobArchetype | null {
   // The Seed: Small, simple, low complexity
   if (blobData.roughness < 0.3 && blobData.arms <= 3 && blobData.noiseIntensity < 0.4) {
     return {
@@ -64,12 +66,45 @@ export function detectArchetype(blobData: BlobVisualData): BlobArchetype {
     };
   }
   
-  // Default: Unknown Form
-  return {
-    name: 'Unknown Form',
-    nameKey: 'visualizations.blob.archetypes.unknown.name',
-    icon: '❓',
-    color: '#6B7280',
-    descriptionKey: 'visualizations.blob.archetypes.unknown.description'
-  };
+  // No hardcoded match
+  return null;
+}
+
+export async function detectArchetype(
+  blobData: BlobVisualData,
+  morphology: any,
+  language: 'en' | 'da'
+): Promise<BlobArchetype> {
+  // Check hardcoded archetypes first (fast fallback)
+  const hardcoded = detectHardcodedArchetype(blobData);
+  if (hardcoded) {
+    return hardcoded;
+  }
+  
+  // Try to fetch/generate AI archetype
+  try {
+    const { data, error } = await supabase.functions.invoke('generate-archetype', {
+      body: { morphology, language }
+    });
+    
+    if (error) throw error;
+    
+    const archetype = data.archetype;
+    return {
+      name: archetype.name[language] || archetype.name.en || archetype.name.da || Object.values(archetype.name)[0],
+      icon: archetype.icon,
+      color: archetype.color,
+      description: archetype.description[language] || archetype.description.en || archetype.description.da || Object.values(archetype.description)[0]
+    };
+  } catch (error) {
+    console.error('Failed to generate archetype:', error);
+    // Fallback to "Unknown Form"
+    return {
+      name: 'Unknown Form',
+      nameKey: 'visualizations.blob.archetypes.unknown.name',
+      icon: '❓',
+      color: '#6B7280',
+      descriptionKey: 'visualizations.blob.archetypes.unknown.description'
+    };
+  }
 }
