@@ -13,11 +13,17 @@ interface MorphologicalBoxProps {
   morphology: Record<string, string>;
   dnaCode: string;
   onReassess?: () => void;
+  onMorphologyChange?: (morphology: Record<string, string>) => void;
 }
 
-export function MorphologicalBox({ morphology, dnaCode, onReassess }: MorphologicalBoxProps) {
+export function MorphologicalBox({ morphology, dnaCode, onReassess, onMorphologyChange }: MorphologicalBoxProps) {
   const { t } = useTranslation('common');
   const [isCodeOpen, setIsCodeOpen] = useState(false);
+
+  const handleSelect = (dimensionKey: string, value: string) => {
+    const updatedMorphology = { ...morphology, [dimensionKey]: value };
+    onMorphologyChange?.(updatedMorphology);
+  };
 
   const handleCopyDNA = () => {
     navigator.clipboard.writeText(dnaCode);
@@ -88,6 +94,7 @@ export function MorphologicalBox({ morphology, dnaCode, onReassess }: Morphologi
                     key={dimension.key}
                     dimension={dimension}
                     selectedValue={morphology[dimension.key]}
+                    onSelect={handleSelect}
                   />
                 ))}
               </div>
