@@ -174,16 +174,24 @@ export function MorphologicalBox({
                   <TabsContent value="list">
                     <div className="flex flex-wrap gap-2">
                       {dnaCode.split('-').map((segment, index) => {
-                        const dimension = MORPHOLOGY_DIMENSIONS[index];
-                        if (!dimension) return null;
+                        // CRITICAL FIX: Find dimension by option value, NOT by index
+                        const dimensionWithOption = MORPHOLOGY_DIMENSIONS.find(dim => 
+                          dim.options.some(opt => opt.value === segment)
+                        );
                         
+                        if (!dimensionWithOption || !segment) {
+                          console.warn('No dimension found for list segment:', segment, 'at index', index);
+                          return null;
+                        }
+                        
+                        const dimension = dimensionWithOption;
                         const option = dimension.options.find(opt => opt.value === segment);
                         const translatedLabel = option ? t(option.translationKey) : segment;
                         const categoryColor = CATEGORY_COLORS[dimension.category];
                         
                         return (
                           <Badge
-                            key={index}
+                            key={`${index}-${segment}`}
                             className="font-mono text-xs text-white border-none"
                             style={{
                               backgroundColor: `hsl(${categoryColor})`,
