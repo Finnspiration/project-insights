@@ -6,18 +6,19 @@ interface OptionCellProps {
   translationKey: string;
   isSelected: boolean;
   categoryColor: string;
+  onClick?: () => void;
 }
 
-export function OptionCell({ translationKey, isSelected, categoryColor }: OptionCellProps) {
+export function OptionCell({ translationKey, isSelected, categoryColor, onClick }: OptionCellProps) {
   const { t } = useTranslation('common');
 
   return (
     <div
       className={cn(
-        "relative px-3 py-3 text-center text-sm transition-all duration-200 rounded border min-h-[60px] flex items-center justify-center",
+        "relative px-3 py-3 text-center text-xs transition-all duration-200 rounded border min-h-[60px] flex items-center justify-center cursor-pointer",
         isSelected
           ? "bg-gradient-to-br from-primary/20 to-accent/20 border-primary/40 font-semibold text-foreground shadow-md"
-          : "bg-muted/30 border-border/40 text-muted-foreground hover:bg-muted/50"
+          : "bg-muted/30 border-border/40 text-muted-foreground hover:bg-muted/50 hover:border-primary/30"
       )}
       style={
         isSelected
@@ -26,6 +27,15 @@ export function OptionCell({ translationKey, isSelected, categoryColor }: Option
             }
           : undefined
       }
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
     >
       {isSelected && (
         <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
