@@ -55,12 +55,24 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
     setSelectedDimension(dimensionIndex);
   };
 
-  const selectedDimensionData = selectedDimension !== null ? {
-    dimension: MORPHOLOGY_DIMENSIONS[selectedDimension],
-    option: MORPHOLOGY_DIMENSIONS[selectedDimension].options.find(
-      opt => opt.value === dnaCode.split('-')[selectedDimension]
-    ),
-  } : null;
+  const selectedDimensionData = selectedDimension !== null ? (() => {
+    const segment = dnaCode.split('-')[selectedDimension];
+    
+    // Find dimension by option value, not by index
+    const dimensionWithOption = MORPHOLOGY_DIMENSIONS.find(dim => 
+      dim.options.some(opt => opt.value === segment)
+    );
+    
+    if (!dimensionWithOption) {
+      console.error('No dimension found for segment:', segment);
+      return null;
+    }
+    
+    const dimension = dimensionWithOption;
+    const option = dimension.options.find(opt => opt.value === segment);
+    
+    return { dimension, option };
+  })() : null;
 
   return (
     <>
@@ -131,29 +143,38 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
         {/* Nucleotide badges */}
         {helixPoints.map((point) => {
           const segment = dnaCode.split('-')[point.index];
-          const dimension = MORPHOLOGY_DIMENSIONS[point.index];
-          if (!dimension || !segment) return null;
+          if (!segment) return null;
           
+          // CRITICAL FIX: Find dimension by option value, NOT by index
+          const dimensionWithOption = MORPHOLOGY_DIMENSIONS.find(dim => 
+            dim.options.some(opt => opt.value === segment)
+          );
+          
+          if (!dimensionWithOption) {
+            console.warn('❌ No dimension found for segment:', segment, 'at index', point.index);
+            return null;
+          }
+          
+          const dimension = dimensionWithOption;
           const option = dimension.options.find(opt => opt.value === segment);
           
           // Debug translation
-          const translatedLabel = option ? t(option.translationKey, { lng: currentLanguage }) : segment;
-          
-          console.log('DNA Badge Translation:', {
+          console.log('✅ DNA Badge Match:', {
             index: point.index,
             segment,
-            translationKey: option?.translationKey,
-            currentLanguage,
-            i18nLanguage: i18n.language,
-            translatedLabel,
-            optionExists: !!option
+            dimensionKey: dimension.key,
+            dimensionName: t(dimension.translationKey, { lng: currentLanguage }),
+            optionTranslationKey: option?.translationKey,
+            translatedLabel: option ? t(option.translationKey, { lng: currentLanguage }) : segment,
+            found: !!option
           });
           
+          const translatedLabel = option ? t(option.translationKey, { lng: currentLanguage }) : segment;
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
           return (
             <g 
-              key={`badge-${point.index}`}
+              key={`badge-${point.index}-${segment}`}
               onClick={() => handleBadgeClick(point.index)}
               style={{ cursor: 'pointer' }}
             >
@@ -195,7 +216,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
         dimension={selectedDimensionData.dimension}
         selectedOption={selectedDimensionData.option || {
           value: dnaCode.split('-')[selectedDimension!],
-          translationKey: `morphology.${MORPHOLOGY_DIMENSIONS[selectedDimension!].key}.${dnaCode.split('-')[selectedDimension!]}`
+          translationKey: `morphology.dimensions.${selectedDimensionData.dimension.key}.options.${dnaCode.split('-')[selectedDimension!]}`
         }}
         allOptions={selectedDimensionData.dimension.options}
       />
