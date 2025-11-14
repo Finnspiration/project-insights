@@ -318,6 +318,23 @@
     },
     "dnaHelix": "DNA Helix",
     "listView": "Liste",
+    "scoringView": "Theory U Scoring",
+    "scoring": {
+      "title": "Morfologi-Baseret Theory U Scoring",
+      "description": "Deterministisk mapping fra dine 12 morfologiske dimensioner til Theory U faser",
+      "noData": "Ingen morfologi scoring tilgængelig endnu",
+      "dominantPhase": "Dominerende Fase (fra morfologi)",
+      "topContributions": "Største Bidragende Dimensioner",
+      "allPhases": "Alle Fase Scores",
+      "allPhasesDescription": "Hvordan hver Theory U fase scorer baseret på din morfologi",
+      "dimension": "Dimension",
+      "value": "Værdi",
+      "contribution": "Point",
+      "noContributions": "Ingen bidrag til denne fase",
+      "aiNuance": "AI Analyse & Nuancering",
+      "notGenerated": "Morfologi scoring ikke genereret endnu",
+      "visitTheoryU": "Besøg Theory U visualisering tab for at generere denne analyse"
+    },
     "dimensions": {
       "complexity": {
         "title": "Kompleksitetsniveau",
