@@ -164,14 +164,19 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           const dimension = dimensionWithOption;
           const option = dimension.options.find(opt => opt.value === segment);
           const translatedLabel = option ? t(option.translationKey, { lng: currentLanguage }) : segment;
+          
+          // Extract keyword (before dash) for badge, keep full text for tooltip
+          const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
+          const fullLabel = translatedLabel;
+          
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
           // CRITICAL FIX: Offset badges based on strand to prevent overlap
           const isTopStrand = point.index % 2 === 0;
           const horizontalOffset = isTopStrand ? -60 : 60; // Top left, bottom right
           const badgeX = point.x + horizontalOffset;
-          const badgeWidth = 110;
-          const badgeHeight = 32; // Taller for two lines
+          const badgeWidth = 85;  // Smaller for keywords only
+          const badgeHeight = 28;
           
           return (
             <g 
@@ -191,7 +196,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
                 style={{ pointerEvents: 'all' }}
               />
               
-              {/* Multi-line text with foreignObject */}
+              {/* Keyword text */}
               <foreignObject
                 x={badgeX - badgeWidth/2 + 4}
                 y={point.y - badgeHeight/2 + 4}
@@ -201,14 +206,14 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
               >
                 <div 
                   className="flex items-center justify-center h-full text-white text-xs font-mono font-bold text-center leading-tight px-1"
-                  style={{ fontSize: '11px', lineHeight: '1.2' }}
+                  style={{ fontSize: '12px' }}
                 >
-                  {translatedLabel}
+                  {shortLabel}
                 </div>
               </foreignObject>
               
-              {/* Hover title (dimension name) */}
-              <title>{t(dimension.translationKey, { lng: currentLanguage })}</title>
+              {/* Tooltip shows full label */}
+              <title>{fullLabel}</title>
             </g>
           );
         })}
