@@ -248,6 +248,12 @@
     "success": "Vurdering gemt!",
     "error": "Kunne ikke gemme vurdering",
     "aiSuggestion": "AI Forslag",
+    "category": {
+      "context": "Kontekst",
+      "capacity": "Kapacitet",
+      "dynamics": "Dynamik",
+      "challenge_and_resources": "Udfordringer & Ressourcer"
+    },
     "visualBox": {
       "title": "Morfologisk Boks",
       "description": "12-dimensional projektvurderingsmatrice"
