@@ -237,6 +237,10 @@
     }
   },
   "projectDetail": {
+    "projectInformation": "Project Information",
+    "description": "Description",
+    "edit": "Edit",
+    "assessProject": "Assess Project",
     "tabs": {
       "documents": "Documents",
       "aiInsights": "AI Insights",

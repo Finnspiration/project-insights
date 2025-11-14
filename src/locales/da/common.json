@@ -237,6 +237,10 @@
     }
   },
   "projectDetail": {
+    "projectInformation": "Projektinformation",
+    "description": "Beskrivelse",
+    "edit": "Rediger",
+    "assessProject": "Vurder Projekt",
     "tabs": {
       "documents": "Dokumenter",
       "aiInsights": "AI Indsigter",
