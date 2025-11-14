@@ -183,7 +183,7 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
           // Dynamic badge width based on text length
-          const estimatedWidth = Math.max(60, Math.min(100, shortLabel.length * 8 + 16));
+          const estimatedWidth = Math.max(70, Math.min(140, shortLabel.length * 9 + 24));
           const badgeHeight = 28;
           
           return (
@@ -198,18 +198,18 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en', on
                 y={point.y - badgeHeight/2}
                 width={estimatedWidth}
                 height={badgeHeight}
-                rx="14"
+                rx="8"
                 fill={`hsl(${categoryColor})`}
                 className="transition-all hover:opacity-90"
                 style={{ pointerEvents: 'all' }}
               />
               
               {/* Keyword text */}
-              <foreignObject
-                x={point.x - estimatedWidth/2 + 4}
-                y={point.y - badgeHeight/2 + 4}
-                width={estimatedWidth - 8}
-                height={badgeHeight - 8}
+            <foreignObject
+              x={point.x - estimatedWidth/2 + 8}
+              y={point.y - badgeHeight/2 + 4}
+              width={estimatedWidth - 16}
+              height={badgeHeight - 8}
                 style={{ pointerEvents: 'none' }}
               >
                 <div 
