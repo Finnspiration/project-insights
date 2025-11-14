@@ -527,6 +527,7 @@
       },
       "riskGuide": {
         "title": "🎨 Risiko Farver",
+        "layeredNote": "Note: Den oplevede farve er en blanding af basisfarve (organisatorisk) og overlaylag (kulturel + risiko)",
         "low": "Grøn = Lav risiko",
         "moderate": "Orange = Moderat risiko",
         "high": "Orange-rød = Høj risiko",

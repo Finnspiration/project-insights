@@ -81,27 +81,27 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
       outerGlow: {
         title: t('visualizations.blob.zones.outerGlow.title'),
         description: t('visualizations.blob.zones.outerGlow.description'),
-        dimension: `${t('morphology.dimensions.risk')}: ${morphology.risk}`
+        dimension: `${t('morphology.dimensions.risk.title')}: ${t('morphology.dimensions.risk.options.' + morphology.risk)}`
       },
       mainShape: {
         title: t('visualizations.blob.zones.mainShape.title'),
         description: t('visualizations.blob.zones.mainShape.description'),
-        dimension: `${t('morphology.dimensions.complexity')}: ${morphology.complexity}, ${t('morphology.dimensions.stakeholder')}: ${morphology.stakeholder}`
+        dimension: `${t('morphology.dimensions.complexity.title')}: ${t('morphology.dimensions.complexity.options.' + morphology.complexity)}, ${t('morphology.dimensions.stakeholder.title')}: ${t('morphology.dimensions.stakeholder.options.' + morphology.stakeholder)}`
       },
       culturalOverlay: {
         title: t('visualizations.blob.zones.culturalOverlay.title'),
         description: t('visualizations.blob.zones.culturalOverlay.description'),
-        dimension: `${t('morphology.dimensions.cultural')}: ${morphology.cultural}, ${t('morphology.dimensions.organizational')}: ${morphology.organizational}`
+        dimension: `${t('morphology.dimensions.cultural.title')}: ${t('morphology.dimensions.cultural.options.' + morphology.cultural)}, ${t('morphology.dimensions.organizational.title')}: ${t('morphology.dimensions.organizational.options.' + morphology.organizational)}`
       },
       innerPattern: {
         title: t('visualizations.blob.zones.innerPattern.title'),
         description: t('visualizations.blob.zones.innerPattern.description'),
-        dimension: `${t('morphology.dimensions.knowledge')}: ${morphology.knowledge}`
+        dimension: `${t('morphology.dimensions.knowledge.title')}: ${t('morphology.dimensions.knowledge.options.' + morphology.knowledge)}`
       },
       coreGlow: {
         title: t('visualizations.blob.zones.coreGlow.title'),
         description: t('visualizations.blob.zones.coreGlow.description'),
-        dimension: `${t('morphology.dimensions.development')}: ${morphology.development}`
+        dimension: `${t('morphology.dimensions.development.title')}: ${t('morphology.dimensions.development.options.' + morphology.development)}`
       }
     };
     
@@ -237,6 +237,41 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
             </div>
           </div>
         </div>
+        
+        {/* Color/Risk Legend */}
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              🎨 {t('visualizations.blob.riskGuide.title')}
+            </CardTitle>
+            <CardDescription className="text-xs mt-2">
+              {t('visualizations.blob.riskGuide.layeredNote')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 rounded-full bg-green-500"></div>
+              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.low')}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.moderate')}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#ff8c42' }}></div>
+              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.high')}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 rounded-full bg-red-500"></div>
+              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.extreme')}</span>
+            </div>
+            <div className="h-px bg-border my-3"></div>
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: blobData.outerGlowColor }}></div>
+              <span>{t('visualizations.blob.riskGuide.yourProject')}</span>
+            </div>
+          </CardContent>
+        </Card>
         
         {/* How to Read Guide */}
         <Card className="mt-6">
