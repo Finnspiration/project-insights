@@ -245,22 +245,13 @@ export default function ProjectDetail() {
           </TabsContent>
 
           <TabsContent value="morphology">
-              {project.dna_code && project.morphology && (
-                <MorphologicalBox 
-                  morphology={project.morphology}
-                  dnaCode={project.dna_code}
-                  projectId={project.id}
-                  onReassess={() => setMorphologyWizardOpen(true)}
-                  onUpdate={(newMorphology, newDnaCode) => {
-                    setProject(prev => prev ? {
-                      ...prev,
-                      morphology: newMorphology,
-                      dna_code: newDnaCode
-                    } : null);
-                  }}
-                  editable={true}
-                />
-              )}
+            {project.dna_code && project.morphology && (
+              <MorphologicalBox
+                morphology={project.morphology}
+                dnaCode={project.dna_code}
+                onReassess={() => setMorphologyWizardOpen(true)}
+              />
+            )}
           </TabsContent>
         </Tabs>
 

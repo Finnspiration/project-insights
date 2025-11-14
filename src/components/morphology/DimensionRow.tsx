@@ -6,11 +6,9 @@ import { cn } from '@/lib/utils';
 interface DimensionRowProps {
   dimension: DimensionConfig;
   selectedValue?: string;
-  onSelect?: (value: string) => void;
-  disabled?: boolean;
 }
 
-export function DimensionRow({ dimension, selectedValue, onSelect, disabled }: DimensionRowProps) {
+export function DimensionRow({ dimension, selectedValue }: DimensionRowProps) {
   const { t } = useTranslation('common');
   const categoryColor = CATEGORY_COLORS[dimension.category];
 
@@ -36,12 +34,9 @@ export function DimensionRow({ dimension, selectedValue, onSelect, disabled }: D
         {dimension.options.map((option) => (
           <OptionCell
             key={option.value}
-            translationKeyShort={option.translationKeyShort}
-            translationKeyLong={option.translationKeyLong}
+            translationKey={option.translationKey}
             isSelected={selectedValue === option.value}
             categoryColor={categoryColor}
-            onSelect={onSelect ? () => onSelect(option.value) : undefined}
-            disabled={disabled}
           />
         ))}
       </div>

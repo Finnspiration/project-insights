@@ -229,14 +229,7 @@
       "uploadedAt": "Uploadet"
     }
   },
-    "morphology": {
-      "categories": {
-        "context": "Kontekst",
-        "capacity": "Kapacitet",
-        "dynamics": "Dynamik", 
-        "resources": "Ressourcer",
-        "challenge": "Udfordring"
-      },
+  "morphology": {
     "title": "Morfologisk Vurdering",
     "subtitle": "Karakteriser dit projekt på tværs af 12 nøgledimensioner",
     "step": "Trin",
@@ -268,135 +261,123 @@
         "title": "Kompleksitetsniveau",
         "description": "Hvor forudsigelig og ordnet er dit projektmiljø?",
         "options": {
-          "simple": {
-            "short": "Simpel",
-            "long": "Klar årsag-virkning, bedste praksis virker"
-          },
-          "complicated": {
-            "short": "Kompliceret",
-            "long": "Ekspertanalyse nødvendig"
-          },
-          "complex": {
-            "short": "Kompleks",
-            "long": "Fremvoksende mønstre, eksperimentering påkrævet"
-          },
-          "chaotic": {
-            "short": "Kaotisk",
-            "long": "Ingen klare mønstre, hurtig handling nødvendig"
-          }
+          "simple": "Simpel - Klar årsag-virkning, bedste praksis virker",
+          "complicated": "Kompliceret - Ekspertanalyse nødvendig, god praksis",
+          "complex": "Kompleks - Fremvoksende mønstre, eksperimentering påkrævet",
+          "chaotic": "Kaotisk - Ingen klare mønstre, hurtig handling nødvendig"
         }
       },
       "stakeholder": {
         "title": "Interessentdynamik",
         "description": "Hvad er arten af interessentrelationer?",
         "options": {
-          "unified": {"short": "Forenet", "long": "Delt vision og mål"},
-          "cooperative": {"short": "Samarbejdende", "long": "Tilpassede interesser"},
-          "competitive": {"short": "Konkurrerende", "long": "Divergerende interesser"},
-          "adversarial": {"short": "Antagonistisk", "long": "Modstridende agendaer"}
+          "unified": "Forenet - Delt vision og mål",
+          "cooperative": "Samarbejdende - Tilpassede interesser, samarbejdende",
+          "competitive": "Konkurrerende - Divergerende interesser, forhandling nødvendig",
+          "adversarial": "Antagonistisk - Modstridende agendaer, høj spænding"
         }
       },
       "knowledge": {
         "title": "Vidensintensitet",
         "description": "Hvilken type vidensarbejde dominerer?",
         "options": {
-          "routine": {"short": "Rutinemæssig", "long": "Standardiserede processer"},
-          "adaptive": {"short": "Adaptiv", "long": "Tilpasning af kendte metoder"},
-          "innovative": {"short": "Innovativ", "long": "Skabelse af nye løsninger"},
-          "breakthrough": {"short": "Gennembrud", "long": "Fundamentale opdagelser"}
+          "routine": "Rutinemæssig - Standardiserede, gentagelige processer",
+          "adaptive": "Adaptiv - Kontekstuel tilpasning af kendte metoder",
+          "innovative": "Innovativ - Skabelse af nye løsninger",
+          "breakthrough": "Gennembrud - Fundamentale nye opdagelser"
         }
       },
       "cultural": {
         "title": "Kulturel Kontekst",
         "description": "Hvad er projektets kulturelle spænd?",
         "options": {
-          "mono": {"short": "Mono", "long": "Enkelt kulturel kontekst"},
-          "crossfunctional": {"short": "Tværfaglig", "long": "Flere afdelinger"},
-          "crossorg": {"short": "Tværorg", "long": "Flere organisationer"},
-          "crosscultural": {"short": "Tværkulturel", "long": "Flere kulturer"}
+          "mono": "Mono - Enkelt kulturel kontekst",
+          "crossfunctional": "Tværfaglig - Flere afdelinger",
+          "crossorg": "Tværorganisatorisk - Flere organisationer",
+          "crosscultural": "Tværkulturel - Flere nationale kulturer"
         }
       },
       "temporal": {
         "title": "Temporal Dynamik",
         "description": "Hvad er tidshorisont og rytme?",
         "options": {
-          "sprint": {"short": "Sprint", "long": "Uger, hurtige iterationer"},
-          "project": {"short": "Projekt", "long": "Måneder, milepæle"},
-          "program": {"short": "Program", "long": "År, flere faser"},
-          "transformation": {"short": "Transformation", "long": "Flerårig systemisk forandring"}
+          "sprint": "Sprint - Uger, hurtige iterationer",
+          "project": "Projekt - Måneder, definerede milepæle",
+          "program": "Program - År, flere faser",
+          "transformation": "Transformation - Flerårig systemisk forandring"
         }
       },
       "organizational": {
         "title": "Organisatorisk Stadium",
         "description": "Hvilket organisatorisk paradigme dominerer? (Laloux model)",
         "options": {
-          "red": {"short": "Rød", "long": "Magtdrevet, kommando & kontrol"},
-          "amber": {"short": "Rav", "long": "Procesdrevet, hierarki"},
-          "orange": {"short": "Orange", "long": "Præstationsdrevet"},
-          "green": {"short": "Grøn", "long": "Værdidrevet, konsensus"},
-          "teal": {"short": "Turkis", "long": "Formålsdrevet, selvorganiserende"}
+          "red": "Rød - Magtdrevet, kommando & kontrol",
+          "amber": "Rav - Procesdrevet, hierarkisk stabilitet",
+          "orange": "Orange - Præstationsdrevet, meritokratisk",
+          "green": "Grøn - Værdidrevet, konsensussøgende",
+          "teal": "Turkis - Formålsdrevet, selvorganiserende"
         }
       },
       "challenge": {
         "title": "Primær Udfordring",
         "description": "Hvad er den dominerende type udfordring?",
         "options": {
-          "technical": {"short": "Teknisk", "long": "Ingeniør, teknologi"},
-          "social": {"short": "Social", "long": "Teamdynamik, samarbejde"},
-          "political": {"short": "Politisk", "long": "Magt, ressourcer"},
-          "cognitive": {"short": "Kognitiv", "long": "Forståelse, meningsskabelse"},
-          "adaptive": {"short": "Adaptiv", "long": "Værdier, identitetsskift"}
+          "technical": "Teknisk - Ingeniør, teknologiproblemer",
+          "social": "Social - Teamdynamik, samarbejde",
+          "political": "Politisk - Magt, ressourcefordeling",
+          "cognitive": "Kognitiv - Forståelse, meningsskabelse",
+          "adaptive": "Adaptiv - Værdier, overbevisninger, identitetsskift"
         }
       },
       "development": {
         "title": "Indre Udviklingsbehov",
         "description": "Hvilken indre udviklingsdimension er mest kritisk?",
         "options": {
-          "being": {"short": "Væren", "long": "Selvbevidsthed, nærvær"},
-          "thinking": {"short": "Tænkning", "long": "Kritisk tænkning"},
-          "relating": {"short": "Relationsdannelse", "long": "Empati, forbindelse"},
-          "collaborating": {"short": "Samarbejde", "long": "Medskabelse, tillid"},
-          "acting": {"short": "Handling", "long": "Mod, udholdenhed"}
+          "being": "Væren - Selvbevidsthed, nærvær, værdier",
+          "thinking": "Tænkning - Kritisk tænkning, perspektivtagning",
+          "relating": "Relationsdannelse - Empati, medfølelse, forbindelse",
+          "collaborating": "Samarbejde - Medskabelse, tillid, inklusivitet",
+          "acting": "Handling - Mod, optimisme, udholdenhed"
         }
       },
       "resources": {
         "title": "Ressourcekarakteristika",
         "description": "Hvad er ressourcetilgængeligheden?",
         "options": {
-          "rich": {"short": "Rig", "long": "Rigelige ressourcer"},
-          "balanced": {"short": "Balanceret", "long": "Tilstrækkelige ressourcer"},
-          "constrained": {"short": "Begrænset", "long": "Begrænsede ressourcer"},
-          "scarce": {"short": "Knappe", "long": "Alvorlige begrænsninger"}
+          "rich": "Rig - Rigelige ressourcer, flere muligheder",
+          "balanced": "Afbalanceret - Tilstrækkelige ressourcer, omhyggelig planlægning",
+          "constrained": "Begrænset - Begrænsede ressourcer, afvejninger nødvendige",
+          "scarce": "Knappe - Alvorlige begrænsninger, kreative løsninger essentielle"
         }
       },
       "change": {
         "title": "Forandringsintensitet",
         "description": "Hvad er omfanget af forandring involveret?",
         "options": {
-          "incremental": {"short": "Trinvis", "long": "Små forbedringer"},
-          "transitional": {"short": "Overgangsmæssig", "long": "Planlagt udskiftning"},
-          "transformational": {"short": "Transformerende", "long": "Grundlæggende skift"},
-          "disruptive": {"short": "Forstyrrende", "long": "Revolutionær"}
+          "incremental": "Trinvis - Små forbedringer, kontinuitet",
+          "transitional": "Overgangsmæssig - Planlagt udskiftning af nuværende tilstand",
+          "transformational": "Transformerende - Grundlæggende skift i tankegang",
+          "disruptive": "Forstyrrende - Revolutionær, ødelægger gammelt paradigme"
         }
       },
       "information": {
         "title": "Informationsflow",
         "description": "Hvordan bevæger information sig i projektet?",
         "options": {
-          "centralized": {"short": "Centraliseret", "long": "Enkelt kilde, top-down"},
-          "hierarchical": {"short": "Hierarkisk", "long": "Kommandokæde"},
-          "network": {"short": "Netværk", "long": "Indbyrdes forbundne knudepunkter"},
-          "distributed": {"short": "Distribueret", "long": "Fuldt decentraliseret"}
+          "centralized": "Centraliseret - Enkelt kilde, top-down",
+          "hierarchical": "Hierarkisk - Kommandokæde, formelle kanaler",
+          "network": "Netværk - Indbyrdes forbundne knudepunkter, uformelle flows",
+          "distributed": "Distribueret - Fuldt decentraliseret, peer-to-peer"
         }
       },
       "risk": {
         "title": "Risikoprofil",
         "description": "Hvad er den samlede risikoeksponering?",
         "options": {
-          "low": {"short": "Lav", "long": "Forudsigelig, minimal usikkerhed"},
-          "moderate": {"short": "Moderat", "long": "Nogen usikkerhed"},
-          "high": {"short": "Høj", "long": "Betydelig usikkerhed"},
-          "extreme": {"short": "Ekstrem", "long": "Store trusler, krisepotentiale"}
+          "low": "Lav - Forudsigelig, minimal usikkerhed",
+          "moderate": "Moderat - Nogle ukendte, håndterbar",
+          "high": "Høj - Betydelig usikkerhed, omhyggelig overvågning",
+          "extreme": "Ekstrem - Store trusler, krisepotentiale"
         }
       }
     }
@@ -617,88 +598,6 @@
     "success": {
       "rolesUpdated": "Roller Opdateret",
       "rolesUpdatedDesc": "Brugerroller er blevet opdateret"
-    }
-  },
-  "morphology": {
-    "visualBox": {
-      "title": "Morfologisk Boks",
-      "description": "12-dimensionel projektvurderingsmatrix"
-    },
-    "reassess": "Revurder",
-    "showDnaCode": "Vis Rå DNA-kode",
-    "copyDna": "Kopier",
-    "dnaCopied": "DNA-kode kopieret til udklipsholder",
-    "editable": "Redigerbar",
-    "updated": "Morfologi opdateret",
-    "updateError": "Kunne ikke opdatere morfologi",
-    "generatingDescription": "Genererer AI-beskrivelse...",
-    "descriptionError": "Kunne ikke generere AI-beskrivelse",
-    "dimensions": {
-      "complexity": "Kompleksitetsniveau",
-      "stakeholder": "Interessentdynamik",
-      "knowledge": "Vidensintensitet",
-      "cultural": "Kulturel Kontekst",
-      "temporal": "Temporal Dynamik",
-      "organizational": "Organisatorisk Stadium",
-      "challenge": "Primær Udfordring",
-      "development": "Indre Udviklingsbehov",
-      "resources": "Ressourcekarakteristika",
-      "change": "Forandringsintensitet",
-      "information": "Informationsflow",
-      "risk": "Risikoprofil"
-    },
-    "options": {
-      "simple": "Simpel",
-      "complicated": "Kompliceret",
-      "complex": "Kompleks",
-      "chaotic": "Kaotisk",
-      "unified": "Forenet",
-      "cooperative": "Samarbejdende",
-      "competitive": "Konkurrerende",
-      "adversarial": "Antagonistisk",
-      "routine": "Rutinemæssig",
-      "adaptive": "Adaptiv",
-      "innovative": "Innovativ",
-      "breakthrough": "Gennembruds",
-      "mono": "Mono-kulturel",
-      "crossfunctional": "Tværfaglig",
-      "crossorg": "Tværorganisatorisk",
-      "crosscultural": "Tværkulturel",
-      "sprint": "Sprint",
-      "project": "Projekt",
-      "program": "Program",
-      "transformation": "Transformation",
-      "red": "Rød - Magtdrevet",
-      "amber": "Rav - Procesdrevet",
-      "orange": "Orange - Præstationsdrevet",
-      "green": "Grøn - Værdidrevet",
-      "teal": "Turkis - Formålsdrevet",
-      "technical": "Teknisk",
-      "social": "Social",
-      "political": "Politisk",
-      "cognitive": "Kognitiv",
-      "adaptive": "Adaptiv",
-      "being": "Væren",
-      "thinking": "Tænkning",
-      "relating": "Relationsdannelse",
-      "collaborating": "Samarbejde",
-      "acting": "Handling",
-      "rich": "Rige",
-      "balanced": "Balancerede",
-      "constrained": "Begrænsede",
-      "scarce": "Knappe",
-      "incremental": "Trinvis",
-      "transitional": "Overgangsmæssig",
-      "transformational": "Transformerende",
-      "disruptive": "Forstyrrende",
-      "centralized": "Centraliseret",
-      "hierarchical": "Hierarkisk",
-      "network": "Netværk",
-      "distributed": "Distribueret",
-      "low": "Lav",
-      "moderate": "Moderat",
-      "high": "Høj",
-      "extreme": "Ekstrem"
     }
   }
 }
