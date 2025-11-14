@@ -1,4 +1,5 @@
 import { BodyData } from './bodyDataCalculator';
+import vitruvianBody from '@/assets/vitruvian-body.jpg';
 import { HeadPart } from './parts/HeadPart';
 import { FacePart } from './parts/FacePart';
 import { ShouldersPart } from './parts/ShouldersPart';
@@ -15,107 +16,111 @@ interface BodyVisualizationProps {
 
 export function BodyVisualization({ data, hoveredPart, onHoverPart }: BodyVisualizationProps) {
   return (
-    <svg 
-      viewBox="0 0 200 480" 
-      className="w-full max-w-md mx-auto"
-      style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
-    >
-      {/* Spine (drawn first, in background) */}
-      <g transform="translate(100, 150)">
-        <SpinePart 
-          data={data.spine}
-          isHovered={hoveredPart === 'spine'}
-          onHover={() => onHoverPart('spine')}
-          onLeave={() => onHoverPart(null)}
-        />
-      </g>
+    <div className="relative w-full max-w-md mx-auto aspect-[3/4]">
+      {/* Vitruvian Man Background Image */}
+      <img 
+        src={vitruvianBody} 
+        alt="Vitruvian Man"
+        className="absolute inset-0 w-full h-full object-contain"
+      />
       
-      {/* Head */}
-      <g transform="translate(100, 40)">
-        <HeadPart 
-          data={data.head}
-          isHovered={hoveredPart === 'head'}
-          onHover={() => onHoverPart('head')}
-          onLeave={() => onHoverPart(null)}
-        />
-        {/* Label */}
-        <text x="45" y="5" className="fill-foreground text-xs font-bold opacity-60">1</text>
-      </g>
-      
-      {/* Face */}
-      <g transform="translate(100, 60)">
-        <FacePart 
-          data={data.face}
-          isHovered={hoveredPart === 'face'}
-          onHover={() => onHoverPart('face')}
-          onLeave={() => onHoverPart(null)}
-        />
-        {/* Label */}
-        <text x="35" y="5" className="fill-foreground text-xs font-bold opacity-60">2</text>
-      </g>
-      
-      {/* Shoulders */}
-      <g transform="translate(100, 110)">
-        <ShouldersPart 
-          data={data.shoulders}
-          isHovered={hoveredPart === 'shoulders'}
-          onHover={() => onHoverPart('shoulders')}
-          onLeave={() => onHoverPart(null)}
-        />
-        {/* Label */}
-        <text x="-70" y="25" className="fill-foreground text-xs font-bold opacity-60">3</text>
-      </g>
-      
-      {/* Torso */}
-      <g transform="translate(100, 180)">
-        <TorsoPart 
-          data={data.torso}
-          isHovered={hoveredPart === 'torso'}
-          onHover={() => onHoverPart('torso')}
-          onLeave={() => onHoverPart(null)}
-        />
-        {/* Label */}
-        <text x="45" y="5" className="fill-foreground text-xs font-bold opacity-60">4</text>
-      </g>
-      
-      {/* Belly */}
-      <g transform="translate(100, 250)">
-        <BellyPart 
-          data={data.belly}
-          isHovered={hoveredPart === 'belly'}
-          onHover={() => onHoverPart('belly')}
-          onLeave={() => onHoverPart(null)}
-        />
-        {/* Label */}
-        <text x="35" y="5" className="fill-foreground text-xs font-bold opacity-60">5</text>
-      </g>
-      
-      {/* Legs */}
-      <g transform="translate(100, 300)">
-        <LegsPart 
-          data={data.legs}
-          isHovered={hoveredPart === 'legs'}
-          onHover={() => onHoverPart('legs')}
-          onLeave={() => onHoverPart(null)}
-        />
-        {/* Label */}
-        <text x="-40" y="60" className="fill-foreground text-xs font-bold opacity-60">7</text>
-      </g>
-      
-      {/* Dynamic warning icons */}
-      {data.warnings.map((warning, i) => (
-        <g key={i} className="animate-pulse">
-          <text
-            x={warning.x}
-            y={warning.y}
-            fontSize="16"
-            textAnchor="middle"
-            opacity={warning.severity === 'high' ? 1 : 0.7}
-          >
-            {warning.icon}
-          </text>
+      {/* SVG Overlay Layer */}
+      <svg 
+        viewBox="0 0 100 100" 
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {/* Head */}
+        <g>
+          <HeadPart 
+            data={data.head}
+            isHovered={hoveredPart === 'head'}
+            onHover={() => onHoverPart('head')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="63" cy="10" r="3" fill="white" opacity="0.9" />
+          <text x="63" y="11.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">1</text>
         </g>
-      ))}
-    </svg>
+        
+        {/* Face */}
+        <g>
+          <FacePart 
+            data={data.face}
+            isHovered={hoveredPart === 'face'}
+            onHover={() => onHoverPart('face')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="63" cy="15" r="3" fill="white" opacity="0.9" />
+          <text x="63" y="16.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">2</text>
+        </g>
+        
+        {/* Shoulders */}
+        <g>
+          <ShouldersPart 
+            data={data.shoulders}
+            isHovered={hoveredPart === 'shoulders'}
+            onHover={() => onHoverPart('shoulders')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="25" cy="26" r="3" fill="white" opacity="0.9" />
+          <text x="25" y="27.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">3</text>
+        </g>
+        
+        {/* Torso */}
+        <g>
+          <TorsoPart 
+            data={data.torso}
+            isHovered={hoveredPart === 'torso'}
+            onHover={() => onHoverPart('torso')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="65" cy="38" r="3" fill="white" opacity="0.9" />
+          <text x="65" y="39.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">4</text>
+        </g>
+        
+        {/* Belly */}
+        <g>
+          <BellyPart 
+            data={data.belly}
+            isHovered={hoveredPart === 'belly'}
+            onHover={() => onHoverPart('belly')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="63" cy="52" r="3" fill="white" opacity="0.9" />
+          <text x="63" y="53.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">5</text>
+        </g>
+        
+        {/* Spine */}
+        <g>
+          <SpinePart 
+            data={data.spine}
+            isHovered={hoveredPart === 'spine'}
+            onHover={() => onHoverPart('spine')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="35" cy="45" r="3" fill="white" opacity="0.9" />
+          <text x="35" y="46.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">6</text>
+        </g>
+        
+        {/* Legs */}
+        <g>
+          <LegsPart 
+            data={data.legs}
+            isHovered={hoveredPart === 'legs'}
+            onHover={() => onHoverPart('legs')}
+            onLeave={() => onHoverPart(null)}
+          />
+          {/* Number Badge */}
+          <circle cx="38" cy="80" r="3" fill="white" opacity="0.9" />
+          <text x="38" y="81.5" className="fill-foreground text-[4px] font-bold" textAnchor="middle">7</text>
+        </g>
+      </svg>
+    </div>
   );
 }
