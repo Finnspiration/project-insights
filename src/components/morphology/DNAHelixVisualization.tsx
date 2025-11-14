@@ -126,12 +126,18 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           const dimension = MORPHOLOGY_DIMENSIONS[pair.from];
           const categoryColor = CATEGORY_COLORS[dimension.category];
           
+          // Match badge offsets
+          const isTopStrand1 = pair.from % 2 === 0;
+          const isTopStrand2 = pair.to % 2 === 0;
+          const offset1 = isTopStrand1 ? -60 : 60;
+          const offset2 = isTopStrand2 ? -60 : 60;
+          
           return (
             <line
               key={`connection-${idx}`}
-              x1={point1.x}
+              x1={point1.x + offset1}
               y1={point1.y}
-              x2={point2.x}
+              x2={point2.x + offset2}
               y2={point2.y}
               stroke={`hsl(${categoryColor})`}
               strokeWidth="3"
@@ -157,20 +163,15 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
           
           const dimension = dimensionWithOption;
           const option = dimension.options.find(opt => opt.value === segment);
-          
-          // Debug translation
-          console.log('✅ DNA Badge Match:', {
-            index: point.index,
-            segment,
-            dimensionKey: dimension.key,
-            dimensionName: t(dimension.translationKey, { lng: currentLanguage }),
-            optionTranslationKey: option?.translationKey,
-            translatedLabel: option ? t(option.translationKey, { lng: currentLanguage }) : segment,
-            found: !!option
-          });
-          
           const translatedLabel = option ? t(option.translationKey, { lng: currentLanguage }) : segment;
           const categoryColor = CATEGORY_COLORS[dimension.category];
+          
+          // CRITICAL FIX: Offset badges based on strand to prevent overlap
+          const isTopStrand = point.index % 2 === 0;
+          const horizontalOffset = isTopStrand ? -60 : 60; // Top left, bottom right
+          const badgeX = point.x + horizontalOffset;
+          const badgeWidth = 110;
+          const badgeHeight = 32; // Taller for two lines
           
           return (
             <g 
@@ -180,26 +181,31 @@ export function DNAHelixVisualization({ morphology, dnaCode, language = 'en' }: 
             >
               {/* Badge background */}
               <rect
-                x={point.x - 60}
-                y={point.y - 14}
-                width="120"
-                height="28"
-                rx="14"
+                x={badgeX - badgeWidth/2}
+                y={point.y - badgeHeight/2}
+                width={badgeWidth}
+                height={badgeHeight}
+                rx="16"
                 fill={`hsl(${categoryColor})`}
                 className="transition-all hover:opacity-90"
                 style={{ pointerEvents: 'all' }}
               />
               
-              {/* Badge text */}
-              <text
-                x={point.x}
-                y={point.y + 5}
-                textAnchor="middle"
-                className="fill-white text-sm font-mono font-bold select-none"
-                style={{ fontSize: '12px', pointerEvents: 'none' }}
+              {/* Multi-line text with foreignObject */}
+              <foreignObject
+                x={badgeX - badgeWidth/2 + 4}
+                y={point.y - badgeHeight/2 + 4}
+                width={badgeWidth - 8}
+                height={badgeHeight - 8}
+                style={{ pointerEvents: 'none' }}
               >
-                {translatedLabel}
-              </text>
+                <div 
+                  className="flex items-center justify-center h-full text-white text-xs font-mono font-bold text-center leading-tight px-1"
+                  style={{ fontSize: '11px', lineHeight: '1.2' }}
+                >
+                  {translatedLabel}
+                </div>
+              </foreignObject>
               
               {/* Hover title (dimension name) */}
               <title>{t(dimension.translationKey, { lng: currentLanguage })}</title>

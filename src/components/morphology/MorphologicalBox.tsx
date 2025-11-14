@@ -192,9 +192,12 @@ export function MorphologicalBox({
                         return (
                           <Badge
                             key={`${index}-${segment}`}
-                            className="font-mono text-xs text-white border-none"
+                            className="font-mono text-xs text-white border-none whitespace-normal text-center max-w-[140px]"
                             style={{
                               backgroundColor: `hsl(${categoryColor})`,
+                              lineHeight: '1.3',
+                              padding: '6px 10px',
+                              minHeight: '28px',
                             }}
                           >
                             {translatedLabel}
