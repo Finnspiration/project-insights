@@ -463,42 +463,52 @@
       "refresh": "Refresh",
       "errorTitle": "Analysis Failed",
       "errorDescription": "An error occurred while analyzing the project. Please try again.",
-      "whereYouAre": "Where You Are",
+      "whereAreYou": "Where You Are",
       "phase": "Phase",
+      "phases": {
+        "seeing": "Seeing",
+        "sensing": "Sensing",
+        "presencing": "Presencing",
+        "crystallizing": "Crystallizing",
+        "prototyping": "Prototyping"
+      },
+      "phaseSubtitles": {
+        "seeing": "with an open mind",
+        "sensing": "with an open heart",
+        "presencing": "with an open will",
+        "crystallizing": "vision and intention",
+        "prototyping": "living microcosms"
+      },
       "socialField": "Social Field",
       "depth": "Depth",
-      "confidence": "Confidence",
+      "openMHW": "Open M/H/W",
+      "confident": "Confident",
       "whyThisPhase": "Why This Phase?",
       "morphologyEvidence": "Morphology Evidence",
       "documentEvidence": "Document Evidence",
-      "noDocuments": "No documents uploaded yet. Dashboard becomes more accurate with documents.",
-      "yourNextActions": "Your Next 3 Actions",
+      "documentsProcessing": "Documents processing...",
+      "noDocuments": "No documents uploaded yet",
+      "moreEvidence": "+{{count}} more quotes",
+      "nextActions": "Your Next 3 Actions",
+      "principle": "Principle",
+      "timeframe": "Timeframe",
       "readinessIndicators": "Readiness Indicators",
       "readyToDescend": "Ready to go deeper?",
       "readyToPresence": "Ready to presence?",
       "readyToAscend": "Ready to ascend?",
+      "readinessWhy": "Why?",
+      "readinessNextSteps": "Next steps",
       "resources": "Theory U Resources",
       "priority": {
         "high": "HIGH",
         "medium": "MEDIUM",
         "low": "LOW"
       },
-      "impact": {
-        "high": "High impact",
-        "medium": "Medium impact",
-        "low": "Low impact"
-      },
       "socialFields": {
         "downloading": "Downloading",
         "debating": "Debating",
         "dialogue": "Dialogue",
         "collective_creativity": "Collective Creativity"
-      },
-      "diagnostics": {
-        "title": "Open M/H/W",
-        "openMind": "Open Mind",
-        "openHeart": "Open Heart",
-        "openWill": "Open Will"
       }
     },
     "idgRadar": {

@@ -462,42 +462,52 @@
       "refresh": "Opdater",
       "errorTitle": "Analyse fejlede",
       "errorDescription": "Der opstod en fejl ved analyse af projektet. Prøv venligst igen.",
-      "whereYouAre": "Hvor Er I",
+      "whereAreYou": "Hvor Er I",
       "phase": "Fase",
+      "phases": {
+        "seeing": "Observere",
+        "sensing": "Sanse",
+        "presencing": "Nærvær",
+        "crystallizing": "Krystallisere",
+        "prototyping": "Prototype"
+      },
+      "phaseSubtitles": {
+        "seeing": "med et åbent sind",
+        "sensing": "med et åbent hjerte",
+        "presencing": "med en åben vilje",
+        "crystallizing": "vision og intention",
+        "prototyping": "levende mikrokosmos"
+      },
       "socialField": "Socialt Felt",
       "depth": "Dybde",
-      "confidence": "Tillid",
+      "openMHW": "Open M/H/W",
+      "confident": "Tillid",
       "whyThisPhase": "Hvorfor Denne Fase?",
       "morphologyEvidence": "Morfologi Bevis",
       "documentEvidence": "Dokument Bevis",
-      "noDocuments": "Ingen dokumenter uploadet endnu. Dashboard bliver mere præcis med dokumenter.",
-      "yourNextActions": "Jeres Næste 3 Handlinger",
+      "documentsProcessing": "Dokumenter behandles...",
+      "noDocuments": "Ingen dokumenter uploadet endnu",
+      "moreEvidence": "+{{count}} flere citater",
+      "nextActions": "Jeres Næste 3 Handlinger",
+      "principle": "Princip",
+      "timeframe": "Tidsramme",
       "readinessIndicators": "Parathedsindikatorer",
       "readyToDescend": "Klar til at gå dybere?",
       "readyToPresence": "Klar til nærvær?",
       "readyToAscend": "Klar til at stige?",
+      "readinessWhy": "Hvorfor?",
+      "readinessNextSteps": "Næste skridt",
       "resources": "Theory U Ressourcer",
       "priority": {
         "high": "HØJ",
         "medium": "MELLEM",
         "low": "LAV"
       },
-      "impact": {
-        "high": "Høj effekt",
-        "medium": "Mellem effekt",
-        "low": "Lav effekt"
-      },
       "socialFields": {
         "downloading": "Downloading",
         "debating": "Debat",
         "dialogue": "Dialog",
         "collective_creativity": "Kollektiv Kreativitet"
-      },
-      "diagnostics": {
-        "title": "Open M/H/W",
-        "openMind": "Open Mind",
-        "openHeart": "Open Heart",
-        "openWill": "Open Will"
       }
     },
     "idgRadar": {
