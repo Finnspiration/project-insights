@@ -218,7 +218,26 @@ export function DNAEvidenceVisualization({
                 : (value || '').charAt(0).toUpperCase() + (value || '').slice(1);
               const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
               
-              const categoryColor = CATEGORY_COLORS[point.dimension.category] || '220, 80%, 50%';
+              // EXPLICIT COLOR MAPPING - eliminates runtime lookup errors
+              let categoryColor: string;
+              switch(point.dimension.category) {
+                case 'context':
+                  categoryColor = '220, 70%, 50%'; // Blue
+                  break;
+                case 'capacity':
+                  categoryColor = '280, 65%, 60%'; // Purple
+                  break;
+                case 'dynamics':
+                  categoryColor = '340, 75%, 55%'; // Pink
+                  break;
+                case 'challenge_and_resources':
+                  categoryColor = '30, 90%, 50%'; // Orange
+                  break;
+                default:
+                  console.warn(`Unknown category: ${point.dimension.category} for dimension ${point.dimension.key}`);
+                  categoryColor = '220, 80%, 50%'; // Fallback blue
+              }
+              
               const estimatedWidth = Math.max(80, shortLabel.length * 9 + 20);
               const badgeHeight = 28;
               
@@ -226,6 +245,11 @@ export function DNAEvidenceVisualization({
               const badgeColor = point.isHighlighted 
                 ? "hsl(45, 100%, 60%)" 
                 : `hsl(${categoryColor})`;
+              
+              // DEBUG LOGGING
+              if (!point.isHighlighted) {
+                console.log(`🎨 Badge Color Debug: ${point.dimension.key} (${point.dimension.category}) → ${categoryColor} → ${badgeColor}`);
+              }
               
               return (
                 <g 
@@ -256,6 +280,7 @@ export function DNAEvidenceVisualization({
                     height={badgeHeight}
                     rx="8"
                     fill={badgeColor}
+                    style={{ fill: badgeColor }}
                     stroke="white"
                     strokeWidth="1"
                     className="transition-all hover:opacity-90"
