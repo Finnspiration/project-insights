@@ -1,6 +1,6 @@
 import { ReactP5Wrapper } from 'react-p5-wrapper';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,6 +28,9 @@ export function MorphologyBlob({
   const [isLoadingArchetype, setIsLoadingArchetype] = useState(true);
   const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [showZoneTooltip, setShowZoneTooltip] = useState(false);
+  const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
+  const blobContainerRef = useRef<HTMLDivElement>(null);
   const dimensionToZone: Record<string, string> = {
     risk: 'outerGlow',
     complexity: 'mainShape',
@@ -203,7 +206,7 @@ export function MorphologyBlob({
               
               <StatusRow label={t('visualizations.blob.vars.knowledge')} value={t(`morphology.dimensions.knowledge.options.${morphology.knowledge}`)} detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`} visualColor={getDimensionVisuals('knowledge', blobData).color} visualIcon={getDimensionVisuals('knowledge', blobData).icon} visualPattern={blobData.innerPattern} isSelected={selectedDimension === 'knowledge'} onClick={() => setSelectedDimension(selectedDimension === 'knowledge' ? null : 'knowledge')} />
               
-              <StatusRow label={t('visualizations.blob.vars.cultural')} value={t(`morphology.dimensions.cultural.options.${morphology.cultural}`)} detail={`${t('visualizations.blob.vars.symmetry')}: ${(blobData.culturalSpread * 100).toFixed(0)}%`} visualColor={getDimensionVisuals('cultural', blobData).color} visualIcon={getDimensionVisuals('cultural', blobData).icon} isSelected={selectedDimension === 'cultural'} onClick={() => setSelectedDimension(selectedDimension === 'cultural' ? null : 'cultural')} />
+              <StatusRow label={t('visualizations.blob.vars.cultural')} value={t(`morphology.dimensions.cultural.options.${morphology.cultural}`)} detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`} visualColor={getDimensionVisuals('cultural', blobData).color} visualIcon={getDimensionVisuals('cultural', blobData).icon} isSelected={selectedDimension === 'cultural'} onClick={() => setSelectedDimension(selectedDimension === 'cultural' ? null : 'cultural')} />
               
               <StatusRow label={t('visualizations.blob.vars.organizational')} value={t(`morphology.dimensions.organizational.options.${morphology.organizational}`)} detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`} visualColor={getDimensionVisuals('organizational', blobData).color} visualIcon={getDimensionVisuals('organizational', blobData).icon} isSelected={selectedDimension === 'organizational'} onClick={() => setSelectedDimension(selectedDimension === 'organizational' ? null : 'organizational')} />
               
