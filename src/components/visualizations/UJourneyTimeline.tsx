@@ -340,10 +340,13 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   };
 
   const fetchAnalysis = async (forceRefresh = false) => {
-    try {
-      setLoading(true);
+    if (forceRefresh) setRefreshing(true);
+    else setLoading(true);
 
-      // Check cache first
+    try {
+      console.log('📥 Fetching Theory U analysis, forceRefresh:', forceRefresh);
+
+      // Check cache first (skip if forceRefresh)
       if (!forceRefresh) {
         const { data: project } = await supabase
           .from('projects')
@@ -352,13 +355,17 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           .single();
 
         if (project?.theory_u_analysis) {
+          console.log('💾 Using cached analysis');
           const transformed = transformTheoryUData(project.theory_u_analysis);
           if (transformed) {
             setAnalysis(transformed);
             setLoading(false);
+            setRefreshing(false);
             return;
           }
         }
+      } else {
+        console.log('🔄 Force refresh - calling AI for new analysis');
       }
 
       // Call edge function
