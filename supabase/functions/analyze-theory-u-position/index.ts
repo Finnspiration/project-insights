@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId, morphology, language = 'en' } = await req.json();
+    const { projectId, morphology, language = 'en', regenerateQuotes = false } = await req.json();
 
     if (!projectId) {
       return new Response(
@@ -109,13 +109,13 @@ serve(async (req) => {
         return null;
       }).filter(Boolean) : [];
 
-    // STEP 4: Generate documentEvidence array
-    const documentEvidence = hasDocuments ? 
-      documents.slice(0, 3).flatMap(doc => {
-        if (!doc.content) return [];
-        const sentences = doc.content.split(/[.!?]+/).filter((s: string) => s.trim().length > 50);
-        return sentences.slice(0, 2).map((s: string) => s.trim() + '.');
-      }).slice(0, 6) : [];
+    // STEP 4: Generate documentEvidence array with AI
+    const documentEvidence = hasDocuments ? await generateIntelligentQuotes(
+      documents,
+      morphologyAnalysis?.phase || 'seeing',
+      language,
+      LOVABLE_API_KEY
+    ) : [];
 
     // STEP 5: Kombiner
     const finalAnalysis = {
@@ -161,3 +161,84 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function: Generate intelligent quotes using AI
+async function generateIntelligentQuotes(
+  documents: any[],
+  phase: string,
+  language: string,
+  apiKey: string
+): Promise<string[]> {
+  const combinedContent = documents
+    .map(doc => doc.content)
+    .join('\n\n---\n\n')
+    .substring(0, 15000); // Limit for API
+  
+  const prompt = language === 'da' 
+    ? `Udvælg 5-7 af de mest relevante og indsigtsfulde citater fra disse dokumenter der understøtter at projektet er i "${phase}" fasen af Theory U.
+
+Fokuser på citater der:
+- Viser observation, sensing, eller presencing aktiviteter
+- Indeholder konkrete eksempler eller indsigter
+- Er selvstændigt meningsfulde (ikke fragmenter)
+- Er mellem 15-50 ord
+
+Returner BARE citaterne som JSON array af strings, intet andet.
+
+Dokumenter:
+${combinedContent}`
+    : `Select the 5-7 most relevant and insightful quotes from these documents that support the project being in the "${phase}" phase of Theory U.
+
+Focus on quotes that:
+- Show observation, sensing, or presencing activities
+- Contain concrete examples or insights
+- Are self-contained and meaningful (not fragments)
+- Are between 15-50 words
+
+Return ONLY the quotes as a JSON array of strings, nothing else.
+
+Documents:
+${combinedContent}`;
+
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Quote generation failed, falling back to simple extraction');
+      return fallbackQuoteExtraction(documents);
+    }
+
+    const data = await response.json();
+    let content = data.choices?.[0]?.message?.content?.trim() || '[]';
+    content = content.replace(/```json|```/g, '').trim();
+    
+    const parsed = JSON.parse(content);
+    return Array.isArray(parsed) ? parsed : (parsed.quotes || []);
+    
+  } catch (error) {
+    console.error('Quote AI error:', error);
+    return fallbackQuoteExtraction(documents);
+  }
+}
+
+// Fallback if AI fails
+function fallbackQuoteExtraction(documents: any[]): string[] {
+  return documents.slice(0, 3).flatMap(doc => {
+    if (!doc.content) return [];
+    const sentences = doc.content.split(/[.!?]+/).filter((s: string) => s.trim().length > 50);
+    return sentences.slice(0, 2).map((s: string) => s.trim() + '.');
+  }).slice(0, 6);
+}

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, RefreshCw, TrendingDown, TrendingUp, AlertCircle, BookOpen, MapPin, Lightbulb, BarChart3, FileText, ExternalLink } from 'lucide-react';
+import { Loader2, RefreshCw, TrendingDown, TrendingUp, AlertCircle, BookOpen, MapPin, Lightbulb, BarChart3, FileText, ExternalLink, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
@@ -102,6 +102,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   const [analysis, setAnalysis] = useState<TheoryUAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showAllQuotes, setShowAllQuotes] = useState(false);
 
   // Helper function to transform Theory U data structure
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
@@ -140,6 +141,74 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       readinessIndicators: data.readinessIndicators,
       theoryUResources: data.theoryUResources || []
     };
+  };
+
+  const handleRejectQuote = async (index: number) => {
+    if (!analysis?.whyHere?.documentEvidence) return;
+    
+    const updatedEvidence = analysis.whyHere.documentEvidence.filter(
+      (_: any, idx: number) => idx !== index
+    );
+    
+    // Optimistic update
+    setAnalysis({
+      ...analysis,
+      whyHere: {
+        ...analysis.whyHere,
+        documentEvidence: updatedEvidence
+      }
+    });
+    
+    // Update database
+    await supabase
+      .from('projects')
+      .update({
+        theory_u_analysis: {
+          ...analysis,
+          whyHere: {
+            ...analysis.whyHere,
+            documentEvidence: updatedEvidence
+          }
+        }
+      })
+      .eq('id', projectId);
+    
+    toast({
+      title: t('visualizations.theoryU.quoteRejected'),
+      description: t('visualizations.theoryU.quoteRejectedDesc')
+    });
+  };
+
+  const handleRegenerateQuotes = async () => {
+    setRefreshing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+        body: {
+          projectId,
+          morphology,
+          language: i18n.language,
+          regenerateQuotes: true
+        }
+      });
+      
+      if (error) throw error;
+      
+      setAnalysis(transformTheoryUData(data));
+      toast({
+        title: t('visualizations.theoryU.quotesRegenerated'),
+        description: t('visualizations.theoryU.quotesRegeneratedDesc')
+      });
+    } catch (error) {
+      console.error('Failed to regenerate quotes:', error);
+      toast({
+        title: t('common.error'),
+        description: t('visualizations.theoryU.regenerateFailed'),
+        variant: 'destructive'
+      });
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const fetchAnalysis = async (forceRefresh = false) => {
@@ -581,13 +650,66 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
 
             {/* Document Evidence */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-primary" />
-                <h3 className="font-semibold">{t('visualizations.theoryU.documentEvidence')}</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <h3 className="font-semibold">{t('visualizations.theoryU.documentEvidence')}</h3>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRegenerateQuotes()}
+                  disabled={refreshing}
+                  className="h-8 px-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                </Button>
               </div>
               
-              {/* Check if documents are being processed */}
-              {analysis.whyHere?.documentStatus === 'processing' ? (
+              {analysis.whyHere?.documentEvidence && analysis.whyHere.documentEvidence.length > 0 ? (
+                <div className="space-y-3">
+                  {analysis.whyHere.documentEvidence
+                    .slice(0, showAllQuotes ? undefined : 3)
+                    .map((quote: string, idx: number) => (
+                      <div key={idx} className="group relative p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm hover:shadow-md transition-shadow">
+                        <p className="text-sm italic leading-relaxed text-foreground pr-8">
+                          "{quote}"
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRejectQuote(idx)}
+                        >
+                          <X className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  
+                  {analysis.whyHere.documentEvidence.length > 3 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setShowAllQuotes(!showAllQuotes)}
+                    >
+                      {showAllQuotes ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-2" />
+                          {t('visualizations.theoryU.showLess')}
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          {t('visualizations.theoryU.showMore', { 
+                            count: analysis.whyHere.documentEvidence.length - 3 
+                          })}
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              ) : analysis.whyHere?.documentStatus === 'processing' ? (
                 <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
                   <div className="flex items-start gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-600 border-t-transparent" />
@@ -604,19 +726,6 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                       )}
                     </div>
                   </div>
-                </div>
-              ) : analysis.whyHere?.documentEvidence && analysis.whyHere.documentEvidence.length > 0 ? (
-                <div className="space-y-3">
-                  {analysis.whyHere.documentEvidence.slice(0, 3).map((quote: string, idx: number) => (
-                    <div key={idx} className="p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm">
-                      <p className="text-sm italic leading-relaxed text-foreground">"{quote}"</p>
-                    </div>
-                  ))}
-                  {analysis.whyHere.documentEvidence.length > 3 && (
-                    <p className="text-xs text-muted-foreground text-center">
-                      {t('visualizations.theoryU.moreEvidence', { count: analysis.whyHere.documentEvidence.length - 3 })}
-                    </p>
-                  )}
                 </div>
               ) : (
                 <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
