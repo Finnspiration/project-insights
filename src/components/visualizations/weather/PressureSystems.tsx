@@ -40,12 +40,15 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.2, duration: 0.6 }}
             >
-              {/* Isobar circles */}
+              {/* Isobar circles with increased visibility */}
               {Array.from({ length: zone.intensity }).map((_, i) => {
                 // Determine stroke style based on source
                 const isBlindSpotSource = zone.metadata?.source === 'blind_spot';
-                const strokeWidth = isBlindSpotSource ? '2' : '1.5';
-                const strokeOpacity = isBlindSpotSource ? '0.7' : '0.5';
+                const isLowPressure = zone.type === 'L';
+                
+                // Enhanced stroke widths for better visibility
+                const strokeWidth = isBlindSpotSource ? '3' : isLowPressure ? '2' : '2.5';
+                const strokeOpacity = isBlindSpotSource ? '0.9' : isLowPressure ? '0.6' : '0.7';
                 
                 // Get color based on type and source
                 const getZoneColor = () => {
@@ -68,7 +71,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                     stroke={getZoneColor()}
                     strokeWidth={strokeWidth}
                     strokeOpacity={strokeOpacity}
-                    strokeDasharray="4,2"
+                    strokeDasharray="6,3"
                   />
                 );
               })}
@@ -101,7 +104,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                 x={`${zone.x}%`}
                 y={`${zone.y + 4}%`}
                 textAnchor="middle"
-                className="fill-white text-xs font-semibold"
+                className="fill-white text-xs font-medium"
                 style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
               >
                 {zone.label}
@@ -120,49 +123,34 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
               )}
             </motion.g>
 
-            {/* Interactive overlay for tooltip */}
-            <foreignObject 
-              x={`${zone.x - 12}%`} 
-              y={`${zone.y - 12}%`} 
-              width="24%" 
-              height="24%"
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.2, duration: 0.6 }}
-                    className="absolute pointer-events-auto cursor-pointer"
-                    style={{
-                      width: hoveredZone === zone.id ? '48px' : '40px',
-                      height: hoveredZone === zone.id ? '48px' : '40px',
-                      borderRadius: '50%',
-                      left: '50%',
-                      top: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      transition: 'all 0.3s',
-                      backgroundColor: hoveredZone === zone.id 
-                        ? 'rgba(255, 255, 255, 0.1)' 
-                        : 'transparent',
-                    }}
-                    onMouseEnter={() => setHoveredZone(zone.id)}
-                    onMouseLeave={() => setHoveredZone(null)}
-                  />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <div className="space-y-1">
-                    <p className="font-semibold">{zone.type === 'H' ? 'Højtryk' : 'Lavtryk'}: {zone.label}</p>
-                    <p className="text-sm">{zone.metadata?.description}</p>
-                    {zone.metadata?.blindSpotTitle && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Blind spot: {zone.metadata.blindSpotTitle}
-                      </p>
-                    )}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </foreignObject>
+            {/* Interactive tooltip trigger (native SVG circle) */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <circle
+                  cx={`${zone.x}%`}
+                  cy={`${zone.y}%`}
+                  r={hoveredZone === zone.id ? "9%" : "8%"}
+                  fill="transparent"
+                  className="cursor-pointer transition-all duration-300"
+                  style={{ pointerEvents: 'all' }}
+                  onMouseEnter={() => setHoveredZone(zone.id)}
+                  onMouseLeave={() => setHoveredZone(null)}
+                  stroke={hoveredZone === zone.id ? 'rgba(255,255,255,0.3)' : 'transparent'}
+                  strokeWidth="2"
+                />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <div className="space-y-1">
+                  <p className="font-semibold">{zone.type === 'H' ? 'Højtryk' : 'Lavtryk'}: {zone.label}</p>
+                  <p className="text-sm">{zone.metadata?.description}</p>
+                  {zone.metadata?.blindSpotTitle && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Blind spot: {zone.metadata.blindSpotTitle}
+                    </p>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </g>
         ))}
 
@@ -179,7 +167,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                 animate={{ pathLength: 1, opacity: 0.7 }}
                 transition={{ delay: 0.5 + index * 0.15, duration: 1.2 }}
               >
-                {/* Front line */}
+                {/* Front line with intensity-based colors */}
                 <path
                   d={pathData}
                   fill="none"
@@ -191,88 +179,90 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                       : `hsl(280, 80%, ${50 - (front.intensity * 5)}%)` // Darker purple for occluded
                   }
                   strokeWidth={front.intensity * 1.5} // Thicker lines for higher intensity
-                  strokeDasharray={front.type === 'occluded' ? '8,4' : 'none'}
-                  strokeOpacity="0.8"
+                  strokeLinecap="round"
                 />
 
-                {/* Front symbols (triangles for cold, semi-circles for warm) */}
-                {front.points.slice(1).map((point, i) => {
-                  const symbolColor = front.type === 'cold'
-                    ? `hsl(220, 80%, ${50 - (front.intensity * 5)}%)`
-                    : `hsl(0, 80%, ${50 - (front.intensity * 5)}%)`;
-                  
-                  return (
-                    <g key={`symbol-${i}`}>
-                      {front.type === 'cold' ? (
-                        <polygon
-                          points={`${point.x - 1},${point.y + 2} ${point.x},${point.y - 2} ${point.x + 1},${point.y + 2}`}
-                          fill={symbolColor}
-                          opacity="0.9"
-                        />
-                      ) : (
-                        <circle
-                          cx={point.x}
-                          cy={point.y}
-                          r="1.5"
-                          fill={symbolColor}
-                          opacity="0.9"
-                        />
-                      )}
-                    </g>
-                  );
+                {/* Front symbols */}
+                {front.points.map((point, i) => {
+                  if (i % 3 !== 0) return null; // Only show symbols at intervals
+
+                  if (front.type === 'cold') {
+                    // Cold front: triangles
+                    return (
+                      <polygon
+                        key={`symbol-${i}`}
+                        points={`${point.x - 4},${point.y - 6} ${point.x},${point.y + 2} ${point.x + 4},${point.y - 6}`}
+                        fill={`hsl(220, 80%, ${50 - (front.intensity * 5)}%)`}
+                        opacity="0.9"
+                      />
+                    );
+                  } else if (front.type === 'warm') {
+                    // Warm front: circles
+                    return (
+                      <circle
+                        key={`symbol-${i}`}
+                        cx={point.x}
+                        cy={point.y}
+                        r="3"
+                        fill={`hsl(0, 80%, ${50 - (front.intensity * 5)}%)`}
+                        opacity="0.9"
+                      />
+                    );
+                  } else {
+                    // Occluded front: alternating triangles and circles
+                    return i % 6 === 0 ? (
+                      <polygon
+                        key={`symbol-${i}`}
+                        points={`${point.x - 3},${point.y - 5} ${point.x},${point.y + 1} ${point.x + 3},${point.y - 5}`}
+                        fill={`hsl(280, 80%, ${50 - (front.intensity * 5)}%)`}
+                        opacity="0.9"
+                      />
+                    ) : (
+                      <circle
+                        key={`symbol-${i}`}
+                        cx={point.x}
+                        cy={point.y}
+                        r="2.5"
+                        fill={`hsl(280, 80%, ${50 - (front.intensity * 5)}%)`}
+                        opacity="0.9"
+                      />
+                    );
+                  }
                 })}
               </motion.g>
 
-              {/* Interactive overlay for tooltip at midpoint */}
-              <foreignObject 
-                x={midPoint.x - 20} 
-                y={midPoint.y - 20} 
-                width="40" 
-                height="40"
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 + index * 0.15, duration: 0.6 }}
-                      className="absolute pointer-events-auto cursor-pointer"
-                      style={{
-                        width: hoveredFront === front.id ? '48px' : '40px',
-                        height: hoveredFront === front.id ? '48px' : '40px',
-                        borderRadius: '50%',
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        transition: 'all 0.3s',
-                        backgroundColor: hoveredFront === front.id 
-                          ? 'rgba(255, 255, 255, 0.1)' 
-                          : 'transparent',
-                      }}
-                      onMouseEnter={() => setHoveredFront(front.id)}
-                      onMouseLeave={() => setHoveredFront(null)}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <div className="space-y-1">
-                      <p className="font-semibold">
-                        {front.type === 'cold' ? 'Kold front' : front.type === 'warm' ? 'Varm front' : 'Okkluderet front'}
-                      </p>
-                      <p className="text-sm">{front.metadata?.description}</p>
-                      {front.metadata?.blindSpotTitle && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Blind spot: {front.metadata.blindSpotTitle}
-                        </p>
-                      )}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </foreignObject>
+              {/* Interactive tooltip trigger (transparent path over front line) */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <path
+                    d={pathData}
+                    fill="none"
+                    stroke="transparent"
+                    strokeWidth={hoveredFront === front.id ? "20" : "15"}
+                    className="cursor-pointer transition-all duration-300"
+                    style={{ pointerEvents: 'all' }}
+                    onMouseEnter={() => setHoveredFront(front.id)}
+                    onMouseLeave={() => setHoveredFront(null)}
+                    strokeLinecap="round"
+                  />
+                </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <div className="space-y-1">
+                  <p className="font-semibold">
+                    {front.type === 'cold' ? 'Kold front' : front.type === 'warm' ? 'Varm front' : 'Okkluderet front'}
+                  </p>
+                  {front.metadata?.description && (
+                    <p className="text-sm">{front.metadata.description}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">Intensitet: {front.intensity}/5</p>
+                </div>
+              </TooltipContent>
+              </Tooltip>
             </g>
           );
         })}
-      </svg>
-    </div>
+        </svg>
+      </div>
     </TooltipProvider>
   );
 }
