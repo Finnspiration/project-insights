@@ -170,3 +170,16 @@ All colors MUST be HSL.
 .animate-tooltip-in {
   animation: tooltip-in 0.2s ease-out forwards;
 }
+
+@keyframes selected-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+.selected-row {
+  animation: selected-pulse 2s ease-in-out infinite;
+}

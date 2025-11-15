@@ -20,6 +20,28 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [archetype, setArchetype] = useState<BlobArchetype | null>(null);
   const [isLoadingArchetype, setIsLoadingArchetype] = useState(true);
+  const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
+  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+
+  const dimensionToZone: Record<string, string> = {
+    risk: 'outerGlow',
+    complexity: 'mainShape',
+    stakeholder: 'mainShape',
+    cultural: 'culturalOverlay',
+    organizational: 'culturalOverlay',
+    knowledge: 'innerPattern',
+    development: 'coreGlow',
+    temporal: 'mainShape',
+    change: 'mainShape'
+  };
+
+  useEffect(() => {
+    if (selectedDimension) {
+      setSelectedZone(dimensionToZone[selectedDimension]);
+    } else {
+      setSelectedZone(null);
+    }
+  }, [selectedDimension]);
   
   useEffect(() => {
     const loadArchetype = async () => {
@@ -126,7 +148,12 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
           {/* Left: Blob Canvas */}
           <div className="relative flex flex-col items-center">
             <div className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
-              <ReactP5Wrapper sketch={blobSketch} blobData={blobData} onHover={handleHover} />
+              <ReactP5Wrapper 
+                sketch={blobSketch} 
+                blobData={blobData} 
+                onHover={handleHover}
+                selectedZone={selectedZone}
+              />
               
               {/* Floating tooltip */}
               {hoveredZone && zoneInfo && zoneStyle && (
@@ -186,49 +213,36 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
           <div className="space-y-3">
             <h3 className="font-semibold text-lg mb-4">{t('visualizations.blob.properties')}</h3>
             
-            {/* Color/Risk Legend */}
-            <Card className="bg-muted/20 border-muted mb-4">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">{t('visualizations.blob.riskGuide.title')}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1.5 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span>{t('visualizations.blob.riskGuide.low')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-orange-400" />
-                  <span>{t('visualizations.blob.riskGuide.moderate')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-orange-600" />
-                  <span className="flex items-center gap-1">
-                    {t('visualizations.blob.riskGuide.high')}
-                    <Badge variant="outline" className="ml-1 text-[10px] px-1 py-0">{t('visualizations.blob.riskGuide.yourProject')}</Badge>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-600" />
-                  <span>{t('visualizations.blob.riskGuide.extreme')}</span>
-                </div>
-              </CardContent>
-            </Card>
-            
             <div className="space-y-2">
+              <StatusRow
+                label={t('visualizations.blob.vars.risk')}
+                value={morphology.risk}
+                detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`}
+                visualColor={getDimensionVisuals('risk', blobData).color}
+                visualIcon={getDimensionVisuals('risk', blobData).icon}
+                glowIntensity={blobData.outerGlowIntensity}
+                isSelected={selectedDimension === 'risk'}
+                onClick={() => setSelectedDimension(selectedDimension === 'risk' ? null : 'risk')}
+              />
+              
               <StatusRow
                 label={t('visualizations.blob.vars.complexity')}
                 value={morphology.complexity}
-                detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`}
+                detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`}
                 visualColor={getDimensionVisuals('complexity', blobData).color}
                 visualIcon={getDimensionVisuals('complexity', blobData).icon}
+                isSelected={selectedDimension === 'complexity'}
+                onClick={() => setSelectedDimension(selectedDimension === 'complexity' ? null : 'complexity')}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.stakeholder')}
                 value={morphology.stakeholder}
-                detail={`${blobData.arms} ${t('visualizations.blob.vars.arms')}`}
+                detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`}
                 visualColor={getDimensionVisuals('stakeholder', blobData).color}
                 visualIcon={getDimensionVisuals('stakeholder', blobData).icon}
+                isSelected={selectedDimension === 'stakeholder'}
+                onClick={() => setSelectedDimension(selectedDimension === 'stakeholder' ? null : 'stakeholder')}
               />
               
               <StatusRow
@@ -238,78 +252,53 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualColor={getDimensionVisuals('knowledge', blobData).color}
                 visualIcon={getDimensionVisuals('knowledge', blobData).icon}
                 visualPattern={blobData.innerPattern}
+                isSelected={selectedDimension === 'knowledge'}
+                onClick={() => setSelectedDimension(selectedDimension === 'knowledge' ? null : 'knowledge')}
+              />
+              
+              <StatusRow
+                label={t('visualizations.blob.vars.cultural')}
+                value={morphology.cultural}
+                detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`}
+                visualColor={getDimensionVisuals('cultural', blobData).color}
+                visualIcon={getDimensionVisuals('cultural', blobData).icon}
+                isSelected={selectedDimension === 'cultural'}
+                onClick={() => setSelectedDimension(selectedDimension === 'cultural' ? null : 'cultural')}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.organizational')}
                 value={morphology.organizational}
-                detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`}
+                detail={`${t('visualizations.blob.vars.symmetry')}: ${(blobData.symmetry * 100).toFixed(0)}%`}
                 visualColor={getDimensionVisuals('organizational', blobData).color}
                 visualIcon={getDimensionVisuals('organizational', blobData).icon}
+                isSelected={selectedDimension === 'organizational'}
+                onClick={() => setSelectedDimension(selectedDimension === 'organizational' ? null : 'organizational')}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.temporal')}
                 value={morphology.temporal}
-                detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed}s`}
+                detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`}
                 visualColor={getDimensionVisuals('temporal', blobData).color}
                 visualIcon={getDimensionVisuals('temporal', blobData).icon}
+                isSelected={selectedDimension === 'temporal'}
+                onClick={() => setSelectedDimension(selectedDimension === 'temporal' ? null : 'temporal')}
               />
               
               <StatusRow
-                label={t('visualizations.blob.vars.change')}
-                value={morphology.change}
-                detail={`${t('visualizations.blob.vars.rotation')}: ${blobData.rotationSpeed}°/s`}
-                visualColor={getDimensionVisuals('change', blobData).color}
-                visualIcon={getDimensionVisuals('change', blobData).icon}
-              />
-              
-              <StatusRow
-                label={t('visualizations.blob.vars.risk')}
-                value={morphology.risk}
-                detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`}
-                visualColor={getDimensionVisuals('risk', blobData).color}
-                visualIcon={getDimensionVisuals('risk', blobData).icon}
-                glowIntensity={blobData.outerGlowIntensity}
+                label={t('visualizations.blob.vars.development')}
+                value={morphology.development}
+                detail={`${t('visualizations.blob.vars.coreGlow')}: ${(blobData.coreGlow * 100).toFixed(0)}%`}
+                visualColor={getDimensionVisuals('development', blobData).color}
+                visualIcon={getDimensionVisuals('development', blobData).icon}
+                glowIntensity={blobData.coreGlow}
+                isSelected={selectedDimension === 'development'}
+                onClick={() => setSelectedDimension(selectedDimension === 'development' ? null : 'development')}
               />
             </div>
           </div>
         </div>
-        
-        {/* Color/Risk Legend */}
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              🎨 {t('visualizations.blob.riskGuide.title')}
-            </CardTitle>
-            <CardDescription className="text-xs mt-2">
-              {t('visualizations.blob.riskGuide.layeredNote')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 rounded-full bg-green-500"></div>
-              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.low')}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.moderate')}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#ff8c42' }}></div>
-              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.high')}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 rounded-full bg-red-500"></div>
-              <span className="text-muted-foreground">{t('visualizations.blob.riskGuide.extreme')}</span>
-            </div>
-            <div className="h-px bg-border my-3"></div>
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: blobData.outerGlowColor }}></div>
-              <span>{t('visualizations.blob.riskGuide.yourProject')}</span>
-            </div>
-          </CardContent>
-        </Card>
         
         {/* How to Read Guide */}
         <Card className="mt-6">
@@ -404,13 +393,24 @@ interface StatusRowProps {
   visualIcon?: string;
   visualPattern?: string;
   glowIntensity?: number;
+  isSelected?: boolean;
+  onClick?: () => void;
 }
 
 function StatusRow(props: StatusRowProps) {
   const { t } = useTranslation();
   
   return (
-    <div className="group hover:bg-muted/30 transition-colors rounded-lg p-3 border border-transparent hover:border-border">
+    <div 
+      onClick={props.onClick}
+      className={`
+        group transition-all rounded-lg p-3 border 
+        ${props.isSelected 
+          ? 'bg-accent border-accent-foreground shadow-lg scale-105' 
+          : 'hover:bg-muted/30 border-transparent hover:border-border cursor-pointer'
+        }
+      `}
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           {/* Visual Indicator */}
