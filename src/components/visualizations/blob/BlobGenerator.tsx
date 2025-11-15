@@ -109,15 +109,20 @@ function drawOuterGlow(p5: any, data: BlobVisualData, radius: number, isSelected
   
   // SELECTION HIGHLIGHT
   if (isSelected) {
-    const pulseAlpha = 150 + 105 * p5.sin(p5.frameCount * 0.15);
+    const pulseAlpha = 180 + 75 * p5.sin(p5.frameCount * 0.15);
+    
     p5.noFill();
-    p5.stroke(255, 220, 0, pulseAlpha);
-    p5.strokeWeight(6);
+    p5.stroke(0, 50, 50, pulseAlpha * 0.8);
+    p5.strokeWeight(16);
     p5.circle(0, 0, radius * 1.5);
     
-    p5.stroke(255, 220, 0, pulseAlpha * 0.5);
-    p5.strokeWeight(10);
-    p5.circle(0, 0, radius * 1.55);
+    p5.stroke(0, 255, 255, pulseAlpha);
+    p5.strokeWeight(12);
+    p5.circle(0, 0, radius * 1.5);
+    
+    p5.stroke(0, 255, 255, pulseAlpha * 0.6);
+    p5.strokeWeight(8);
+    p5.circle(0, 0, radius * 1.45);
   }
   
   if (data.outerGlowIntensity <= 0) return;
@@ -183,10 +188,10 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
   
   // DROP SHADOW (3D effect)
   p5.push();
-  p5.drawingContext.shadowBlur = 25;
-  p5.drawingContext.shadowColor = 'rgba(0, 0, 0, 0.25)';
-  p5.drawingContext.shadowOffsetX = 8;
-  p5.drawingContext.shadowOffsetY = 8;
+  p5.drawingContext.shadowBlur = 35;
+  p5.drawingContext.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  p5.drawingContext.shadowOffsetX = 15;
+  p5.drawingContext.shadowOffsetY = 15;
   
   p5.colorMode(p5.HSB, 360, 100, 100);
   p5.fill(h, s, b, 80);
@@ -228,14 +233,14 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
   
   peaks.forEach(peak => {
     const highlightGradient = p5.drawingContext.createRadialGradient(
-      peak.x - 3, peak.y - 3, 0,
-      peak.x, peak.y, 18
+      peak.x - 4, peak.y - 4, 0,
+      peak.x, peak.y, 24
     );
-    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
     highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
     
     p5.drawingContext.fillStyle = highlightGradient;
-    p5.circle(peak.x, peak.y, 30);
+    p5.circle(peak.x, peak.y, 45);
   });
   p5.pop();
   
@@ -428,10 +433,17 @@ function drawCulturalGradient(p5: any, data: BlobVisualData, radius: number, isS
   
   // SELECTION HIGHLIGHT
   if (isSelected) {
-    const pulseAlpha = 100 + 70 * p5.sin(p5.frameCount * 0.1);
+    const pulseAlpha = 140 + 80 * p5.sin(p5.frameCount * 0.1);
+    
+    // Mørk outline
     p5.noFill();
-    p5.stroke(255, 220, 0, pulseAlpha);
-    p5.strokeWeight(4);
+    p5.stroke(0, 50, 50, pulseAlpha * 0.8);
+    p5.strokeWeight(13);
+    p5.circle(0, 0, radius * 0.85);
+    
+    // Cyan highlight
+    p5.stroke(0, 255, 255, pulseAlpha);
+    p5.strokeWeight(9);
     p5.circle(0, 0, radius * 0.85);
   }
   
