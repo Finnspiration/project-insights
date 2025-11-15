@@ -9,6 +9,7 @@ import { WeatherForecast } from './weather/WeatherForecast';
 import { LayerControls } from './weather/LayerControls';
 import { WindPatterns } from './weather/WindPatterns';
 import { PressureSystems } from './weather/PressureSystems';
+import { PressureLegend } from './weather/PressureLegend';
 import { PrecipitationEvents } from './weather/PrecipitationEvents';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 
@@ -91,7 +92,10 @@ export function CulturalWeatherMap({
 
           {/* Layer 3: Pressure Systems (toggleable) */}
           {layers.pressureSystems && (
-            <PressureSystems systems={weatherData.pressureSystems} />
+            <>
+              <PressureSystems systems={weatherData.pressureSystems} />
+              {showPanels && <PressureLegend />}
+            </>
           )}
 
           {/* Layer 4: Temperature Zones (toggleable) */}
