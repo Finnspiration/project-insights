@@ -187,13 +187,17 @@ Vær indsigtsfuld, kortfattet og hjælpsom. Referer til specifikke PRISM-koncept
           : `\n\nCurrent project: ${projectName}\nDNA Code: ${project.dna_code || 'Not assessed yet'}`;
       }
       
-      // **NEW: Fetch project documents**
-      const { data: documents } = await supabase
+      // **NEW: Fetch project documents using admin client (bypasses RLS)**
+      const { data: documents, error: docError } = await supabaseAdmin
         .from('documents')
         .select('filename, content, metadata, processed')
         .eq('project_id', context.projectId)
         .eq('processed', true)
         .order('uploaded_at', { ascending: false });
+      
+      if (docError) {
+        console.error('Document fetch error:', docError);
+      }
       
       if (documents && documents.length > 0) {
         const docList = documents.map(doc => {
