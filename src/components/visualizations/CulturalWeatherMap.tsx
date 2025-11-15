@@ -39,6 +39,8 @@ export function CulturalWeatherMap({
     forecast: true,
   });
 
+  const [showAllLayers, setShowAllLayers] = useState(true);
+
   // Use default IDG profile if not provided
   const defaultIDG = {
     being: 5,
@@ -59,6 +61,29 @@ export function CulturalWeatherMap({
 
   const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
+  };
+
+  const handleToggleAll = () => {
+    if (showAllLayers) {
+      // Hide all layers
+      setLayers({
+        windPatterns: false,
+        pressureSystems: false,
+        temperatureZones: false,
+        precipitation: false,
+        forecast: false,
+      });
+    } else {
+      // Show all layers
+      setLayers({
+        windPatterns: true,
+        pressureSystems: true,
+        temperatureZones: true,
+        precipitation: true,
+        forecast: true,
+      });
+    }
+    setShowAllLayers(!showAllLayers);
   };
 
   return (
@@ -101,7 +126,12 @@ export function CulturalWeatherMap({
           {layers.forecast && <WeatherForecast forecast={weatherData.forecast} />}
 
           {/* Layer Controls */}
-          <LayerControls layers={layers} onLayerToggle={handleLayerToggle} />
+          <LayerControls 
+            layers={layers} 
+            onLayerToggle={handleLayerToggle}
+            showAllLayers={showAllLayers}
+            onToggleAll={handleToggleAll}
+          />
         </div>
       </CardContent>
     </Card>
