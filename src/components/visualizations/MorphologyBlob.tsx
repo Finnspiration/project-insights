@@ -14,23 +14,26 @@ import { useArchetype } from '@/hooks/useArchetype';
 import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
 interface MorphologyBlobProps {
   morphology: any;
   projectId?: string;
   onMorphologyUpdate?: () => void;
 }
 
+// State machine for view modes - eliminates race conditions
+type ViewMode = 
+  | { type: 'idle' }
+  | { type: 'viewing_tooltip', dimensionKey: string, zone: string }
+  | { type: 'editing', dimensionKey: string, tempValue: string };
+
 export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: MorphologyBlobProps) {
   const { t, i18n } = useTranslation('common');
   const blobData = mapMorphologyToBlob(morphology);
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
-  const [selectedZone, setSelectedZone] = useState<string | null>(null);
-  const [showZoneTooltip, setShowZoneTooltip] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>({ type: 'idle' });
   const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
-  const [editingDimension, setEditingDimension] = useState<string | null>(null);
-  const [tempValue, setTempValue] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const blobContainerRef = useRef<HTMLDivElement>(null);
   
@@ -111,20 +114,27 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     
     return position;
   };
+  
+  // Computed values derived from viewMode - eliminates race conditions
+  const selectedDimension = viewMode.type !== 'idle' ? viewMode.dimensionKey : null;
+  const selectedZone = viewMode.type === 'viewing_tooltip' ? viewMode.zone : null;
+  const showZoneTooltip = viewMode.type === 'viewing_tooltip';
+  const editingDimension = viewMode.type === 'editing' ? viewMode.dimensionKey : null;
+  const tempValue = viewMode.type === 'editing' ? viewMode.tempValue : '';
+
   // Click outside handler to close tooltip
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showZoneTooltip && 
+      if (viewMode.type === 'viewing_tooltip' && 
           blobContainerRef.current && 
           !blobContainerRef.current.contains(event.target as Node)) {
-        setShowZoneTooltip(false);
-        setSelectedDimension(null);
+        setViewMode({ type: 'idle' });
       }
     };
     
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showZoneTooltip]);
+  }, [viewMode]);
   if (!morphology) {
     return <Card>
         <CardHeader>
@@ -147,6 +157,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   if (!archetype) {
     return null;
   }
+
   const handleHover = (zone: string | null, x: number, y: number) => {
     setHoveredZone(zone);
     setTooltipPosition({
@@ -156,13 +167,13 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   };
   
   const handleSaveQuickEdit = async () => {
-    if (!projectId || !editingDimension || !tempValue) return;
+    if (!projectId || viewMode.type !== 'editing') return;
     
     setIsSaving(true);
     
     const updatedMorphology = {
       ...morphology,
-      [editingDimension]: tempValue
+      [viewMode.dimensionKey]: viewMode.tempValue
     };
     
     try {
@@ -174,8 +185,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
       if (error) throw error;
       
       toast.success(t('morphology.updateSuccess') || 'Morphology updated!');
-      setEditingDimension(null);
-      setTempValue('');
+      setViewMode({ type: 'idle' });
       
       // Trigger refresh
       if (onMorphologyUpdate) {
@@ -190,44 +200,34 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   };
 
   const handleCancelEdit = () => {
-    setEditingDimension(null);
-    setTempValue('');
-    // Close tooltip on cancel
-    setShowZoneTooltip(false);
-    setSelectedZone(null);
+    setViewMode({ type: 'idle' });
   };
   
-  // Helper function to handle dimension click  
+  // State machine-based dimension click handler - eliminates race conditions
   const handleDimensionClick = (dimensionKey: string) => {
-    if (editingDimension === dimensionKey) {
-      handleCancelEdit();
+    // If already editing this dimension, cancel
+    if (viewMode.type === 'editing' && viewMode.dimensionKey === dimensionKey) {
+      setViewMode({ type: 'idle' });
       return;
     }
     
-    // If already selected and projectId exists, start editing
-    if (projectId && selectedDimension === dimensionKey) {
-      setEditingDimension(dimensionKey);
-      setTempValue(morphology[dimensionKey] || '');
-      // Close tooltip when editing starts
-      setShowZoneTooltip(false);
-      setSelectedZone(null);
+    // If viewing tooltip for this dimension and projectId exists, start editing
+    if (viewMode.type === 'viewing_tooltip' && viewMode.dimensionKey === dimensionKey && projectId) {
+      setViewMode({ 
+        type: 'editing', 
+        dimensionKey, 
+        tempValue: morphology[dimensionKey] || '' 
+      });
       return;
     }
     
-    // Toggle selection
-    const newDimension = selectedDimension === dimensionKey ? null : dimensionKey;
-    setSelectedDimension(newDimension);
-    
-    if (newDimension && blobContainerRef.current) {
-      const zone = dimensionToZone[newDimension];
-      setSelectedZone(zone);
+    // First click or switching dimensions - show tooltip
+    const zone = dimensionToZone[dimensionKey];
+    if (blobContainerRef.current) {
       const position = calculateZonePosition(zone, blobContainerRef.current);
       setZoneTooltipPosition(position);
-      setShowZoneTooltip(true);
-    } else {
-      setShowZoneTooltip(false);
-      setSelectedZone(null);
     }
+    setViewMode({ type: 'viewing_tooltip', dimensionKey, zone });
   };
 
 
@@ -320,10 +320,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                     >
                       {/* Close button */}
                       <button
-                        onClick={() => {
-                          setShowZoneTooltip(false);
-                          setSelectedDimension(null);
-                        }}
+                        onClick={() => setViewMode({ type: 'idle' })}
                         className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors"
                       >
                         <X className="w-4 h-4" />
@@ -419,11 +416,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 visualColor={getDimensionVisuals('risk', blobData).color} 
                 visualIcon={getDimensionVisuals('risk', blobData).icon} 
                 glowIntensity={blobData.outerGlowIntensity} 
-                isSelected={selectedDimension === 'risk'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'risk'} 
                 dimensionKey="risk"
-                isEditing={editingDimension === 'risk'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'risk'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'risk' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -436,11 +437,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`} 
                 visualColor={getDimensionVisuals('complexity', blobData).color} 
                 visualIcon={getDimensionVisuals('complexity', blobData).icon} 
-                isSelected={selectedDimension === 'complexity'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'complexity'} 
                 dimensionKey="complexity"
-                isEditing={editingDimension === 'complexity'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'complexity'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'complexity' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -453,11 +458,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`} 
                 visualColor={getDimensionVisuals('stakeholder', blobData).color} 
                 visualIcon={getDimensionVisuals('stakeholder', blobData).icon} 
-                isSelected={selectedDimension === 'stakeholder'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'stakeholder'} 
                 dimensionKey="stakeholder"
-                isEditing={editingDimension === 'stakeholder'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'stakeholder'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'stakeholder' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -471,11 +480,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 visualColor={getDimensionVisuals('knowledge', blobData).color} 
                 visualIcon={getDimensionVisuals('knowledge', blobData).icon} 
                 visualPattern={blobData.innerPattern} 
-                isSelected={selectedDimension === 'knowledge'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'knowledge'} 
                 dimensionKey="knowledge"
-                isEditing={editingDimension === 'knowledge'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'knowledge'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'knowledge' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -488,11 +501,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`} 
                 visualColor={getDimensionVisuals('cultural', blobData).color} 
                 visualIcon={getDimensionVisuals('cultural', blobData).icon} 
-                isSelected={selectedDimension === 'cultural'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'cultural'} 
                 dimensionKey="cultural"
-                isEditing={editingDimension === 'cultural'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'cultural'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'cultural' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -505,11 +522,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`} 
                 visualColor={getDimensionVisuals('organizational', blobData).color} 
                 visualIcon={getDimensionVisuals('organizational', blobData).icon} 
-                isSelected={selectedDimension === 'organizational'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'organizational'} 
                 dimensionKey="organizational"
-                isEditing={editingDimension === 'organizational'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'organizational'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'organizational' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -522,11 +543,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`} 
                 visualColor={getDimensionVisuals('temporal', blobData).color} 
                 visualIcon={getDimensionVisuals('temporal', blobData).icon} 
-                isSelected={selectedDimension === 'temporal'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'temporal'} 
                 dimensionKey="temporal"
-                isEditing={editingDimension === 'temporal'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'temporal'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'temporal' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
@@ -540,11 +565,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 visualColor={getDimensionVisuals('development', blobData).color} 
                 visualIcon={getDimensionVisuals('development', blobData).icon} 
                 glowIntensity={blobData.coreGlow} 
-                isSelected={selectedDimension === 'development'} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'development'} 
                 dimensionKey="development"
-                isEditing={editingDimension === 'development'}
-                tempValue={tempValue}
-                onTempValueChange={setTempValue}
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'development'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'development' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
                 isSaving={isSaving}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
