@@ -53,17 +53,21 @@ serve(async (req) => {
           .eq('project_id', projectId)
           .not('content', 'is', null);
 
-        // Build full document text for AI context (limit to 50k chars total)
+        // Build full document text for AI context - distribute 50k budget proportionally
         if (!docsError && documents && documents.length > 0) {
           documentMetadata.count = documents.length;
           
-          // Combine full document content (limited)
+          // Distribute 50k character budget equally among all documents
+          const maxCharsPerDoc = Math.floor(50000 / documents.length);
+          
           fullDocumentText = documents
-            .map((doc: any) => `\n\n=== ${doc.filename} ===\n${doc.content}`)
-            .join('\n')
-            .slice(0, 50000); // Limit to 50k characters total
+            .map((doc: any) => {
+              const truncatedContent = doc.content.slice(0, maxCharsPerDoc);
+              return `\n\n=== ${doc.filename} ===\n${truncatedContent}`;
+            })
+            .join('\n');
             
-          console.log(`Prepared ${fullDocumentText.length} characters of document text for AI from ${documentMetadata.count} documents`);
+          console.log(`Prepared ${fullDocumentText.length} characters of document text for AI from ${documentMetadata.count} documents (~${maxCharsPerDoc} chars per doc)`);
           
           // Extract excerpts for metadata
           documentMetadata.excerpts = documents
@@ -194,7 +198,7 @@ KRITISK: Generer indsigter MED SPECIFIKKE CITATER fra de uploadede dokumenter ov
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "openai/gpt-5-mini", // Use GPT-5-mini for better schema enforcement
         messages: [
           { role: "system", content: systemPrompts[language as keyof typeof systemPrompts] || systemPrompts.en },
           { role: "user", content: userPrompts[language as keyof typeof userPrompts] || userPrompts.en }
@@ -311,6 +315,60 @@ KRITISK: Generer indsigter MED SPECIFIKKE CITATER fra de uploadede dokumenter ov
     }
 
     const insights = JSON.parse(toolCall.function.arguments);
+    console.log("Generated insights:", insights);
+
+    // Validation and repair: Extract inline citations from rationale/evidence text
+    if (insights.recommendations) {
+      insights.recommendations = insights.recommendations.map((rec: any) => {
+        // Check if rationale contains inline JSON citations
+        if (rec.rationale && (rec.rationale.includes("{'document':") || rec.rationale.includes('{"document":'))) {
+          console.warn(`Detected inline JSON in rationale for: ${rec.title}`);
+          
+          // Extract inline citations using regex (handles both single and double quotes)
+          const citationRegex = /\{['"]document['"]\s*:\s*['"]([^'"]+)['"],\s*['"]quote['"]\s*:\s*['"]([^'"]+)['"]\}/g;
+          const matches = [...rec.rationale.matchAll(citationRegex)];
+          
+          if (matches.length > 0 && (!rec.citations || rec.citations.length === 0)) {
+            rec.citations = matches.map((m: any) => ({
+              document: m[1],
+              quote: m[2]
+            }));
+            console.log(`Extracted ${matches.length} inline citations for recommendation: ${rec.title}`);
+          }
+          
+          // Clean rationale text (remove inline JSON)
+          rec.rationale = rec.rationale.replace(citationRegex, '').trim();
+        }
+        
+        return rec;
+      });
+    }
+
+    // Same validation for blind spots
+    if (insights.blindSpots) {
+      insights.blindSpots = insights.blindSpots.map((spot: any) => {
+        // Check if evidence contains inline JSON citations
+        if (spot.evidence && (spot.evidence.includes("{'document':") || spot.evidence.includes('{"document":'))) {
+          console.warn(`Detected inline JSON in evidence for: ${spot.title}`);
+          
+          const citationRegex = /\{['"]document['"]\s*:\s*['"]([^'"]+)['"],\s*['"]quote['"]\s*:\s*['"]([^'"]+)['"]\}/g;
+          const matches = [...spot.evidence.matchAll(citationRegex)];
+          
+          if (matches.length > 0 && (!spot.citations || spot.citations.length === 0)) {
+            spot.citations = matches.map((m: any) => ({
+              document: m[1],
+              quote: m[2]
+            }));
+            console.log(`Extracted ${matches.length} inline citations for blind spot: ${spot.title}`);
+          }
+          
+          // Clean evidence text (remove inline JSON)
+          spot.evidence = spot.evidence.replace(citationRegex, '').trim();
+        }
+        
+        return spot;
+      });
+    }
     
     // Add document metadata to insights
     insights.documentMetadata = {
