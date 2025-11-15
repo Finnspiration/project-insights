@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CloudRain } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CloudRain, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { BaseClimate } from './weather/BaseClimate';
 import { TemperatureZones } from './weather/TemperatureZones';
@@ -39,7 +40,7 @@ export function CulturalWeatherMap({
     forecast: true,
   });
 
-  const [showAllLayers, setShowAllLayers] = useState(true);
+  const [showPanels, setShowPanels] = useState(true);
 
   // Use default IDG profile if not provided
   const defaultIDG = {
@@ -63,27 +64,8 @@ export function CulturalWeatherMap({
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
-  const handleToggleAll = () => {
-    if (showAllLayers) {
-      // Hide all layers
-      setLayers({
-        windPatterns: false,
-        pressureSystems: false,
-        temperatureZones: false,
-        precipitation: false,
-        forecast: false,
-      });
-    } else {
-      // Show all layers
-      setLayers({
-        windPatterns: true,
-        pressureSystems: true,
-        temperatureZones: true,
-        precipitation: true,
-        forecast: true,
-      });
-    }
-    setShowAllLayers(!showAllLayers);
+  const handleTogglePanels = () => {
+    setShowPanels(!showPanels);
   };
 
   return (
@@ -123,15 +105,30 @@ export function CulturalWeatherMap({
           )}
 
           {/* Layer 6: Forecast (toggleable) */}
-          {layers.forecast && <WeatherForecast forecast={weatherData.forecast} />}
+          {layers.forecast && showPanels && <WeatherForecast forecast={weatherData.forecast} />}
 
           {/* Layer Controls */}
-          <LayerControls 
-            layers={layers} 
-            onLayerToggle={handleLayerToggle}
-            showAllLayers={showAllLayers}
-            onToggleAll={handleToggleAll}
-          />
+          {showPanels && (
+            <LayerControls 
+              layers={layers} 
+              onLayerToggle={handleLayerToggle}
+              showPanels={showPanels}
+              onTogglePanels={handleTogglePanels}
+            />
+          )}
+
+          {/* Master Toggle (always visible) */}
+          {!showPanels && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleTogglePanels}
+              className="absolute bottom-4 left-4 shadow-lg"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Vis paneler
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
