@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, RefreshCw, TrendingDown, TrendingUp, AlertCircle, BookOpen, MapPin, Lightbulb, BarChart3, FileText, ExternalLink, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Loader2, RefreshCw, TrendingDown, TrendingUp, AlertCircle, BookOpen, MapPin, Lightbulb, BarChart3, FileText, ExternalLink, ChevronDown, ChevronUp, X, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
 
 interface UJourneyTimelineProps {
@@ -32,7 +33,11 @@ interface TheoryUAnalysis {
       value: string;
       reasoning: string;
     }>;
-    documentEvidence?: string[];
+    documentEvidence?: Array<{
+      text: string;
+      relevance: number;
+      source?: string;
+    }>;
     documentStatus?: 'processing' | 'ready' | 'none';
     processingFiles?: string[];
   };
@@ -103,6 +108,8 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
+  const [favoriteQuotes, setFavoriteQuotes] = useState<Set<string>>(new Set());
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Helper function to transform Theory U data structure
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
@@ -141,6 +148,89 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       readinessIndicators: data.readinessIndicators,
       theoryUResources: data.theoryUResources || []
     };
+  };
+
+  // Fetch user ID and favorite quotes
+  useEffect(() => {
+    const fetchUserAndFavorites = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        
+        // Fetch existing favorites for this project
+        const { data: favorites } = await supabase
+          .from('favorite_quotes')
+          .select('quote_text')
+          .eq('user_id', user.id)
+          .eq('project_id', projectId);
+        
+        if (favorites) {
+          setFavoriteQuotes(new Set(favorites.map(f => f.quote_text)));
+        }
+      }
+    };
+    
+    fetchUserAndFavorites();
+  }, [projectId]);
+
+  const handleToggleFavorite = async (quote: { text: string; relevance: number; source?: string }) => {
+    if (!userId) return;
+    
+    const isFavorite = favoriteQuotes.has(quote.text);
+    
+    if (isFavorite) {
+      // Remove from favorites
+      const { error } = await supabase
+        .from('favorite_quotes')
+        .delete()
+        .eq('user_id', userId)
+        .eq('project_id', projectId)
+        .eq('quote_text', quote.text);
+      
+      if (!error) {
+        setFavoriteQuotes(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(quote.text);
+          return newSet;
+        });
+        toast({
+          title: t('visualizations.theoryU.removedFromFavorites'),
+          description: t('visualizations.theoryU.removedFromFavoritesDesc')
+        });
+      } else {
+        toast({
+          title: t('common.error'),
+          description: t('visualizations.theoryU.favoriteFailed'),
+          variant: 'destructive'
+        });
+      }
+    } else {
+      // Add to favorites
+      const { error } = await supabase
+        .from('favorite_quotes')
+        .insert({
+          user_id: userId,
+          project_id: projectId,
+          quote_text: quote.text,
+          relevance_score: quote.relevance,
+          theory_u_phase: analysis?.position || 'unknown',
+          source_document: quote.source
+        });
+      
+      if (!error) {
+        setFavoriteQuotes(prev => new Set(prev).add(quote.text));
+        toast({
+          title: t('visualizations.theoryU.addedToFavorites'),
+          description: t('visualizations.theoryU.addedToFavoritesDesc')
+        });
+      } else {
+        toast({
+          title: t('common.error'),
+          description: t('visualizations.theoryU.favoriteFailed'),
+          variant: 'destructive'
+        });
+      }
+    }
   };
 
   const handleRejectQuote = async (index: number) => {
@@ -670,21 +760,53 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                 <div className="space-y-3">
                   {analysis.whyHere.documentEvidence
                     .slice(0, showAllQuotes ? undefined : 3)
-                    .map((quote: string, idx: number) => (
-                      <div key={idx} className="group relative p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm hover:shadow-md transition-shadow">
-                        <p className="text-sm italic leading-relaxed text-foreground pr-8">
-                          "{quote}"
-                        </p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleRejectQuote(idx)}
-                        >
-                          <X className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    ))}
+                    .map((quote: { text: string; relevance: number; source?: string }, idx: number) => {
+                      const isFavorite = favoriteQuotes.has(quote.text);
+                      const relevanceColor = quote.relevance >= 80 ? 'text-green-600 dark:text-green-400' :
+                                            quote.relevance >= 60 ? 'text-blue-600 dark:text-blue-400' :
+                                            quote.relevance >= 40 ? 'text-yellow-600 dark:text-yellow-400' :
+                                            'text-orange-600 dark:text-orange-400';
+                      
+                      return (
+                        <div key={idx} className="group relative p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm hover:shadow-md transition-shadow">
+                          {/* Relevance indicator */}
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className={`text-xs ${relevanceColor}`}>
+                              {t('visualizations.theoryU.relevance')}: {quote.relevance}%
+                            </Badge>
+                            <Progress value={quote.relevance} className="h-1.5 w-24" />
+                            {quote.source && (
+                              <span className="text-xs text-muted-foreground ml-auto">📄 {quote.source}</span>
+                            )}
+                          </div>
+                          
+                          {/* Quote text */}
+                          <p className="text-sm italic leading-relaxed text-foreground pr-20">
+                            "{quote.text}"
+                          </p>
+                          
+                          {/* Action buttons */}
+                          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleToggleFavorite(quote)}
+                            >
+                              <Star className={`w-4 h-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleRejectQuote(idx)}
+                            >
+                              <X className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   
                   {analysis.whyHere.documentEvidence.length > 3 && (
                     <Button

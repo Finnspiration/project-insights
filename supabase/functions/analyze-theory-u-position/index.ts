@@ -162,15 +162,15 @@ serve(async (req) => {
   }
 });
 
-// Helper function: Generate intelligent quotes using AI
+// Helper function: Generate intelligent quotes with relevance scores using AI
 async function generateIntelligentQuotes(
   documents: any[],
   phase: string,
   language: string,
   apiKey: string
-): Promise<string[]> {
+): Promise<any[]> {
   const combinedContent = documents
-    .map(doc => doc.content)
+    .map(doc => `[${doc.filename}]\n${doc.content}`)
     .join('\n\n---\n\n')
     .substring(0, 15000); // Limit for API
   
@@ -183,7 +183,18 @@ Fokuser på citater der:
 - Er selvstændigt meningsfulde (ikke fragmenter)
 - Er mellem 15-50 ord
 
-Returner BARE citaterne som JSON array af strings, intet andet.
+For HVERT citat, bedøm relevansen (0-100) baseret på hvor godt det understøtter "${phase}" fasen.
+
+Returner JSON objekt med denne struktur:
+{
+  "quotes": [
+    {
+      "text": "citat tekst her",
+      "relevance": 85,
+      "source": "filnavn.pdf"
+    }
+  ]
+}
 
 Dokumenter:
 ${combinedContent}`
@@ -195,7 +206,18 @@ Focus on quotes that:
 - Are self-contained and meaningful (not fragments)
 - Are between 15-50 words
 
-Return ONLY the quotes as a JSON array of strings, nothing else.
+For EACH quote, assess the relevance (0-100) based on how well it supports the "${phase}" phase.
+
+Return JSON object with this structure:
+{
+  "quotes": [
+    {
+      "text": "quote text here",
+      "relevance": 85,
+      "source": "filename.pdf"
+    }
+  ]
+}
 
 Documents:
 ${combinedContent}`;
@@ -222,11 +244,11 @@ ${combinedContent}`;
     }
 
     const data = await response.json();
-    let content = data.choices?.[0]?.message?.content?.trim() || '[]';
+    let content = data.choices?.[0]?.message?.content?.trim() || '{"quotes":[]}';
     content = content.replace(/```json|```/g, '').trim();
     
     const parsed = JSON.parse(content);
-    return Array.isArray(parsed) ? parsed : (parsed.quotes || []);
+    return parsed.quotes || [];
     
   } catch (error) {
     console.error('Quote AI error:', error);
@@ -234,11 +256,15 @@ ${combinedContent}`;
   }
 }
 
-// Fallback if AI fails
-function fallbackQuoteExtraction(documents: any[]): string[] {
+// Fallback if AI fails - returns quotes with default relevance
+function fallbackQuoteExtraction(documents: any[]): any[] {
   return documents.slice(0, 3).flatMap(doc => {
     if (!doc.content) return [];
     const sentences = doc.content.split(/[.!?]+/).filter((s: string) => s.trim().length > 50);
-    return sentences.slice(0, 2).map((s: string) => s.trim() + '.');
+    return sentences.slice(0, 2).map((s: string) => ({
+      text: s.trim() + '.',
+      relevance: 50, // Default medium relevance
+      source: doc.filename
+    }));
   }).slice(0, 6);
 }
