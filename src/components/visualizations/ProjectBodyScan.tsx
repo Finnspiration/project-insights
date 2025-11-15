@@ -50,7 +50,6 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   onHover={() => setHoveredPart('head')}
                   onLeave={() => setHoveredPart(null)}
                 />
-                <Separator />
                 
                 <BodyPartExplanation 
                   part="face" 
@@ -60,7 +59,6 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   onHover={() => setHoveredPart('face')}
                   onLeave={() => setHoveredPart(null)}
                 />
-                <Separator />
                 
                 <BodyPartExplanation 
                   part="shoulders" 
@@ -70,7 +68,6 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   onHover={() => setHoveredPart('shoulders')}
                   onLeave={() => setHoveredPart(null)}
                 />
-                <Separator />
                 
                 <BodyPartExplanation 
                   part="torso" 
@@ -80,7 +77,6 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   onHover={() => setHoveredPart('torso')}
                   onLeave={() => setHoveredPart(null)}
                 />
-                <Separator />
                 
                 <BodyPartExplanation 
                   part="belly" 
@@ -90,7 +86,6 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   onHover={() => setHoveredPart('belly')}
                   onLeave={() => setHoveredPart(null)}
                 />
-                <Separator />
                 
                 <BodyPartExplanation 
                   part="spine" 
@@ -100,7 +95,6 @@ export function ProjectBodyScan({ morphology }: ProjectBodyScanProps) {
                   onHover={() => setHoveredPart('spine')}
                   onLeave={() => setHoveredPart(null)}
                 />
-                <Separator />
                 
                 <BodyPartExplanation 
                   part="legs" 
