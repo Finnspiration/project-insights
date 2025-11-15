@@ -133,6 +133,20 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
     // Read currentPhase directly (it's stored as a string like "crystallizing")
     const rawPhase = data.currentPhase || data.whyHere?.morphologyScoring?.phase || data.position || 'downloading';
     
+    // Transform documentEvidence from old format (string[]) to new format (object[])
+    let documentEvidence = data.whyHere?.documentEvidence;
+    if (documentEvidence && Array.isArray(documentEvidence)) {
+      // Check if it's the old format (strings) or new format (objects)
+      if (documentEvidence.length > 0 && typeof documentEvidence[0] === 'string') {
+        // Old format - convert to new format
+        documentEvidence = documentEvidence.map((text: string) => ({
+          text,
+          relevance: 50, // Default relevance for old data
+          source: undefined
+        }));
+      }
+    }
+    
     return {
       position: mapPhaseToUI(rawPhase),
       confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
@@ -143,7 +157,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         heart: data.diagnostics?.openHeart?.score || data.openMHW?.heart || 0,
         will: data.diagnostics?.openWill?.score || data.openMHW?.will || 0
       },
-      whyHere: data.whyHere,
+      whyHere: {
+        ...data.whyHere,
+        documentEvidence
+      },
       nextActions: Array.isArray(data.nextActions) ? data.nextActions : [],
       readinessIndicators: data.readinessIndicators,
       theoryUResources: data.theoryUResources || []
