@@ -273,6 +273,9 @@
   "morphology": {
     "title": "Morphological Assessment",
     "subtitle": "Characterize your project across 12 key dimensions",
+    "selectOption": "Select an option",
+    "updateSuccess": "Morphology updated successfully",
+    "updateError": "Failed to update morphology",
     "step": "Step",
     "of": "of",
     "next": "Next",
