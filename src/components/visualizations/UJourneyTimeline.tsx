@@ -835,12 +835,7 @@ export function UJourneyTimeline({
 
         {/* Next 3 Actions */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              {t('visualizations.theoryU.nextActions')}
-            </CardTitle>
-          </CardHeader>
+          
           
         </Card>
 
