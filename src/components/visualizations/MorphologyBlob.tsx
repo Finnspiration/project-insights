@@ -140,7 +140,7 @@ export function MorphologyBlob({
         <div className="grid md:grid-cols-2 gap-6">
           {/* Left: Blob Canvas */}
           <div className="relative flex flex-col items-center">
-            <div className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
+            <div ref={blobContainerRef} className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
               <ReactP5Wrapper sketch={blobSketch} blobData={blobData} onHover={handleHover} selectedZone={selectedZone} />
               
               {/* Floating tooltip */}
