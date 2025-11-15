@@ -373,7 +373,7 @@ export function mapTheoryUToForecast(
 // Main mapper function
 export function mapProjectToWeatherData(
   morphology: any,
-  idgProfile: { being: number; thinking: number; relating: number; collaborating: number; acting: number },
+  idgProfile?: { being: number; thinking: number; relating: number; collaborating: number; acting: number },
   theoryUAnalysis?: any,
   recommendations?: any[],
   interventions?: any[],
@@ -391,46 +391,50 @@ export function mapProjectToWeatherData(
     complexity: complexity,
   };
 
+  // Use default IDG profile if not provided
+  const defaultIDG = { being: 5, thinking: 6, relating: 5, collaborating: 6, acting: 5 };
+  const profile = idgProfile || defaultIDG;
+
   // Create 5 temperature regions based on IDG profile
   const temperatureZones: TemperatureRegion[] = [
     {
       id: 'being',
       name: 'Væren',
-      score: idgProfile.being,
-      temperature: mapIDGScoreToTemperature(idgProfile.being),
-      color: getTemperatureColor(mapIDGScoreToTemperature(idgProfile.being)),
+      score: profile.being,
+      temperature: mapIDGScoreToTemperature(profile.being),
+      color: getTemperatureColor(mapIDGScoreToTemperature(profile.being)),
       position: { x: 20, y: 20 }, // NW
     },
     {
       id: 'thinking',
       name: 'Tænkning',
-      score: idgProfile.thinking,
-      temperature: mapIDGScoreToTemperature(idgProfile.thinking),
-      color: getTemperatureColor(mapIDGScoreToTemperature(idgProfile.thinking)),
+      score: profile.thinking,
+      temperature: mapIDGScoreToTemperature(profile.thinking),
+      color: getTemperatureColor(mapIDGScoreToTemperature(profile.thinking)),
       position: { x: 80, y: 20 }, // NE
     },
     {
       id: 'relating',
       name: 'Relationsdannelse',
-      score: idgProfile.relating,
-      temperature: mapIDGScoreToTemperature(idgProfile.relating),
-      color: getTemperatureColor(mapIDGScoreToTemperature(idgProfile.relating)),
+      score: profile.relating,
+      temperature: mapIDGScoreToTemperature(profile.relating),
+      color: getTemperatureColor(mapIDGScoreToTemperature(profile.relating)),
       position: { x: 50, y: 50 }, // Center
     },
     {
       id: 'collaborating',
       name: 'Samarbejde',
-      score: idgProfile.collaborating,
-      temperature: mapIDGScoreToTemperature(idgProfile.collaborating),
-      color: getTemperatureColor(mapIDGScoreToTemperature(idgProfile.collaborating)),
+      score: profile.collaborating,
+      temperature: mapIDGScoreToTemperature(profile.collaborating),
+      color: getTemperatureColor(mapIDGScoreToTemperature(profile.collaborating)),
       position: { x: 20, y: 80 }, // SW
     },
     {
       id: 'acting',
       name: 'Handling',
-      score: idgProfile.acting,
-      temperature: mapIDGScoreToTemperature(idgProfile.acting),
-      color: getTemperatureColor(mapIDGScoreToTemperature(idgProfile.acting)),
+      score: profile.acting,
+      temperature: mapIDGScoreToTemperature(profile.acting),
+      color: getTemperatureColor(mapIDGScoreToTemperature(profile.acting)),
       position: { x: 80, y: 80 }, // SE
     },
   ];
