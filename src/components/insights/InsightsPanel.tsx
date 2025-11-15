@@ -237,8 +237,8 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
                         {userLanguage === 'da' ? 'Dokumentkilder:' : 'Document Sources:'}
                       </p>
                       {rec.citations.map((citation, idx) => (
-                        <div key={idx} className="pl-3 border-l-2 border-primary/30">
-                          <p className="text-xs font-medium text-foreground">{citation.document}</p>
+                        <div key={idx} className="p-3 bg-muted/50 rounded-md border border-border">
+                          <p className="text-xs font-semibold text-primary mb-1">📄 {citation.document}</p>
                           <p className="text-xs text-muted-foreground italic">"{citation.quote}"</p>
                         </div>
                       ))}
@@ -276,8 +276,8 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
                         {userLanguage === 'da' ? 'Dokumentkilder:' : 'Document Sources:'}
                       </p>
                       {spot.citations.map((citation, idx) => (
-                        <div key={idx} className="pl-3 border-l-2 border-destructive/30">
-                          <p className="text-xs font-medium text-foreground">{citation.document}</p>
+                        <div key={idx} className="p-3 bg-muted/50 rounded-md border border-border">
+                          <p className="text-xs font-semibold text-destructive mb-1">📄 {citation.document}</p>
                           <p className="text-xs text-muted-foreground italic">"{citation.quote}"</p>
                         </div>
                       ))}
