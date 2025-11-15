@@ -165,10 +165,10 @@ export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
 ];
 
 export const CATEGORY_COLORS: Record<CategoryType, string> = {
-  context: '220 70% 50%',       // Blue
-  capacity: '280 65% 60%',      // Purple
-  dynamics: '340 75% 55%',      // Pink/Magenta
-  challenge_and_resources: '30 90% 50%',  // Orange
+  context: '220, 70%, 50%',       // Blue
+  capacity: '280, 65%, 60%',      // Purple
+  dynamics: '340, 75%, 55%',      // Pink/Magenta
+  challenge_and_resources: '30, 90%, 50%',  // Orange
 };
 
 export const CATEGORY_ICONS: Record<CategoryType, string> = {
