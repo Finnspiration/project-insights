@@ -744,6 +744,7 @@
       "confident": "Confident",
       "whyThisPhase": "Why This Phase?",
       "morphologyEvidence": "Morphology Evidence",
+      "noMorphologyEvidence": "Morphology evidence will appear here once analysis is complete. Click refresh to regenerate.",
       "documentEvidence": "Document Evidence",
       "documentsProcessing": "Documents processing...",
       "noDocuments": "No documents uploaded yet",
