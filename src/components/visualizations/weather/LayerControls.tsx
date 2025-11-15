@@ -14,17 +14,17 @@ interface LayerControlsProps {
     forecast: boolean;
   };
   onLayerToggle: (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => void;
-  showAllLayers: boolean;
-  onToggleAll: () => void;
+  showPanels: boolean;
+  onTogglePanels: () => void;
 }
 
-export function LayerControls({ layers, onLayerToggle, showAllLayers, onToggleAll }: LayerControlsProps) {
+export function LayerControls({ layers, onLayerToggle, showPanels, onTogglePanels }: LayerControlsProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.3 }}
-      className="absolute bottom-4 left-4"
+      className="absolute bottom-4 left-4 w-80"
     >
       <Card className="bg-background/80 backdrop-blur-sm border-border/50">
         <CardContent className="p-4">
@@ -36,20 +36,11 @@ export function LayerControls({ layers, onLayerToggle, showAllLayers, onToggleAl
             <Button
               variant="ghost"
               size="sm"
-              onClick={onToggleAll}
+              onClick={onTogglePanels}
               className="h-7 px-2 text-xs"
             >
-              {showAllLayers ? (
-                <>
-                  <EyeOff className="h-3 w-3 mr-1" />
-                  Skjul alle
-                </>
-              ) : (
-                <>
-                  <Eye className="h-3 w-3 mr-1" />
-                  Vis alle
-                </>
-              )}
+              <EyeOff className="h-3 w-3 mr-1" />
+              Skjul paneler
             </Button>
           </div>
 
