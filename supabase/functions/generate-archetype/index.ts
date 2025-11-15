@@ -137,6 +137,32 @@ Returner KUN valid JSON:
     
     if (insertError) {
       console.error('Database insert error:', insertError);
+      
+      // If duplicate key error (code 23505), fetch and return existing archetype
+      if (insertError.code === '23505') {
+        console.log('Duplicate key detected during insert, fetching existing archetype');
+        const { data: existingArchetype, error: refetchError } = await supabase
+          .from('morphology_archetypes')
+          .select('*')
+          .eq('morphology_hash', morphologyHash)
+          .single();
+        
+        if (existingArchetype) {
+          // Update usage count
+          await supabase
+            .from('morphology_archetypes')
+            .update({ 
+              usage_count: existingArchetype.usage_count + 1,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingArchetype.id);
+          
+          return new Response(JSON.stringify({ archetype: existingArchetype }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+      }
+      
       throw insertError;
     }
     
