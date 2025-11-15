@@ -192,6 +192,9 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const handleCancelEdit = () => {
     setEditingDimension(null);
     setTempValue('');
+    // Close tooltip on cancel
+    setShowZoneTooltip(false);
+    setSelectedZone(null);
   };
   
   // Helper function to handle dimension click  
@@ -205,6 +208,9 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     if (projectId && selectedDimension === dimensionKey) {
       setEditingDimension(dimensionKey);
       setTempValue(morphology[dimensionKey] || '');
+      // Close tooltip when editing starts
+      setShowZoneTooltip(false);
+      setSelectedZone(null);
       return;
     }
     
