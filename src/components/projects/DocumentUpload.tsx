@@ -489,7 +489,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
                       
                       {/* File info */}
                       <span className="text-muted-foreground text-xs">{formatFileSize(doc.file_size)}</span>
-                      <span className="text-muted-foreground text-xs">{format(new Date(doc.uploaded_at), 'PPp')}</span>
+                      <span className="text-muted-foreground text-xs">{format(new Date(doc.uploaded_at), 'dd/MM/yyyy HH:mm')}</span>
                     </div>
                     
                     {/* Metadata Details */}
