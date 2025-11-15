@@ -205,11 +205,11 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                   ? getDimensionVisuals(selectedDimension, blobData) 
                   : null;
                 
-                // Override zone colors with dimension colors
-                const tooltipBorderColor = dimensionVisuals?.color || zoneStyle.borderColor;
-                const tooltipGradient = dimensionVisuals 
-                  ? `linear-gradient(135deg, ${dimensionVisuals.color}15, ${dimensionVisuals.color}35)`
-                  : zoneStyle.gradient;
+    // Override zone colors with dimension colors
+    const tooltipBorderColor = dimensionVisuals?.color || zoneStyle.borderColor;
+    const tooltipGradient = dimensionVisuals 
+      ? `linear-gradient(135deg, ${dimensionVisuals.color}85, ${dimensionVisuals.color}95)`
+      : zoneStyle.gradient;
                 const tooltipIcon = dimensionVisuals?.icon || zoneStyle.icon;
                 
                 if (!zoneInfo || !zoneStyle) return null;
