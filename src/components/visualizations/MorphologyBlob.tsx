@@ -4,67 +4,88 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { X } from 'lucide-react';
 import { mapMorphologyToBlob } from './blob/blobMapping';
-import { detectArchetype, BlobArchetype } from './blob/blobArchetypes';
 import { blobSketch } from './blob/BlobGenerator';
 import { getZoneStyles, getDimensionVisuals, getPatternPreview } from './blob/colorMapping';
+import { useArchetype } from '@/hooks/useArchetype';
 interface MorphologyBlobProps {
   morphology: any;
 }
-export function MorphologyBlob({
-  morphology
-}: MorphologyBlobProps) {
-  const {
-    t,
-    i18n
-  } = useTranslation();
+export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
+  const { t, i18n } = useTranslation('common');
+  const blobData = mapMorphologyToBlob(morphology);
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({
-    x: 0,
-    y: 0
-  });
-  const [archetype, setArchetype] = useState<BlobArchetype | null>(null);
-  const [isLoadingArchetype, setIsLoadingArchetype] = useState(true);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [showZoneTooltip, setShowZoneTooltip] = useState(false);
   const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
   const blobContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Use React Query for archetype loading - prevents race conditions
+  const { data: archetype, isLoading: isLoadingArchetype } = useArchetype(
+    morphology,
+    i18n.language as 'en' | 'da'
+  );
+
   const dimensionToZone: Record<string, string> = {
     risk: 'outerGlow',
     complexity: 'mainShape',
     stakeholder: 'mainShape',
-    cultural: 'culturalOverlay',
-    organizational: 'culturalOverlay',
     knowledge: 'innerPattern',
-    development: 'coreGlow',
-    temporal: 'mainShape',
-    change: 'mainShape'
+    cultural: 'culturalOverlay',
+    organizational: 'coreGlow',
+    temporal: 'outerGlow',
+    development: 'innerPattern'
   };
-  useEffect(() => {
-    if (selectedDimension) {
-      setSelectedZone(dimensionToZone[selectedDimension]);
-    } else {
-      setSelectedZone(null);
-    }
-  }, [selectedDimension]);
-  useEffect(() => {
-    const loadArchetype = async () => {
-      if (!morphology) return;
-      setIsLoadingArchetype(true);
-      try {
-        const blobData = mapMorphologyToBlob(morphology);
-        const result = await detectArchetype(blobData, morphology, i18n.language as 'en' | 'da');
-        setArchetype(result);
-      } catch (error) {
-        console.error('Error loading archetype:', error);
-      } finally {
-        setIsLoadingArchetype(false);
+
+  // Calculate precise position for zone tooltip based on blob's layout
+  const calculateZonePosition = (zone: string, container: HTMLDivElement) => {
+    const rect = container.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const radius = Math.min(rect.width, rect.height) * 0.35;
+    
+    const positions: Record<string, { x: number; y: number }> = {
+      outerGlow: { 
+        x: centerX, 
+        y: centerY - radius * 1.3  // Top
+      },
+      mainShape: { 
+        x: centerX + radius * 0.9, 
+        y: centerY  // Right
+      },
+      culturalOverlay: { 
+        x: centerX - radius * 0.9, 
+        y: centerY  // Left
+      },
+      innerPattern: { 
+        x: centerX, 
+        y: centerY + radius * 0.9  // Bottom
+      },
+      coreGlow: { 
+        x: centerX, 
+        y: centerY  // Center
       }
     };
-    loadArchetype();
-  }, [morphology, i18n.language]);
+    
+    return positions[zone] || { x: centerX, y: centerY };
+  };
+  // Click outside handler to close tooltip
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showZoneTooltip && 
+          blobContainerRef.current && 
+          !blobContainerRef.current.contains(event.target as Node)) {
+        setShowZoneTooltip(false);
+        setSelectedDimension(null);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showZoneTooltip]);
   if (!morphology) {
     return <Card>
         <CardHeader>
@@ -73,7 +94,7 @@ export function MorphologyBlob({
         </CardHeader>
       </Card>;
   }
-  const blobData = mapMorphologyToBlob(morphology);
+
   if (isLoadingArchetype) {
     return <Card className="w-full">
         <CardHeader>
@@ -146,7 +167,72 @@ export function MorphologyBlob({
             <div ref={blobContainerRef} className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
               <ReactP5Wrapper sketch={blobSketch} blobData={blobData} onHover={handleHover} selectedZone={selectedZone} />
               
-              {/* Floating tooltip */}
+              {/* Persistent Zone Tooltip - shows on dimension click */}
+              {showZoneTooltip && selectedZone && (() => {
+                const zoneInfo = getZoneInfo(selectedZone);
+                const zoneStyle = getZoneStyles(selectedZone, blobData);
+                
+                if (!zoneInfo || !zoneStyle) return null;
+                
+                return (
+                  <div 
+                    className="absolute z-50 animate-in fade-in-0 zoom-in-95 duration-300"
+                    style={{
+                      left: `${zoneTooltipPosition.x}px`,
+                      top: `${zoneTooltipPosition.y}px`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  >
+                    <div 
+                      className="backdrop-blur-md border-2 rounded-xl shadow-2xl p-4 max-w-sm relative"
+                      style={{
+                        borderColor: zoneStyle.borderColor,
+                        background: zoneStyle.gradient
+                      }}
+                    >
+                      {/* Close button */}
+                      <button
+                        onClick={() => {
+                          setShowZoneTooltip(false);
+                          setSelectedDimension(null);
+                        }}
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      
+                      {/* Arrow pointing to zone */}
+                      <div 
+                        className="absolute w-0 h-0 border-8"
+                        style={{
+                          top: '50%',
+                          right: '-16px',
+                          transform: 'translateY(-50%)',
+                          borderColor: `transparent transparent transparent ${zoneStyle.borderColor}`,
+                        }}
+                      />
+                      
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-2xl">{zoneStyle.icon}</span>
+                        <p className="text-base font-bold text-foreground">{zoneInfo.title}</p>
+                      </div>
+                      
+                      <div className="h-0.5 mb-3" style={{ background: zoneStyle.borderColor }} />
+                      
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                        {zoneInfo.description}
+                      </p>
+                      
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: zoneStyle.borderColor }} />
+                        <span className="text-xs font-medium">{zoneInfo.dimension}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+              
+              {/* Hover Tooltip */}
               {hoveredZone && zoneInfo && zoneStyle && <div className="absolute pointer-events-none z-50 animate-tooltip-in" style={{
               left: `${tooltipPosition.x}px`,
               top: `${tooltipPosition.y}px`,
@@ -198,21 +284,200 @@ export function MorphologyBlob({
             
             
             <div className="space-y-2">
-              <StatusRow label={t('visualizations.blob.vars.risk')} value={morphology.risk} detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`} visualColor={getDimensionVisuals('risk', blobData).color} visualIcon={getDimensionVisuals('risk', blobData).icon} glowIntensity={blobData.outerGlowIntensity} isSelected={selectedDimension === 'risk'} onClick={() => setSelectedDimension(selectedDimension === 'risk' ? null : 'risk')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.risk')} 
+                value={morphology.risk} 
+                detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`} 
+                visualColor={getDimensionVisuals('risk', blobData).color} 
+                visualIcon={getDimensionVisuals('risk', blobData).icon} 
+                glowIntensity={blobData.outerGlowIntensity} 
+                isSelected={selectedDimension === 'risk'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'risk' ? null : 'risk';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.complexity')} value={t(`morphology.dimensions.complexity.options.${morphology.complexity}`)} detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`} visualColor={getDimensionVisuals('complexity', blobData).color} visualIcon={getDimensionVisuals('complexity', blobData).icon} isSelected={selectedDimension === 'complexity'} onClick={() => setSelectedDimension(selectedDimension === 'complexity' ? null : 'complexity')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.complexity')} 
+                value={t(`morphology.dimensions.complexity.options.${morphology.complexity}`)} 
+                detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`} 
+                visualColor={getDimensionVisuals('complexity', blobData).color} 
+                visualIcon={getDimensionVisuals('complexity', blobData).icon} 
+                isSelected={selectedDimension === 'complexity'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'complexity' ? null : 'complexity';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.stakeholder')} value={t(`morphology.dimensions.stakeholder.options.${morphology.stakeholder}`)} detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`} visualColor={getDimensionVisuals('stakeholder', blobData).color} visualIcon={getDimensionVisuals('stakeholder', blobData).icon} isSelected={selectedDimension === 'stakeholder'} onClick={() => setSelectedDimension(selectedDimension === 'stakeholder' ? null : 'stakeholder')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.stakeholder')} 
+                value={t(`morphology.dimensions.stakeholder.options.${morphology.stakeholder}`)} 
+                detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`} 
+                visualColor={getDimensionVisuals('stakeholder', blobData).color} 
+                visualIcon={getDimensionVisuals('stakeholder', blobData).icon} 
+                isSelected={selectedDimension === 'stakeholder'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'stakeholder' ? null : 'stakeholder';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.knowledge')} value={t(`morphology.dimensions.knowledge.options.${morphology.knowledge}`)} detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`} visualColor={getDimensionVisuals('knowledge', blobData).color} visualIcon={getDimensionVisuals('knowledge', blobData).icon} visualPattern={blobData.innerPattern} isSelected={selectedDimension === 'knowledge'} onClick={() => setSelectedDimension(selectedDimension === 'knowledge' ? null : 'knowledge')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.knowledge')} 
+                value={t(`morphology.dimensions.knowledge.options.${morphology.knowledge}`)} 
+                detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`} 
+                visualColor={getDimensionVisuals('knowledge', blobData).color} 
+                visualIcon={getDimensionVisuals('knowledge', blobData).icon} 
+                visualPattern={blobData.innerPattern} 
+                isSelected={selectedDimension === 'knowledge'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'knowledge' ? null : 'knowledge';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.cultural')} value={t(`morphology.dimensions.cultural.options.${morphology.cultural}`)} detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`} visualColor={getDimensionVisuals('cultural', blobData).color} visualIcon={getDimensionVisuals('cultural', blobData).icon} isSelected={selectedDimension === 'cultural'} onClick={() => setSelectedDimension(selectedDimension === 'cultural' ? null : 'cultural')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.cultural')} 
+                value={t(`morphology.dimensions.cultural.options.${morphology.cultural}`)} 
+                detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`} 
+                visualColor={getDimensionVisuals('cultural', blobData).color} 
+                visualIcon={getDimensionVisuals('cultural', blobData).icon} 
+                isSelected={selectedDimension === 'cultural'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'cultural' ? null : 'cultural';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.organizational')} value={t(`morphology.dimensions.organizational.options.${morphology.organizational}`)} detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`} visualColor={getDimensionVisuals('organizational', blobData).color} visualIcon={getDimensionVisuals('organizational', blobData).icon} isSelected={selectedDimension === 'organizational'} onClick={() => setSelectedDimension(selectedDimension === 'organizational' ? null : 'organizational')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.organizational')} 
+                value={t(`morphology.dimensions.organizational.options.${morphology.organizational}`)} 
+                detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`} 
+                visualColor={getDimensionVisuals('organizational', blobData).color} 
+                visualIcon={getDimensionVisuals('organizational', blobData).icon} 
+                isSelected={selectedDimension === 'organizational'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'organizational' ? null : 'organizational';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.temporal')} value={t(`morphology.dimensions.temporal.options.${morphology.temporal}`)} detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`} visualColor={getDimensionVisuals('temporal', blobData).color} visualIcon={getDimensionVisuals('temporal', blobData).icon} isSelected={selectedDimension === 'temporal'} onClick={() => setSelectedDimension(selectedDimension === 'temporal' ? null : 'temporal')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.temporal')} 
+                value={t(`morphology.dimensions.temporal.options.${morphology.temporal}`)} 
+                detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`} 
+                visualColor={getDimensionVisuals('temporal', blobData).color} 
+                visualIcon={getDimensionVisuals('temporal', blobData).icon} 
+                isSelected={selectedDimension === 'temporal'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'temporal' ? null : 'temporal';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
               
-              <StatusRow label={t('visualizations.blob.vars.development')} value={t(`morphology.dimensions.development.options.${morphology.development}`)} detail={`${t('visualizations.blob.vars.coreGlow')}: ${(blobData.coreGlow * 100).toFixed(0)}%`} visualColor={getDimensionVisuals('development', blobData).color} visualIcon={getDimensionVisuals('development', blobData).icon} glowIntensity={blobData.coreGlow} isSelected={selectedDimension === 'development'} onClick={() => setSelectedDimension(selectedDimension === 'development' ? null : 'development')} />
+              <StatusRow 
+                label={t('visualizations.blob.vars.development')} 
+                value={t(`morphology.dimensions.development.options.${morphology.development}`)} 
+                detail={`${t('visualizations.blob.vars.coreGlow')}: ${(blobData.coreGlow * 100).toFixed(0)}%`} 
+                visualColor={getDimensionVisuals('development', blobData).color} 
+                visualIcon={getDimensionVisuals('development', blobData).icon} 
+                glowIntensity={blobData.coreGlow} 
+                isSelected={selectedDimension === 'development'} 
+                onClick={() => {
+                  const newDimension = selectedDimension === 'development' ? null : 'development';
+                  setSelectedDimension(newDimension);
+                  
+                  if (newDimension && blobContainerRef.current) {
+                    const zone = dimensionToZone[newDimension];
+                    setSelectedZone(zone);
+                    const position = calculateZonePosition(zone, blobContainerRef.current);
+                    setZoneTooltipPosition(position);
+                    setShowZoneTooltip(true);
+                  } else {
+                    setShowZoneTooltip(false);
+                    setSelectedZone(null);
+                  }
+                }} 
+              />
             </div>
           </div>
         </div>
