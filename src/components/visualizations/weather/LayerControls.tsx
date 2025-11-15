@@ -24,10 +24,10 @@ export function LayerControls({ layers, onLayerToggle, showPanels, onTogglePanel
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.3 }}
-      className="absolute bottom-4 left-4 w-80"
+      className="absolute bottom-4 left-4 min-w-fit"
     >
       <Card className="bg-background/80 backdrop-blur-sm border-border/50">
-        <CardContent className="p-4">
+        <CardContent className="p-4 min-w-[220px]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Layers className="h-4 w-4" />

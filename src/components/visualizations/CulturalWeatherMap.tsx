@@ -117,13 +117,13 @@ export function CulturalWeatherMap({
             />
           )}
 
-          {/* Master Toggle (always visible) */}
+          {/* Master Toggle (always visible when panels hidden) */}
           {!showPanels && (
             <Button
               variant="secondary"
               size="sm"
               onClick={handleTogglePanels}
-              className="absolute bottom-4 left-4 shadow-lg"
+              className="absolute top-4 right-4 shadow-lg"
             >
               <Eye className="h-4 w-4 mr-2" />
               Vis paneler
