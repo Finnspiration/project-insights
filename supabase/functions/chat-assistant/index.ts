@@ -186,6 +186,41 @@ Vær indsigtsfuld, kortfattet og hjælpsom. Referer til specifikke PRISM-koncept
           ? `\n\nAktuelt projekt: ${projectName}\nDNA Kode: ${project.dna_code || 'Ikke vurderet endnu'}`
           : `\n\nCurrent project: ${projectName}\nDNA Code: ${project.dna_code || 'Not assessed yet'}`;
       }
+      
+      // **NEW: Fetch project documents**
+      const { data: documents } = await supabase
+        .from('documents')
+        .select('filename, content, metadata, processed')
+        .eq('project_id', context.projectId)
+        .eq('processed', true)
+        .order('uploaded_at', { ascending: false });
+      
+      if (documents && documents.length > 0) {
+        const docList = documents.map(doc => {
+          const wordCount = doc.metadata?.word_count || 0;
+          const charCount = doc.metadata?.character_count || doc.content?.length || 0;
+          return `- ${doc.filename} (${wordCount} ${language === 'da' ? 'ord' : 'words'}, ${charCount} ${language === 'da' ? 'tegn' : 'chars'})`;
+        }).join('\n');
+        
+        const docsContext = language === 'da'
+          ? `\n\n📄 Uploadede Dokumenter til dette projekt:\n${docList}\n\nDokumentindhold er tilgængeligt nedenfor. Du kan referere til specifikt indhold fra disse dokumenter når du svarer.`
+          : `\n\n📄 Uploaded Documents for this project:\n${docList}\n\nDocument content is available below. You can reference specific content from these documents when responding.`;
+        
+        projectContext += docsContext;
+        
+        // Add document contents (limit to reasonable size)
+        const maxCharsPerDoc = 10000; // Limit per document to avoid token overflow
+        const documentsContent = documents.map(doc => {
+          const content = doc.content || '';
+          const truncated = content.length > maxCharsPerDoc 
+            ? content.substring(0, maxCharsPerDoc) + `... [${language === 'da' ? 'afkortet' : 'truncated'}]`
+            : content;
+          
+          return `\n---\n📄 ${doc.filename}:\n${truncated}\n---`;
+        }).join('\n');
+        
+        projectContext += `\n\n${language === 'da' ? 'DOKUMENTINDHOLD' : 'DOCUMENT CONTENT'}:${documentsContent}`;
+      }
     }
 
     const systemPrompt = systemPrompts[language as keyof typeof systemPrompts] + projectContext;
