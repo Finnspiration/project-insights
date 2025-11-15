@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Layers } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Layers, Eye, EyeOff } from 'lucide-react';
 
 interface LayerControlsProps {
   layers: {
@@ -13,9 +14,11 @@ interface LayerControlsProps {
     forecast: boolean;
   };
   onLayerToggle: (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => void;
+  showAllLayers: boolean;
+  onToggleAll: () => void;
 }
 
-export function LayerControls({ layers, onLayerToggle }: LayerControlsProps) {
+export function LayerControls({ layers, onLayerToggle, showAllLayers, onToggleAll }: LayerControlsProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -25,9 +28,29 @@ export function LayerControls({ layers, onLayerToggle }: LayerControlsProps) {
     >
       <Card className="bg-background/80 backdrop-blur-sm border-border/50">
         <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Layers className="h-4 w-4" />
-            <h3 className="text-sm font-semibold">Lag</h3>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              <h3 className="text-sm font-semibold">Lag</h3>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleAll}
+              className="h-7 px-2 text-xs"
+            >
+              {showAllLayers ? (
+                <>
+                  <EyeOff className="h-3 w-3 mr-1" />
+                  Skjul alle
+                </>
+              ) : (
+                <>
+                  <Eye className="h-3 w-3 mr-1" />
+                  Vis alle
+                </>
+              )}
+            </Button>
           </div>
 
           <div className="space-y-3">

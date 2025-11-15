@@ -63,8 +63,8 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
               y={`${zone.y}%`}
               textAnchor="middle"
               dominantBaseline="middle"
-              className="fill-foreground text-2xl font-bold"
-              style={{ textShadow: '0 0 8px rgba(0,0,0,0.9)' }}
+              className="fill-white text-2xl font-bold"
+              style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
             >
               {zone.type}
             </text>
@@ -74,8 +74,8 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
               x={`${zone.x}%`}
               y={`${zone.y + 4}%`}
               textAnchor="middle"
-              className="fill-foreground text-xs"
-              style={{ textShadow: '0 0 4px rgba(0,0,0,0.9)' }}
+              className="fill-white text-xs font-semibold"
+              style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
             >
               {zone.label}
             </text>

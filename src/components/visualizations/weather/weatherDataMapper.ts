@@ -104,16 +104,17 @@ export function mapComplexityToSkyDensity(complexity: string): number {
   return densityMap[complexity] || 4;
 }
 
-// Map IDG score (0-10) to temperature (0-100)
+// Map IDG score (0-10) to temperature celsius (-10 to 30)
 export function mapIDGScoreToTemperature(score: number): number {
-  return score * 10; // 0-10 -> 0-100
+  // 0-10 maps to -10°C to 30°C
+  return -10 + (score * 4);
 }
 
-// Get temperature color based on score
+// Get temperature color based on celsius
 export function getTemperatureColor(temperature: number): string {
-  if (temperature <= 30) return 'hsl(220, 90%, 55%)'; // Blue (cold)
-  if (temperature <= 60) return 'hsl(180, 70%, 50%)'; // Cyan (cool)
-  if (temperature <= 80) return 'hsl(45, 95%, 55%)'; // Yellow (warm)
+  if (temperature <= 0) return 'hsl(220, 90%, 55%)'; // Blue (freezing)
+  if (temperature <= 10) return 'hsl(200, 80%, 50%)'; // Light blue (cold)
+  if (temperature <= 20) return 'hsl(45, 95%, 55%)'; // Yellow (mild)
   return 'hsl(0, 85%, 60%)'; // Red (hot)
 }
 
@@ -330,13 +331,13 @@ export function mapTheoryUToForecast(
   readiness?: any
 ): ForecastDay[] {
   const forecastMap: Record<string, { condition: string; icon: string; description: string }> = {
-    downloading: { condition: 'Foggy', icon: '🌫️', description: 'Unclear patterns, need deeper sensing' },
-    seeing: { condition: 'Partly Cloudy', icon: '⛅', description: 'Clarity emerging, patterns visible' },
-    sensing: { condition: 'Light Rain', icon: '🌧️', description: 'Cleansing process, deep listening' },
-    presencing: { condition: 'Clear & Calm', icon: '🌅', description: 'Stillness, profound insight' },
-    crystallizing: { condition: 'Sunrise', icon: '🌄', description: 'Vision crystallizing, new dawn' },
-    prototyping: { condition: 'Variable', icon: '🌦️', description: 'Experimentation, rapid changes' },
-    performing: { condition: 'Sunny', icon: '☀️', description: 'Sustained performance, clear skies' },
+    downloading: { condition: 'Tåget', icon: '🌫️', description: 'Uklare mønstre, behov for dybere føling' },
+    seeing: { condition: 'Delvis skyet', icon: '⛅', description: 'Klarhed fremkommer, mønstre synlige' },
+    sensing: { condition: 'Let regn', icon: '🌧️', description: 'Rensende proces, dyb lytning' },
+    presencing: { condition: 'Klart & roligt', icon: '🌅', description: 'Stilhed, dyb indsigt' },
+    crystallizing: { condition: 'Solopgang', icon: '🌄', description: 'Vision krystalliserer, nyt daggry' },
+    prototyping: { condition: 'Variabelt', icon: '🌦️', description: 'Eksperimenter, hurtige ændringer' },
+    performing: { condition: 'Solrigt', icon: '☀️', description: 'Vedvarende præstation, klar himmel' },
   };
 
   const currentForecast = forecastMap[position] || forecastMap.downloading;
@@ -346,25 +347,25 @@ export function mapTheoryUToForecast(
 
   return [
     {
-      day: 'Today',
+      day: 'I dag',
       condition: currentForecast.condition,
       icon: currentForecast.icon,
       confidence: confidence,
       description: currentForecast.description,
     },
     {
-      day: 'Tomorrow',
+      day: 'I morgen',
       condition: nextForecast.condition,
       icon: nextForecast.icon,
       confidence: Math.max(40, confidence - 15),
       description: nextForecast.description,
     },
     {
-      day: 'Day 3',
-      condition: confidence > 60 ? 'Improving' : 'Uncertain',
+      day: 'Dag 3',
+      condition: confidence > 60 ? 'Forbedring' : 'Usikkert',
       icon: confidence > 60 ? '🌤️' : '☁️',
       confidence: Math.max(30, confidence - 25),
-      description: confidence > 60 ? 'Positive trajectory' : 'Multiple possibilities',
+      description: confidence > 60 ? 'Positiv udvikling' : 'Flere muligheder',
     },
   ];
 }

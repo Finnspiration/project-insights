@@ -60,8 +60,8 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
               x={`${zone.position.x}%`}
               y={`${zone.position.y - 6}%`}
               textAnchor="middle"
-              className="fill-foreground text-sm font-semibold"
-              style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}
+              className="fill-white text-sm font-bold"
+              style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
             >
               {zone.name}
             </text>
@@ -71,21 +71,21 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
               x={`${zone.position.x}%`}
               y={`${zone.position.y + 1}%`}
               textAnchor="middle"
-              className="fill-foreground text-lg font-bold"
-              style={{ textShadow: '0 0 6px rgba(0,0,0,0.9)' }}
+              className="fill-white text-lg font-bold"
+              style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
             >
               {zone.score}/10
             </text>
 
-            {/* Temperature value */}
+            {/* Temperature value in celsius */}
             <text
               x={`${zone.position.x}%`}
               y={`${zone.position.y + 5}%`}
               textAnchor="middle"
-              className="fill-foreground/80 text-xs"
-              style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}
+              className="fill-white text-xs font-semibold"
+              style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
             >
-              {Math.round(zone.temperature)}°
+              {Math.round(zone.temperature)}°C
             </text>
           </motion.g>
         ))}
@@ -118,7 +118,7 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
               style={{ backgroundColor: zones.find((z) => z.id === hoveredZone)?.color }}
             />
             <p className="text-xs">
-              Temp: {Math.round(zones.find((z) => z.id === hoveredZone)?.temperature || 0)}°
+              Temp: {Math.round(zones.find((z) => z.id === hoveredZone)?.temperature || 0)}°C
             </p>
           </div>
         </motion.div>
