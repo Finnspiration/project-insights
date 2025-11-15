@@ -8,23 +8,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  Loader2, RefreshCw, Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle2, 
-  XCircle, Clock, ExternalLink, BookOpen, Video, GraduationCap, MapPin, Lightbulb, 
-  BarChart3, FileText, Heart, Star, X, Download, ChevronDown, ChevronUp
-} from 'lucide-react';
+import { Loader2, RefreshCw, Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle2, XCircle, Clock, ExternalLink, BookOpen, Video, GraduationCap, MapPin, Lightbulb, BarChart3, FileText, Heart, Star, X, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
 import { DNAEvidenceVisualization } from './theory-u/DNAEvidenceVisualization';
-
 interface UJourneyTimelineProps {
   morphology: any;
   projectId: string;
   projectName: string;
 }
-
 interface TheoryUAnalysis {
   position: string;
   confidence: number;
@@ -59,9 +53,21 @@ interface TheoryUAnalysis {
     expectedImpact: string;
   }>;
   readinessIndicators?: {
-    readyToDescend?: { status?: string; reason?: string; nextSteps?: string[] };
-    readyToPresence?: { status?: string; reason?: string; nextSteps?: string[] };
-    readyToAscend?: { status?: string; reason?: string; nextSteps?: string[] };
+    readyToDescend?: {
+      status?: string;
+      reason?: string;
+      nextSteps?: string[];
+    };
+    readyToPresence?: {
+      status?: string;
+      reason?: string;
+      nextSteps?: string[];
+    };
+    readyToAscend?: {
+      status?: string;
+      reason?: string;
+      nextSteps?: string[];
+    };
   };
   theoryUResources?: Array<{
     type: string;
@@ -89,30 +95,33 @@ const mapSocialFieldKey = (field: string): string => {
 };
 
 // Default Theory U resources
-const getDefaultTheoryUResources = (language: string) => [
-  {
-    type: 'book',
-    title: 'Theory U: Leading from the Future as It Emerges',
-    link: 'https://www.presencing.org/resource/books/theory-u',
-    relevance: language === 'da' ? 'Den originale Theory U bog af Otto Scharmer' : 'The original Theory U book by Otto Scharmer'
-  },
-  {
-    type: 'tool',
-    title: 'Presencing Institute Toolkit',
-    link: 'https://www.presencing.org/resource/tools',
-    relevance: language === 'da' ? 'Gratis værktøjer til Theory U praksis' : 'Free tools for Theory U practice'
-  },
-  {
-    type: 'video',
-    title: 'Theory U MOOC',
-    link: 'https://www.edx.org/course/ulab',
-    relevance: language === 'da' ? 'Gratis online kursus i Theory U' : 'Free online course in Theory U'
-  }
-];
-
-export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProps) {
-  const { t, i18n } = useTranslation('common');
-  const { toast } = useToast();
+const getDefaultTheoryUResources = (language: string) => [{
+  type: 'book',
+  title: 'Theory U: Leading from the Future as It Emerges',
+  link: 'https://www.presencing.org/resource/books/theory-u',
+  relevance: language === 'da' ? 'Den originale Theory U bog af Otto Scharmer' : 'The original Theory U book by Otto Scharmer'
+}, {
+  type: 'tool',
+  title: 'Presencing Institute Toolkit',
+  link: 'https://www.presencing.org/resource/tools',
+  relevance: language === 'da' ? 'Gratis værktøjer til Theory U praksis' : 'Free tools for Theory U practice'
+}, {
+  type: 'video',
+  title: 'Theory U MOOC',
+  link: 'https://www.edx.org/course/ulab',
+  relevance: language === 'da' ? 'Gratis online kursus i Theory U' : 'Free online course in Theory U'
+}];
+export function UJourneyTimeline({
+  morphology,
+  projectId
+}: UJourneyTimelineProps) {
+  const {
+    t,
+    i18n
+  } = useTranslation('common');
+  const {
+    toast
+  } = useToast();
   const [analysis, setAnalysis] = useState<TheoryUAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -123,43 +132,42 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   // Helper function to transform Theory U data structure
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
     if (!data) return null;
-    
     console.log('🔍 Transforming data, whyHere.documentEvidence:', data?.whyHere?.documentEvidence);
-    
+
     // Map 7-phase AI system to 5-phase UI system
     const mapPhaseToUI = (phase: string): string => {
       const phaseMap: Record<string, string> = {
-        'downloading': 'seeing',      // Downloading mappes til Observere
+        'downloading': 'seeing',
+        // Downloading mappes til Observere
         'seeing': 'seeing',
         'sensing': 'sensing',
         'presencing': 'presencing',
         'crystallizing': 'crystallizing',
         'prototyping': 'prototyping',
-        'performing': 'prototyping'   // Performing mappes til Prototyping
+        'performing': 'prototyping' // Performing mappes til Prototyping
       };
       return phaseMap[phase.toLowerCase()] || 'seeing'; // Fallback til seeing
     };
-    
+
     // Transform from AI response format to component format
     // Read currentPhase directly (it's stored as a string like "crystallizing")
     const rawPhase = data.currentPhase || data.whyHere?.morphologyScoring?.phase || data.position || 'downloading';
-    
+
     // Transform documentEvidence from old format (string[]) to new format (object[])
     let documentEvidence = data.whyHere?.documentEvidence;
     console.log('📝 Raw documentEvidence type:', typeof documentEvidence, Array.isArray(documentEvidence));
-    
     if (documentEvidence && Array.isArray(documentEvidence)) {
       // Check if it's the old format (strings) or new format (objects)
       if (documentEvidence.length > 0) {
         const firstItem = documentEvidence[0];
         console.log('🔎 First item type:', typeof firstItem, 'value:', firstItem);
-        
         if (typeof firstItem === 'string') {
           // Old format - convert to new format
           console.log('⚠️ Converting OLD format (strings) to NEW format (objects)');
           documentEvidence = documentEvidence.map((text: string) => ({
             text,
-            relevance: 50, // Default relevance for old data
+            relevance: 50,
+            // Default relevance for old data
             source: undefined
           }));
         } else {
@@ -167,9 +175,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         }
       }
     }
-    
     console.log('✨ Final transformed documentEvidence:', documentEvidence);
-    
     return {
       position: mapPhaseToUI(rawPhase),
       confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
@@ -193,40 +199,37 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   // Fetch user ID and favorite quotes
   useEffect(() => {
     const fetchUserAndFavorites = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
-        
+
         // Fetch existing favorites for this project
-        const { data: favorites } = await supabase
-          .from('favorite_quotes')
-          .select('quote_text')
-          .eq('user_id', user.id)
-          .eq('project_id', projectId);
-        
+        const {
+          data: favorites
+        } = await supabase.from('favorite_quotes').select('quote_text').eq('user_id', user.id).eq('project_id', projectId);
         if (favorites) {
           setFavoriteQuotes(new Set(favorites.map(f => f.quote_text)));
         }
       }
     };
-    
     fetchUserAndFavorites();
   }, [projectId]);
-
-  const handleToggleFavorite = async (quote: { text: string; relevance: number; source?: string }) => {
+  const handleToggleFavorite = async (quote: {
+    text: string;
+    relevance: number;
+    source?: string;
+  }) => {
     if (!userId) return;
-    
     const isFavorite = favoriteQuotes.has(quote.text);
-    
     if (isFavorite) {
       // Remove from favorites
-      const { error } = await supabase
-        .from('favorite_quotes')
-        .delete()
-        .eq('user_id', userId)
-        .eq('project_id', projectId)
-        .eq('quote_text', quote.text);
-      
+      const {
+        error
+      } = await supabase.from('favorite_quotes').delete().eq('user_id', userId).eq('project_id', projectId).eq('quote_text', quote.text);
       if (!error) {
         setFavoriteQuotes(prev => {
           const newSet = new Set(prev);
@@ -246,17 +249,16 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       }
     } else {
       // Add to favorites
-      const { error } = await supabase
-        .from('favorite_quotes')
-        .insert({
-          user_id: userId,
-          project_id: projectId,
-          quote_text: quote.text,
-          relevance_score: quote.relevance,
-          theory_u_phase: analysis?.position || 'unknown',
-          source_document: quote.source
-        });
-      
+      const {
+        error
+      } = await supabase.from('favorite_quotes').insert({
+        user_id: userId,
+        project_id: projectId,
+        quote_text: quote.text,
+        relevance_score: quote.relevance,
+        theory_u_phase: analysis?.position || 'unknown',
+        source_document: quote.source
+      });
       if (!error) {
         setFavoriteQuotes(prev => new Set(prev).add(quote.text));
         toast({
@@ -272,14 +274,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       }
     }
   };
-
   const handleRejectQuote = async (index: number) => {
     if (!analysis?.whyHere?.documentEvidence) return;
-    
-    const updatedEvidence = analysis.whyHere.documentEvidence.filter(
-      (_: any, idx: number) => idx !== index
-    );
-    
+    const updatedEvidence = analysis.whyHere.documentEvidence.filter((_: any, idx: number) => idx !== index);
+
     // Optimistic update
     setAnalysis({
       ...analysis,
@@ -288,33 +286,30 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         documentEvidence: updatedEvidence
       }
     });
-    
+
     // Update database
-    await supabase
-      .from('projects')
-      .update({
-        theory_u_analysis: {
-          ...analysis,
-          whyHere: {
-            ...analysis.whyHere,
-            documentEvidence: updatedEvidence
-          }
+    await supabase.from('projects').update({
+      theory_u_analysis: {
+        ...analysis,
+        whyHere: {
+          ...analysis.whyHere,
+          documentEvidence: updatedEvidence
         }
-      })
-      .eq('id', projectId);
-    
+      }
+    }).eq('id', projectId);
     toast({
       title: t('visualizations.theoryU.quoteRejected'),
       description: t('visualizations.theoryU.quoteRejectedDesc')
     });
   };
-
   const handleRegenerateQuotes = async () => {
     setRefreshing(true);
-    
     try {
       console.log('🔄 Regenerating quotes with new AI analysis...');
-      const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('analyze-theory-u-position', {
         body: {
           projectId,
           morphology,
@@ -322,15 +317,11 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           regenerateQuotes: true
         }
       });
-      
       if (error) throw error;
-      
       console.log('✅ Raw AI response:', data);
       console.log('📊 Document evidence:', data?.whyHere?.documentEvidence);
-      
       const transformedData = transformTheoryUData(data);
       console.log('🔧 Transformed data:', transformedData?.whyHere?.documentEvidence);
-      
       setAnalysis(transformedData);
       toast({
         title: t('visualizations.theoryU.quotesRegenerated'),
@@ -347,22 +338,16 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       setRefreshing(false);
     }
   };
-
   const fetchAnalysis = async (forceRefresh = false) => {
-    if (forceRefresh) setRefreshing(true);
-    else setLoading(true);
-
+    if (forceRefresh) setRefreshing(true);else setLoading(true);
     try {
       console.log('📥 Fetching Theory U analysis, forceRefresh:', forceRefresh);
 
       // Check cache first (skip if forceRefresh)
       if (!forceRefresh) {
-        const { data: project } = await supabase
-          .from('projects')
-          .select('theory_u_analysis, theory_u_analysis_updated_at')
-          .eq('id', projectId)
-          .single();
-
+        const {
+          data: project
+        } = await supabase.from('projects').select('theory_u_analysis, theory_u_analysis_updated_at').eq('id', projectId).single();
         if (project?.theory_u_analysis) {
           console.log('💾 Using cached analysis');
           const transformed = transformTheoryUData(project.theory_u_analysis);
@@ -378,14 +363,16 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       }
 
       // Call edge function
-      const { data: analysisData, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+      const {
+        data: analysisData,
+        error
+      } = await supabase.functions.invoke('analyze-theory-u-position', {
         body: {
           projectId,
           morphology,
           language: i18n.language
         }
       });
-
       if (error) throw error;
       if (!analysisData) throw new Error('No analysis data returned');
 
@@ -394,7 +381,6 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       console.log('═══════════════════════════════════════════════════');
       console.log('Raw response:', analysisData);
       console.log('');
-      
       if (analysisData.whyHere?.morphologyScoring) {
         console.log('📊 MORFOLOGISK SCORING:');
         console.log('  Fase:', analysisData.whyHere.morphologyScoring.phase);
@@ -406,7 +392,6 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           console.log(`    ${i + 1}. ${contrib}`);
         });
         console.log('');
-        
         if (analysisData.whyHere.morphologyScoring.allPhaseScores) {
           console.log('  Alle fase scores (top 3):');
           analysisData.whyHere.morphologyScoring.allPhaseScores.forEach((phaseScore: any) => {
@@ -415,13 +400,11 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         }
         console.log('');
       }
-      
       if (analysisData.whyHere?.aiNuance) {
         console.log('🤖 AI NUANCE:');
         console.log('  ', analysisData.whyHere.aiNuance);
         console.log('');
       }
-      
       console.log('═══════════════════════════════════════════════════');
 
       // Transform AI response using helper
@@ -431,14 +414,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       }
 
       // Cache the transformed result
-      await supabase
-        .from('projects')
-        .update({ 
-          theory_u_analysis: transformed,
-          theory_u_analysis_updated_at: new Date().toISOString()
-        })
-        .eq('id', projectId);
-
+      await supabase.from('projects').update({
+        theory_u_analysis: transformed,
+        theory_u_analysis_updated_at: new Date().toISOString()
+      }).eq('id', projectId);
       setAnalysis(transformed);
     } catch (error) {
       console.error('Error fetching Theory U analysis:', error);
@@ -452,11 +431,9 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       setRefreshing(false);
     }
   };
-
   useEffect(() => {
     fetchAnalysis();
   }, [projectId]);
-
   const handleRefresh = () => {
     setRefreshing(true);
     fetchAnalysis(true);
@@ -469,13 +446,37 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
     const padding = 60;
 
     // Positioned to match the golden U image
-    const phases = [
-      { key: 'seeing', x: 230, y: 77, label: t('visualizations.theoryU.phases.seeing'), subtitle: t('visualizations.theoryU.phaseSubtitles.seeing') },
-      { key: 'sensing', x: 180, y: 255, label: t('visualizations.theoryU.phases.sensing'), subtitle: t('visualizations.theoryU.phaseSubtitles.sensing') },
-      { key: 'presencing', x: 372, y: 385, label: t('visualizations.theoryU.phases.presencing'), subtitle: t('visualizations.theoryU.phaseSubtitles.presencing') },
-      { key: 'crystallizing', x: 575, y: 253, label: t('visualizations.theoryU.phases.crystallizing'), subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing') },
-      { key: 'prototyping', x: 565, y: 77, label: t('visualizations.theoryU.phases.prototyping'), subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping') },
-    ];
+    const phases = [{
+      key: 'seeing',
+      x: 230,
+      y: 77,
+      label: t('visualizations.theoryU.phases.seeing'),
+      subtitle: t('visualizations.theoryU.phaseSubtitles.seeing')
+    }, {
+      key: 'sensing',
+      x: 180,
+      y: 255,
+      label: t('visualizations.theoryU.phases.sensing'),
+      subtitle: t('visualizations.theoryU.phaseSubtitles.sensing')
+    }, {
+      key: 'presencing',
+      x: 372,
+      y: 385,
+      label: t('visualizations.theoryU.phases.presencing'),
+      subtitle: t('visualizations.theoryU.phaseSubtitles.presencing')
+    }, {
+      key: 'crystallizing',
+      x: 575,
+      y: 253,
+      label: t('visualizations.theoryU.phases.crystallizing'),
+      subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing')
+    }, {
+      key: 'prototyping',
+      x: 565,
+      y: 77,
+      label: t('visualizations.theoryU.phases.prototyping'),
+      subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping')
+    }];
 
     // Map AI's 7 phases to our 5 visualization phases
     const mapPhaseToVisualization = (aiPhase: string): string => {
@@ -485,41 +486,27 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       };
       return phaseMap[aiPhase] || aiPhase;
     };
-
-    const mappedPhase = analysis?.position 
-      ? mapPhaseToVisualization(analysis.position) 
-      : null;
-
-
-    return (
-      <svg width={width} height={height} className="mx-auto" viewBox={`0 0 ${width} ${height}`}>
+    const mappedPhase = analysis?.position ? mapPhaseToVisualization(analysis.position) : null;
+    return <svg width={width} height={height} className="mx-auto" viewBox={`0 0 ${width} ${height}`}>
         <defs>
           {/* Glow filter for current phase */}
           <filter id="phaseGlow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
 
         {/* Background Image - Golden U */}
-        <image 
-          href={goldenUBackground}
-          width={width}
-          height={height}
-          preserveAspectRatio="xMidYMid meet"
-          opacity={0.85}
-        />
+        <image href={goldenUBackground} width={width} height={height} preserveAspectRatio="xMidYMid meet" opacity={0.85} />
 
         {/* Phase labels with descriptions */}
         {phases.map((phase, index) => {
-          const isCenter = index === 2;
-          const isCurrentPhase = phase.key === mappedPhase;
-          
-          return (
-            <g key={phase.key}>
+        const isCenter = index === 2;
+        const isCurrentPhase = phase.key === mappedPhase;
+        return <g key={phase.key}>
               {/* Phase marker circle - mother-of-pearl style */}
               <defs>
                 <radialGradient id={`pearl-${phase.key}`} cx="30%" cy="30%">
@@ -529,61 +516,35 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                   <stop offset="100%" stopColor="#d0d0d0" stopOpacity="0.6" />
                 </radialGradient>
               </defs>
-              <circle
-                cx={phase.x}
-                cy={phase.y}
-                r={isCurrentPhase ? 10.5 : 8.5}
-                fill={`url(#pearl-${phase.key})`}
-                stroke={isCurrentPhase ? '#ffffff' : '#e0e0e0'}
-                strokeWidth={isCurrentPhase ? 2 : 1.5}
-                className="transition-all"
-                style={{
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                }}
-              />
+              <circle cx={phase.x} cy={phase.y} r={isCurrentPhase ? 10.5 : 8.5} fill={`url(#pearl-${phase.key})`} stroke={isCurrentPhase ? '#ffffff' : '#e0e0e0'} strokeWidth={isCurrentPhase ? 2 : 1.5} className="transition-all" style={{
+            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+          }} />
               
               {/* Current position pulse animation */}
-              {isCurrentPhase && (
-                <>
-                  <circle
-                    cx={phase.x}
-                    cy={phase.y}
-                    r="15"
-                    fill="#FFD700"
-                    opacity="0.3"
-                    className="animate-pulse"
-                  />
-                </>
-              )}
+              {isCurrentPhase && <>
+                  <circle cx={phase.x} cy={phase.y} r="15" fill="#FFD700" opacity="0.3" className="animate-pulse" />
+                </>}
 
               {/* Phase label */}
-              <text
-                x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x}
-                y={isCenter ? phase.y + 50 : phase.y - 4.5}
-                textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'}
-                className={`font-bold ${isCurrentPhase ? 'text-lg' : 'text-sm'}`}
-                style={{ fontSize: isCurrentPhase ? '18px' : '16px', fill: '#ffffff' }}
-              >
+              <text x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x} y={isCenter ? phase.y + 50 : phase.y - 4.5} textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'} className={`font-bold ${isCurrentPhase ? 'text-lg' : 'text-sm'}`} style={{
+            fontSize: isCurrentPhase ? '18px' : '16px',
+            fill: '#ffffff'
+          }}>
                 {phase.label}
               </text>
               
               {/* Phase subtitle */}
-              <text
-                x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x}
-                y={isCenter ? phase.y + 65 : phase.y + 10.5}
-                textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'}
-                className="text-xs"
-                style={{ fontSize: '11px', fill: '#ffffff', opacity: 0.8 }}
-              >
+              <text x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x} y={isCenter ? phase.y + 65 : phase.y + 10.5} textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'} className="text-xs" style={{
+            fontSize: '11px',
+            fill: '#ffffff',
+            opacity: 0.8
+          }}>
                 {phase.subtitle}
               </text>
-            </g>
-          );
-        })}
-      </svg>
-    );
+            </g>;
+      })}
+      </svg>;
   };
-
   const getReadinessColor = (status?: string) => {
     if (!status) return 'text-muted-foreground';
     switch (status.toLowerCase()) {
@@ -600,7 +561,6 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         return 'text-muted-foreground';
     }
   };
-
   const getReadinessIcon = (status?: string) => {
     if (!status) return '⚪';
     switch (status.toLowerCase()) {
@@ -617,16 +577,13 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         return '⚪';
     }
   };
-
   const getPriorityBadge = (priority: number) => {
     if (priority === 1) return <Badge variant="destructive" className="text-xs">{t('visualizations.theoryU.priority.high')}</Badge>;
     if (priority === 2) return <Badge variant="secondary" className="text-xs">{t('visualizations.theoryU.priority.medium')}</Badge>;
     return <Badge variant="outline" className="text-xs">{t('visualizations.theoryU.priority.low')}</Badge>;
   };
-
   if (loading) {
-    return (
-      <Card>
+    return <Card>
         <CardHeader>
           <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
           <CardDescription>{t('visualizations.theoryU.description')}</CardDescription>
@@ -635,13 +592,10 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
           <p className="text-sm text-muted-foreground">{t('visualizations.theoryU.analyzing')}</p>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
   if (!analysis) {
-    return (
-      <Card>
+    return <Card>
         <CardHeader>
           <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
           <CardDescription>{t('visualizations.theoryU.description')}</CardDescription>
@@ -656,17 +610,11 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
             </Button>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
   const mappedSocialField = mapSocialFieldKey(analysis.socialField);
-  const resources = analysis.theoryUResources && analysis.theoryUResources.length > 0 
-    ? analysis.theoryUResources 
-    : getDefaultTheoryUResources(i18n.language);
-
-  return (
-    <div className="space-y-8">
+  const resources = analysis.theoryUResources && analysis.theoryUResources.length > 0 ? analysis.theoryUResources : getDefaultTheoryUResources(i18n.language);
+  return <div className="space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -742,11 +690,9 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Morphology Synthesis */}
-            {analysis.whyHere?.morphologySynthesis && (
-              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+            {analysis.whyHere?.morphologySynthesis && <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                 <p className="text-sm leading-relaxed">{analysis.whyHere.morphologySynthesis}</p>
-              </div>
-            )}
+              </div>}
 
             {/* Morphology Evidence */}
             <div className="space-y-3">
@@ -755,31 +701,20 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                   <BarChart3 className="w-4 h-4 text-primary" />
                   <h3 className="font-semibold">{t('visualizations.theoryU.morphologyEvidence')}</h3>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => fetchAnalysis(true)}
-                  disabled={refreshing}
-                  className="h-8 px-2"
-                >
+                <Button variant="ghost" size="sm" onClick={() => fetchAnalysis(true)} disabled={refreshing} className="h-8 px-2">
                   <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
               
               {/* Morphology Evidence - DNA Visualization */}
-              {analysis.whyHere.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 && morphology && (
-                <div className="space-y-4">
+              {analysis.whyHere.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 && morphology && <div className="space-y-4">
                   <h4 className="font-semibold text-sm flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary" />
                     {t('visualizations.theoryU.morphologyEvidence')}
                   </h4>
                   
                   {/* DNA Helix Visualization */}
-                  <DNAEvidenceVisualization
-                    morphology={morphology}
-                    evidence={analysis.whyHere.morphologyEvidence}
-                    language={(i18n.language as 'en' | 'da') || 'en'}
-                  />
+                  <DNAEvidenceVisualization morphology={morphology} evidence={analysis.whyHere.morphologyEvidence} language={i18n.language as 'en' | 'da' || 'en'} />
                   
                   {/* Legend */}
                   <div className="flex items-center gap-4 text-xs text-muted-foreground px-2">
@@ -804,11 +739,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <div className="grid gap-3 mt-4">
-                        {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => (
-                          <div 
-                            key={idx} 
-                            className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border"
-                          >
+                        {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border">
                             <Badge variant="secondary" className="mt-0.5 shrink-0">
                               {evidence.dimension}
                             </Badge>
@@ -816,13 +747,11 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                               <p className="font-medium text-sm">{evidence.value}</p>
                               <p className="text-sm text-muted-foreground">{evidence.reasoning}</p>
                             </div>
-                          </div>
-                        ))}
+                          </div>)}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Document Evidence */}
@@ -832,39 +761,27 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                   <FileText className="w-4 h-4 text-primary" />
                   <h3 className="font-semibold">{t('visualizations.theoryU.documentEvidence')}</h3>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRegenerateQuotes()}
-                  disabled={refreshing}
-                  className="h-8 px-2"
-                >
+                <Button variant="ghost" size="sm" onClick={() => handleRegenerateQuotes()} disabled={refreshing} className="h-8 px-2">
                   <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
               
-              {analysis.whyHere?.documentEvidence && analysis.whyHere.documentEvidence.length > 0 ? (
-                <div className="space-y-3">
-                  {analysis.whyHere.documentEvidence
-                    .slice(0, showAllQuotes ? undefined : 3)
-                    .map((quote: { text: string; relevance: number; source?: string }, idx: number) => {
-                      const isFavorite = favoriteQuotes.has(quote.text);
-                      const relevanceColor = quote.relevance >= 80 ? 'text-green-600 dark:text-green-400' :
-                                            quote.relevance >= 60 ? 'text-blue-600 dark:text-blue-400' :
-                                            quote.relevance >= 40 ? 'text-yellow-600 dark:text-yellow-400' :
-                                            'text-orange-600 dark:text-orange-400';
-                      
-                      return (
-                        <div key={idx} className="group relative p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm hover:shadow-md transition-shadow">
+              {analysis.whyHere?.documentEvidence && analysis.whyHere.documentEvidence.length > 0 ? <div className="space-y-3">
+                  {analysis.whyHere.documentEvidence.slice(0, showAllQuotes ? undefined : 3).map((quote: {
+                text: string;
+                relevance: number;
+                source?: string;
+              }, idx: number) => {
+                const isFavorite = favoriteQuotes.has(quote.text);
+                const relevanceColor = quote.relevance >= 80 ? 'text-green-600 dark:text-green-400' : quote.relevance >= 60 ? 'text-blue-600 dark:text-blue-400' : quote.relevance >= 40 ? 'text-yellow-600 dark:text-yellow-400' : 'text-orange-600 dark:text-orange-400';
+                return <div key={idx} className="group relative p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm hover:shadow-md transition-shadow">
                           {/* Relevance indicator */}
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline" className={`text-xs ${relevanceColor}`}>
                               {t('visualizations.theoryU.relevance')}: {quote.relevance}%
                             </Badge>
                             <Progress value={quote.relevance} className="h-1.5 w-24" />
-                            {quote.source && (
-                              <span className="text-xs text-muted-foreground ml-auto">📄 {quote.source}</span>
-                            )}
+                            {quote.source && <span className="text-xs text-muted-foreground ml-auto">📄 {quote.source}</span>}
                           </div>
                           
                           {/* Quote text */}
@@ -874,75 +791,44 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                           
                           {/* Action buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleToggleFavorite(quote)}
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleToggleFavorite(quote)}>
                               <Star className={`w-4 h-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleRejectQuote(idx)}
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleRejectQuote(idx)}>
                               <X className="w-4 h-4 text-destructive" />
                             </Button>
                           </div>
-                        </div>
-                      );
-                    })}
+                        </div>;
+              })}
                   
-                  {analysis.whyHere.documentEvidence.length > 3 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setShowAllQuotes(!showAllQuotes)}
-                    >
-                      {showAllQuotes ? (
-                        <>
+                  {analysis.whyHere.documentEvidence.length > 3 && <Button variant="outline" size="sm" className="w-full" onClick={() => setShowAllQuotes(!showAllQuotes)}>
+                      {showAllQuotes ? <>
                           <ChevronUp className="w-4 h-4 mr-2" />
                           {t('visualizations.theoryU.showLess')}
-                        </>
-                      ) : (
-                        <>
+                        </> : <>
                           <ChevronDown className="w-4 h-4 mr-2" />
-                          {t('visualizations.theoryU.showMore', { 
-                            count: analysis.whyHere.documentEvidence.length - 3 
-                          })}
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              ) : analysis.whyHere?.documentStatus === 'processing' ? (
-                <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                          {t('visualizations.theoryU.showMore', {
+                    count: analysis.whyHere.documentEvidence.length - 3
+                  })}
+                        </>}
+                    </Button>}
+                </div> : analysis.whyHere?.documentStatus === 'processing' ? <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
                   <div className="flex items-start gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-600 border-t-transparent" />
                     <div className="space-y-2">
                       <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
                         {t('visualizations.theoryU.documentsProcessing')}
                       </p>
-                      {analysis.whyHere?.processingFiles && (
-                        <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
-                          {analysis.whyHere.processingFiles.map((filename: string, idx: number) => (
-                            <li key={idx}>📄 {filename}</li>
-                          ))}
-                        </ul>
-                      )}
+                      {analysis.whyHere?.processingFiles && <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                          {analysis.whyHere.processingFiles.map((filename: string, idx: number) => <li key={idx}>📄 {filename}</li>)}
+                        </ul>}
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
+                </div> : <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
                   <p className="text-sm text-muted-foreground italic text-center">
                     {t('visualizations.theoryU.noDocuments')}
                   </p>
-                </div>
-              )}
+                </div>}
             </div>
           </CardContent>
         </Card>
@@ -957,8 +843,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {analysis.nextActions?.slice(0, 3).map((action: any, idx: number) => (
-                <div key={idx} className="p-4 rounded-lg border border-border bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow">
+              {analysis.nextActions?.slice(0, 3).map((action: any, idx: number) => <div key={idx} className="p-4 rounded-lg border border-border bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow">
                   <div className="flex items-start gap-3">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm shrink-0">
                       {action.priority}
@@ -979,8 +864,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
@@ -1013,19 +897,15 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                     <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessWhy')}</p>
                     <p className="text-sm text-muted-foreground">{analysis.readinessIndicators?.readyToDescend?.reason}</p>
                   </div>
-                  {analysis.readinessIndicators?.readyToDescend?.nextSteps && (
-                    <div>
+                  {analysis.readinessIndicators?.readyToDescend?.nextSteps && <div>
                       <p className="text-sm font-medium mb-2">{t('visualizations.theoryU.readinessNextSteps')}</p>
                       <ul className="space-y-1">
-                        {analysis.readinessIndicators.readyToDescend.nextSteps.map((step: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                        {analysis.readinessIndicators.readyToDescend.nextSteps.map((step: string, idx: number) => <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
                             <span>{step}</span>
-                          </li>
-                        ))}
+                          </li>)}
                       </ul>
-                    </div>
-                  )}
+                    </div>}
                 </AccordionContent>
               </AccordionItem>
 
@@ -1047,19 +927,15 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                     <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessWhy')}</p>
                     <p className="text-sm text-muted-foreground">{analysis.readinessIndicators?.readyToPresence?.reason}</p>
                   </div>
-                  {analysis.readinessIndicators?.readyToPresence?.nextSteps && (
-                    <div>
+                  {analysis.readinessIndicators?.readyToPresence?.nextSteps && <div>
                       <p className="text-sm font-medium mb-2">{t('visualizations.theoryU.readinessNextSteps')}</p>
                       <ul className="space-y-1">
-                        {analysis.readinessIndicators.readyToPresence.nextSteps.map((step: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                        {analysis.readinessIndicators.readyToPresence.nextSteps.map((step: string, idx: number) => <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
                             <span>{step}</span>
-                          </li>
-                        ))}
+                          </li>)}
                       </ul>
-                    </div>
-                  )}
+                    </div>}
                 </AccordionContent>
               </AccordionItem>
 
@@ -1081,19 +957,15 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                     <p className="text-sm font-medium mb-1">{t('visualizations.theoryU.readinessWhy')}</p>
                     <p className="text-sm text-muted-foreground">{analysis.readinessIndicators?.readyToAscend?.reason}</p>
                   </div>
-                  {analysis.readinessIndicators?.readyToAscend?.nextSteps && (
-                    <div>
+                  {analysis.readinessIndicators?.readyToAscend?.nextSteps && <div>
                       <p className="text-sm font-medium mb-2">{t('visualizations.theoryU.readinessNextSteps')}</p>
                       <ul className="space-y-1">
-                        {analysis.readinessIndicators.readyToAscend.nextSteps.map((step: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                        {analysis.readinessIndicators.readyToAscend.nextSteps.map((step: string, idx: number) => <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
                             <span>{step}</span>
-                          </li>
-                        ))}
+                          </li>)}
                       </ul>
-                    </div>
-                  )}
+                    </div>}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -1101,44 +973,15 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
         </Card>
 
         {/* Theory U Resources */}
-        {resources && resources.length > 0 && (
-          <Card>
+        {resources && resources.length > 0 && <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
                 {t('visualizations.theoryU.resources')}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {resources.map((resource: any, idx: number) => (
-                  <a
-                    key={idx}
-                    href={resource.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-start gap-4 p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 hover:shadow-md transition-all group"
-                  >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary shrink-0">
-                      {resource.type === 'book' && '📚'}
-                      {resource.type === 'tool' && '🛠️'}
-                      {resource.type === 'video' && '🎥'}
-                      {resource.type === 'article' && '📄'}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-sm group-hover:text-primary transition-colors">{resource.title}</h4>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      </div>
-                      <p className="text-xs text-muted-foreground">{resource.relevance}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            
+          </Card>}
       </div>
-    </div>
-  );
+    </div>;
 }
