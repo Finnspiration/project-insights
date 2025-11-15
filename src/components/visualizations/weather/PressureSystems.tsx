@@ -190,7 +190,8 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
           })}
         </svg>
 
-        {/* Interactive Layer - HTML Div Overlays for Tooltips */}
+        {/* Interactive Layer - HTML Div Overlays for Tooltips - MUST be above all other layers */}
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
         {systems.zones.map((zone, index) => (
           <Tooltip key={`tooltip-zone-${zone.id}`}>
             <TooltipTrigger asChild>
@@ -291,6 +292,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             </Tooltip>
           );
         })}
+        </div>
       </TooltipProvider>
     </div>
   );
