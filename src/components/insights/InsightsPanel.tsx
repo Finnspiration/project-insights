@@ -199,14 +199,10 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
       )}
 
       <Tabs defaultValue="recommendations" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="recommendations">
             <TrendingUp className="h-4 w-4 mr-2" />
             {t('insights.recommendations.title')}
-          </TabsTrigger>
-          <TabsTrigger value="blindSpots">
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            {t('insights.blindSpots.title')}
           </TabsTrigger>
           <TabsTrigger value="interventions">
             <Lightbulb className="h-4 w-4 mr-2" />
@@ -250,44 +246,6 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
           ))}
         </TabsContent>
 
-        <TabsContent value="blindSpots" className="space-y-4">
-          {insights.blindSpots.map((spot, index) => (
-            <Card key={index} className="animate-fade-in border-l-4 border-l-destructive">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                    {spot.title}
-                  </CardTitle>
-                  <Badge variant={getPriorityColor(spot.impact)}>
-                    Impact: {spot.impact}
-                  </Badge>
-                </div>
-                <CardDescription>{spot.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 bg-muted rounded-lg space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Evidence:</strong> {spot.evidence}
-                  </p>
-                  {spot.citations && spot.citations.length > 0 && (
-                    <div className="space-y-2 border-t border-border pt-3 mt-3">
-                      <p className="text-xs font-semibold text-muted-foreground">
-                        {userLanguage === 'da' ? 'Dokumentkilder:' : 'Document Sources:'}
-                      </p>
-                      {spot.citations.map((citation, idx) => (
-                        <div key={idx} className="p-3 bg-muted/50 rounded-md border border-border">
-                          <p className="text-xs font-semibold text-destructive mb-1">📄 {citation.document}</p>
-                          <p className="text-xs text-muted-foreground italic">"{citation.quote}"</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
 
         <TabsContent value="interventions" className="space-y-4">
           {insights.interventions.map((intervention, index) => (
