@@ -32,6 +32,7 @@ serve(async (req) => {
 
     // Fetch document analysis context and document metadata if projectId is provided
     let documentContext = '';
+    let fullDocumentText = '';
     let documentMetadata: { count: number; excerpts: Array<{ filename: string; excerpt: string }> } = { count: 0, excerpts: [] };
     if (projectId) {
       try {
@@ -52,17 +53,25 @@ serve(async (req) => {
           .eq('project_id', projectId)
           .not('content', 'is', null);
 
+        // Build full document text for AI context (limit to 50k chars total)
         if (!docsError && documents && documents.length > 0) {
           documentMetadata.count = documents.length;
-          // Extract excerpts (first 200 chars from each doc)
+          
+          // Combine full document content (limited)
+          fullDocumentText = documents
+            .map((doc: any) => `\n\n=== ${doc.filename} ===\n${doc.content}`)
+            .join('\n')
+            .slice(0, 50000); // Limit to 50k characters total
+            
+          console.log(`Prepared ${fullDocumentText.length} characters of document text for AI from ${documentMetadata.count} documents`);
+          
+          // Extract excerpts for metadata
           documentMetadata.excerpts = documents
             .map((doc: any) => ({
               filename: doc.filename,
               excerpt: doc.content?.substring(0, 200) || ''
             }))
             .filter((d: any) => d.excerpt);
-
-          console.log(`Found ${documentMetadata.count} documents for insights`);
         }
 
         // Fetch document analysis
@@ -94,34 +103,47 @@ When generating insights, INCLUDE SPECIFIC CITATIONS from the documents. Use doc
 
     // Construct system prompt based on language
     const systemPrompts = {
-      en: `You are PRISM, an expert AI consultant specializing in project intelligence and organizational development. 
-Your role is to analyze morphological assessments (based on Theory U, Inner Development Goals, Laloux's Organizational Paradigms, and Morgan's Organizational Metaphors) and provide actionable insights.
+      en: `You are PRISM, an expert AI consultant specializing in project intelligence and organizational development.
 
-Analyze the project morphology and generate:
-1. Strategic Recommendations - 3-5 specific, actionable recommendations with MANDATORY citations from uploaded documents
-2. Blind Spots - 3-5 potential blind spots or overlooked dimensions with MANDATORY citations from uploaded documents
-3. Interventions - 3-5 practical interventions or workshops to improve project success
+CRITICAL CITATION REQUIREMENT:
+- EVERY recommendation MUST cite ACTUAL TEXT from the uploaded documents
+- EVERY blind spot MUST cite ACTUAL TEXT from the uploaded documents
+- Use format: {"document": "filename.txt", "quote": "exact text from document"}
+- Do NOT cite morphological assessments - cite ONLY from uploaded document text
+- If no documents are provided, citations array can be empty
 
-CRITICAL: EVERY recommendation and blind spot MUST include at least 1-2 specific citations with the document filename and exact quotes from the uploaded documents. The citations field is REQUIRED and cannot be empty.
+Analyze the project morphology AND the uploaded documents to provide:
+1. Strategic Recommendations (with document citations)
+2. Blind Spots (with document citations)
+3. Interventions
 
-Be specific, insightful, and grounded in organizational theory. Focus on what's NOT being addressed.${documentContext}`,
+Be specific, insightful, and grounded in organizational theory. Focus on what's NOT being addressed.`,
       da: `Du er PRISM, en ekspert AI-konsulent specialiseret i projektintelligens og organisationsudvikling.
-Din rolle er at analysere morfologiske vurderinger (baseret på Teori U, Indre Udviklingsmål, Laloux's Organisatoriske Paradigmer og Morgans Organisatoriske Metaforer) og give handlingsorienterede indsigter.
 
-Analyser projektmorfologien og generer:
-1. Strategiske Anbefalinger - 3-5 specifikke, handlingsorienterede anbefalinger med OBLIGATORISKE citater fra uploadede dokumenter
-2. Blinde Vinkler - 3-5 potentielle blinde vinkler eller oversete dimensioner med OBLIGATORISKE citater fra uploadede dokumenter
-3. Interventioner - 3-5 praktiske interventioner eller workshops for at forbedre projektsucces
+KRITISK CITATBEHOV:
+- HVER anbefaling SKAL citere FAKTISK TEKST fra de uploadede dokumenter
+- HVER blind vinkel SKAL citere FAKTISK TEKST fra de uploadede dokumenter
+- Brug format: {"document": "filnavn.txt", "quote": "præcis tekst fra dokument"}
+- Citer IKKE morfologiske vurderinger - citer KUN fra uploadede dokumenttekst
+- Hvis ingen dokumenter er tilgængelige, kan citations array være tom
 
-KRITISK: HVER anbefaling og blind vinkel SKAL inkludere mindst 1-2 specifikke citater med dokumentfilnavnet og nøjagtige citater fra de uploadede dokumenter. Citations-feltet er PÅKRÆVET og kan ikke være tomt.
+Analyser projektmorfologien OG de uploadede dokumenter for at give:
+1. Strategiske Anbefalinger (med dokumentcitater)
+2. Blinde Vinkler (med dokumentcitater)
+3. Interventioner
 
-Vær specifik, indsigtsfuld og forankret i organisationsteori. Fokuser på hvad der IKKE bliver adresseret.${documentContext}`
+Vær specifik, indsigtsfuld og forankret i organisationsteori. Fokuser på hvad der IKKE bliver adresseret.`
     };
 
     const userPrompts = {
       en: `Analyze this project morphology and generate insights:
 
 Project: ${projectName || "Unnamed Project"}
+
+UPLOADED DOCUMENTS (${documentMetadata.count} files):
+${fullDocumentText || 'No documents uploaded'}
+
+---
 
 Morphology Assessment:
 - Complexity: ${morphology.complexity || "N/A"}
@@ -135,12 +157,17 @@ Morphology Assessment:
 - Resources: ${morphology.resources || "N/A"}
 - Change Intensity: ${morphology.change || "N/A"}
 - Information Flow: ${morphology.information || "N/A"}
-- Risk Profile: ${morphology.risk || "N/A"}${documentContext}
+- Risk Profile: ${morphology.risk || "N/A"}
 
-Generate comprehensive insights with specific, actionable recommendations.`,
+CRITICAL: Generate insights WITH SPECIFIC CITATIONS from the uploaded documents above. Every recommendation and blind spot MUST include at least 1-2 direct quotes with document filename.`,
       da: `Analyser denne projektmorfologi og generer indsigter:
 
 Projekt: ${projectName || "Unavngivet Projekt"}
+
+UPLOADEDE DOKUMENTER (${documentMetadata.count} filer):
+${fullDocumentText || 'Ingen dokumenter uploadet'}
+
+---
 
 Morfologisk Vurdering:
 - Kompleksitet: ${morphology.complexity || "N/A"}
@@ -154,9 +181,9 @@ Morfologisk Vurdering:
 - Ressourcer: ${morphology.resources || "N/A"}
 - Forandringsintensitet: ${morphology.change || "N/A"}
 - Informationsflow: ${morphology.information || "N/A"}
-- Risikoprofil: ${morphology.risk || "N/A"}${documentContext}
+- Risikoprofil: ${morphology.risk || "N/A"}
 
-Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
+KRITISK: Generer indsigter MED SPECIFIKKE CITATER fra de uploadede dokumenter ovenfor. Hver anbefaling og blind vinkel SKAL inkludere mindst 1-2 direkte citater med dokumentfilnavn.`
     };
 
     // Use structured output with tool calling
