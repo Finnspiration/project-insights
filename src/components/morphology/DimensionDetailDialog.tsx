@@ -40,6 +40,11 @@ export function DimensionDetailDialog({
   const { t, i18n } = useTranslation('common');
   const currentLanguage = i18n.language as 'en' | 'da';
 
+  // Defensive check - prevent crash if dimension or selectedOption is undefined
+  if (!dimension || !selectedOption) {
+    return null;
+  }
+
   const categoryColor = CATEGORY_COLORS[dimension.category as keyof typeof CATEGORY_COLORS];
   const categoryIconName = CATEGORY_ICONS[dimension.category as keyof typeof CATEGORY_ICONS];
   
