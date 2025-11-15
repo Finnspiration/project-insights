@@ -4,11 +4,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, RefreshCw, TrendingDown, TrendingUp, AlertCircle, BookOpen, MapPin, Lightbulb, BarChart3, FileText, ExternalLink, ChevronDown, ChevronUp, X, Star } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { 
+  Loader2, RefreshCw, Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle2, 
+  XCircle, Clock, ExternalLink, BookOpen, Video, GraduationCap, MapPin, Lightbulb, 
+  BarChart3, FileText, Heart, Star, X, Download, ChevronDown, ChevronUp
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
+import { DNAEvidenceVisualization } from './theory-u/DNAEvidenceVisualization';
 
 interface UJourneyTimelineProps {
   morphology: any;
@@ -757,28 +766,61 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                 </Button>
               </div>
               
-              {analysis.whyHere?.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 ? (
-                <div className="grid gap-3">
-                  {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => (
-                    <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 border border-border/50">
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="w-1 h-12 bg-primary rounded-full" />
-                        <Badge variant="secondary" className="text-xs font-medium">
-                          {evidence.dimension}
-                        </Badge>
-                      </div>
-                      <div className="space-y-1 flex-1">
-                        <p className="text-sm font-semibold text-foreground">{evidence.value}</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{evidence.reasoning}</p>
-                      </div>
+              {/* Morphology Evidence - DNA Visualization */}
+              {analysis.whyHere.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 && morphology && (
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-sm flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    {t('visualizations.theoryU.morphologyEvidence')}
+                  </h4>
+                  
+                  {/* DNA Helix Visualization */}
+                  <DNAEvidenceVisualization
+                    morphology={morphology}
+                    evidence={analysis.whyHere.morphologyEvidence}
+                    language={(i18n.language as 'en' | 'da') || 'en'}
+                  />
+                  
+                  {/* Legend */}
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground px-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+                      <span>{t('visualizations.theoryU.evidenceDimensions')}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
-                  <p className="text-sm text-muted-foreground text-center">
-                    {t('visualizations.theoryU.noMorphologyEvidence')}
-                  </p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-muted" />
+                      <span>{t('visualizations.theoryU.otherDimensions')}</span>
+                    </div>
+                    <span className="ml-auto italic">{t('visualizations.theoryU.clickToExplore')}</span>
+                  </div>
+                  
+                  {/* Collapsible detailed list */}
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="w-full">
+                        <ChevronDown className="w-4 h-4 mr-2" />
+                        {t('visualizations.theoryU.showDetails')}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="grid gap-3 mt-4">
+                        {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => (
+                          <div 
+                            key={idx} 
+                            className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border"
+                          >
+                            <Badge variant="secondary" className="mt-0.5 shrink-0">
+                              {evidence.dimension}
+                            </Badge>
+                            <div className="flex-1 space-y-1">
+                              <p className="font-medium text-sm">{evidence.value}</p>
+                              <p className="text-sm text-muted-foreground">{evidence.reasoning}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
               )}
             </div>
