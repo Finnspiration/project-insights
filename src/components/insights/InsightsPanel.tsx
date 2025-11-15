@@ -9,18 +9,25 @@ import { toast } from 'sonner';
 import { Sparkles, AlertTriangle, Lightbulb, RefreshCw, TrendingUp } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+interface Citation {
+  document: string;
+  quote: string;
+}
+
 interface Insight {
   recommendations: Array<{
     title: string;
     description: string;
     priority: 'high' | 'medium' | 'low';
     rationale: string;
+    citations?: Citation[];
   }>;
   blindSpots: Array<{
     title: string;
     description: string;
     impact: 'high' | 'medium' | 'low';
     evidence: string;
+    citations?: Citation[];
   }>;
   interventions: Array<{
     title: string;
@@ -28,6 +35,10 @@ interface Insight {
     type: 'workshop' | 'coaching' | 'process' | 'tool' | 'retreat';
     timeframe: string;
   }>;
+  documentMetadata?: {
+    count: number;
+    analyzed: boolean;
+  };
 }
 
 interface InsightsPanelProps {
@@ -173,6 +184,20 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
         </Button>
       </div>
 
+      {insights.documentMetadata && insights.documentMetadata.analyzed && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              {userLanguage === 'da' 
+                ? `Indsigter baseret på ${insights.documentMetadata.count} uploadede dokument${insights.documentMetadata.count > 1 ? 'er' : ''}`
+                : `Insights based on ${insights.documentMetadata.count} uploaded document${insights.documentMetadata.count > 1 ? 's' : ''}`
+              }
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="recommendations" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="recommendations">
@@ -202,10 +227,23 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
                 <CardDescription>{rec.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="p-4 bg-muted rounded-lg">
+                <div className="p-4 bg-muted rounded-lg space-y-3">
                   <p className="text-sm text-muted-foreground">
                     <strong>Rationale:</strong> {rec.rationale}
                   </p>
+                  {rec.citations && rec.citations.length > 0 && (
+                    <div className="space-y-2 border-t border-border pt-3 mt-3">
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        {userLanguage === 'da' ? 'Dokumentkilder:' : 'Document Sources:'}
+                      </p>
+                      {rec.citations.map((citation, idx) => (
+                        <div key={idx} className="pl-3 border-l-2 border-primary/30">
+                          <p className="text-xs font-medium text-foreground">{citation.document}</p>
+                          <p className="text-xs text-muted-foreground italic">"{citation.quote}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -228,10 +266,23 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
                 <CardDescription>{spot.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="p-4 bg-muted rounded-lg">
+                <div className="p-4 bg-muted rounded-lg space-y-3">
                   <p className="text-sm text-muted-foreground">
                     <strong>Evidence:</strong> {spot.evidence}
                   </p>
+                  {spot.citations && spot.citations.length > 0 && (
+                    <div className="space-y-2 border-t border-border pt-3 mt-3">
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        {userLanguage === 'da' ? 'Dokumentkilder:' : 'Document Sources:'}
+                      </p>
+                      {spot.citations.map((citation, idx) => (
+                        <div key={idx} className="pl-3 border-l-2 border-destructive/30">
+                          <p className="text-xs font-medium text-foreground">{citation.document}</p>
+                          <p className="text-xs text-muted-foreground italic">"{citation.quote}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
