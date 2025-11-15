@@ -160,12 +160,17 @@ export function DNAEvidenceVisualization({
             {helixPoints.map((point) => {
               const value = morphology[point.dimension.key];
               const option = point.dimension.options.find(opt => opt.value === value);
-              const translatedLabel = option ? t(option.translationKey) : value;
+              const translatedLabel = option ? t(option.translationKey) : value || '';
               const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
               
               const categoryColor = CATEGORY_COLORS[point.dimension.category];
-              const estimatedWidth = Math.max(70, shortLabel.length * 10 + 12);
+              const estimatedWidth = Math.max(80, shortLabel.length * 9 + 20);
               const badgeHeight = 28;
+              
+              // Use category color for non-highlighted, amber for highlighted
+              const badgeColor = point.isHighlighted 
+                ? "hsl(45, 100%, 60%)" 
+                : `hsl(${categoryColor})`;
               
               return (
                 <g 
@@ -195,7 +200,7 @@ export function DNAEvidenceVisualization({
                     width={estimatedWidth}
                     height={badgeHeight}
                     rx="8"
-                    fill={point.isHighlighted ? "hsl(45, 100%, 60%)" : `hsl(${categoryColor})`}
+                    fill={badgeColor}
                     stroke="white"
                     strokeWidth="1"
                     className="transition-all hover:opacity-90"
