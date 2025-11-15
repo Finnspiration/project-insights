@@ -47,6 +47,7 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
     const centerY = rect.height / 2;
     const radius = Math.min(rect.width, rect.height) * 0.35;
     
+    // Base positions for each zone
     const positions: Record<string, { x: number; y: number }> = {
       outerGlow: { 
         x: centerX, 
@@ -70,7 +71,34 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
       }
     };
     
-    return positions[zone] || { x: centerX, y: centerY };
+    let position = positions[zone] || { x: centerX, y: centerY };
+    
+    // Boundary checking - ensure tooltip stays within container
+    const tooltipWidth = 320; // max-w-sm ≈ 320px
+    const tooltipHeight = 200; // estimated height
+    const padding = 20;
+    
+    // Check right boundary
+    if (position.x + tooltipWidth/2 > rect.width - padding) {
+      position.x = rect.width - tooltipWidth/2 - padding;
+    }
+    
+    // Check left boundary
+    if (position.x - tooltipWidth/2 < padding) {
+      position.x = tooltipWidth/2 + padding;
+    }
+    
+    // Check bottom boundary
+    if (position.y + tooltipHeight/2 > rect.height - padding) {
+      position.y = rect.height - tooltipHeight/2 - padding;
+    }
+    
+    // Check top boundary
+    if (position.y - tooltipHeight/2 < padding) {
+      position.y = tooltipHeight/2 + padding;
+    }
+    
+    return position;
   };
   // Click outside handler to close tooltip
   useEffect(() => {
@@ -165,12 +193,24 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
           {/* Left: Blob Canvas */}
           <div className="relative flex flex-col items-center">
             <div ref={blobContainerRef} className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
-              <ReactP5Wrapper sketch={blobSketch} blobData={blobData} onHover={handleHover} selectedZone={selectedZone} />
+              <ReactP5Wrapper sketch={blobSketch} blobData={blobData} selectedZone={selectedZone} selectedDimension={selectedDimension} onZoneHover={handleHover} />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
               {showZoneTooltip && selectedZone && (() => {
                 const zoneInfo = getZoneInfo(selectedZone);
                 const zoneStyle = getZoneStyles(selectedZone, blobData);
+                
+                // Get dimension color and icon instead of zone color
+                const dimensionVisuals = selectedDimension 
+                  ? getDimensionVisuals(selectedDimension, blobData) 
+                  : null;
+                
+                // Override zone colors with dimension colors
+                const tooltipBorderColor = dimensionVisuals?.color || zoneStyle.borderColor;
+                const tooltipGradient = dimensionVisuals 
+                  ? `linear-gradient(135deg, ${dimensionVisuals.color}15, ${dimensionVisuals.color}35)`
+                  : zoneStyle.gradient;
+                const tooltipIcon = dimensionVisuals?.icon || zoneStyle.icon;
                 
                 if (!zoneInfo || !zoneStyle) return null;
                 
@@ -186,8 +226,8 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                     <div 
                       className="backdrop-blur-md border-2 rounded-xl shadow-2xl p-4 max-w-sm relative"
                       style={{
-                        borderColor: zoneStyle.borderColor,
-                        background: zoneStyle.gradient
+                        borderColor: tooltipBorderColor,
+                        background: tooltipGradient
                       }}
                     >
                       {/* Close button */}
@@ -208,23 +248,23 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                           top: '50%',
                           right: '-16px',
                           transform: 'translateY(-50%)',
-                          borderColor: `transparent transparent transparent ${zoneStyle.borderColor}`,
+                          borderColor: `transparent transparent transparent ${tooltipBorderColor}`,
                         }}
                       />
                       
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-2xl">{zoneStyle.icon}</span>
+                        <span className="text-2xl">{tooltipIcon}</span>
                         <p className="text-base font-bold text-foreground">{zoneInfo.title}</p>
                       </div>
                       
-                      <div className="h-0.5 mb-3" style={{ background: zoneStyle.borderColor }} />
+                      <div className="h-0.5 mb-3" style={{ background: tooltipBorderColor }} />
                       
                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">
                         {zoneInfo.description}
                       </p>
                       
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: zoneStyle.borderColor }} />
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tooltipBorderColor }} />
                         <span className="text-xs font-medium">{zoneInfo.dimension}</span>
                       </div>
                     </div>

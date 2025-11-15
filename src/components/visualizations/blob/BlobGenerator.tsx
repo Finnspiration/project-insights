@@ -5,6 +5,7 @@ export interface BlobSketchProps {
   blobData: BlobVisualData;
   onHover?: (zone: string | null, x: number, y: number) => void;
   selectedZone?: string | null;
+  selectedDimension?: string | null;
   [key: string]: any;
 }
 
@@ -14,6 +15,7 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
   let startTime = 0;
   let onHoverCallback: ((zone: string | null, x: number, y: number) => void) | undefined;
   let selectedZone: string | null = null;
+  let selectedDimension: string | null = null;
   let mouseParallaxX = 0;
   let mouseParallaxY = 0;
   
@@ -21,6 +23,7 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
     blobData = props.blobData;
     onHoverCallback = props.onHover;
     selectedZone = props.selectedZone || null;
+    selectedDimension = props.selectedDimension || null;
   };
   
   p5.setup = () => {
@@ -79,7 +82,7 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
     if (blobData.rotationSpeed > 0) {
       p5.rotate(p5.radians(elapsedSeconds * blobData.rotationSpeed));
     }
-    drawOuterGlow(p5, blobData, dynamicRadius * pulseFactor, selectedZone === 'outerGlow');
+    drawOuterGlow(p5, blobData, dynamicRadius * pulseFactor, selectedZone === 'outerGlow', selectedDimension || null);
     p5.pop();
     
     // LAYER 2: Main shape (mid-ground)
@@ -88,8 +91,8 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
     if (blobData.rotationSpeed > 0) {
       p5.rotate(p5.radians(elapsedSeconds * blobData.rotationSpeed));
     }
-    drawBlobShape(p5, blobData, dynamicRadius * pulseFactor, elapsedSeconds, selectedZone === 'mainShape');
-    drawCulturalGradient(p5, blobData, dynamicRadius * pulseFactor, selectedZone === 'culturalOverlay');
+    drawBlobShape(p5, blobData, dynamicRadius * pulseFactor, elapsedSeconds, selectedZone === 'mainShape', selectedDimension || null);
+    drawCulturalGradient(p5, blobData, dynamicRadius * pulseFactor, selectedZone === 'culturalOverlay', selectedDimension || null);
     p5.pop();
     
     // LAYER 3: Inner pattern (foreground, moves most)
@@ -98,17 +101,33 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
     if (blobData.rotationSpeed > 0) {
       p5.rotate(p5.radians(elapsedSeconds * blobData.rotationSpeed));
     }
-    drawInnerPattern(p5, blobData, dynamicRadius * pulseFactor * 0.6, selectedZone === 'innerPattern');
-    drawCoreGlow(p5, blobData, dynamicRadius * pulseFactor * 0.3, selectedZone === 'coreGlow');
+    drawInnerPattern(p5, blobData, dynamicRadius * pulseFactor * 0.6, selectedZone === 'innerPattern', selectedDimension || null);
+    drawCoreGlow(p5, blobData, dynamicRadius * pulseFactor * 0.3, selectedZone === 'coreGlow', selectedDimension || null);
     p5.pop();
   };
 };
 
-function drawOuterGlow(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false) {
+function drawOuterGlow(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false, selectedDimension: string | null = null) {
   if (data.outerGlowIntensity <= 0 && !isSelected) return;
   
-  // SELECTION HIGHLIGHT
-  if (isSelected) {
+  // SELECTION HIGHLIGHT with dimension color
+  if (isSelected && selectedDimension) {
+    const dimensionColor = getDimensionColor(selectedDimension, data);
+    const pulseAlpha = 180 + 75 * p5.sin(p5.frameCount * 0.15);
+    
+    p5.noFill();
+    p5.stroke(dimensionColor.r * 0.3, dimensionColor.g * 0.3, dimensionColor.b * 0.3, pulseAlpha * 0.8);
+    p5.strokeWeight(16);
+    p5.circle(0, 0, radius * 1.5);
+    
+    p5.stroke(dimensionColor.r, dimensionColor.g, dimensionColor.b, pulseAlpha);
+    p5.strokeWeight(12);
+    p5.circle(0, 0, radius * 1.5);
+    
+    p5.stroke(dimensionColor.r, dimensionColor.g, dimensionColor.b, pulseAlpha * 0.6);
+    p5.strokeWeight(8);
+    p5.circle(0, 0, radius * 1.45);
+  } else if (isSelected) {
     const pulseAlpha = 180 + 75 * p5.sin(p5.frameCount * 0.15);
     
     p5.noFill();
@@ -166,7 +185,7 @@ function drawOuterGlow(p5: any, data: BlobVisualData, radius: number, isSelected
   }
 }
 
-function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: number, isSelected: boolean = false) {
+function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: number, isSelected: boolean = false, selectedDimension: string | null = null) {
   const angleStep = 0.05;
   const points = [];
   
@@ -244,8 +263,18 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
   });
   p5.pop();
   
-  // SELECTION HIGHLIGHT
-  if (isSelected) {
+  // SELECTION HIGHLIGHT with dimension color
+  if (isSelected && selectedDimension) {
+    const dimensionColor = getDimensionColor(selectedDimension, data);
+    const pulseAlpha = 120 + 80 * p5.sin(p5.frameCount * 0.12);
+    p5.colorMode(p5.RGB, 255);
+    p5.noFill();
+    p5.stroke(dimensionColor.r, dimensionColor.g, dimensionColor.b, pulseAlpha);
+    p5.strokeWeight(5);
+    p5.beginShape();
+    points.forEach(p => p5.vertex(p.x, p.y));
+    p5.endShape(p5.CLOSE);
+  } else if (isSelected) {
     const pulseAlpha = 120 + 80 * p5.sin(p5.frameCount * 0.12);
     p5.colorMode(p5.RGB, 255);
     p5.noFill();
@@ -259,7 +288,7 @@ function drawBlobShape(p5: any, data: BlobVisualData, radius: number, time: numb
   p5.colorMode(p5.RGB, 255);
 }
 
-function drawInnerPattern(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false) {
+function drawInnerPattern(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false, selectedDimension: string | null = null) {
   const h = data.baseHue;
   const s = data.saturation;
   const b = data.brightness;
@@ -355,8 +384,17 @@ function drawInnerPattern(p5: any, data: BlobVisualData, radius: number, isSelec
       break;
   }
   
-  // SELECTION HIGHLIGHT
-  if (isSelected) {
+  // SELECTION HIGHLIGHT with dimension color
+  if (isSelected && selectedDimension) {
+    const dimensionColor = getDimensionColor(selectedDimension, data);
+    const pulseAlpha = 130 + 90 * p5.sin(p5.frameCount * 0.13);
+    p5.noFill();
+    p5.colorMode(p5.RGB, 255);
+    p5.stroke(dimensionColor.r, dimensionColor.g, dimensionColor.b, pulseAlpha);
+    p5.strokeWeight(4);
+    p5.circle(0, 0, radius * 1.1);
+    p5.colorMode(p5.HSB, 360, 100, 100);
+  } else if (isSelected) {
     const pulseAlpha = 130 + 90 * p5.sin(p5.frameCount * 0.13);
     p5.noFill();
     p5.colorMode(p5.RGB, 255);
@@ -369,7 +407,7 @@ function drawInnerPattern(p5: any, data: BlobVisualData, radius: number, isSelec
   p5.colorMode(p5.RGB, 255);
 }
 
-function drawCoreGlow(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false) {
+function drawCoreGlow(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false, selectedDimension: string | null = null) {
   p5.push();
   
   const layers = 5;
@@ -390,8 +428,17 @@ function drawCoreGlow(p5: any, data: BlobVisualData, radius: number, isSelected:
     p5.circle(0, 0, r * 2);
   }
   
-  // SELECTION HIGHLIGHT
-  if (isSelected) {
+  // SELECTION HIGHLIGHT with dimension color
+  if (isSelected && selectedDimension) {
+    const dimensionColor = getDimensionColor(selectedDimension, data);
+    const pulseAlpha = 140 + 100 * p5.sin(p5.frameCount * 0.14);
+    p5.colorMode(p5.RGB, 255);
+    p5.noFill();
+    p5.stroke(dimensionColor.r, dimensionColor.g, dimensionColor.b, pulseAlpha);
+    p5.strokeWeight(3);
+    p5.circle(0, 0, radius * 1.2);
+    p5.colorMode(p5.HSB, 360, 100, 100);
+  } else if (isSelected) {
     const pulseAlpha = 140 + 100 * p5.sin(p5.frameCount * 0.14);
     p5.colorMode(p5.RGB, 255);
     p5.noFill();
@@ -405,7 +452,7 @@ function drawCoreGlow(p5: any, data: BlobVisualData, radius: number, isSelected:
   p5.pop();
 }
 
-function drawCulturalGradient(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false) {
+function drawCulturalGradient(p5: any, data: BlobVisualData, radius: number, isSelected: boolean = false, selectedDimension: string | null = null) {
   if (data.colorSpread <= 1 && !isSelected) return;
   
   p5.push();
@@ -431,11 +478,25 @@ function drawCulturalGradient(p5: any, data: BlobVisualData, radius: number, isS
     p5.colorMode(p5.RGB, 255);
   }
   
-  // SELECTION HIGHLIGHT
-  if (isSelected) {
+  // SELECTION HIGHLIGHT with dimension color
+  if (isSelected && selectedDimension) {
+    const dimensionColor = getDimensionColor(selectedDimension, data);
     const pulseAlpha = 140 + 80 * p5.sin(p5.frameCount * 0.1);
     
-    // Mørk outline
+    // Dark outline
+    p5.noFill();
+    p5.stroke(dimensionColor.r * 0.3, dimensionColor.g * 0.3, dimensionColor.b * 0.3, pulseAlpha * 0.8);
+    p5.strokeWeight(13);
+    p5.circle(0, 0, radius * 0.85);
+    
+    // Colored highlight
+    p5.stroke(dimensionColor.r, dimensionColor.g, dimensionColor.b, pulseAlpha);
+    p5.strokeWeight(9);
+    p5.circle(0, 0, radius * 0.85);
+  } else if (isSelected) {
+    const pulseAlpha = 140 + 80 * p5.sin(p5.frameCount * 0.1);
+    
+    // Dark outline
     p5.noFill();
     p5.stroke(0, 50, 50, pulseAlpha * 0.8);
     p5.strokeWeight(13);
@@ -448,4 +509,48 @@ function drawCulturalGradient(p5: any, data: BlobVisualData, radius: number, isS
   }
   
   p5.pop();
+}
+
+// Helper function to convert HSL color string to RGB
+function getDimensionColor(dimension: string, blobData: BlobVisualData): { r: number; g: number; b: number } {
+  const dimensionMap: Record<string, string> = {
+    complexity: 'hsl(0, 60%, 65%)',
+    stakeholder: `hsl(${blobData.baseHue}, 60%, 60%)`,
+    knowledge: 'hsl(200, 60%, 60%)',
+    organizational: `hsl(${blobData.baseHue}, 70%, 55%)`,
+    temporal: 'hsl(280, 60%, 65%)',
+    change: 'hsl(30, 70%, 60%)',
+    risk: blobData.outerGlowColor,
+    cultural: `hsl(${blobData.baseHue + 30}, 60%, 60%)`,
+    development: 'hsl(150, 60%, 55%)'
+  };
+  
+  const hslString = dimensionMap[dimension] || 'hsl(0, 0%, 50%)';
+  
+  // Parse HSL string (simplified - assumes format "hsl(h, s%, l%)")
+  const hslMatch = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!hslMatch) return { r: 128, g: 128, b: 128 };
+  
+  const h = parseInt(hslMatch[1]);
+  const s = parseInt(hslMatch[2]) / 100;
+  const l = parseInt(hslMatch[3]) / 100;
+  
+  // HSL to RGB conversion
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  
+  let r = 0, g = 0, b = 0;
+  if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
+  else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
+  else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
+  else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
+  else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
+  else if (h >= 300 && h < 360) { r = c; g = 0; b = x; }
+  
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255)
+  };
 }
