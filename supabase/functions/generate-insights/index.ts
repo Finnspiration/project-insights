@@ -30,10 +30,37 @@ serve(async (req) => {
     console.log("Language:", language);
     console.log("Morphology:", morphology);
 
-    // Fetch document analysis context if projectId is provided
+    // Fetch document analysis context and document metadata if projectId is provided
     let documentContext = '';
+    let documentMetadata: { count: number; excerpts: Array<{ filename: string; excerpt: string }> } = { count: 0, excerpts: [] };
     if (projectId) {
       try {
+        // Get supabase client
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Fetch documents with content
+        const { data: documents, error: docsError } = await supabase
+          .from('documents')
+          .select('filename, content')
+          .eq('project_id', projectId)
+          .not('content', 'is', null);
+
+        if (!docsError && documents && documents.length > 0) {
+          documentMetadata.count = documents.length;
+          // Extract excerpts (first 200 chars from each doc)
+          documentMetadata.excerpts = documents
+            .map((doc: any) => ({
+              filename: doc.filename,
+              excerpt: doc.content?.substring(0, 200) || ''
+            }))
+            .filter((d: any) => d.excerpt);
+
+          console.log(`Found ${documentMetadata.count} documents for insights`);
+        }
+
+        // Fetch document analysis
         const analyzeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/analyze-documents`, {
           method: 'POST',
           headers: {
@@ -46,11 +73,13 @@ serve(async (req) => {
         if (analyzeResponse.ok) {
           const analysisData = await analyzeResponse.json();
           if (analysisData?.patterns) {
-            documentContext = `\n\nDocument Analysis Context:
+            documentContext = `\n\nDocument Analysis Context (based on ${documentMetadata.count} uploaded documents):
 - Dominant metaphors: ${JSON.stringify(analysisData.patterns.metaphors)}
 - Key themes: ${analysisData.patterns.dominantThemes?.join(', ')}
 - Emotional tone: ${analysisData.patterns.emotionalTone}
-- Power dynamics: ${analysisData.patterns.powerDynamics}`;
+- Power dynamics: ${analysisData.patterns.powerDynamics}
+
+When generating insights, INCLUDE SPECIFIC CITATIONS from the documents. Use document filenames and quote relevant passages to support your recommendations, blind spots, and evidence.`;
           }
         }
       } catch (err) {
@@ -151,7 +180,17 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
                         title: { type: "string" },
                         description: { type: "string" },
                         priority: { type: "string", enum: ["high", "medium", "low"] },
-                        rationale: { type: "string" }
+                        rationale: { type: "string" },
+                        citations: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              document: { type: "string" },
+                              quote: { type: "string" }
+                            }
+                          }
+                        }
                       },
                       required: ["title", "description", "priority", "rationale"],
                       additionalProperties: false
@@ -165,7 +204,17 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
                         title: { type: "string" },
                         description: { type: "string" },
                         impact: { type: "string", enum: ["high", "medium", "low"] },
-                        evidence: { type: "string" }
+                        evidence: { type: "string" },
+                        citations: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              document: { type: "string" },
+                              quote: { type: "string" }
+                            }
+                          }
+                        }
                       },
                       required: ["title", "description", "impact", "evidence"],
                       additionalProperties: false
@@ -224,6 +273,13 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
     }
 
     const insights = JSON.parse(toolCall.function.arguments);
+    
+    // Add document metadata to insights
+    insights.documentMetadata = {
+      count: documentMetadata.count,
+      analyzed: documentMetadata.count > 0
+    };
+    
     console.log("Insights generated successfully");
 
     // Store insights and blind spots in database if projectId is provided
