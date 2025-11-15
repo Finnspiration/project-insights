@@ -315,7 +315,11 @@ export default function ProjectDetail() {
                 </TabsContent>
                 
                 <TabsContent value="blob">
-                  <MorphologyBlob morphology={project.morphology} />
+                  <MorphologyBlob 
+                    morphology={project.morphology} 
+                    projectId={project.id}
+                    onMorphologyUpdate={fetchProject}
+                  />
                 </TabsContent>
               </Tabs>
             )}

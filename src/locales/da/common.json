@@ -273,6 +273,9 @@
   "morphology": {
     "title": "Morfologisk Vurdering",
     "subtitle": "Karakteriser dit projekt på tværs af 12 nøgledimensioner",
+    "selectOption": "Vælg en mulighed",
+    "updateSuccess": "Morfologi opdateret succesfuldt",
+    "updateError": "Kunne ikke opdatere morfologi",
     "step": "Trin",
     "of": "af",
     "next": "Næste",

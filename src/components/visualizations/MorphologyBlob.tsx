@@ -4,15 +4,23 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X } from 'lucide-react';
 import { mapMorphologyToBlob } from './blob/blobMapping';
 import { blobSketch } from './blob/BlobGenerator';
 import { getZoneStyles, getDimensionVisuals, getPatternPreview } from './blob/colorMapping';
 import { useArchetype } from '@/hooks/useArchetype';
+import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 interface MorphologyBlobProps {
   morphology: any;
+  projectId?: string;
+  onMorphologyUpdate?: () => void;
 }
-export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
+
+export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: MorphologyBlobProps) {
   const { t, i18n } = useTranslation('common');
   const blobData = mapMorphologyToBlob(morphology);
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
@@ -21,6 +29,9 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [showZoneTooltip, setShowZoneTooltip] = useState(false);
   const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
+  const [editingDimension, setEditingDimension] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
   const blobContainerRef = useRef<HTMLDivElement>(null);
   
   // Use React Query for archetype loading - prevents race conditions
@@ -143,6 +154,77 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
       y
     });
   };
+  
+  const handleSaveQuickEdit = async () => {
+    if (!projectId || !editingDimension || !tempValue) return;
+    
+    setIsSaving(true);
+    
+    const updatedMorphology = {
+      ...morphology,
+      [editingDimension]: tempValue
+    };
+    
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ morphology: updatedMorphology })
+        .eq('id', projectId);
+      
+      if (error) throw error;
+      
+      toast.success(t('morphology.updateSuccess') || 'Morphology updated!');
+      setEditingDimension(null);
+      setTempValue('');
+      
+      // Trigger refresh
+      if (onMorphologyUpdate) {
+        onMorphologyUpdate();
+      }
+    } catch (error) {
+      console.error('Error updating morphology:', error);
+      toast.error(t('morphology.updateError') || 'Failed to update morphology');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingDimension(null);
+    setTempValue('');
+  };
+  
+  // Helper function to handle dimension click  
+  const handleDimensionClick = (dimensionKey: string) => {
+    if (editingDimension === dimensionKey) {
+      handleCancelEdit();
+      return;
+    }
+    
+    // If already selected and projectId exists, start editing
+    if (projectId && selectedDimension === dimensionKey) {
+      setEditingDimension(dimensionKey);
+      setTempValue(morphology[dimensionKey] || '');
+      return;
+    }
+    
+    // Toggle selection
+    const newDimension = selectedDimension === dimensionKey ? null : dimensionKey;
+    setSelectedDimension(newDimension);
+    
+    if (newDimension && blobContainerRef.current) {
+      const zone = dimensionToZone[newDimension];
+      setSelectedZone(zone);
+      const position = calculateZonePosition(zone, blobContainerRef.current);
+      setZoneTooltipPosition(position);
+      setShowZoneTooltip(true);
+    } else {
+      setShowZoneTooltip(false);
+      setSelectedZone(null);
+    }
+  };
+
+
   const getZoneInfo = (zone: string | null) => {
     if (!zone) return null;
     const zoneMap: Record<string, {
@@ -332,21 +414,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualIcon={getDimensionVisuals('risk', blobData).icon} 
                 glowIntensity={blobData.outerGlowIntensity} 
                 isSelected={selectedDimension === 'risk'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'risk' ? null : 'risk';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="risk"
+                isEditing={editingDimension === 'risk'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('risk')} 
               />
               
               <StatusRow 
@@ -356,21 +431,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualColor={getDimensionVisuals('complexity', blobData).color} 
                 visualIcon={getDimensionVisuals('complexity', blobData).icon} 
                 isSelected={selectedDimension === 'complexity'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'complexity' ? null : 'complexity';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="complexity"
+                isEditing={editingDimension === 'complexity'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('complexity')} 
               />
               
               <StatusRow 
@@ -380,21 +448,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualColor={getDimensionVisuals('stakeholder', blobData).color} 
                 visualIcon={getDimensionVisuals('stakeholder', blobData).icon} 
                 isSelected={selectedDimension === 'stakeholder'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'stakeholder' ? null : 'stakeholder';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="stakeholder"
+                isEditing={editingDimension === 'stakeholder'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('stakeholder')} 
               />
               
               <StatusRow 
@@ -405,21 +466,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualIcon={getDimensionVisuals('knowledge', blobData).icon} 
                 visualPattern={blobData.innerPattern} 
                 isSelected={selectedDimension === 'knowledge'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'knowledge' ? null : 'knowledge';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="knowledge"
+                isEditing={editingDimension === 'knowledge'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('knowledge')} 
               />
               
               <StatusRow 
@@ -429,21 +483,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualColor={getDimensionVisuals('cultural', blobData).color} 
                 visualIcon={getDimensionVisuals('cultural', blobData).icon} 
                 isSelected={selectedDimension === 'cultural'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'cultural' ? null : 'cultural';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="cultural"
+                isEditing={editingDimension === 'cultural'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('cultural')} 
               />
               
               <StatusRow 
@@ -453,21 +500,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualColor={getDimensionVisuals('organizational', blobData).color} 
                 visualIcon={getDimensionVisuals('organizational', blobData).icon} 
                 isSelected={selectedDimension === 'organizational'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'organizational' ? null : 'organizational';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="organizational"
+                isEditing={editingDimension === 'organizational'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('organizational')} 
               />
               
               <StatusRow 
@@ -477,21 +517,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualColor={getDimensionVisuals('temporal', blobData).color} 
                 visualIcon={getDimensionVisuals('temporal', blobData).icon} 
                 isSelected={selectedDimension === 'temporal'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'temporal' ? null : 'temporal';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="temporal"
+                isEditing={editingDimension === 'temporal'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('temporal')} 
               />
               
               <StatusRow 
@@ -502,21 +535,14 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 visualIcon={getDimensionVisuals('development', blobData).icon} 
                 glowIntensity={blobData.coreGlow} 
                 isSelected={selectedDimension === 'development'} 
-                onClick={() => {
-                  const newDimension = selectedDimension === 'development' ? null : 'development';
-                  setSelectedDimension(newDimension);
-                  
-                  if (newDimension && blobContainerRef.current) {
-                    const zone = dimensionToZone[newDimension];
-                    setSelectedZone(zone);
-                    const position = calculateZonePosition(zone, blobContainerRef.current);
-                    setZoneTooltipPosition(position);
-                    setShowZoneTooltip(true);
-                  } else {
-                    setShowZoneTooltip(false);
-                    setSelectedZone(null);
-                  }
-                }} 
+                dimensionKey="development"
+                isEditing={editingDimension === 'development'}
+                tempValue={tempValue}
+                onTempValueChange={setTempValue}
+                isSaving={isSaving}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('development')} 
               />
             </div>
           </div>
@@ -615,62 +641,143 @@ interface StatusRowProps {
   glowIntensity?: number;
   isSelected?: boolean;
   onClick?: () => void;
+  dimensionKey?: string;
+  isEditing?: boolean;
+  onEdit?: (dimensionKey: string, currentValue: string) => void;
+  onSave?: () => void;
+  onCancel?: () => void;
+  tempValue?: string;
+  onTempValueChange?: (value: string) => void;
+  isSaving?: boolean;
 }
 function StatusRow(props: StatusRowProps) {
-  const {
-    t
-  } = useTranslation();
-  return <div onClick={props.onClick} className={`
-        group transition-all rounded-lg p-3 border 
-        ${props.isSelected ? 'bg-accent border-accent-foreground shadow-lg scale-105' : 'hover:bg-muted/30 border-transparent hover:border-border cursor-pointer'}
-      `}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          {/* Visual Indicator */}
-          {props.visualColor && <div className="relative">
-              <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center" style={{
-            backgroundColor: `${props.visualColor}30`,
-            borderColor: props.visualColor
-          }}>
-                {props.visualIcon && <span className="text-xs">{props.visualIcon}</span>}
+  const { t } = useTranslation();
+  
+  // Get dimension options for editing
+  const dimensionConfig = props.dimensionKey 
+    ? MORPHOLOGY_DIMENSIONS.find(d => d.key === props.dimensionKey)
+    : null;
+  
+  return (
+    <div className={`
+      group transition-all rounded-lg p-3 border 
+      ${props.isSelected ? 'bg-accent border-accent-foreground shadow-lg scale-105' : 'hover:bg-muted/30 border-transparent hover:border-border cursor-pointer'}
+    `}>
+      <div onClick={props.onClick}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            {/* Visual Indicator */}
+            {props.visualColor && (
+              <div className="relative">
+                <div 
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center" 
+                  style={{
+                    backgroundColor: `${props.visualColor}30`,
+                    borderColor: props.visualColor
+                  }}
+                >
+                  {props.visualIcon && <span className="text-xs">{props.visualIcon}</span>}
+                </div>
+                
+                {/* Glow effect hvis relevant */}
+                {props.glowIntensity !== undefined && props.glowIntensity > 0 && (
+                  <div 
+                    className="absolute inset-0 rounded-full blur-sm -z-10 animate-glow-pulse" 
+                    style={{
+                      backgroundColor: props.visualColor,
+                      opacity: props.glowIntensity * 0.4
+                    }} 
+                  />
+                )}
               </div>
-              
-              {/* Glow effect hvis relevant */}
-              {props.glowIntensity !== undefined && props.glowIntensity > 0 && <div className="absolute inset-0 rounded-full blur-sm -z-10 animate-glow-pulse" style={{
-            backgroundColor: props.visualColor,
-            opacity: props.glowIntensity * 0.4
-          }} />}
-            </div>}
+            )}
+            
+            <span className="text-sm font-medium">{props.label}</span>
+          </div>
           
-          <span className="text-sm font-medium">{props.label}</span>
+          <Badge 
+            variant="outline" 
+            className="capitalize" 
+            style={props.visualColor ? { borderColor: `${props.visualColor}60` } : {}}
+          >
+            {props.value}
+          </Badge>
         </div>
         
-        <Badge variant="outline" className="capitalize" style={props.visualColor ? {
-        borderColor: `${props.visualColor}60`
-      } : {}}>
-          {props.value}
-        </Badge>
-      </div>
-      
-      {/* Progress/Intensity Bar */}
-      {props.glowIntensity !== undefined && <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-500" style={{
-          width: `${props.glowIntensity * 100}%`,
-          backgroundColor: props.visualColor
-        }} />
+        {/* Progress/Intensity Bar */}
+        {props.glowIntensity !== undefined && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full rounded-full transition-all duration-500" 
+                style={{
+                  width: `${props.glowIntensity * 100}%`,
+                  backgroundColor: props.visualColor
+                }} 
+              />
+            </div>
+            <span>{(props.glowIntensity * 100).toFixed(0)}%</span>
           </div>
-          <span>{(props.glowIntensity * 100).toFixed(0)}%</span>
-        </div>}
-      
-      {/* Detail med pattern preview */}
-      <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2">
-        {props.visualPattern && <span style={{
-        color: props.visualColor || 'currentColor'
-      }}>
-            {getPatternPreview(props.visualPattern)}
-          </span>}
-        <span>{props.detail}</span>
+        )}
+        
+        {/* Detail med pattern preview */}
+        <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2">
+          {props.visualPattern && (
+            <span style={{ color: props.visualColor || 'currentColor' }}>
+              {getPatternPreview(props.visualPattern)}
+            </span>
+          )}
+          <span>{props.detail}</span>
+        </div>
       </div>
-    </div>;
+      
+      {/* Quick Edit Dropdown */}
+      {props.isEditing && dimensionConfig && (
+        <div className="mt-3 space-y-2 animate-in fade-in-0 slide-in-from-top-2 border-t border-border pt-3">
+          <Select 
+            value={props.tempValue} 
+            onValueChange={props.onTempValueChange}
+            disabled={props.isSaving}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t('morphology.selectOption')} />
+            </SelectTrigger>
+            <SelectContent className="z-[100] bg-background">
+              {dimensionConfig.options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {t(option.translationKey)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onSave?.();
+              }}
+              disabled={props.isSaving || !props.tempValue}
+              className="flex-1"
+            >
+              {props.isSaving ? t('common.saving') : t('common.save')}
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onCancel?.();
+              }}
+              disabled={props.isSaving}
+              className="flex-1"
+            >
+              {t('common.cancel')}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
