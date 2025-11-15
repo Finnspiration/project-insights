@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 interface MorphologyBlobProps {
   morphology: any;
   projectId?: string;
-  onMorphologyUpdate?: () => void;
+  onMorphologyUpdate?: (newMorphology: any) => void;
 }
 
 // State machine for view modes - eliminates race conditions
@@ -187,9 +187,9 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
       toast.success(t('morphology.updateSuccess') || 'Morphology updated!');
       setViewMode({ type: 'idle' });
       
-      // Trigger refresh
+      // Update parent with new morphology
       if (onMorphologyUpdate) {
-        onMorphologyUpdate();
+        onMorphologyUpdate(updatedMorphology);
       }
     } catch (error) {
       console.error('Error updating morphology:', error);
