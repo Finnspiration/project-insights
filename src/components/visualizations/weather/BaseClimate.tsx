@@ -71,8 +71,8 @@ export function BaseClimate({ data }: BaseClimateProps) {
 
       {/* Info overlay (bottom left) */}
       <div className="absolute bottom-4 left-4 text-white/90 text-sm space-y-1 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-        <p className="font-semibold capitalize">Stage: {data.organizationalStage}</p>
-        <p className="text-xs opacity-80 capitalize">Complexity: {data.complexity}</p>
+        <p className="font-semibold capitalize">Stadie: {data.organizationalStage}</p>
+        <p className="text-xs opacity-80 capitalize">Kompleksitet: {data.complexity}</p>
       </div>
     </div>
   );

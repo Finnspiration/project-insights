@@ -1,0 +1,206 @@
+import { motion } from 'framer-motion';
+import { PrecipitationEvent } from './weatherDataMapper';
+import { CloudRain, CloudSnow, Sun, Cloud, Zap } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
+interface PrecipitationEventsProps {
+  events: PrecipitationEvent[];
+}
+
+export function PrecipitationEvents({ events }: PrecipitationEventsProps) {
+  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
+
+  const getEventIcon = (type: PrecipitationEvent['type']) => {
+    switch (type) {
+      case 'storm':
+        return Zap;
+      case 'rain':
+        return CloudRain;
+      case 'snow':
+        return CloudSnow;
+      case 'sun':
+        return Sun;
+      case 'fog':
+        return Cloud;
+      default:
+        return CloudRain;
+    }
+  };
+
+  const getEventColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'hsl(0, 85%, 60%)';
+      case 'medium':
+        return 'hsl(45, 95%, 55%)';
+      case 'low':
+        return 'hsl(145, 60%, 50%)';
+      default:
+        return 'hsl(220, 70%, 50%)';
+    }
+  };
+
+  const getEventEmoji = (type: PrecipitationEvent['type']) => {
+    switch (type) {
+      case 'storm':
+        return '⚡';
+      case 'rain':
+        return '🌧️';
+      case 'snow':
+        return '❄️';
+      case 'sun':
+        return '☀️';
+      case 'fog':
+        return '🌫️';
+      default:
+        return '🌧️';
+    }
+  };
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      <TooltipProvider>
+        {events.map((event, index) => {
+          const Icon = getEventIcon(event.type);
+          const color = getEventColor(event.priority);
+
+          return (
+            <Tooltip key={event.id}>
+              <TooltipTrigger asChild>
+                <motion.div
+                  initial={{ opacity: 0, y: -20, scale: 0 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    delay: index * 0.2,
+                    duration: 0.6,
+                    repeat: event.type === 'storm' ? Infinity : 0,
+                    repeatType: event.type === 'storm' ? 'reverse' : undefined,
+                    repeatDelay: event.type === 'storm' ? 0.5 : 0,
+                  }}
+                  className="absolute pointer-events-auto cursor-pointer"
+                  style={{
+                    left: `${event.x}%`,
+                    top: `${event.y}%`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                  onMouseEnter={() => setHoveredEvent(event.id)}
+                  onMouseLeave={() => setHoveredEvent(null)}
+                >
+                  {/* Glow effect */}
+                  <div
+                    className="absolute inset-0 blur-xl opacity-50 rounded-full"
+                    style={{
+                      backgroundColor: color,
+                      width: hoveredEvent === event.id ? '60px' : '40px',
+                      height: hoveredEvent === event.id ? '60px' : '40px',
+                      transition: 'all 0.3s',
+                    }}
+                  />
+
+                  {/* Icon container */}
+                  <div
+                    className="relative flex items-center justify-center rounded-full border-2 transition-all duration-300"
+                    style={{
+                      borderColor: color,
+                      backgroundColor: 'hsl(var(--background))',
+                      width: hoveredEvent === event.id ? '48px' : '40px',
+                      height: hoveredEvent === event.id ? '48px' : '40px',
+                    }}
+                  >
+                    <Icon
+                      className="transition-all duration-300"
+                      style={{
+                        color: color,
+                        width: hoveredEvent === event.id ? '24px' : '20px',
+                        height: hoveredEvent === event.id ? '24px' : '20px',
+                      }}
+                    />
+                  </div>
+
+                  {/* Priority badge */}
+                  {event.priority === 'high' && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                      !
+                    </div>
+                  )}
+
+                  {/* Animated particles for storm */}
+                  {event.type === 'storm' && (
+                    <motion.div
+                      className="absolute inset-0"
+                      animate={{
+                        opacity: [0.3, 0.7, 0.3],
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                    >
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+                          style={{
+                            left: `${20 + i * 30}%`,
+                            top: `${-10 - i * 5}%`,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  )}
+
+                  {/* Animated raindrops */}
+                  {event.type === 'rain' && (
+                    <div className="absolute inset-0">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-0.5 h-2 bg-blue-400 rounded-full opacity-60"
+                          style={{
+                            left: `${i * 20}%`,
+                            top: '-20%',
+                          }}
+                          animate={{
+                            y: [0, 60],
+                            opacity: [0.6, 0],
+                          }}
+                          transition={{
+                            duration: 1,
+                            delay: i * 0.2,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{getEventEmoji(event.type)}</span>
+                    <p className="font-semibold text-sm">{event.title}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{event.description}</p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="capitalize">Kilde: {event.source === 'blindspot' ? 'Blind vinkel' : event.source === 'recommendation' ? 'Anbefaling' : 'Intervention'}</span>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="capitalize">Prioritet: {event.priority === 'high' ? 'Høj' : event.priority === 'medium' ? 'Mellem' : 'Lav'}</span>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </TooltipProvider>
+    </div>
+  );
+}
