@@ -1,4 +1,8 @@
 {
+  "common": {
+    "edit": "Rediger",
+    "close": "Luk"
+  },
   "nav": {
     "features": "Funktioner",
     "pricing": "Priser",

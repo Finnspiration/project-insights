@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, Edit2 } from 'lucide-react';
 import { mapMorphologyToBlob } from './blob/blobMapping';
 import { blobSketch } from './blob/BlobGenerator';
 import { getZoneStyles, getDimensionVisuals, getPatternPreview } from './blob/colorMapping';
@@ -202,6 +202,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const handleCancelEdit = () => {
     setViewMode({ type: 'idle' });
   };
+
+  // Direct edit handler for inline edit icon
+  const handleDirectEdit = (dimensionKey: string, currentValue: string) => {
+    setViewMode({ 
+      type: 'editing', 
+      dimensionKey, 
+      tempValue: morphology[dimensionKey] || currentValue 
+    });
+  };
   
   // State machine-based dimension click handler - eliminates race conditions
   const handleDimensionClick = (dimensionKey: string) => {
@@ -348,10 +357,42 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                         {zoneInfo.description}
                       </p>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tooltipBorderColor }} />
                         <span className="text-xs font-medium">{zoneInfo.dimension}</span>
                       </div>
+                      
+                      {/* Edit Button if project is editable */}
+                      {projectId && selectedDimension && (
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="default"
+                            className="flex-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewMode({ 
+                                type: 'editing', 
+                                dimensionKey: selectedDimension, 
+                                tempValue: morphology[selectedDimension] || '' 
+                              });
+                            }}
+                          >
+                            <Edit2 className="w-3 h-3 mr-1" />
+                            {t('common.edit')}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewMode({ type: 'idle' });
+                            }}
+                          >
+                            {t('common.close')}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -426,6 +467,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('risk')} 
@@ -447,6 +489,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('complexity')} 
@@ -468,6 +511,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('stakeholder')} 
@@ -490,6 +534,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('knowledge')} 
@@ -511,6 +556,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('cultural')} 
@@ -532,6 +578,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('organizational')} 
@@ -553,6 +600,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('temporal')} 
@@ -575,6 +623,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   }
                 }}
                 isSaving={isSaving}
+                onEdit={handleDirectEdit}
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('development')} 
@@ -730,13 +779,30 @@ function StatusRow(props: StatusRowProps) {
             <span className="text-sm font-medium">{props.label}</span>
           </div>
           
-          <Badge 
-            variant="outline" 
-            className="capitalize" 
-            style={props.visualColor ? { borderColor: `${props.visualColor}60` } : {}}
-          >
-            {props.value}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge 
+              variant="outline" 
+              className="capitalize" 
+              style={props.visualColor ? { borderColor: `${props.visualColor}60` } : {}}
+            >
+              {props.value}
+            </Badge>
+            
+            {/* Inline Edit Icon - appears on hover */}
+            {props.dimensionKey && !props.isEditing && props.onEdit && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onEdit?.(props.dimensionKey!, props.value);
+                }}
+              >
+                <Edit2 className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
         </div>
         
         {/* Progress/Intensity Bar */}

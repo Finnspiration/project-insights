@@ -1,4 +1,8 @@
 {
+  "common": {
+    "edit": "Edit",
+    "close": "Close"
+  },
   "nav": {
     "features": "Features",
     "pricing": "Pricing",
