@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { BodyVisualization } from './body-scan/BodyVisualization';
 import { BodyPartExplanation } from './body-scan/BodyPartExplanation';
 import { calculateBodyData } from './body-scan/bodyDataCalculator';
