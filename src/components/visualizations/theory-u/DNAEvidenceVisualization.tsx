@@ -3,6 +3,41 @@ import { useTranslation } from 'react-i18next';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS } from '@/lib/morphologyConfig';
 import { DimensionDetailDialog } from '@/components/morphology/DimensionDetailDialog';
 
+// Map database keys to MORPHOLOGY_DIMENSIONS keys
+const KEY_MAPPING: Record<string, string> = {
+  'complexity': 'complexity_level',
+  'stakeholder': 'stakeholder_dynamics',
+  'knowledge': 'knowledge_intensity',
+  'cultural': 'cultural_context',
+  'temporal': 'temporal_dynamics',
+  'organizational': 'organizational_stage',
+  'challenge': 'primary_challenge',
+  'development': 'development_needs',
+  'resources': 'resource_characteristics',
+  'change': 'change_intensity',
+  'information': 'information_flow',
+  'risk': 'risk_profile'
+};
+
+// Normalize value format (lowercase db → PascalCase/camelCase)
+const normalizeValue = (value: string): string => {
+  if (!value) return '';
+  // Handle special cases
+  const specialCases: Record<string, string> = {
+    'crossfunctional': 'CrossFunctional',
+    'crossorg': 'CrossOrg',
+    'crosscultural': 'CrossCultural',
+  };
+  
+  const lowerValue = value.toLowerCase().replace(/[-_\s]/g, '');
+  if (specialCases[lowerValue]) {
+    return specialCases[lowerValue];
+  }
+  
+  // Default: capitalize first letter
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
 interface MorphologyEvidence {
   dimension: string;
   value: string;
@@ -24,6 +59,14 @@ export function DNAEvidenceVisualization({
   const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
   
   const currentLanguage = (i18n.language || language) as 'en' | 'da';
+  
+  // Normalize morphology data to match MORPHOLOGY_DIMENSIONS structure
+  const normalizedMorphology = Object.entries(morphology).reduce((acc, [key, value]) => {
+    const fullKey = KEY_MAPPING[key] || key;
+    const normalizedValue = normalizeValue(value as string);
+    acc[fullKey] = normalizedValue;
+    return acc;
+  }, {} as Record<string, string>);
 
   // Map evidence to dimension keys
   const evidenceDimensionKeys = evidence.map(e => {
@@ -83,8 +126,10 @@ export function DNAEvidenceVisualization({
     const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === selectedDimension);
     if (!dimension) return null;
     
-    const value = morphology[selectedDimension];
-    const option = dimension.options.find(opt => opt.value === value);
+    const value = normalizedMorphology[selectedDimension];
+    const option = dimension.options.find(opt => 
+      opt.value.toLowerCase() === value?.toLowerCase()
+    );
     
     return { dimension, option };
   })() : null;
@@ -158,9 +203,13 @@ export function DNAEvidenceVisualization({
 
             {/* Draw nucleotides */}
             {helixPoints.map((point) => {
-              const value = morphology[point.dimension.key];
-              const option = point.dimension.options.find(opt => opt.value === value);
-              const translatedLabel = option ? t(option.translationKey) : value || '';
+              const value = normalizedMorphology[point.dimension.key];
+              const option = point.dimension.options.find(opt => 
+                opt.value.toLowerCase() === value?.toLowerCase()
+              );
+              const translatedLabel = option 
+                ? t(option.translationKey) 
+                : (value || '').charAt(0).toUpperCase() + (value || '').slice(1);
               const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
               
               const categoryColor = CATEGORY_COLORS[point.dimension.category];
