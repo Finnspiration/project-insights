@@ -974,12 +974,7 @@ export function UJourneyTimeline({
 
         {/* Theory U Resources */}
         {resources && resources.length > 0 && <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-primary" />
-                {t('visualizations.theoryU.resources')}
-              </CardTitle>
-            </CardHeader>
+            
             
           </Card>}
       </div>
