@@ -109,8 +109,8 @@ serve(async (req) => {
         return null;
       }).filter(Boolean) : [];
 
-    // STEP 4: Generate documentEvidence array with AI
-    const documentEvidence = hasDocuments ? await generateIntelligentQuotes(
+    // STEP 4: Generate documentEvidence array with AI (per document)
+    const documentEvidence = hasDocuments ? await generateIntelligentQuotesPerDocument(
       documents,
       morphologyAnalysis?.phase || 'seeing',
       language,
@@ -162,20 +162,21 @@ serve(async (req) => {
   }
 });
 
-// Helper function: Generate intelligent quotes with relevance scores using AI
-async function generateIntelligentQuotes(
+// Helper function: Generate intelligent quotes PER DOCUMENT with hardcoded source
+async function generateIntelligentQuotesPerDocument(
   documents: any[],
   phase: string,
   language: string,
   apiKey: string
 ): Promise<any[]> {
-  const combinedContent = documents
-    .map(doc => `[${doc.filename}]\n${doc.content}`)
-    .join('\n\n---\n\n')
-    .substring(0, 15000); // Limit for API
+  const allQuotes: any[] = [];
   
-  const prompt = language === 'da' 
-    ? `Udvælg 5-7 af de mest relevante og indsigtsfulde citater fra disse dokumenter der understøtter at projektet er i "${phase}" fasen af Theory U.
+  console.log(`Processing ${documents.length} documents separately for quote extraction...`);
+  
+  // Process each document SEPARATELY
+  for (const doc of documents) {
+    const prompt = language === 'da' 
+      ? `Udvælg 1-2 af de mest relevante og indsigtsfulde citater fra dette dokument der understøtter at projektet er i "${phase}" fasen af Theory U.
 
 Fokuser på citater der:
 - Viser observation, sensing, eller presencing aktiviteter
@@ -190,15 +191,14 @@ Returner JSON objekt med denne struktur:
   "quotes": [
     {
       "text": "citat tekst her",
-      "relevance": 85,
-      "source": "filnavn.pdf"
+      "relevance": 85
     }
   ]
 }
 
-Dokumenter:
-${combinedContent}`
-    : `Select the 5-7 most relevant and insightful quotes from these documents that support the project being in the "${phase}" phase of Theory U.
+Dokument:
+${doc.content.substring(0, 8000)}`
+      : `Select 1-2 of the most relevant and insightful quotes from this document that support the project being in the "${phase}" phase of Theory U.
 
 Focus on quotes that:
 - Show observation, sensing, or presencing activities
@@ -213,47 +213,60 @@ Return JSON object with this structure:
   "quotes": [
     {
       "text": "quote text here",
-      "relevance": 85,
-      "source": "filename.pdf"
+      "relevance": 85
     }
   ]
 }
 
-Documents:
-${combinedContent}`;
+Document:
+${doc.content.substring(0, 8000)}`;
 
-  try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        response_format: { type: 'json_object' }
-      }),
-    });
+    try {
+      console.log(`Extracting quotes from: ${doc.filename}`);
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: 'json_object' }
+        }),
+      });
 
-    if (!response.ok) {
-      console.error('Quote generation failed, falling back to simple extraction');
-      return fallbackQuoteExtraction(documents);
+      if (response.ok) {
+        const data = await response.json();
+        let content = data.choices?.[0]?.message?.content?.trim() || '{"quotes":[]}';
+        content = content.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(content);
+        
+        // Add source to each quote (HARDCODED from current document)
+        const quotesWithSource = (parsed.quotes || []).map((q: any) => ({
+          text: q.text,
+          relevance: q.relevance,
+          source: doc.filename  // ← HARDCODED SOURCE!
+        }));
+        
+        console.log(`✅ Extracted ${quotesWithSource.length} quotes from ${doc.filename}`);
+        allQuotes.push(...quotesWithSource);
+      } else {
+        console.warn(`⚠️ Failed to extract quotes from ${doc.filename}: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`❌ Error extracting quotes from ${doc.filename}:`, error);
     }
-
-    const data = await response.json();
-    let content = data.choices?.[0]?.message?.content?.trim() || '{"quotes":[]}';
-    content = content.replace(/```json|```/g, '').trim();
-    
-    const parsed = JSON.parse(content);
-    return parsed.quotes || [];
-    
-  } catch (error) {
-    console.error('Quote AI error:', error);
-    return fallbackQuoteExtraction(documents);
   }
+  
+  // Sort by relevance and return top 5-7
+  console.log(`Total quotes extracted: ${allQuotes.length}`);
+  const topQuotes = allQuotes
+    .sort((a, b) => b.relevance - a.relevance)
+    .slice(0, 7);
+  
+  console.log(`Returning top ${topQuotes.length} quotes`);
+  return topQuotes;
 }
 
 // Fallback if AI fails - returns quotes with default relevance
