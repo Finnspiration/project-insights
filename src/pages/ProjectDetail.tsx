@@ -43,6 +43,8 @@ interface Document {
   file_size: number | null;
   uploaded_at: string;
   processed: boolean | null;
+  content: string | null;
+  metadata: any;
 }
 
 export default function ProjectDetail() {
@@ -94,7 +96,7 @@ export default function ProjectDetail() {
     try {
     const { data, error } = await supabase
       .from('documents')
-      .select('id, filename, file_path, file_type, file_size, uploaded_at, processed')
+      .select('id, filename, file_path, file_type, file_size, uploaded_at, processed, content, metadata')
       .eq('project_id', id)
       .order('uploaded_at', { ascending: false });
 
