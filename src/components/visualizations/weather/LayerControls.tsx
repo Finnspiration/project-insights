@@ -6,10 +6,13 @@ import { Layers } from 'lucide-react';
 
 interface LayerControlsProps {
   layers: {
+    windPatterns: boolean;
+    pressureSystems: boolean;
     temperatureZones: boolean;
+    precipitation: boolean;
     forecast: boolean;
   };
-  onLayerToggle: (layer: 'temperatureZones' | 'forecast') => void;
+  onLayerToggle: (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => void;
 }
 
 export function LayerControls({ layers, onLayerToggle }: LayerControlsProps) {
@@ -24,22 +27,46 @@ export function LayerControls({ layers, onLayerToggle }: LayerControlsProps) {
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
             <Layers className="h-4 w-4" />
-            <h3 className="text-sm font-semibold">Layers</h3>
+            <h3 className="text-sm font-semibold">Lag</h3>
           </div>
 
           <div className="space-y-3">
             {/* Base Climate - always on */}
             <div className="flex items-center justify-between opacity-50">
               <Label htmlFor="base-climate" className="text-xs cursor-not-allowed">
-                Base Climate
+                Basisklima
               </Label>
               <Switch id="base-climate" checked disabled />
+            </div>
+
+            {/* Wind Patterns */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="wind-patterns" className="text-xs cursor-pointer">
+                Vindmønstre
+              </Label>
+              <Switch
+                id="wind-patterns"
+                checked={layers.windPatterns}
+                onCheckedChange={() => onLayerToggle('windPatterns')}
+              />
+            </div>
+
+            {/* Pressure Systems */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="pressure-systems" className="text-xs cursor-pointer">
+                Trykssystemer
+              </Label>
+              <Switch
+                id="pressure-systems"
+                checked={layers.pressureSystems}
+                onCheckedChange={() => onLayerToggle('pressureSystems')}
+              />
             </div>
 
             {/* Temperature Zones */}
             <div className="flex items-center justify-between">
               <Label htmlFor="temperature-zones" className="text-xs cursor-pointer">
-                Temperature Zones
+                Temperaturzoner
               </Label>
               <Switch
                 id="temperature-zones"
@@ -48,10 +75,22 @@ export function LayerControls({ layers, onLayerToggle }: LayerControlsProps) {
               />
             </div>
 
+            {/* Precipitation */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="precipitation" className="text-xs cursor-pointer">
+                Nedbør & Hændelser
+              </Label>
+              <Switch
+                id="precipitation"
+                checked={layers.precipitation}
+                onCheckedChange={() => onLayerToggle('precipitation')}
+              />
+            </div>
+
             {/* Forecast */}
             <div className="flex items-center justify-between">
               <Label htmlFor="forecast" className="text-xs cursor-pointer">
-                Forecast
+                Vejrudsigt
               </Label>
               <Switch
                 id="forecast"

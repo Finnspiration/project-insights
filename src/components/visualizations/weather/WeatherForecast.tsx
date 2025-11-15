@@ -19,7 +19,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
           <CardContent className="p-4">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
               <span>🔮</span>
-              <span>Theory U Forecast</span>
+              <span>Theory U Vejrudsigt</span>
             </h3>
 
             <div className="space-y-3">
@@ -41,7 +41,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-medium">{day.confidence}%</p>
-                      <p className="text-[10px] text-muted-foreground">confidence</p>
+                      <p className="text-[10px] text-muted-foreground">tillid</p>
                     </div>
                   </div>
 
@@ -64,7 +64,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
             {/* Legend */}
             <div className="mt-4 pt-3 border-t border-border/30">
               <p className="text-[10px] text-muted-foreground">
-                Based on Theory U position and readiness indicators
+                Baseret på Theory U position og beredskapsindikatorer
               </p>
             </div>
           </CardContent>

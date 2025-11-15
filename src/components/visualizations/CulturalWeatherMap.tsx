@@ -6,20 +6,36 @@ import { BaseClimate } from './weather/BaseClimate';
 import { TemperatureZones } from './weather/TemperatureZones';
 import { WeatherForecast } from './weather/WeatherForecast';
 import { LayerControls } from './weather/LayerControls';
+import { WindPatterns } from './weather/WindPatterns';
+import { PressureSystems } from './weather/PressureSystems';
+import { PrecipitationEvents } from './weather/PrecipitationEvents';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 
 interface CulturalWeatherMapProps {
   morphology: any;
   idgProfile?: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
   theoryUAnalysis?: any;
+  recommendations?: any[];
+  interventions?: any[];
+  blindSpots?: any[];
 }
 
-export function CulturalWeatherMap({ morphology, idgProfile, theoryUAnalysis }: CulturalWeatherMapProps) {
+export function CulturalWeatherMap({ 
+  morphology, 
+  idgProfile, 
+  theoryUAnalysis,
+  recommendations,
+  interventions,
+  blindSpots
+}: CulturalWeatherMapProps) {
   const { t } = useTranslation('common');
   
   // Layer visibility state
   const [layers, setLayers] = useState({
+    windPatterns: true,
+    pressureSystems: true,
     temperatureZones: true,
+    precipitation: true,
     forecast: true,
   });
 
@@ -35,10 +51,13 @@ export function CulturalWeatherMap({ morphology, idgProfile, theoryUAnalysis }: 
   const weatherData = mapProjectToWeatherData(
     morphology,
     idgProfile || defaultIDG,
-    theoryUAnalysis
+    theoryUAnalysis,
+    recommendations,
+    interventions,
+    blindSpots
   );
 
-  const handleLayerToggle = (layer: 'temperatureZones' | 'forecast') => {
+  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
@@ -50,7 +69,7 @@ export function CulturalWeatherMap({ morphology, idgProfile, theoryUAnalysis }: 
           {t('visualizations.culturalWeather.title')}
         </CardTitle>
         <CardDescription>
-          Multi-layer weather system showing organizational climate, temperature zones, and forecast
+          Multi-lags vejrsystem der viser organisatorisk klima, temperaturzoner, og vejrudsigt
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -58,12 +77,27 @@ export function CulturalWeatherMap({ morphology, idgProfile, theoryUAnalysis }: 
           {/* Layer 1: Base Climate (always visible) */}
           <BaseClimate data={weatherData.baseClimate} />
 
-          {/* Layer 2: Temperature Zones (toggleable) */}
+          {/* Layer 2: Wind Patterns (toggleable) */}
+          {layers.windPatterns && (
+            <WindPatterns pattern={weatherData.windPatterns} />
+          )}
+
+          {/* Layer 3: Pressure Systems (toggleable) */}
+          {layers.pressureSystems && (
+            <PressureSystems systems={weatherData.pressureSystems} />
+          )}
+
+          {/* Layer 4: Temperature Zones (toggleable) */}
           {layers.temperatureZones && (
             <TemperatureZones zones={weatherData.temperatureZones} />
           )}
 
-          {/* Layer 3: Forecast (toggleable) */}
+          {/* Layer 5: Precipitation & Events (toggleable) */}
+          {layers.precipitation && (
+            <PrecipitationEvents events={weatherData.precipitation} />
+          )}
+
+          {/* Layer 6: Forecast (toggleable) */}
           {layers.forecast && <WeatherForecast forecast={weatherData.forecast} />}
 
           {/* Layer Controls */}
