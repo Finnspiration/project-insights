@@ -137,7 +137,13 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
             next.delete(docId);
             return next;
           });
-          toast.success(`✅ ${fileName} processed successfully! (${doc.content?.length || 0} characters extracted)`);
+          
+          const charCount = doc.content?.length || 0;
+          const wordCount = doc.metadata?.word_count || 0;
+          
+          toast.success(
+            `✅ ${fileName} ${t('documents.status.processed')}: ${charCount.toLocaleString()} ${t('documents.metadata.chars')}${wordCount ? `, ${wordCount.toLocaleString()} ${t('documents.metadata.words')}` : ''}`
+          );
           onUploadSuccess();
         } else if (doc?.metadata?.failed) {
           clearInterval(pollInterval);
@@ -146,7 +152,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
             next.delete(docId);
             return next;
           });
-          toast.error(`❌ ${fileName} processing failed: ${doc.metadata.error || 'Unknown error'}`);
+          toast.error(`❌ ${fileName} ${t('documents.status.failed')}: ${doc.metadata.error || 'Unknown error'}`);
           onUploadSuccess();
         } else if (attempts >= maxAttempts) {
           // Timeout after 30 seconds
@@ -182,7 +188,10 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
 
       if (dbError) throw dbError;
 
-      toast.success(`${file.name} uploaded - processing started...`);
+      // Optimistic UI update
+      onUploadSuccess();
+      
+      toast.success(`${file.name} ${t('documents.uploadSuccess')} - ${t('documents.status.processing')}...`);
       
       // Mark document as processing
       setProcessingDocs(prev => new Set(prev).add(newDoc.id));
@@ -195,7 +204,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
 
         if (processError) {
           console.error('Processing invocation error:', processError);
-          toast.error(`Failed to start processing: ${processError.message}`);
+          toast.error(`${t('documents.error')}: ${processError.message}`);
           setProcessingDocs(prev => {
             const next = new Set(prev);
             next.delete(newDoc.id);
@@ -207,7 +216,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
         }
       } catch (error: any) {
         console.error('Processing error:', error);
-        toast.error(`Failed to process ${file.name}`);
+        toast.error(`${t('documents.error')}: ${error.message}`);
         setProcessingDocs(prev => {
           const next = new Set(prev);
           next.delete(newDoc.id);
@@ -215,10 +224,9 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
         });
       }
       
-      onUploadSuccess();
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(`Failed to upload ${file.name}: ${error.message}`);
+      toast.error(`${t('documents.uploadError')}: ${error.message}`);
     } finally {
       setUploading(false);
     }
@@ -280,15 +288,18 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
 
       if (dbError) throw dbError;
 
-      toast.success(t('documents.textUploaded') || 'Text uploaded successfully');
+      toast.success(`${t('documents.textUploaded')}: ${pastedText.length.toLocaleString()} ${t('documents.metadata.chars')}`);
       
+      // Clear form
       setPastedText('');
       setTextTitle('');
+      
+      // Optimistic UI update
       onUploadSuccess();
       
     } catch (error: any) {
       console.error('Error uploading text:', error);
-      toast.error(error.message);
+      toast.error(`${t('documents.uploadError')}: ${error.message}`);
     } finally {
       setUploadingText(false);
     }
