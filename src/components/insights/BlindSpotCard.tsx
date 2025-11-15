@@ -7,6 +7,11 @@ import { AlertTriangle, CheckCircle2, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface Citation {
+  document: string;
+  quote: string;
+}
+
 interface BlindSpot {
   id: string;
   title: Record<string, string>;
@@ -19,6 +24,7 @@ interface BlindSpot {
   status: 'unaddressed' | 'acknowledged' | 'addressed';
   detected_at: string;
   addressed_at?: string;
+  citations?: Citation[];
 }
 
 interface BlindSpotCardProps {
@@ -142,6 +148,20 @@ export function BlindSpotCard({ blindSpot, onUpdate }: BlindSpotCardProps) {
           <div>
             <h4 className="text-sm font-semibold mb-1">{t('blindSpots.recommendations') || 'Recommendations'}</h4>
             <p className="text-sm text-muted-foreground">{recommendations}</p>
+          </div>
+        )}
+
+        {blindSpot.citations && blindSpot.citations.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold mb-2">{t('insights.citations') || 'Citations'}</h4>
+            <div className="space-y-2">
+              {blindSpot.citations.map((citation, idx) => (
+                <div key={idx} className="border-l-2 border-primary/30 pl-3 py-1">
+                  <p className="text-xs text-muted-foreground italic mb-1">"{citation.quote}"</p>
+                  <p className="text-xs font-medium text-primary">— {citation.document}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
