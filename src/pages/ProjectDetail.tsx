@@ -33,6 +33,8 @@ interface Project {
   status: string;
   dna_code?: string;
   morphology?: any;
+  patterns?: any;
+  theory_u_analysis?: any;
 }
 
 interface Document {
@@ -47,6 +49,17 @@ interface Document {
   metadata: any;
 }
 
+interface BlindSpot {
+  id: string;
+  title: any;
+  description: any;
+  priority: string;
+  status: string;
+  evidence?: any;
+  consequences?: any;
+  recommendations?: any;
+}
+
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -54,6 +67,7 @@ export default function ProjectDetail() {
   const { profile } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [blindSpots, setBlindSpots] = useState<BlindSpot[]>([]);
   const [loading, setLoading] = useState(true);
   const [morphologyWizardOpen, setMorphologyWizardOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -107,9 +121,27 @@ export default function ProjectDetail() {
     }
   };
 
+  const fetchBlindSpots = async () => {
+    if (!id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('blind_spots')
+        .select('*')
+        .eq('project_id', id)
+        .order('priority', { ascending: false });
+
+      if (error) throw error;
+      setBlindSpots(data || []);
+    } catch (error) {
+      console.error('Error fetching blind spots:', error);
+    }
+  };
+
   useEffect(() => {
     fetchProject();
     fetchDocuments();
+    fetchBlindSpots();
   }, [id]);
 
   if (loading) {
@@ -307,7 +339,14 @@ export default function ProjectDetail() {
                 </TabsList>
                 
                 <TabsContent value="weather">
-                  <CulturalWeatherMap morphology={project.morphology} />
+                  <CulturalWeatherMap 
+                    morphology={project.morphology}
+                    idgProfile={project.patterns?.idg_profile}
+                    theoryUAnalysis={project.theory_u_analysis}
+                    recommendations={project.patterns?.recommendations || []}
+                    interventions={project.patterns?.interventions || []}
+                    blindSpots={blindSpots}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="ujourney">
