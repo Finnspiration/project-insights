@@ -8,7 +8,7 @@ interface WindPatternsProps {
 export function WindPatterns({ pattern }: WindPatternsProps) {
   return (
     <div className="absolute inset-0 pointer-events-none">
-      <svg className="w-full h-full" style={{ opacity: 0.4 }}>
+      <svg className="w-full h-full">
         <defs>
           {/* Arrow marker for wind direction */}
           <marker
@@ -20,8 +20,17 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <path d="M0,0 L0,6 L6,3 z" fill="white" opacity="0.8" />
+            <path d="M0,0 L0,6 L6,3 z" fill="white" opacity="0.9" />
           </marker>
+          
+          {/* Glow filter for wind lines */}
+          <filter id="wind-glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
 
         <g>
@@ -33,11 +42,12 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
               x2={`${line.x2}%`}
               y2={`${line.y2}%`}
               stroke="white"
-              strokeWidth="2"
+              strokeWidth="3"
               strokeDasharray="8,4"
               markerEnd="url(#wind-arrow)"
+              filter="url(#wind-glow)"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.6 }}
+              animate={{ pathLength: 1, opacity: 0.9 }}
               transition={{
                 duration: pattern.speed,
                 delay: index * 0.1,
@@ -50,12 +60,12 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
         </g>
       </svg>
 
-      {/* Wind info label */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg px-3 py-2">
-        <p className="text-xs font-semibold text-center">
+      {/* Wind info label - moved to fixed position */}
+      <div className="absolute top-16 left-4 bg-background/90 backdrop-blur-sm border border-border/50 rounded-lg px-3 py-2 shadow-lg z-10">
+        <p className="text-xs font-semibold">
           Vindhastighed: {pattern.speed === 2 ? 'Hurtig' : pattern.speed === 4 ? 'Mellem' : pattern.speed === 6 ? 'Langsom' : 'Meget langsom'}
         </p>
-        <p className="text-[10px] text-muted-foreground text-center capitalize">
+        <p className="text-[10px] text-muted-foreground capitalize">
           Mønster: {pattern.type === 'radial' ? 'Radial' : pattern.type === 'topdown' ? 'Top-down' : pattern.type === 'network' ? 'Netværk' : 'Distribueret'}
         </p>
       </div>
