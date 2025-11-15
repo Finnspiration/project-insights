@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS } from '@/lib/morphologyConfig';
 import { DimensionDetailDialog } from '@/components/morphology/DimensionDetailDialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface MorphologyEvidence {
   dimension: string;
@@ -35,9 +34,9 @@ export function DNAEvidenceVisualization({
     return dim?.key;
   }).filter(Boolean);
 
-  // Calculate compact DNA helix points
-  const totalWidth = 800;
-  const startX = 100;
+  // Calculate DNA helix points (same as DNAHelixVisualization)
+  const totalWidth = 1200;
+  const startX = 200;
   const spacing = totalWidth / 11;
   
   const helixPoints = Array.from({ length: 12 }, (_, i) => {
@@ -92,12 +91,11 @@ export function DNAEvidenceVisualization({
 
   return (
     <>
-      <TooltipProvider>
-        <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto">
           <svg 
-            viewBox="0 0 1000 200" 
-            className="w-full h-auto"
-            style={{ minWidth: '800px' }}
+            viewBox="0 0 1600 300" 
+            className="w-full h-auto min-h-[300px]"
+            style={{ minWidth: '1400px' }}
           >
             <defs>
               {/* Glow effect for highlighted nucleotides */}
@@ -160,59 +158,75 @@ export function DNAEvidenceVisualization({
 
             {/* Draw nucleotides */}
             {helixPoints.map((point) => {
-              const categoryColor = CATEGORY_COLORS[point.dimension.category];
               const value = morphology[point.dimension.key];
+              const option = point.dimension.options.find(opt => opt.value === value);
+              const translatedLabel = option ? t(option.translationKey) : value;
+              const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
+              
+              const categoryColor = CATEGORY_COLORS[point.dimension.category];
+              const estimatedWidth = Math.max(70, shortLabel.length * 10 + 12);
+              const badgeHeight = 28;
               
               return (
-                <Tooltip key={`nucleotide-${point.index}`}>
-                  <TooltipTrigger asChild>
-                    <g 
-                      onClick={() => handleNucleotideClick(point.dimension.key)}
-                      className="cursor-pointer transition-transform hover:scale-110"
-                    >
-                      {point.isHighlighted && (
-                        <circle
-                          cx={point.x}
-                          cy={point.y}
-                          r="14"
-                          fill="hsl(45, 100%, 50%)"
-                          opacity="0.3"
-                          filter="url(#glow)"
-                          className="animate-pulse"
-                        />
-                      )}
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r={point.isHighlighted ? "10" : "7"}
-                        fill={point.isHighlighted ? "hsl(45, 100%, 60%)" : categoryColor}
-                        opacity={point.isHighlighted ? "1" : "0.6"}
-                        stroke={point.isHighlighted ? "hsl(45, 100%, 70%)" : "hsl(var(--border))"}
-                        strokeWidth={point.isHighlighted ? "2" : "1"}
-                      />
-                    </g>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <div className="space-y-1">
-                      <p className="font-semibold">
-                        {t(`morphology.dimensions.${point.dimension.key}.title`)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {value}
-                      </p>
-                      {point.evidenceItem && (
-                        <p className="text-xs text-amber-500 mt-2 italic">
-                          {point.evidenceItem.reasoning}
-                        </p>
-                      )}
+                <g 
+                  key={`badge-${point.index}`} 
+                  onClick={() => handleNucleotideClick(point.dimension.key)}
+                  className="cursor-pointer"
+                >
+                  {/* Glow effect for highlighted dimensions */}
+                  {point.isHighlighted && (
+                    <rect
+                      x={point.x - estimatedWidth/2 - 4}
+                      y={point.y - badgeHeight/2 - 4}
+                      width={estimatedWidth + 8}
+                      height={badgeHeight + 8}
+                      rx="10"
+                      fill="hsl(45, 100%, 50%)"
+                      opacity="0.3"
+                      filter="url(#glow)"
+                      className="animate-pulse"
+                    />
+                  )}
+                  
+                  {/* Badge background */}
+                  <rect
+                    x={point.x - estimatedWidth/2}
+                    y={point.y - badgeHeight/2}
+                    width={estimatedWidth}
+                    height={badgeHeight}
+                    rx="8"
+                    fill={point.isHighlighted ? "hsl(45, 100%, 60%)" : `hsl(${categoryColor})`}
+                    stroke="white"
+                    strokeWidth="1"
+                    className="transition-all hover:opacity-90"
+                  />
+                  
+                  {/* Text label */}
+                  <foreignObject
+                    x={point.x - estimatedWidth/2 + 2}
+                    y={point.y - badgeHeight/2 + 4}
+                    width={estimatedWidth - 4}
+                    height={badgeHeight - 8}
+                    pointerEvents="none"
+                  >
+                    <div className="flex items-center justify-center h-full">
+                      <span className="text-xs font-semibold text-white truncate px-2">
+                        {shortLabel}
+                      </span>
                     </div>
-                  </TooltipContent>
-                </Tooltip>
+                  </foreignObject>
+                  
+                  {/* Native SVG tooltip */}
+                  <title>
+                    {t(`morphology.dimensions.${point.dimension.key}.title`)}
+                    {'\n'}{translatedLabel}
+                    {point.evidenceItem && `\n\n${point.evidenceItem.reasoning}`}
+                  </title>
+                </g>
               );
             })}
           </svg>
         </div>
-      </TooltipProvider>
 
       {/* Dimension Detail Dialog */}
       {selectedDimensionData && (
