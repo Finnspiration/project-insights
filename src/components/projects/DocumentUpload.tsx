@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 interface Document {
@@ -427,35 +428,78 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
                   <FileText className="w-8 h-8 text-primary shrink-0" />
                   <div className="flex-1 min-w-0 space-y-1">
                     <p className="font-medium truncate">{doc.filename}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      {/* Processing Status Badge */}
                       {processingDocs.has(doc.id) || doc.metadata?.processing ? (
-                        <span className="text-amber-600 dark:text-amber-400 animate-pulse flex items-center gap-1">
-                          <RefreshCw className="w-3 h-3 animate-spin" />
-                          🔄 Processing...
-                        </span>
+                        <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                          {t('documents.status.processing')}
+                        </Badge>
                       ) : doc.processed ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-600 dark:text-green-400">✅ Processed</span>
-                          {doc.content && (
-                            <span className="text-xs text-muted-foreground">
-                              ({doc.content.length.toLocaleString()} chars)
-                            </span>
-                          )}
-                        </div>
+                        <Badge variant="default" className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                          ✓ {t('documents.status.processed')}
+                        </Badge>
                       ) : doc.metadata?.failed ? (
-                        <span className="text-destructive">❌ Failed</span>
+                        <Badge variant="destructive">
+                          ✗ {t('documents.status.failed')}
+                        </Badge>
                       ) : (
-                        <span className="text-muted-foreground">⏳ Pending</span>
+                        <Badge variant="outline">
+                          ⏳ {t('documents.status.pending')}
+                        </Badge>
                       )}
-                      <span>{formatFileSize(doc.file_size)}</span>
-                      <span>{format(new Date(doc.uploaded_at), 'PPp')}</span>
+                      
+                      {/* Metadata Badges */}
+                      {doc.content && (
+                        <Badge variant="secondary" className="text-xs">
+                          {doc.content.length.toLocaleString()} {t('documents.metadata.chars')}
+                        </Badge>
+                      )}
+                      {doc.metadata?.word_count && (
+                        <Badge variant="secondary" className="text-xs">
+                          {doc.metadata.word_count.toLocaleString()} {t('documents.metadata.words')}
+                        </Badge>
+                      )}
+                      {doc.metadata?.page_count && (
+                        <Badge variant="secondary" className="text-xs">
+                          {doc.metadata.page_count} {t('documents.metadata.pages')}
+                        </Badge>
+                      )}
+                      {doc.metadata?.processing_duration_ms && (
+                        <Badge variant="outline" className="text-xs">
+                          ⚡ {(doc.metadata.processing_duration_ms / 1000).toFixed(1)}s
+                        </Badge>
+                      )}
+                      {doc.metadata?.truncated && (
+                        <Badge variant="outline" className="text-xs text-amber-600 dark:text-amber-400">
+                          {t('documents.metadata.truncated')}
+                        </Badge>
+                      )}
+                      
+                      {/* File info */}
+                      <span className="text-muted-foreground text-xs">{formatFileSize(doc.file_size)}</span>
+                      <span className="text-muted-foreground text-xs">{format(new Date(doc.uploaded_at), 'PPp')}</span>
                     </div>
+                    
+                    {/* Metadata Details */}
+                    {doc.metadata?.extraction_method && (
+                      <p className="text-xs text-muted-foreground">
+                        {t('documents.metadata.extractedWith')}: {doc.metadata.extraction_method}
+                      </p>
+                    )}
+                    
+                    {/* Error Display */}
+                    {doc.metadata?.error && (
+                      <p className="text-xs text-destructive bg-destructive/10 p-2 rounded">
+                        {t('documents.error')}: {doc.metadata.error}
+                      </p>
+                    )}
                     
                     {/* Content Preview */}
                     {doc.processed && doc.content && (
                       <Collapsible>
                         <CollapsibleTrigger className="text-sm text-primary hover:underline">
-                          Preview extracted content →
+                          {t('documents.previewContent')} →
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <pre className="mt-2 p-3 bg-muted rounded text-xs max-h-40 overflow-y-auto whitespace-pre-wrap">
