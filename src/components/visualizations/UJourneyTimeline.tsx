@@ -115,6 +115,8 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
     if (!data) return null;
     
+    console.log('🔍 Transforming data, whyHere.documentEvidence:', data?.whyHere?.documentEvidence);
+    
     // Map 7-phase AI system to 5-phase UI system
     const mapPhaseToUI = (phase: string): string => {
       const phaseMap: Record<string, string> = {
@@ -135,17 +137,29 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
     
     // Transform documentEvidence from old format (string[]) to new format (object[])
     let documentEvidence = data.whyHere?.documentEvidence;
+    console.log('📝 Raw documentEvidence type:', typeof documentEvidence, Array.isArray(documentEvidence));
+    
     if (documentEvidence && Array.isArray(documentEvidence)) {
       // Check if it's the old format (strings) or new format (objects)
-      if (documentEvidence.length > 0 && typeof documentEvidence[0] === 'string') {
-        // Old format - convert to new format
-        documentEvidence = documentEvidence.map((text: string) => ({
-          text,
-          relevance: 50, // Default relevance for old data
-          source: undefined
-        }));
+      if (documentEvidence.length > 0) {
+        const firstItem = documentEvidence[0];
+        console.log('🔎 First item type:', typeof firstItem, 'value:', firstItem);
+        
+        if (typeof firstItem === 'string') {
+          // Old format - convert to new format
+          console.log('⚠️ Converting OLD format (strings) to NEW format (objects)');
+          documentEvidence = documentEvidence.map((text: string) => ({
+            text,
+            relevance: 50, // Default relevance for old data
+            source: undefined
+          }));
+        } else {
+          console.log('✅ Already in NEW format (objects with relevance scores)');
+        }
       }
     }
+    
+    console.log('✨ Final transformed documentEvidence:', documentEvidence);
     
     return {
       position: mapPhaseToUI(rawPhase),
@@ -290,6 +304,7 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
     setRefreshing(true);
     
     try {
+      console.log('🔄 Regenerating quotes with new AI analysis...');
       const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
         body: {
           projectId,
@@ -301,13 +316,19 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
       
       if (error) throw error;
       
-      setAnalysis(transformTheoryUData(data));
+      console.log('✅ Raw AI response:', data);
+      console.log('📊 Document evidence:', data?.whyHere?.documentEvidence);
+      
+      const transformedData = transformTheoryUData(data);
+      console.log('🔧 Transformed data:', transformedData?.whyHere?.documentEvidence);
+      
+      setAnalysis(transformedData);
       toast({
         title: t('visualizations.theoryU.quotesRegenerated'),
         description: t('visualizations.theoryU.quotesRegeneratedDesc')
       });
     } catch (error) {
-      console.error('Failed to regenerate quotes:', error);
+      console.error('❌ Failed to regenerate quotes:', error);
       toast({
         title: t('common.error'),
         description: t('visualizations.theoryU.regenerateFailed'),
