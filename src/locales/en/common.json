@@ -1,7 +1,10 @@
 {
   "common": {
     "edit": "Edit",
-    "close": "Close"
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving..."
   },
   "nav": {
     "features": "Features",

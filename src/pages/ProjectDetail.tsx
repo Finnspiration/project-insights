@@ -78,6 +78,16 @@ export default function ProjectDetail() {
     }
   };
 
+  const updateProjectMorphology = async (newMorphology: any) => {
+    if (!project) return;
+    
+    // Optimistic update - no loading state flash
+    setProject({
+      ...project,
+      morphology: newMorphology
+    });
+  };
+
   const fetchDocuments = async () => {
     if (!id) return;
 
@@ -315,11 +325,11 @@ export default function ProjectDetail() {
                 </TabsContent>
                 
                 <TabsContent value="blob">
-                  <MorphologyBlob 
-                    morphology={project.morphology} 
-                    projectId={project.id}
-                    onMorphologyUpdate={fetchProject}
-                  />
+                <MorphologyBlob 
+                  morphology={project.morphology} 
+                  projectId={project.id}
+                  onMorphologyUpdate={updateProjectMorphology}
+                />
                 </TabsContent>
               </Tabs>
             )}

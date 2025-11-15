@@ -1,7 +1,10 @@
 {
   "common": {
     "edit": "Rediger",
-    "close": "Luk"
+    "close": "Luk",
+    "save": "Gem",
+    "cancel": "Annuller",
+    "saving": "Gemmer..."
   },
   "nav": {
     "features": "Funktioner",
