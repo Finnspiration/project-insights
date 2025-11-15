@@ -35,13 +35,18 @@ serve(async (req) => {
     let documentMetadata: { count: number; excerpts: Array<{ filename: string; excerpt: string }> } = { count: 0, excerpts: [] };
     if (projectId) {
       try {
-        // Get supabase client
+        // Get supabase admin client to bypass RLS
         const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        });
 
-        // Fetch documents with content
-        const { data: documents, error: docsError } = await supabase
+        // Fetch documents with content using admin client
+        const { data: documents, error: docsError } = await supabaseAdmin
           .from('documents')
           .select('filename, content')
           .eq('project_id', projectId)
@@ -93,20 +98,24 @@ When generating insights, INCLUDE SPECIFIC CITATIONS from the documents. Use doc
 Your role is to analyze morphological assessments (based on Theory U, Inner Development Goals, Laloux's Organizational Paradigms, and Morgan's Organizational Metaphors) and provide actionable insights.
 
 Analyze the project morphology and generate:
-1. Strategic Recommendations - 3-5 specific, actionable recommendations
-2. Blind Spots - 3-5 potential blind spots or overlooked dimensions
+1. Strategic Recommendations - 3-5 specific, actionable recommendations with MANDATORY citations from uploaded documents
+2. Blind Spots - 3-5 potential blind spots or overlooked dimensions with MANDATORY citations from uploaded documents
 3. Interventions - 3-5 practical interventions or workshops to improve project success
 
-Be specific, insightful, and grounded in organizational theory. Focus on what's NOT being addressed.`,
+CRITICAL: EVERY recommendation and blind spot MUST include at least 1-2 specific citations with the document filename and exact quotes from the uploaded documents. The citations field is REQUIRED and cannot be empty.
+
+Be specific, insightful, and grounded in organizational theory. Focus on what's NOT being addressed.${documentContext}`,
       da: `Du er PRISM, en ekspert AI-konsulent specialiseret i projektintelligens og organisationsudvikling.
 Din rolle er at analysere morfologiske vurderinger (baseret på Teori U, Indre Udviklingsmål, Laloux's Organisatoriske Paradigmer og Morgans Organisatoriske Metaforer) og give handlingsorienterede indsigter.
 
 Analyser projektmorfologien og generer:
-1. Strategiske Anbefalinger - 3-5 specifikke, handlingsorienterede anbefalinger
-2. Blinde Vinkler - 3-5 potentielle blinde vinkler eller oversete dimensioner
+1. Strategiske Anbefalinger - 3-5 specifikke, handlingsorienterede anbefalinger med OBLIGATORISKE citater fra uploadede dokumenter
+2. Blinde Vinkler - 3-5 potentielle blinde vinkler eller oversete dimensioner med OBLIGATORISKE citater fra uploadede dokumenter
 3. Interventioner - 3-5 praktiske interventioner eller workshops for at forbedre projektsucces
 
-Vær specifik, indsigtsfuld og forankret i organisationsteori. Fokuser på hvad der IKKE bliver adresseret.`
+KRITISK: HVER anbefaling og blind vinkel SKAL inkludere mindst 1-2 specifikke citater med dokumentfilnavnet og nøjagtige citater fra de uploadede dokumenter. Citations-feltet er PÅKRÆVET og kan ikke være tomt.
+
+Vær specifik, indsigtsfuld og forankret i organisationsteori. Fokuser på hvad der IKKE bliver adresseret.${documentContext}`
     };
 
     const userPrompts = {
@@ -188,11 +197,12 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
                             properties: {
                               document: { type: "string" },
                               quote: { type: "string" }
-                            }
+                            },
+                            required: ["document", "quote"]
                           }
                         }
                       },
-                      required: ["title", "description", "priority", "rationale"],
+                      required: ["title", "description", "priority", "rationale", "citations"],
                       additionalProperties: false
                     }
                   },
@@ -212,11 +222,12 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
                             properties: {
                               document: { type: "string" },
                               quote: { type: "string" }
-                            }
+                            },
+                            required: ["document", "quote"]
                           }
                         }
                       },
-                      required: ["title", "description", "impact", "evidence"],
+                      required: ["title", "description", "impact", "evidence", "citations"],
                       additionalProperties: false
                     }
                   },
@@ -279,6 +290,18 @@ Generer omfattende indsigter med specifikke, handlingsorienterede anbefalinger.`
       count: documentMetadata.count,
       analyzed: documentMetadata.count > 0
     };
+
+    // If no documents, ensure empty citations arrays for graceful degradation
+    if (documentMetadata.count === 0) {
+      insights.recommendations = insights.recommendations.map((rec: any) => ({
+        ...rec,
+        citations: []
+      }));
+      insights.blindSpots = insights.blindSpots.map((spot: any) => ({
+        ...spot,
+        citations: []
+      }));
+    }
     
     console.log("Insights generated successfully");
 
