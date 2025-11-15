@@ -212,7 +212,7 @@ export function DNAEvidenceVisualization({
                 : (value || '').charAt(0).toUpperCase() + (value || '').slice(1);
               const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
               
-              const categoryColor = CATEGORY_COLORS[point.dimension.category];
+              const categoryColor = CATEGORY_COLORS[point.dimension.category] || '220, 80%, 50%';
               const estimatedWidth = Math.max(80, shortLabel.length * 9 + 20);
               const badgeHeight = 28;
               
@@ -255,20 +255,20 @@ export function DNAEvidenceVisualization({
                     className="transition-all hover:opacity-90"
                   />
                   
-                  {/* Text label */}
-                  <foreignObject
-                    x={point.x - estimatedWidth/2 + 2}
-                    y={point.y - badgeHeight/2 + 4}
-                    width={estimatedWidth - 4}
-                    height={badgeHeight - 8}
+                  {/* Native SVG text - cross-browser compatible */}
+                  <text
+                    x={point.x}
+                    y={point.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="white"
+                    fontSize="12"
+                    fontWeight="600"
                     pointerEvents="none"
+                    style={{ userSelect: 'none' }}
                   >
-                    <div className="flex items-center justify-center h-full">
-                      <span className="text-xs font-semibold text-white truncate px-2">
-                        {shortLabel}
-                      </span>
-                    </div>
-                  </foreignObject>
+                    {shortLabel}
+                  </text>
                   
                   {/* Native SVG tooltip */}
                   <title>
