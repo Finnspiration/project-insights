@@ -262,7 +262,22 @@
     "errors": {
       "emptyText": "Indtast venligst noget tekst",
       "noTitle": "Angiv venligst en titel"
-    }
+    },
+    "status": {
+      "processing": "Behandler",
+      "processed": "Behandlet",
+      "failed": "Fejlet",
+      "pending": "Afventer"
+    },
+    "metadata": {
+      "chars": "tegn",
+      "words": "ord",
+      "pages": "sider",
+      "truncated": "Afkortet",
+      "extractedWith": "Ekstraheret med"
+    },
+    "previewContent": "Forhåndsvis ekstraheret indhold",
+    "error": "Fejl"
   },
   "projectDetail": {
     "projectInformation": "Projektinformation",

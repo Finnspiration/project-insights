@@ -262,7 +262,22 @@
     "errors": {
       "emptyText": "Please enter some text",
       "noTitle": "Please provide a title"
-    }
+    },
+    "status": {
+      "processing": "Processing",
+      "processed": "Processed",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+    "metadata": {
+      "chars": "chars",
+      "words": "words",
+      "pages": "pages",
+      "truncated": "Truncated",
+      "extractedWith": "Extracted with"
+    },
+    "previewContent": "Preview extracted content",
+    "error": "Error"
   },
   "projectDetail": {
     "projectInformation": "Project Information",
