@@ -30,6 +30,13 @@ export interface PressureZone {
   y: number;
   intensity: number; // 1-3
   label: string;
+  metadata?: {
+    source: string; // 'risk_profile' | 'blind_spot'
+    description: string;
+    blindSpotId?: string;
+    blindSpotTitle?: string;
+    priority?: string;
+  };
 }
 
 export interface PressureFront {
@@ -37,6 +44,12 @@ export interface PressureFront {
   points: { x: number; y: number }[];
   type: 'cold' | 'warm' | 'occluded';
   intensity: number;
+  metadata?: {
+    source: string; // 'stakeholder' | 'blind_spot'
+    description: string;
+    blindSpotId?: string;
+    blindSpotTitle?: string;
+  };
 }
 
 export interface PrecipitationEvent {
@@ -197,6 +210,22 @@ export function mapToPressureSystems(
 ): { zones: PressureZone[]; fronts: PressureFront[] } {
   const zones: PressureZone[] = [];
 
+  // Risk profile descriptions
+  const riskDescriptions: Record<string, string> = {
+    low: 'Lav risikoprofil: Projektet har minimal usikkerhed og kendte faktorer',
+    moderate: 'Moderat risikoprofil: Projektet har nogle usikre elementer der kræver opmærksomhed',
+    high: 'Høj risikoprofil: Projektet har betydelige risici og komplekse udfordringer',
+    extreme: 'Ekstrem risikoprofil: Projektet navigerer i ekstremt usikkert og volatilt terræn'
+  };
+
+  // Stakeholder descriptions
+  const stakeholderDescriptions: Record<string, string> = {
+    unified: 'Ensrettet stakeholder-felt: Stærk konsensus og fælles retning blandt interessenter',
+    cooperative: 'Kooperativt stakeholder-felt: Generel samarbejdsvilje med nogle forskelle',
+    competitive: 'Konkurrerende stakeholder-felt: Forskellige interesser skaber spændinger',
+    adversarial: 'Modstridende stakeholder-felt: Direkte konflikter og modsatrettede agendaer'
+  };
+
   // Risk creates H zones
   const riskMap: Record<string, number> = {
     low: 1,
@@ -216,6 +245,40 @@ export function mapToPressureSystems(
       y: 25 + (i % 2) * 40,
       intensity: riskIntensity,
       label: 'Højtryk',
+      metadata: {
+        source: 'risk_profile',
+        description: riskDescriptions[riskProfile] || 'Ukendt risikoprofil'
+      }
+    });
+  }
+
+  // Add extra H-zones from high-priority blind spots
+  if (blindSpots && blindSpots.length > 0) {
+    const highPrioritySpots = blindSpots.filter(bs => bs.priority === 'high');
+    const extraPositions = [
+      { x: 60, y: 45, label: 'Critical Gap' },
+      { x: 40, y: 60, label: 'Blind Spot' },
+      { x: 70, y: 55, label: 'Hidden Risk' },
+    ];
+
+    highPrioritySpots.slice(0, 3).forEach((blindSpot, index) => {
+      const title = typeof blindSpot.title === 'object' 
+        ? (blindSpot.title.da || blindSpot.title.en || 'Ukendt')
+        : blindSpot.title;
+      
+      zones.push({
+        id: `h-blindspot-${blindSpot.id}`,
+        type: 'H',
+        ...extraPositions[index],
+        intensity: 3,
+        metadata: {
+          source: 'blind_spot',
+          description: `Kritisk blind spot: ${title}`,
+          blindSpotId: blindSpot.id,
+          blindSpotTitle: title,
+          priority: blindSpot.priority
+        }
+      });
     });
   }
 
@@ -227,6 +290,10 @@ export function mapToPressureSystems(
     y: 60,
     intensity: 1,
     label: 'Lavtryk',
+    metadata: {
+      source: 'risk_profile',
+      description: 'Lavtryksområde: Mindre stress og roligere forhold'
+    }
   });
 
   // Create fronts based on stakeholder dynamics
@@ -253,6 +320,53 @@ export function mapToPressureSystems(
       ],
       type: i % 2 === 0 ? 'cold' : 'warm',
       intensity: Math.ceil(numFronts / 2),
+      metadata: {
+        source: 'stakeholder',
+        description: stakeholderDescriptions[stakeholder] || 'Ukendt stakeholder-dynamik'
+      }
+    });
+  }
+
+  // Add extra fronts from stakeholder/political blind spots
+  if (blindSpots && blindSpots.length > 0) {
+    const politicalSpots = blindSpots.filter(bs => {
+      const title = typeof bs.title === 'object' 
+        ? (bs.title.da || bs.title.en || '')
+        : (bs.title || '');
+      const desc = typeof bs.description === 'object'
+        ? (bs.description.da || bs.description.en || '')
+        : (bs.description || '');
+      
+      const text = `${title} ${desc}`.toLowerCase();
+      return text.includes('stakeholder') || 
+             text.includes('politik') || 
+             text.includes('political') ||
+             text.includes('konflikt') ||
+             text.includes('conflict');
+    });
+
+    const extraFrontPaths = [
+      [{ x: 28, y: 48 }, { x: 42, y: 45 }, { x: 58, y: 47 }],
+      [{ x: 48, y: 62 }, { x: 62, y: 60 }, { x: 76, y: 63 }],
+    ];
+
+    politicalSpots.slice(0, 2).forEach((blindSpot, index) => {
+      const title = typeof blindSpot.title === 'object' 
+        ? (blindSpot.title.da || blindSpot.title.en || 'Ukendt')
+        : blindSpot.title;
+
+      fronts.push({
+        id: `front-blindspot-${blindSpot.id}`,
+        type: 'occluded',
+        points: extraFrontPaths[index],
+        intensity: 3,
+        metadata: {
+          source: 'blind_spot',
+          description: `Politisk/stakeholder konflikt: ${title}`,
+          blindSpotId: blindSpot.id,
+          blindSpotTitle: title
+        }
+      });
     });
   }
 
