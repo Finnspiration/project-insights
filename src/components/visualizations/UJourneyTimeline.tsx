@@ -537,9 +537,20 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
 
             {/* Morphology Evidence */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-primary" />
-                <h3 className="font-semibold">{t('visualizations.theoryU.morphologyEvidence')}</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" />
+                  <h3 className="font-semibold">{t('visualizations.theoryU.morphologyEvidence')}</h3>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => fetchAnalysis(true)}
+                  disabled={refreshing}
+                  className="h-8 px-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                </Button>
               </div>
               
               {analysis.whyHere?.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 ? (
