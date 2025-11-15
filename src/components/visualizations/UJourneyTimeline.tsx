@@ -841,32 +841,7 @@ export function UJourneyTimeline({
               {t('visualizations.theoryU.nextActions')}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {analysis.nextActions?.slice(0, 3).map((action: any, idx: number) => <div key={idx} className="p-4 rounded-lg border border-border bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow">
-                  <div className="flex items-start gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm shrink-0">
-                      {action.priority}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-base leading-tight">{action.action}</h4>
-                        {getPriorityBadge(action.priority)}
-                      </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{action.rationale}</p>
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        <Badge variant="outline" className="gap-1">
-                          <span className="font-medium">{t('visualizations.theoryU.principle')}:</span> {action.theoryUPrinciple}
-                        </Badge>
-                        <Badge variant="outline" className="gap-1">
-                          <span className="font-medium">{t('visualizations.theoryU.timeframe')}:</span> {action.timeframe}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>)}
-            </div>
-          </CardContent>
+          
         </Card>
 
         {/* Readiness Indicators - Interactive */}
