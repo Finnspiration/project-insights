@@ -92,6 +92,9 @@ export function DNAEvidenceVisualization({
     const yPosition = centerY + amplitude * Math.sin((xPosition / wavelength) * Math.PI * 2 + phase);
     
     const dimension = MORPHOLOGY_DIMENSIONS[i];
+    // FIX: Map short key to full key for normalizedMorphology lookup
+    const fullDimensionKey = KEY_MAPPING[dimension.key] || dimension.key;
+    
     const isHighlighted = evidenceDimensionKeys.includes(dimension.key);
     const evidenceItem = evidence.find(e => {
       const dim = MORPHOLOGY_DIMENSIONS.find(d => 
@@ -107,6 +110,7 @@ export function DNAEvidenceVisualization({
       index: i,
       strand: (i % 2 === 0) ? 1 : 2,
       dimension,
+      fullDimensionKey, // Store full key for correct value lookup
       isHighlighted,
       evidenceItem
     };
@@ -203,12 +207,14 @@ export function DNAEvidenceVisualization({
 
             {/* Draw nucleotides */}
             {helixPoints.map((point) => {
-              const value = normalizedMorphology[point.dimension.key];
-              const option = point.dimension.options.find(opt => 
-                opt.value.toLowerCase() === value?.toLowerCase()
+              // FIX: Use fullDimensionKey to get correct value from normalizedMorphology
+              const value = normalizedMorphology[point.fullDimensionKey];
+              const option = point.dimension.options.find(
+                opt => normalizeValue(opt.value) === value
               );
-              const translatedLabel = option 
-                ? t(option.translationKey) 
+              
+              const translatedLabel = option
+                ? t(`morphology.dimensions.${point.dimension.key}.options.${option.value}`)
                 : (value || '').charAt(0).toUpperCase() + (value || '').slice(1);
               const shortLabel = translatedLabel.split(' - ')[0] || translatedLabel;
               
@@ -264,6 +270,7 @@ export function DNAEvidenceVisualization({
                     fill="white"
                     fontSize="12"
                     fontWeight="600"
+                    fontFamily="Inter, system-ui, sans-serif"
                     pointerEvents="none"
                     style={{ userSelect: 'none' }}
                   >
