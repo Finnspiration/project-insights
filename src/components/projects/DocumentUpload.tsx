@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { format } from 'date-fns';
 
 interface Document {
@@ -29,6 +30,8 @@ interface Document {
   file_size: number | null;
   uploaded_at: string;
   processed: boolean | null;
+  content: string | null;
+  metadata: any;
 }
 
 interface DocumentUploadProps {
@@ -46,6 +49,7 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
   const [pastedText, setPastedText] = useState('');
   const [textTitle, setTextTitle] = useState('');
   const [uploadingText, setUploadingText] = useState(false);
+  const [processingDocs, setProcessingDocs] = useState<Set<string>>(new Set());
 
   const formatFileSize = (bytes: number | null): string => {
     if (!bytes) return 'Unknown';
@@ -108,6 +112,57 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
     }
   };
 
+  const pollDocumentStatus = async (docId: string, fileName: string) => {
+    const maxAttempts = 15; // 30 seconds (15 * 2 seconds)
+    let attempts = 0;
+
+    const pollInterval = setInterval(async () => {
+      attempts++;
+
+      try {
+        const { data: doc, error } = await supabase
+          .from('documents')
+          .select('processed, content, metadata')
+          .eq('id', docId)
+          .single();
+
+        if (error) throw error;
+
+        // Check if processing is complete
+        if (doc?.processed) {
+          clearInterval(pollInterval);
+          setProcessingDocs(prev => {
+            const next = new Set(prev);
+            next.delete(docId);
+            return next;
+          });
+          toast.success(`✅ ${fileName} processed successfully! (${doc.content?.length || 0} characters extracted)`);
+          onUploadSuccess();
+        } else if (doc?.metadata?.failed) {
+          clearInterval(pollInterval);
+          setProcessingDocs(prev => {
+            const next = new Set(prev);
+            next.delete(docId);
+            return next;
+          });
+          toast.error(`❌ ${fileName} processing failed: ${doc.metadata.error || 'Unknown error'}`);
+          onUploadSuccess();
+        } else if (attempts >= maxAttempts) {
+          // Timeout after 30 seconds
+          clearInterval(pollInterval);
+          setProcessingDocs(prev => {
+            const next = new Set(prev);
+            next.delete(docId);
+            return next;
+          });
+          toast.warning(`⏱️ ${fileName} processing timeout - check back later`);
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+  };
+
   const uploadFile = async (file: File) => {
     setUploading(true);
     try {
@@ -122,49 +177,49 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
         file_path: filePath,
         file_type: file.type,
         file_size: file.size,
-        processed: false,
       }).select().single();
 
       if (dbError) throw dbError;
-      toast.success(t('documents.uploadSuccess'));
+
+      toast.success(`${file.name} uploaded - processing started...`);
       
-      if (newDoc?.id) {
-        try {
-          const { error: processError } = await supabase.functions.invoke('process-document', {
-            body: { documentId: newDoc.id }
+      // Mark document as processing
+      setProcessingDocs(prev => new Set(prev).add(newDoc.id));
+      
+      // Auto-trigger processing
+      try {
+        const { error: processError } = await supabase.functions.invoke('process-document', {
+          body: { documentId: newDoc.id }
+        });
+
+        if (processError) {
+          console.error('Processing invocation error:', processError);
+          toast.error(`Failed to start processing: ${processError.message}`);
+          setProcessingDocs(prev => {
+            const next = new Set(prev);
+            next.delete(newDoc.id);
+            return next;
           });
-          if (processError) {
-            console.error('Error starting document processing:', processError);
-            toast.error('Document uploaded but processing failed. Click "Process" to retry.');
-          } else {
-            toast.success('Processing started...');
-          }
-        } catch (e) {
-          console.error('Exception:', e);
+        } else {
+          // Start polling for status updates
+          pollDocumentStatus(newDoc.id, file.name);
         }
+      } catch (error: any) {
+        console.error('Processing error:', error);
+        toast.error(`Failed to process ${file.name}`);
+        setProcessingDocs(prev => {
+          const next = new Set(prev);
+          next.delete(newDoc.id);
+          return next;
+        });
       }
+      
       onUploadSuccess();
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(t('documents.uploadError'));
+      toast.error(`Failed to upload ${file.name}: ${error.message}`);
     } finally {
       setUploading(false);
-    }
-  };
-
-  const processDocument = async (documentId: string, filename: string) => {
-    try {
-      toast.loading(`Processing ${filename}...`, { id: `process-${documentId}` });
-      const { error } = await supabase.functions.invoke('process-document', { body: { documentId } });
-      if (error) {
-        console.error('Process error:', error);
-        toast.error(`Failed: ${error.message}`, { id: `process-${documentId}` });
-      } else {
-        toast.success(`Started!`, { id: `process-${documentId}` });
-        setTimeout(onUploadSuccess, 2000);
-      }
-    } catch (error: any) {
-      toast.error(`Failed: ${error.message}`, { id: `process-${documentId}` });
     }
   };
 
@@ -368,26 +423,50 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
             <h3 className="font-semibold">{t('documents.uploaded')}</h3>
             {documents.map((doc) => (
               <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
-                <div className="flex items-center gap-3 flex-1">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   <FileText className="w-8 h-8 text-primary shrink-0" />
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 space-y-1">
                     <p className="font-medium truncate">{doc.filename}</p>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className={doc.processed ? 'text-green-600' : 'text-amber-600'}>
-                        {doc.processed ? '✓ Processed' : '⏳ Not processed'}
-                      </span>
+                      {processingDocs.has(doc.id) || doc.metadata?.processing ? (
+                        <span className="text-amber-600 dark:text-amber-400 animate-pulse flex items-center gap-1">
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          🔄 Processing...
+                        </span>
+                      ) : doc.processed ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600 dark:text-green-400">✅ Processed</span>
+                          {doc.content && (
+                            <span className="text-xs text-muted-foreground">
+                              ({doc.content.length.toLocaleString()} chars)
+                            </span>
+                          )}
+                        </div>
+                      ) : doc.metadata?.failed ? (
+                        <span className="text-destructive">❌ Failed</span>
+                      ) : (
+                        <span className="text-muted-foreground">⏳ Pending</span>
+                      )}
                       <span>{formatFileSize(doc.file_size)}</span>
                       <span>{format(new Date(doc.uploaded_at), 'PPp')}</span>
                     </div>
+                    
+                    {/* Content Preview */}
+                    {doc.processed && doc.content && (
+                      <Collapsible>
+                        <CollapsibleTrigger className="text-sm text-primary hover:underline">
+                          Preview extracted content →
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <pre className="mt-2 p-3 bg-muted rounded text-xs max-h-40 overflow-y-auto whitespace-pre-wrap">
+                            {doc.content.slice(0, 500)}...
+                          </pre>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {!doc.processed && (
-                    <Button variant="outline" size="sm" onClick={() => processDocument(doc.id, doc.filename)}>
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      Process
-                    </Button>
-                  )}
                   <Button variant="ghost" size="icon" onClick={() => downloadDocument(doc)}><Download className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => confirmDelete(doc)}><Trash2 className="w-4 h-4" /></Button>
                 </div>
