@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { mapMorphologyToBlob } from './blob/blobMapping';
 import { detectArchetype, BlobArchetype } from './blob/blobArchetypes';
 import { blobSketch } from './blob/BlobGenerator';
+import { getZoneStyles, getDimensionVisuals, getPatternPreview } from './blob/colorMapping';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -109,7 +110,8 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   };
   
   const zoneInfo = getZoneInfo(hoveredZone);
-  
+  const zoneStyle = hoveredZone ? getZoneStyles(hoveredZone, blobData) : null;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -127,21 +129,43 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
               <ReactP5Wrapper sketch={blobSketch} blobData={blobData} onHover={handleHover} />
               
               {/* Floating tooltip */}
-              {hoveredZone && zoneInfo && (
+              {hoveredZone && zoneInfo && zoneStyle && (
                 <div 
-                  className="absolute pointer-events-none z-50 animate-fade-in"
+                  className="absolute pointer-events-none z-50 animate-tooltip-in"
                   style={{ 
                     left: `${tooltipPosition.x}px`, 
                     top: `${tooltipPosition.y}px`,
                     transform: 'translate(-50%, -120%)'
                   }}
                 >
-                  <div className="bg-popover/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3 max-w-xs">
-                    <p className="text-sm font-semibold text-foreground mb-1">{zoneInfo.title}</p>
-                    <p className="text-xs text-muted-foreground mb-2">{zoneInfo.description}</p>
-                    <Badge variant="secondary" className="text-xs">
-                      {zoneInfo.dimension}
-                    </Badge>
+                  <div 
+                    className="backdrop-blur-md border-2 rounded-xl shadow-2xl p-4 max-w-sm"
+                    style={{ 
+                      borderColor: zoneStyle.borderColor,
+                      background: zoneStyle.gradient
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-2xl">{zoneStyle.icon}</span>
+                      <p className="text-base font-bold text-foreground">{zoneInfo.title}</p>
+                    </div>
+                    
+                    <div 
+                      className="h-0.5 mb-3" 
+                      style={{ background: zoneStyle.borderColor }}
+                    />
+                    
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                      {zoneInfo.description}
+                    </p>
+                    
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-2 h-2 rounded-full" 
+                        style={{ backgroundColor: zoneStyle.borderColor }}
+                      />
+                      <span className="text-xs font-medium">{zoneInfo.dimension}</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -195,44 +219,58 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
                 label={t('visualizations.blob.vars.complexity')}
                 value={morphology.complexity}
                 detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`}
+                visualColor={getDimensionVisuals('complexity', blobData).color}
+                visualIcon={getDimensionVisuals('complexity', blobData).icon}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.stakeholder')}
                 value={morphology.stakeholder}
                 detail={`${blobData.arms} ${t('visualizations.blob.vars.arms')}`}
+                visualColor={getDimensionVisuals('stakeholder', blobData).color}
+                visualIcon={getDimensionVisuals('stakeholder', blobData).icon}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.knowledge')}
                 value={morphology.knowledge}
                 detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`}
+                visualColor={getDimensionVisuals('knowledge', blobData).color}
+                visualIcon={getDimensionVisuals('knowledge', blobData).icon}
+                visualPattern={blobData.innerPattern}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.organizational')}
                 value={morphology.organizational}
                 detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`}
+                visualColor={getDimensionVisuals('organizational', blobData).color}
+                visualIcon={getDimensionVisuals('organizational', blobData).icon}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.temporal')}
                 value={morphology.temporal}
                 detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed}s`}
+                visualColor={getDimensionVisuals('temporal', blobData).color}
+                visualIcon={getDimensionVisuals('temporal', blobData).icon}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.change')}
                 value={morphology.change}
                 detail={`${t('visualizations.blob.vars.rotation')}: ${blobData.rotationSpeed}°/s`}
+                visualColor={getDimensionVisuals('change', blobData).color}
+                visualIcon={getDimensionVisuals('change', blobData).icon}
               />
               
               <StatusRow
                 label={t('visualizations.blob.vars.risk')}
                 value={morphology.risk}
                 detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`}
-                glowColor={blobData.outerGlowColor}
-                glowTooltip={t('visualizations.blob.glowTooltip')}
+                visualColor={getDimensionVisuals('risk', blobData).color}
+                visualIcon={getDimensionVisuals('risk', blobData).icon}
+                glowIntensity={blobData.outerGlowIntensity}
               />
             </div>
           </div>
@@ -358,49 +396,87 @@ export function MorphologyBlob({ morphology }: MorphologyBlobProps) {
   );
 }
 
-function StatusRow({ 
-  label, 
-  value, 
-  detail,
-  glowColor,
-  glowTooltip
-}: { 
-  label: string; 
-  value: string; 
+interface StatusRowProps {
+  label: string;
+  value: string;
   detail: string;
-  glowColor?: string;
-  glowTooltip?: string;
-}) {
+  visualColor?: string;
+  visualIcon?: string;
+  visualPattern?: string;
+  glowIntensity?: number;
+}
+
+function StatusRow(props: StatusRowProps) {
   const { t } = useTranslation();
   
   return (
-    <div className="flex items-center justify-between py-2 border-b border-border/50">
-      <div className="flex items-center gap-2">
-        {glowColor && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
+    <div className="group hover:bg-muted/30 transition-colors rounded-lg p-3 border border-transparent hover:border-border">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          {/* Visual Indicator */}
+          {props.visualColor && (
+            <div className="relative">
+              <div 
+                className="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+                style={{ 
+                  backgroundColor: `${props.visualColor}30`,
+                  borderColor: props.visualColor
+                }}
+              >
+                {props.visualIcon && (
+                  <span className="text-xs">{props.visualIcon}</span>
+                )}
+              </div>
+              
+              {/* Glow effect hvis relevant */}
+              {props.glowIntensity !== undefined && props.glowIntensity > 0 && (
                 <div 
-                  className="w-3 h-3 rounded-full cursor-help" 
+                  className="absolute inset-0 rounded-full blur-sm -z-10 animate-glow-pulse"
                   style={{ 
-                    backgroundColor: glowColor,
-                    boxShadow: `0 0 6px ${glowColor}60`
+                    backgroundColor: props.visualColor,
+                    opacity: props.glowIntensity * 0.4
                   }}
                 />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs text-xs">{glowTooltip || t('visualizations.blob.glowTooltip')}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-        <span className="text-sm font-medium">{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <Badge variant="outline" className="capitalize">
-          {value}
+              )}
+            </div>
+          )}
+          
+          <span className="text-sm font-medium">{props.label}</span>
+        </div>
+        
+        <Badge 
+          variant="outline" 
+          className="capitalize"
+          style={props.visualColor ? { borderColor: `${props.visualColor}60` } : {}}
+        >
+          {props.value}
         </Badge>
-        <span className="text-xs text-muted-foreground">{detail}</span>
+      </div>
+      
+      {/* Progress/Intensity Bar */}
+      {props.glowIntensity !== undefined && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full rounded-full transition-all duration-500"
+              style={{ 
+                width: `${props.glowIntensity * 100}%`,
+                backgroundColor: props.visualColor
+              }}
+            />
+          </div>
+          <span>{(props.glowIntensity * 100).toFixed(0)}%</span>
+        </div>
+      )}
+      
+      {/* Detail med pattern preview */}
+      <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2">
+        {props.visualPattern && (
+          <span style={{ color: props.visualColor || 'currentColor' }}>
+            {getPatternPreview(props.visualPattern)}
+          </span>
+        )}
+        <span>{props.detail}</span>
       </div>
     </div>
   );

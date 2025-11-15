@@ -96,22 +96,47 @@ export const blobSketch: Sketch<BlobSketchProps> = (p5) => {
 function drawOuterGlow(p5: any, data: BlobVisualData, radius: number) {
   if (data.outerGlowIntensity <= 0) return;
   
-  // Pulse effect for high-risk projects
+  // KRAFTIGERE pulse effect
   const pulseFactor = data.outerGlowIntensity > 0.7 
-    ? 1 + 0.15 * p5.sin(p5.frameCount * 0.1) 
-    : 1;
+    ? 1 + 0.25 * p5.sin(p5.frameCount * 0.08)  // Større amplitude
+    : 1 + 0.1 * p5.sin(p5.frameCount * 0.05);  // Subtil for lav risiko
   
-  const glowSize = radius * 1.5 * pulseFactor;
-  const alpha = data.outerGlowIntensity * 120;
+  const glowSize = radius * 1.6 * pulseFactor;  // Større glød
+  const baseAlpha = Math.min(data.outerGlowIntensity * 220, 255);  // Øget alpha
   
   const color = p5.color(data.outerGlowColor);
   
-  // More glow layers for dramatic effect
-  for (let i = 0; i < 5; i++) {
-    p5.noFill();
-    p5.stroke(p5.red(color), p5.green(color), p5.blue(color), alpha / (i + 1));
-    p5.strokeWeight(25 - i * 4);
-    p5.circle(0, 0, glowSize + i * 25);
+  // TILFØJ KONTRAST-RING (hvid eller lys) først
+  p5.noFill();
+  p5.stroke(255, 255, 255, baseAlpha * 0.3);
+  p5.strokeWeight(3);
+  p5.circle(0, 0, radius * 1.35);
+  
+  // FORBEDREDE glow-lag med mere dramatisk effekt
+  for (let i = 0; i < 8; i++) {  // 8 lag i stedet for 5
+    const layerAlpha = baseAlpha / Math.pow(i + 1, 0.8);  // Langsommere fade
+    const layerSize = glowSize + i * 20;
+    
+    p5.stroke(
+      p5.red(color), 
+      p5.green(color), 
+      p5.blue(color), 
+      layerAlpha
+    );
+    p5.strokeWeight(Math.max(30 - i * 3, 2));  // Tykkere strokes
+    p5.circle(0, 0, layerSize);
+  }
+  
+  // EKSTRA DRAMATIK for høj risiko (extreme/high)
+  if (data.outerGlowIntensity > 0.7) {
+    p5.stroke(
+      p5.red(color), 
+      p5.green(color), 
+      p5.blue(color), 
+      50
+    );
+    p5.strokeWeight(50);
+    p5.circle(0, 0, glowSize * 1.3);
   }
 }
 
