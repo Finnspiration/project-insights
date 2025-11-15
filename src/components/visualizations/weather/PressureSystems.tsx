@@ -41,27 +41,47 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
               transition={{ delay: index * 0.2, duration: 0.6 }}
             >
               {/* Isobar circles */}
-              {Array.from({ length: zone.intensity }).map((_, i) => (
-                <circle
-                  key={`isobar-${zone.id}-${i}`}
-                  cx={`${zone.x}%`}
-                  cy={`${zone.y}%`}
-                  r={`${8 + i * 4}%`}
-                  fill="none"
-                  stroke={zone.type === 'H' ? 'hsl(0, 70%, 50%)' : 'hsl(220, 70%, 50%)'}
-                  strokeWidth="1"
-                  strokeOpacity="0.4"
-                  strokeDasharray="4,2"
-                />
-              ))}
+              {Array.from({ length: zone.intensity }).map((_, i) => {
+                // Determine stroke style based on source
+                const isBlindSpotSource = zone.metadata?.source === 'blind_spot';
+                const strokeWidth = isBlindSpotSource ? '2' : '1.5';
+                const strokeOpacity = isBlindSpotSource ? '0.7' : '0.5';
+                
+                // Get color based on type and source
+                const getZoneColor = () => {
+                  if (zone.type === 'H') {
+                    return isBlindSpotSource 
+                      ? 'hsl(0, 85%, 45%)' // Darker red for blind spot H zones
+                      : 'hsl(0, 70%, 55%)'; // Normal red for risk profile H zones
+                  } else {
+                    return 'hsl(220, 70%, 50%)'; // Blue for L zones
+                  }
+                };
+
+                return (
+                  <circle
+                    key={`isobar-${zone.id}-${i}`}
+                    cx={`${zone.x}%`}
+                    cy={`${zone.y}%`}
+                    r={`${8 + i * 4}%`}
+                    fill="none"
+                    stroke={getZoneColor()}
+                    strokeWidth={strokeWidth}
+                    strokeOpacity={strokeOpacity}
+                    strokeDasharray="4,2"
+                  />
+                );
+              })}
 
               {/* Center marker */}
               <circle
                 cx={`${zone.x}%`}
                 cy={`${zone.y}%`}
                 r="2%"
-                fill={zone.type === 'H' ? 'hsl(0, 80%, 60%)' : 'hsl(220, 80%, 60%)'}
-                opacity="0.7"
+                fill={zone.type === 'H' 
+                  ? (zone.metadata?.source === 'blind_spot' ? 'hsl(0, 90%, 55%)' : 'hsl(0, 80%, 60%)')
+                  : 'hsl(220, 80%, 60%)'}
+                opacity="0.8"
               />
 
               {/* Label */}
@@ -165,33 +185,42 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                   fill="none"
                   stroke={
                     front.type === 'cold'
-                      ? 'hsl(220, 80%, 50%)'
+                      ? `hsl(220, 80%, ${50 - (front.intensity * 5)}%)` // Darker blue for higher intensity
                       : front.type === 'warm'
-                      ? 'hsl(0, 80%, 50%)'
-                      : 'hsl(280, 80%, 50%)'
+                      ? `hsl(0, 80%, ${50 - (front.intensity * 5)}%)` // Darker red for higher intensity
+                      : `hsl(280, 80%, ${50 - (front.intensity * 5)}%)` // Darker purple for occluded
                   }
-                  strokeWidth={front.intensity}
+                  strokeWidth={front.intensity * 1.5} // Thicker lines for higher intensity
                   strokeDasharray={front.type === 'occluded' ? '8,4' : 'none'}
+                  strokeOpacity="0.8"
                 />
 
                 {/* Front symbols (triangles for cold, semi-circles for warm) */}
-                {front.points.slice(1).map((point, i) => (
-                  <g key={`symbol-${i}`}>
-                    {front.type === 'cold' ? (
-                      <polygon
-                        points={`${point.x - 1},${point.y + 2} ${point.x},${point.y - 2} ${point.x + 1},${point.y + 2}`}
-                        fill="hsl(220, 80%, 50%)"
-                      />
-                    ) : (
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r="1.5"
-                        fill="hsl(0, 80%, 50%)"
-                      />
-                    )}
-                  </g>
-                ))}
+                {front.points.slice(1).map((point, i) => {
+                  const symbolColor = front.type === 'cold'
+                    ? `hsl(220, 80%, ${50 - (front.intensity * 5)}%)`
+                    : `hsl(0, 80%, ${50 - (front.intensity * 5)}%)`;
+                  
+                  return (
+                    <g key={`symbol-${i}`}>
+                      {front.type === 'cold' ? (
+                        <polygon
+                          points={`${point.x - 1},${point.y + 2} ${point.x},${point.y - 2} ${point.x + 1},${point.y + 2}`}
+                          fill={symbolColor}
+                          opacity="0.9"
+                        />
+                      ) : (
+                        <circle
+                          cx={point.x}
+                          cy={point.y}
+                          r="1.5"
+                          fill={symbolColor}
+                          opacity="0.9"
+                        />
+                      )}
+                    </g>
+                  );
+                })}
               </motion.g>
 
               {/* Interactive overlay for tooltip at midpoint */}

@@ -1,0 +1,81 @@
+import { motion } from 'framer-motion';
+
+export function PressureLegend() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.5, duration: 0.4 }}
+      className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg z-10 pointer-events-auto"
+      style={{ maxWidth: '220px' }}
+    >
+      <div className="space-y-2">
+        <h3 className="text-xs font-semibold text-foreground mb-2">Tryksystemer</h3>
+        
+        {/* High Pressure */}
+        <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-col items-center">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="8" fill="none" stroke="hsl(0, 70%, 55%)" strokeWidth="1.5" strokeOpacity="0.5" strokeDasharray="2,1" />
+              <circle cx="14" cy="14" r="2.5" fill="hsl(0, 80%, 60%)" opacity="0.8" />
+              <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">H</text>
+            </svg>
+          </div>
+          <span className="text-muted-foreground">Højtryk (risiko)</span>
+        </div>
+
+        {/* High Pressure from Blind Spot */}
+        <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-col items-center">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="8" fill="none" stroke="hsl(0, 85%, 45%)" strokeWidth="2" strokeOpacity="0.7" strokeDasharray="2,1" />
+              <circle cx="14" cy="14" r="2.5" fill="hsl(0, 90%, 55%)" opacity="0.8" />
+              <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">H</text>
+            </svg>
+          </div>
+          <span className="text-muted-foreground">Højtryk (blind spot)</span>
+        </div>
+
+        {/* Low Pressure */}
+        <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-col items-center">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="8" fill="none" stroke="hsl(220, 70%, 50%)" strokeWidth="1.5" strokeOpacity="0.5" strokeDasharray="2,1" />
+              <circle cx="14" cy="14" r="2.5" fill="hsl(220, 80%, 60%)" opacity="0.8" />
+              <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">L</text>
+            </svg>
+          </div>
+          <span className="text-muted-foreground">Lavtryk</span>
+        </div>
+
+        <div className="border-t border-border pt-2 mt-2">
+          <h4 className="text-xs font-semibold text-foreground mb-1.5">Fronter</h4>
+          
+          {/* Cold Front */}
+          <div className="flex items-center gap-2 text-xs mb-1">
+            <svg width="28" height="12" viewBox="0 0 28 12">
+              <line x1="0" y1="6" x2="28" y2="6" stroke="hsl(220, 80%, 50%)" strokeWidth="1.5" opacity="0.8" />
+              <polygon points="8,4 9,8 10,4" fill="hsl(220, 80%, 50%)" opacity="0.9" />
+              <polygon points="18,4 19,8 20,4" fill="hsl(220, 80%, 50%)" opacity="0.9" />
+            </svg>
+            <span className="text-muted-foreground">Kold front</span>
+          </div>
+
+          {/* Warm Front */}
+          <div className="flex items-center gap-2 text-xs">
+            <svg width="28" height="12" viewBox="0 0 28 12">
+              <line x1="0" y1="6" x2="28" y2="6" stroke="hsl(0, 80%, 50%)" strokeWidth="1.5" opacity="0.8" />
+              <circle cx="9" cy="6" r="1.5" fill="hsl(0, 80%, 50%)" opacity="0.9" />
+              <circle cx="19" cy="6" r="1.5" fill="hsl(0, 80%, 50%)" opacity="0.9" />
+            </svg>
+            <span className="text-muted-foreground">Varm front</span>
+          </div>
+        </div>
+
+        <p className="text-[10px] text-muted-foreground mt-2 italic">
+          Mørkere farver = højere intensitet
+        </p>
+      </div>
+    </motion.div>
+  );
+}
