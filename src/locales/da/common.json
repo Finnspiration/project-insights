@@ -743,6 +743,7 @@
       "confident": "Tillid",
       "whyThisPhase": "Hvorfor Denne Fase?",
       "morphologyEvidence": "Morfologi Bevis",
+      "noMorphologyEvidence": "Morfologi bevis vil vises her når analysen er færdig. Klik genindlæs for at regenerere.",
       "documentEvidence": "Dokument Bevis",
       "documentsProcessing": "Dokumenter behandles...",
       "noDocuments": "Ingen dokumenter uploadet endnu",

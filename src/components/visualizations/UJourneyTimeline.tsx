@@ -541,22 +541,31 @@ export function UJourneyTimeline({ morphology, projectId }: UJourneyTimelineProp
                 <BarChart3 className="w-4 h-4 text-primary" />
                 <h3 className="font-semibold">{t('visualizations.theoryU.morphologyEvidence')}</h3>
               </div>
-              <div className="grid gap-3">
-                {analysis.whyHere?.morphologyEvidence?.map((evidence: any, idx: number) => (
-                  <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 border border-border/50">
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div className="w-1 h-12 bg-primary rounded-full" />
-                      <Badge variant="secondary" className="text-xs font-medium">
-                        {evidence.dimension}
-                      </Badge>
+              
+              {analysis.whyHere?.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 ? (
+                <div className="grid gap-3">
+                  {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => (
+                    <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted/30 border border-border/50">
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="w-1 h-12 bg-primary rounded-full" />
+                        <Badge variant="secondary" className="text-xs font-medium">
+                          {evidence.dimension}
+                        </Badge>
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <p className="text-sm font-semibold text-foreground">{evidence.value}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{evidence.reasoning}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1 flex-1">
-                      <p className="text-sm font-semibold text-foreground">{evidence.value}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{evidence.reasoning}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
+                  <p className="text-sm text-muted-foreground text-center">
+                    {t('visualizations.theoryU.noMorphologyEvidence')}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Document Evidence */}

@@ -94,7 +94,30 @@ serve(async (req) => {
     aiContent = aiContent.replace(/```json|```/g, '').trim();
     const aiAnalysis = JSON.parse(aiContent);
 
-    // STEP 3: Kombiner
+    // STEP 3: Generate morphologyEvidence array
+    const morphologyEvidence = morphologyAnalysis ? 
+      morphologyAnalysis.evidence.slice(0, 5).map((contrib: string) => {
+        // Parse "dimension (value): reasoning" format
+        const match = contrib.match(/^(.+?) \((.+?)\): (.+)$/);
+        if (match) {
+          return {
+            dimension: match[1],
+            value: match[2],
+            reasoning: match[3]
+          };
+        }
+        return null;
+      }).filter(Boolean) : [];
+
+    // STEP 4: Generate documentEvidence array
+    const documentEvidence = hasDocuments ? 
+      documents.slice(0, 3).flatMap(doc => {
+        if (!doc.content) return [];
+        const sentences = doc.content.split(/[.!?]+/).filter((s: string) => s.trim().length > 50);
+        return sentences.slice(0, 2).map((s: string) => s.trim() + '.');
+      }).slice(0, 6) : [];
+
+    // STEP 5: Kombiner
     const finalAnalysis = {
       ...aiAnalysis,
       currentPhase: morphologyAnalysis?.phase || aiAnalysis.currentPhase,
@@ -109,7 +132,11 @@ serve(async (req) => {
             phase: p.phase,
             score: p.score,
           }))
-        } : null
+        } : null,
+        morphologyEvidence,
+        documentEvidence,
+        documentStatus,
+        processingFiles: hasUnprocessed ? unprocessedDocs.map(d => d.filename) : []
       }
     };
 
