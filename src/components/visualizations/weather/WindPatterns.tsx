@@ -82,62 +82,6 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
           ))}
         </g>
       </svg>
-
-      {/* Wind info label - enhanced visual feedback with pulsing animation */}
-      <motion.div 
-        className="absolute top-16 left-4 bg-background/95 backdrop-blur-md border-2 border-primary/30 rounded-lg px-4 py-3 shadow-xl z-10"
-        animate={{
-          scale: pattern.speed === 2 ? [1, 1.02, 1] : [1, 1.01, 1],
-          borderColor: pattern.speed === 2 
-            ? ['hsl(var(--primary) / 0.3)', 'hsl(var(--primary) / 0.6)', 'hsl(var(--primary) / 0.3)']
-            : ['hsl(var(--primary) / 0.3)', 'hsl(var(--primary) / 0.4)', 'hsl(var(--primary) / 0.3)']
-        }}
-        transition={{
-          duration: pattern.speed / 2,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <div className="flex items-center gap-2.5 mb-2">
-          <motion.span 
-            className="text-lg"
-            animate={{ rotate: pattern.speed === 2 ? [0, 360] : pattern.speed === 4 ? [0, 180, 0] : [0, 90, 0] }}
-            transition={{
-              duration: pattern.speed,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          >
-            {pattern.speed === 2 ? '🌪️' : pattern.speed === 4 ? '💨' : pattern.speed === 6 ? '🌬️' : '🍃'}
-          </motion.span>
-          <div>
-            <p className="text-sm font-bold text-foreground">
-              {pattern.speed === 2 ? 'Meget hurtig' : pattern.speed === 4 ? 'Hurtig' : pattern.speed === 6 ? 'Moderat' : 'Langsom'}
-            </p>
-            <p className="text-xs text-muted-foreground font-medium">
-              {Math.round(10 / pattern.speed * 10)} km/t
-            </p>
-          </div>
-        </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden mb-1.5">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-primary via-accent to-primary"
-            initial={{ width: 0 }}
-            animate={{ 
-              width: `${(10 / pattern.speed) * 10}%`,
-              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-            }}
-            transition={{ 
-              width: { duration: 1, ease: "easeOut" },
-              backgroundPosition: { duration: pattern.speed, repeat: Infinity, ease: "linear" }
-            }}
-            style={{ backgroundSize: '200% 100%' }}
-          />
-        </div>
-        <p className="text-[10px] text-muted-foreground font-medium capitalize">
-          Mønster: {pattern.type === 'radial' ? 'Radial' : pattern.type === 'topdown' ? 'Top-down' : pattern.type === 'network' ? 'Netværk' : 'Distribueret'}
-        </p>
-      </motion.div>
     </div>
   );
 }
