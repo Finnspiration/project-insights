@@ -231,35 +231,55 @@ Returner JSON med denne struktur:
 
     console.log(`Overall confidence: ${(overallConfidence * 100).toFixed(1)}%`);
 
-    // Update each document with analysis metadata
-    for (const doc of documents) {
-      const { error: updateError } = await supabase
-        .from('documents')
-        .update({
-          metadata: {
-            ...(doc.metadata || {}), // preserve existing metadata
-            morphologySuggestions: mappedSuggestions,
-            overallConfidence: overallConfidence,
-            analysisTimestamp: new Date().toISOString(),
-            patterns: analysis.patterns || null,
-            blindSpots: analysis.blindSpots || null
-          }
-        })
-        .eq('id', doc.id);
+    // Store project-level patterns (aggregated from all documents)
+    const { error: projectUpdateError } = await supabase
+      .from('projects')
+      .update({
+        patterns: {
+          ...(analysis.patterns || {}),
+          lastAnalyzed: new Date().toISOString(),
+          documentCount: documents.length
+        }
+      })
+      .eq('id', projectId);
 
-      if (updateError) {
-        console.error(`Failed to update document ${doc.id}:`, updateError);
-      } else {
-        console.log(`Updated metadata for document: ${doc.filename}`);
+    if (projectUpdateError) {
+      console.error('Failed to update project patterns:', projectUpdateError);
+    }
+
+    // Now analyze each document individually for document-specific suggestions
+    console.log('Starting individual document analysis...');
+    const individualResults = [];
+
+    for (const doc of documents) {
+      try {
+        console.log(`Analyzing individual document: ${doc.filename}`);
+        
+        const { data: individualAnalysis, error: analyzeError } = await supabase.functions.invoke(
+          'analyze-single-document',
+          { body: { documentId: doc.id, language } }
+        );
+
+        if (analyzeError) {
+          console.error(`Failed to analyze document ${doc.id}:`, analyzeError);
+        } else {
+          console.log(`Successfully analyzed: ${doc.filename}`);
+          individualResults.push(individualAnalysis);
+        }
+      } catch (error) {
+        console.error(`Error analyzing document ${doc.id}:`, error);
       }
     }
 
+    console.log(`Completed individual analysis for ${individualResults.length}/${documents.length} documents`);
+
     return new Response(
       JSON.stringify({
-        ...analysis,
-        morphologySuggestions: mappedSuggestions, // Return mapped version
-        updatedDocuments: documents.length,
-        overallConfidence: overallConfidence
+        patterns: analysis.patterns,
+        blindSpots: analysis.blindSpots,
+        analyzedDocuments: individualResults.length,
+        totalDocuments: documents.length,
+        message: `Analyzed ${individualResults.length} documents individually`
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
