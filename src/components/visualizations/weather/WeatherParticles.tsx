@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 interface WeatherParticlesProps {
   temporalDynamics: string | { selectedValue: string };
+  organizationalStage?: string | { selectedValue: string };
 }
 
 // Helper to extract morphology value (handles both string and object formats)
@@ -11,6 +12,34 @@ function getMorphologyValue(value: string | { selectedValue: string } | undefine
   if (typeof value === 'string') return value;
   if (typeof value === 'object' && 'selectedValue' in value) return value.selectedValue;
   return defaultValue;
+}
+
+// Get contrast color based on organizational stage
+function getStageContrastColor(stage: string): { color: string; emoji: string } {
+  const stageColors = {
+    red: { 
+      color: 'rgba(59, 130, 246, 0.9)', // Bright blue contrast to red/warm
+      emoji: '💎'
+    },
+    amber: { 
+      color: 'rgba(168, 85, 247, 0.9)', // Purple contrast to amber/orange
+      emoji: '⭐'
+    },
+    orange: { 
+      color: 'rgba(34, 197, 94, 0.9)', // Green contrast to orange
+      emoji: '🌟'
+    },
+    green: { 
+      color: 'rgba(251, 191, 36, 0.9)', // Gold contrast to green
+      emoji: '✨'
+    },
+    teal: { 
+      color: 'rgba(236, 72, 153, 0.9)', // Pink contrast to teal/cyan
+      emoji: '🔮'
+    }
+  };
+  
+  return stageColors[stage as keyof typeof stageColors] || stageColors.orange;
 }
 
 interface Particle {
@@ -23,54 +52,64 @@ interface Particle {
   type: 'rain' | 'leaf' | 'dust';
 }
 
-export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
-  // Extract the actual value from morphology format
+export function WeatherParticles({ temporalDynamics, organizationalStage }: WeatherParticlesProps) {
+  // Extract the actual values from morphology format
   const temporalValue = getMorphologyValue(temporalDynamics, 'project');
+  const stageValue = getMorphologyValue(organizationalStage, 'orange');
+  
+  // Get contrast color based on organizational stage
+  const stageContrast = getStageContrastColor(stageValue);
   
   // Debug logging
-  console.log('🌧️ WeatherParticles - Raw input:', temporalDynamics);
-  console.log('🌧️ WeatherParticles - Extracted value:', temporalValue);
+  console.log('🌧️ WeatherParticles - Raw temporal input:', temporalDynamics);
+  console.log('🌧️ WeatherParticles - Extracted temporal value:', temporalValue);
+  console.log('🌧️ WeatherParticles - Organizational stage:', stageValue);
+  console.log('🌧️ WeatherParticles - Contrast color:', stageContrast);
   
   const particleConfig = useMemo(() => {
     const configs = {
       sprint: {
-        count: 80,
-        speed: [1.5, 2.5], // seconds (fast)
+        count: 100,
+        speed: [0.8, 1.2], // VERY FAST
         type: 'rain' as const,
-        color: 'rgba(59, 130, 246, 0.8)', // blue rain - more visible
-        emoji: '💧',
-        size: [6, 12] // larger particles
+        color: stageContrast.color,
+        emoji: stageContrast.emoji,
+        size: [4, 8],
+        blur: 0
       },
       project: {
-        count: 50,
-        speed: [3, 4.5],
+        count: 60,
+        speed: [2.5, 3.5], // FAST
         type: 'dust' as const,
-        color: 'rgba(168, 85, 247, 0.7)', // purple dust - more visible
-        emoji: '✨',
-        size: [8, 14]
+        color: stageContrast.color,
+        emoji: stageContrast.emoji,
+        size: [6, 12],
+        blur: 1
       },
       program: {
-        count: 35,
-        speed: [5, 7],
+        count: 40,
+        speed: [5, 7], // MODERATE
         type: 'leaf' as const,
-        color: 'rgba(34, 197, 94, 0.7)', // green leaves - more visible
-        emoji: '🍃',
-        size: [20, 28]
+        color: stageContrast.color,
+        emoji: stageContrast.emoji,
+        size: [16, 24],
+        blur: 0
       },
       transformation: {
         count: 25,
-        speed: [8, 12], // seconds (slow)
+        speed: [10, 15], // VERY SLOW
         type: 'leaf' as const,
-        color: 'rgba(251, 191, 36, 0.6)', // golden leaves - more visible
-        emoji: '🍂',
-        size: [22, 30]
+        color: stageContrast.color,
+        emoji: stageContrast.emoji,
+        size: [20, 32],
+        blur: 0
       }
     };
 
     const config = configs[temporalValue as keyof typeof configs] || configs.project;
     console.log('🌧️ WeatherParticles - Particle config:', config);
     return config;
-  }, [temporalValue]);
+  }, [temporalValue, stageContrast]);
 
   const particles: Particle[] = useMemo(() => {
     const particleArray = Array.from({ length: particleConfig.count }, (_, i) => ({
@@ -127,7 +166,7 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
               className="w-full h-full rounded-full"
               style={{
                 background: `radial-gradient(circle, ${particleConfig.color} 0%, transparent 70%)`,
-                filter: 'blur(2px)',
+                filter: `blur(${particleConfig.blur}px)`,
               }}
             />
           )}
