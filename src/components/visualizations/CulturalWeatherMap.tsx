@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CloudRain, Eye } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { BaseClimate } from './weather/BaseClimate';
 import { TemperatureZones } from './weather/TemperatureZones';
 import { WeatherForecast } from './weather/WeatherForecast';
@@ -61,26 +61,14 @@ export function CulturalWeatherMap({
     acting: 6,
   };
 
-  const weatherData = useMemo(() => {
-    console.log('🗺️ Regenerating weather data...');
-    const data = mapProjectToWeatherData(
-      morphology,
-      idgProfile || defaultIDG,
-      theoryUAnalysis,
-      recommendations,
-      interventions,
-      blindSpots
-    );
-    console.log('🚨 FRONTS COUNT:', data.pressureSystems.fronts.length);
-    console.log('🚨 FRONTS DATA:', JSON.stringify(data.pressureSystems.fronts, null, 2));
-    console.log('📍 First front points:', data.pressureSystems.fronts[0]?.points);
-    console.log('📍 All fronts:', data.pressureSystems.fronts.map((f, i) => ({ 
-      id: i, 
-      firstPoint: f.points[0],
-      lastPoint: f.points[f.points.length - 1]
-    })));
-    return data;
-  }, [morphology, idgProfile, theoryUAnalysis, recommendations, interventions, blindSpots]);
+  const weatherData = mapProjectToWeatherData(
+    morphology,
+    idgProfile || defaultIDG,
+    theoryUAnalysis,
+    recommendations,
+    interventions,
+    blindSpots
+  );
 
   const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));

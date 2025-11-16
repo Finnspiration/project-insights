@@ -19,12 +19,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
     <div className="absolute inset-0 pointer-events-none">
       <TooltipProvider>
         {/* SVG Layer - Pure Visual (no interactivity) */}
-        <svg 
-          className="w-full h-full" 
-          viewBox="0 0 100 100" 
-          preserveAspectRatio="none"
-          style={{ shapeRendering: 'geometricPrecision' }}
-        >
+        <svg className="w-full h-full">
           <defs>
             {/* Isobar gradient */}
             <radialGradient id="pressure-gradient-h">
@@ -78,35 +73,25 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                 );
               })}
 
-              {/* Center marker - SCALED */}
+              {/* Center marker */}
               <circle
-                cx={zone.x}
-                cy={zone.y}
-                r="1.5"
+                cx={`${zone.x}%`}
+                cy={`${zone.y}%`}
+                r="2%"
                 fill={zone.type === 'H' 
                   ? (zone.metadata?.source === 'blind_spot' ? 'hsl(0, 90%, 55%)' : 'hsl(0, 80%, 60%)')
                   : 'hsl(220, 80%, 60%)'}
-                stroke="white"
-                strokeWidth="0.3"
-                opacity="0.9"
+                opacity="0.8"
               />
 
-              {/* Label - REDESIGNED */}
+              {/* Label */}
               <text
-                x={zone.x}
-                y={zone.y}
+                x={`${zone.x}%`}
+                y={`${zone.y}%`}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize="12"
-                fontWeight="700"
-                fill="white"
-                stroke="rgba(0,0,0,0.8)"
-                strokeWidth="0.5"
-                paintOrder="stroke fill"
-                style={{ 
-                  fontFamily: 'Arial, sans-serif',
-                  filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.8))'
-                }}
+                className="fill-white text-2xl font-bold"
+                style={{ textShadow: '0 0 8px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1)' }}
               >
                 {zone.type}
               </text>
@@ -136,22 +121,21 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             >
               {/* The visible front line - visual only */}
               <motion.polyline
-                points={front.points.map(p => `${p.x},${p.y}`).join(' ')}
+                points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
                 fill="none"
                 stroke={front.type === 'cold' ? 'hsl(220, 90%, 60%)' : 'hsl(0, 90%, 60%)'}
-                strokeWidth="2.5"
+                strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeDasharray={front.type === 'cold' ? '8,4' : '0'}
                 style={{ 
-                  filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.4))',
+                  filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.5))',
                   pointerEvents: 'none'
                 }}
                 animate={{
-                  strokeWidth: hoveredFront === front.id ? 3.5 : 2.5,
-                  opacity: hoveredFront === front.id ? 1 : 0.85,
+                  strokeWidth: hoveredFront === front.id ? 4 : 3,
+                  opacity: hoveredFront === front.id ? 1 : 0.8,
                 }}
-                transition={{ duration: 0.2 }}
               />
 
               {/* Front symbols */}
@@ -170,24 +154,20 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                       transform={`translate(${point.x}, ${point.y}) rotate(${angle})`}
                     >
                       {front.type === 'cold' ? (
-                        // Cold front triangles - SCALED UP
                         <polygon
-                          points="0,-2 4,2 -4,2"
+                          points="0,-1 2,1 -2,1"
                           fill="hsl(220, 90%, 60%)"
                           stroke="white"
-                          strokeWidth="0.5"
-                          style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.5))' }}
+                          strokeWidth="0.3"
                         />
                       ) : (
-                        // Warm front circles - SCALED UP
                         <circle
                           cx="0"
                           cy="0"
-                          r="2.5"
+                          r="1.5"
                           fill="hsl(0, 90%, 60%)"
                           stroke="white"
-                          strokeWidth="0.5"
-                          style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.5))' }}
+                          strokeWidth="0.3"
                         />
                       )}
                     </g>
@@ -202,7 +182,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             {systems.fronts.map((front) => (
               <polyline
                 key={`hover-${front.id}`}
-                points={front.points.map(p => `${p.x},${p.y}`).join(' ')}
+                points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
                 fill="none"
                 stroke="transparent"
                 strokeWidth="20"
