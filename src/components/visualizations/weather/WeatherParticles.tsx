@@ -73,40 +73,40 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
   const particleConfig = useMemo(() => {
     const configs = {
       sprint: {
-        count: 100,
-        speed: [0.8, 1.2], // VERY FAST
-        type: 'rain' as const,
-        color: stageContrast.color,
-        emoji: stageContrast.emoji,
-        size: [4, 8],
-        blur: 0
-      },
-      project: {
-        count: 60,
-        speed: [2.5, 3.5], // FAST
+        count: 80,
+        speed: [0.5, 1.0], // EKSTREMT HURTIGT
         type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [6, 12],
+        size: [10, 16], // SAMME størrelse for alle
+        blur: 1
+      },
+      project: {
+        count: 80,
+        speed: [2.5, 4.0], // HURTIGT (5x langsommere end sprint)
+        type: 'dust' as const,
+        color: stageContrast.color,
+        emoji: stageContrast.emoji,
+        size: [10, 16], // SAMME størrelse
         blur: 1
       },
       program: {
-        count: 40,
-        speed: [5, 7], // MODERATE
-        type: 'leaf' as const,
+        count: 80,
+        speed: [6.0, 9.0], // MODERAT (12x langsommere end sprint)
+        type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [16, 24],
-        blur: 0
+        size: [10, 16], // SAMME størrelse
+        blur: 1
       },
       transformation: {
-        count: 25,
-        speed: [10, 15], // VERY SLOW
-        type: 'leaf' as const,
+        count: 80,
+        speed: [12.0, 18.0], // MEGET LANGSOMT (24x langsommere end sprint)
+        type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [20, 32],
-        blur: 0
+        size: [10, 16], // SAMME størrelse
+        blur: 1
       }
     };
 
@@ -138,52 +138,32 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
           style={{
             left: `${particle.x}%`,
             top: `${particle.y}%`,
-            width: particle.type === 'leaf' ? `${particle.size}px` : `${particle.size}px`,
-            height: particle.type === 'leaf' ? `${particle.size}px` : `${particle.size}px`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
           }}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{
             y: ['0%', '120%'],
             opacity: [0, 1, 1, 1, 0],
-            x: particle.type === 'leaf' ? [0, 30, -20, 25, 0] : [0, 10, 0], // More sway
-            rotate: particle.type === 'leaf' ? [0, 360, 720] : [0, 0],
+            x: [0, 10, -5, 8, 0], // Subtle sway for all particles
+            rotate: [0, 180, 360], // Gentle rotation
             scale: [0.5, 1, 1, 0.8],
           }}
           transition={{
             duration: particle.duration,
             delay: particle.delay,
             repeat: Infinity,
-            ease: particle.type === 'rain' ? 'linear' : 'easeInOut',
+            ease: 'easeInOut',
           }}
         >
-          {particle.type === 'rain' && (
-            <div
-              className="w-full h-full rounded-full"
-              style={{
-                background: particleConfig.color,
-                boxShadow: `0 0 ${particle.size * 3}px ${particleConfig.color}`,
-              }}
-            />
-          )}
-          {particle.type === 'dust' && (
-            <div
-              className="w-full h-full rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${particleConfig.color} 0%, transparent 70%)`,
-                filter: `blur(${particleConfig.blur}px)`,
-              }}
-            />
-          )}
-          {particle.type === 'leaf' && (
-            <div
-              style={{
-                fontSize: `${particle.size}px`,
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
-              }}
-            >
-              {particleConfig.emoji}
-            </div>
-          )}
+          {/* All particles use dust/glow style */}
+          <div
+            className="w-full h-full rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${particleConfig.color} 0%, transparent 70%)`,
+              filter: `blur(${particleConfig.blur}px)`,
+            }}
+          />
         </motion.div>
       ))}
     </div>
