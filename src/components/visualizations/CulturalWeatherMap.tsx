@@ -15,7 +15,6 @@ import { WeatherLegend } from './weather/WeatherLegend';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
 import { CompactSplitLayout } from './weather/CompactSplitLayout';
 import { CulturalTexture } from './weather/CulturalTexture';
-import { CulturalContextIndicator } from './weather/CulturalContextIndicator';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 
 interface CulturalWeatherMapProps {
@@ -107,13 +106,10 @@ export function CulturalWeatherMap({
 
       {/* Layer 1.5: Cultural Texture Overlay (follows temperatureZones toggle) */}
       {layers.temperatureZones && (
-        <>
-          <CulturalTexture 
-            key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
-            culturalContext={morphology.cultural || 'mono'} 
-          />
-          <CulturalContextIndicator culturalContext={morphology.cultural || 'mono'} />
-        </>
+        <CulturalTexture 
+          key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
+          culturalContext={morphology.cultural || 'mono'} 
+        />
       )}
 
       {/* Layer 2: Weather Particles (follows windPatterns toggle) */}
