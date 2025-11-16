@@ -204,11 +204,16 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   };
 
   // Direct edit handler for inline edit icon
+  const getMorphologyValue = (key: string) => {
+    const value = morphology[key];
+    return typeof value === 'object' ? value?.selectedValue : value;
+  };
+
   const handleDirectEdit = (dimensionKey: string, currentValue: string) => {
     setViewMode({ 
       type: 'editing', 
       dimensionKey, 
-      tempValue: morphology[dimensionKey] || currentValue 
+      tempValue: getMorphologyValue(dimensionKey) || currentValue 
     });
   };
   
@@ -225,7 +230,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
       setViewMode({ 
         type: 'editing', 
         dimensionKey, 
-        tempValue: morphology[dimensionKey] || '' 
+        tempValue: getMorphologyValue(dimensionKey) || '' 
       });
       return;
     }
@@ -374,7 +379,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                               setViewMode({ 
                                 type: 'editing', 
                                 dimensionKey: selectedDimension, 
-                                tempValue: morphology[selectedDimension] || '' 
+                                tempValue: getMorphologyValue(selectedDimension) || '' 
                               });
                             }}
                           >

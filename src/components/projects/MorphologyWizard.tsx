@@ -187,8 +187,13 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
     }));
   };
 
-  const isStepComplete = morphology[currentDimension] !== undefined;
-  const canFinish = DIMENSIONS.every(dim => morphology[dim] !== undefined);
+  const getCurrentValue = (dim: string) => {
+    const value = morphology[dim];
+    return typeof value === 'object' ? value?.selectedValue : value;
+  };
+  
+  const isStepComplete = getCurrentValue(currentDimension) !== undefined;
+  const canFinish = DIMENSIONS.every(dim => getCurrentValue(dim) !== undefined);
   
   // Get AI suggestion for current dimension
   const currentSuggestion = aiSuggestions?.morphologySuggestions?.[currentDimension];
@@ -265,7 +270,7 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
           )}
 
           <RadioGroup
-            value={morphology[currentDimension] || ''}
+            value={getCurrentValue(currentDimension) || ''}
             onValueChange={handleSelection}
             className="space-y-3"
           >

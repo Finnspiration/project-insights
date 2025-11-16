@@ -236,14 +236,28 @@ export function MorphologicalBox({
 
               {/* Dimensions in this category */}
               <div className="bg-card border border-border rounded-lg overflow-hidden">
-                {dimensionsByCategory[category].map((dimension) => (
-                  <DimensionRow
-                    key={dimension.key}
-                    dimension={dimension}
-                    selectedValue={morphology[dimension.key]}
-                    onSelect={handleSelect}
-                  />
-                ))}
+                {dimensionsByCategory[category].map((dimension) => {
+                  const value = morphology[dimension.key];
+                  let selectedValue: string | undefined;
+                  if (value !== null && value !== undefined) {
+                    if (typeof value === 'object') {
+                      const objValue = value as { selectedValue?: string };
+                      if ('selectedValue' in objValue) {
+                        selectedValue = objValue.selectedValue;
+                      }
+                    } else if (typeof value === 'string') {
+                      selectedValue = value;
+                    }
+                  }
+                  return (
+                    <DimensionRow
+                      key={dimension.key}
+                      dimension={dimension}
+                      selectedValue={selectedValue}
+                      onSelect={handleSelect}
+                    />
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -330,7 +344,18 @@ export function MorphologicalBox({
                   <TabsContent value="list" className="mt-4">
                     <div className="flex flex-wrap gap-2">
                       {MORPHOLOGY_DIMENSIONS.map((dimension) => {
-                        const selectedValue = morphology[dimension.key];
+                        const value = morphology[dimension.key];
+                        let selectedValue: string | undefined;
+                        if (value !== null && value !== undefined) {
+                          if (typeof value === 'object') {
+                            const objValue = value as { selectedValue?: string };
+                            if ('selectedValue' in objValue) {
+                              selectedValue = objValue.selectedValue;
+                            }
+                          } else if (typeof value === 'string') {
+                            selectedValue = value;
+                          }
+                        }
                         if (!selectedValue) return null;
                         
                         const option = dimension.options.find(opt => opt.value === selectedValue);
