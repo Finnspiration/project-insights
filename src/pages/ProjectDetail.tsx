@@ -219,13 +219,13 @@ export default function ProjectDetail() {
     fetchBlindSpots();
   }, [id]);
 
-  // Warn about unsaved changes
+  // Warn about unsaved changes before leaving page
   useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = 'Du har ugemte ændringer. Er du sikker?';
-      }
+      e.preventDefault();
+      e.returnValue = '';
     };
     
     window.addEventListener('beforeunload', handleBeforeUnload);
