@@ -1,5 +1,9 @@
 // Maps project data to weather visualization data
 
+// Force module reload with version bump
+export const WEATHER_MAPPER_VERSION = '2.0.0';
+console.log('🌊 Weather Mapper loaded, version:', WEATHER_MAPPER_VERSION);
+
 export interface BaseClimateData {
   backgroundColor: string;
   skyDensity: number;
@@ -325,6 +329,7 @@ export function mapToPressureSystems(
         description: stakeholderDescriptions[stakeholder] || 'Ukendt stakeholder-dynamik'
       }
     });
+    console.log(`✨ Generated front ${i} at y=${yPos} with points:`, fronts[fronts.length - 1].points);
   }
 
   // Add extra fronts from stakeholder/political blind spots
