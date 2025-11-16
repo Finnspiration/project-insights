@@ -113,35 +113,32 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
 
           {/* Pressure Fronts - Visual Only */}
           {systems.fronts.map((front, index) => {
-            const pathData = `M ${front.points.map(p => `${p.x} ${p.y}`).join(' L ')}`;
-            const midPointIndex = Math.floor(front.points.length / 2);
-            const midPoint = front.points[midPointIndex];
-            
-            const getStrokeColor = (intensity: number) => {
-              if (intensity >= 8) return 'hsl(0, 80%, 55%)';
-              if (intensity >= 5) return 'hsl(30, 85%, 55%)';
-              return 'hsl(200, 70%, 55%)';
-            };
+            const isHovered = hoveredFront === front.id;
+            const strokeColor = front.type === 'cold' ? 'hsl(220, 80%, 55%)' : 'hsl(0, 70%, 55%)';
+            const strokeWidth = isHovered ? '7' : front.intensity > 2 ? '5' : '4';
 
             return (
               <motion.g
                 key={front.id}
-                initial={{ opacity: 0, pathLength: 0 }}
-                animate={{ opacity: 1, pathLength: 1 }}
-                transition={{ delay: index * 0.3, duration: 0.8 }}
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ delay: index * 0.3, duration: 1.2 }}
               >
-                {/* Front line */}
-                <path
-                  d={pathData}
+                {/* Main front line - FIXED: Using % coordinates */}
+                <motion.polyline
+                  points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
                   fill="none"
-                  stroke={getStrokeColor(front.intensity)}
-                  strokeWidth={front.intensity >= 7 ? "4" : "3"}
-                  strokeOpacity="0.8"
+                  stroke={strokeColor}
+                  strokeWidth={strokeWidth}
                   strokeLinecap="round"
-                  strokeDasharray={front.type === 'occluded' ? '10,5' : 'none'}
+                  strokeLinejoin="round"
+                  opacity={isHovered ? 0.95 : 0.75}
+                  style={{
+                    filter: isHovered ? `drop-shadow(0 0 16px ${strokeColor})` : 'none',
+                  }}
                 />
 
-                {/* Front symbols */}
+                {/* Front symbols - FIXED: Using % coordinates */}
                 {front.points.map((point, i) => {
                   if (i % 3 !== 0) return null;
 
@@ -149,41 +146,24 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                     return (
                       <polygon
                         key={`symbol-${i}`}
-                        points={`${point.x},${point.y - 1.5} ${point.x - 1.2},${point.y + 1.5} ${point.x + 1.2},${point.y + 1.5}`}
-                        fill={getStrokeColor(front.intensity)}
-                        opacity="0.9"
+                        points={`${point.x}%,${point.y - 1.5}% ${point.x - 1.2}%,${point.y + 1.5}% ${point.x + 1.2}%,${point.y + 1.5}%`}
+                        fill={strokeColor}
+                        opacity={isHovered ? 1 : 0.9}
                       />
                     );
                   } else if (front.type === 'warm') {
                     return (
                       <circle
                         key={`symbol-${i}`}
-                        cx={point.x}
-                        cy={point.y}
-                        r="1.2"
-                        fill={getStrokeColor(front.intensity)}
-                        opacity="0.9"
-                      />
-                    );
-                  } else {
-                    return i % 6 === 0 ? (
-                      <polygon
-                        key={`symbol-${i}`}
-                        points={`${point.x},${point.y - 1.5} ${point.x - 1.2},${point.y + 1.5} ${point.x + 1.2},${point.y + 1.5}`}
-                        fill={getStrokeColor(front.intensity)}
-                        opacity="0.9"
-                      />
-                    ) : (
-                      <circle
-                        key={`symbol-${i}`}
-                        cx={point.x}
-                        cy={point.y}
-                        r="1.2"
-                        fill={getStrokeColor(front.intensity)}
-                        opacity="0.9"
+                        cx={`${point.x}%`}
+                        cy={`${point.y}%`}
+                        r="1.2%"
+                        fill={strokeColor}
+                        opacity={isHovered ? 1 : 0.9}
                       />
                     );
                   }
+                  return null;
                 })}
               </motion.g>
             );
@@ -266,10 +246,11 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                           left: `${point.x}%`,
                           top: `${point.y}%`,
                           transform: 'translate(-50%, -50%)',
-                          width: hoveredFront === front.id ? '70px' : '50px',
-                          height: hoveredFront === front.id ? '70px' : '50px',
+                          width: hoveredFront === front.id ? '90px' : '80px',
+                          height: hoveredFront === front.id ? '90px' : '80px',
                           transition: 'all 0.2s ease',
                           zIndex: 60, // Higher than zones
+                          cursor: 'pointer',
                         }}
                         onMouseEnter={() => setHoveredFront(front.id)}
                         onMouseLeave={() => setHoveredFront(null)}
