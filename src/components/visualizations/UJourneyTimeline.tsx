@@ -833,17 +833,6 @@ export function UJourneyTimeline({
           </CardContent>
         </Card>
 
-        {/* Next 3 Actions */}
-        <Card>
-          
-          
-        </Card>
-
-        {/* Readiness Indicators - Interactive */}
-        <Card>
-          
-          
-        </Card>
 
         {/* Theory U Resources */}
         {resources && resources.length > 0 && <Card>
