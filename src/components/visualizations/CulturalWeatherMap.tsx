@@ -170,7 +170,7 @@ export function CulturalWeatherMap({
           variant="secondary"
           size="sm"
           onClick={handleTogglePanels}
-          className="absolute top-4 right-4 shadow-lg"
+          className="absolute bottom-4 right-4 z-[60] shadow-lg"
         >
           <Eye className="h-4 w-4 mr-2" />
           Vis paneler
