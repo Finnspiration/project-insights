@@ -71,6 +71,10 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [morphologyWizardOpen, setMorphologyWizardOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  
+  // Preview state for live editing (separate from saved state)
+  const [previewMorphology, setPreviewMorphology] = useState<any>(null);
+  const [previewIDG, setPreviewIDG] = useState<any>(null);
 
   const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
 
@@ -103,6 +107,16 @@ export default function ProjectDetail() {
       morphology: newMorphology
     });
   };
+
+  // Initialize preview state when project loads
+  useEffect(() => {
+    if (project?.morphology) {
+      setPreviewMorphology(project.morphology);
+    }
+    if (project?.patterns?.idg_profile) {
+      setPreviewIDG(project.patterns.idg_profile);
+    }
+  }, [project?.morphology, project?.patterns?.idg_profile]);
 
   const fetchDocuments = async () => {
     if (!id) return;
