@@ -59,7 +59,6 @@ export function CulturalWeatherMap({
     precipitation: true,
     forecast: true,
     particles: true,
-    culturalTexture: true,
   });
 
   const [showPanels, setShowPanels] = useState(true);
@@ -92,7 +91,7 @@ export function CulturalWeatherMap({
     blindSpots
   );
 
-  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles' | 'culturalTexture') => {
+  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
@@ -106,8 +105,8 @@ export function CulturalWeatherMap({
       {/* Layer 1: Base Climate (always visible) */}
       <BaseClimate data={weatherData.baseClimate} />
 
-      {/* Layer 1.5: Cultural Texture Overlay (toggleable) */}
-      {layers.culturalTexture && (
+      {/* Layer 1.5: Cultural Texture Overlay (follows temperatureZones toggle) */}
+      {layers.temperatureZones && (
         <>
           <CulturalTexture 
             key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
