@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
 import { DNAEvidenceVisualization } from './theory-u/DNAEvidenceVisualization';
+import { EvidenceBreakdownPanel } from './theory-u/EvidenceBreakdownPanel';
 interface UJourneyTimelineProps {
   morphology: any;
   projectId: string;
@@ -708,7 +709,13 @@ export function UJourneyTimeline({
               
               {/* Morphology Evidence - DNA Visualization */}
               {analysis.whyHere.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 && morphology && <div className="space-y-4">
-                  <h4 className="font-semibold text-sm flex items-center gap-2">
+                  {/* Evidence Breakdown Panel */}
+                  <EvidenceBreakdownPanel
+                    morphologyEvidence={analysis.whyHere.morphologyEvidence}
+                    dominantPhase={analysis.position}
+                  />
+                  
+                  <h4 className="font-semibold text-sm flex items-center gap-2 mt-6">
                     <Sparkles className="w-4 h-4 text-primary" />
                     {t('visualizations.theoryU.morphologyEvidence')}
                   </h4>
