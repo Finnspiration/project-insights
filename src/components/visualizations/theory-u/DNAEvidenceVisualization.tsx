@@ -126,11 +126,26 @@ export function DNAEvidenceVisualization({
     setSelectedDimension(dimensionKey);
   };
 
+  const getMorphologyValue = (key: string): string | undefined => {
+    const value = normalizedMorphology[key];
+    if (value !== null && value !== undefined) {
+      if (typeof value === 'object') {
+        const objValue = value as { selectedValue?: string };
+        if ('selectedValue' in objValue) {
+          return objValue.selectedValue;
+        }
+      } else if (typeof value === 'string') {
+        return value;
+      }
+    }
+    return undefined;
+  };
+
   const selectedDimensionData = selectedDimension ? (() => {
     const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === selectedDimension);
     if (!dimension) return null;
     
-    const value = normalizedMorphology[selectedDimension];
+    const value = getMorphologyValue(selectedDimension);
     const option = dimension.options.find(opt => 
       opt.value.toLowerCase() === value?.toLowerCase()
     );
@@ -208,7 +223,18 @@ export function DNAEvidenceVisualization({
             {/* Draw nucleotides */}
             {helixPoints.map((point) => {
               // FIX: Use fullDimensionKey to get correct value from normalizedMorphology
-              const value = normalizedMorphology[point.fullDimensionKey];
+              const rawValue = normalizedMorphology[point.fullDimensionKey];
+              let value: string | undefined;
+              if (rawValue !== null && rawValue !== undefined) {
+                if (typeof rawValue === 'object') {
+                  const objValue = rawValue as { selectedValue?: string };
+                  if ('selectedValue' in objValue) {
+                    value = objValue.selectedValue;
+                  }
+                } else if (typeof rawValue === 'string') {
+                  value = rawValue;
+                }
+              }
               const option = point.dimension.options.find(
                 opt => normalizeValue(opt.value) === value
               );
