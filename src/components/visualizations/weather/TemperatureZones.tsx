@@ -8,6 +8,7 @@ interface TemperatureZonesProps {
 
 export function TemperatureZones({ zones }: TemperatureZonesProps) {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -30,8 +31,20 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.15, duration: 0.8 }}
-            onMouseEnter={() => setHoveredZone(zone.id)}
-            onMouseLeave={() => setHoveredZone(null)}
+            onMouseEnter={(e) => {
+              setHoveredZone(zone.id);
+              const svg = e.currentTarget.ownerSVGElement;
+              if (svg) {
+                const rect = svg.getBoundingClientRect();
+                const x = rect.left + (zone.position.x / 100) * rect.width;
+                const y = rect.top + (zone.position.y / 100) * rect.height;
+                setTooltipPosition({ x, y });
+              }
+            }}
+            onMouseLeave={() => {
+              setHoveredZone(null);
+              setTooltipPosition(null);
+            }}
             className="pointer-events-auto cursor-pointer"
           >
             {/* Zone circle */}
@@ -100,13 +113,19 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
       </svg>
 
       {/* Hover tooltip */}
-      {hoveredZone && (
+      {hoveredZone && tooltipPosition && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm border border-border rounded-lg p-3 pointer-events-none"
+          style={{
+            position: 'fixed',
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y - 80}px`,
+            transform: 'translateX(-50%)',
+          }}
+          className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 pointer-events-none shadow-lg z-50"
         >
-          <p className="text-sm font-semibold">
+          <p className="text-sm font-semibold whitespace-nowrap">
             {zones.find((z) => z.id === hoveredZone)?.name}
           </p>
           <p className="text-xs text-muted-foreground">
