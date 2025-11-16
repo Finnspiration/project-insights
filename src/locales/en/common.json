@@ -810,7 +810,8 @@
         "sources": {
           "development": "Primary Development Focus",
           "organizational": "Organizational Stage",
-          "challenge": "Challenge Type"
+          "challenge": "Challenge Type",
+          "documents": "Document Analysis"
         },
         "reasoning": {
           "developmentBoost": "{{dimension}} receives +30 because it's your primary development focus",
@@ -819,8 +820,10 @@
           "organizationalRedAmber": "{{dimension}} receives +15 because Red/Amber organizations emphasize immediate action and control",
           "challengeCognitive": "{{dimension}} receives +10 because your project faces cognitive challenges requiring analytical reasoning",
           "challengeSocial": "{{dimension}} receives +10 because your project faces social challenges requiring interpersonal skills",
-          "challengeAdaptive": "{{dimension}} receives +10 because your project requires adaptive capacity and self-awareness"
-        }
+          "challengeAdaptive": "{{dimension}} receives +10 because your project requires adaptive capacity and self-awareness",
+          "documentBoost": "{{dimension}} adjustment based on document analysis"
+        },
+        "documentEvidence": "Evidence from Documents"
       }
     }
   },

@@ -809,7 +809,8 @@
         "sources": {
           "development": "Primært Udviklingsfokus",
           "organizational": "Organisatorisk Stadium",
-          "challenge": "Udfordringstype"
+          "challenge": "Udfordringstype",
+          "documents": "Dokumentanalyse"
         },
         "reasoning": {
           "developmentBoost": "{{dimension}} får +30 fordi det er dit primære udviklingsfokus",
@@ -818,8 +819,10 @@
           "organizationalRedAmber": "{{dimension}} får +15 fordi Røde/Ravgule organisationer prioriterer øjeblikkelig handling og kontrol",
           "challengeCognitive": "{{dimension}} får +10 fordi dit projekt står overfor kognitive udfordringer der kræver analytisk ræsonnement",
           "challengeSocial": "{{dimension}} får +10 fordi dit projekt står overfor sociale udfordringer der kræver interpersonelle færdigheder",
-          "challengeAdaptive": "{{dimension}} får +10 fordi dit projekt kræver adaptiv kapacitet og selvindsigt"
-        }
+          "challengeAdaptive": "{{dimension}} får +10 fordi dit projekt kræver adaptiv kapacitet og selvindsigt",
+          "documentBoost": "{{dimension}} justering baseret på dokumentanalyse"
+        },
+        "documentEvidence": "Evidens fra Dokumenter"
       }
     }
   },
