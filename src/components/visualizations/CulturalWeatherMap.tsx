@@ -9,6 +9,7 @@ import { TemperatureZones } from './weather/TemperatureZones';
 import { PressureSystems } from './weather/PressureSystems';
 import { PrecipitationEvents } from './weather/PrecipitationEvents';
 import { WeatherForecast } from './weather/WeatherForecast';
+import { WeatherParticles } from './weather/WeatherParticles';
 import { LayerControls } from './weather/LayerControls';
 import { WeatherLegend } from './weather/WeatherLegend';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
@@ -55,6 +56,7 @@ export function CulturalWeatherMap({
     temperatureZones: true,
     precipitation: true,
     forecast: true,
+    particles: true,
   });
 
   const [showPanels, setShowPanels] = useState(true);
@@ -87,7 +89,7 @@ export function CulturalWeatherMap({
     blindSpots
   );
 
-  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => {
+  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
@@ -101,7 +103,16 @@ export function CulturalWeatherMap({
       {/* Layer 1: Base Climate (always visible) */}
       <BaseClimate data={weatherData.baseClimate} />
 
-      {/* Layer 2: Wind Patterns (toggleable) */}
+      {/* Layer 2: Weather Particles (toggleable) */}
+      {layers.particles && (
+        <div className="absolute inset-0 z-40 pointer-events-none">
+          <WeatherParticles 
+            temporalDynamics={morphology.temporal_dynamics || 'project'}
+          />
+        </div>
+      )}
+
+      {/* Layer 3: Wind Patterns (toggleable) */}
       {layers.windPatterns && (
         <div className="absolute inset-0 z-50 pointer-events-none">
           <WindPatterns 
@@ -111,7 +122,7 @@ export function CulturalWeatherMap({
         </div>
       )}
 
-      {/* Layer 3: Temperature Zones (toggleable) */}
+      {/* Layer 4: Temperature Zones (toggleable) */}
       {layers.temperatureZones && (
         <TemperatureZones zones={weatherData.temperatureZones} />
       )}
