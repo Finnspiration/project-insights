@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-export function PressureLegend() {
+export function WeatherLegend() {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -11,13 +11,13 @@ export function PressureLegend() {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.5, duration: 0.4 }}
       className="absolute bottom-4 right-4 bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg z-20 pointer-events-auto"
-      style={{ maxWidth: '220px' }}
+      style={{ maxWidth: '240px' }}
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors rounded-t-lg"
       >
-        <h3 className="text-xs font-semibold text-foreground">Tryksystemer</h3>
+        <h3 className="text-xs font-semibold text-foreground">Vejrlegend</h3>
         {isExpanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
@@ -34,7 +34,26 @@ export function PressureLegend() {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="space-y-2 p-3 pt-0">
+            <div className="space-y-3 p-3 pt-0">
+        
+        {/* Temperature Zones Section */}
+        <div>
+          <h4 className="text-xs font-semibold text-foreground mb-1.5">Temperaturzoner</h4>
+          <div className="flex items-center gap-2 text-xs mb-1">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="10" fill="hsl(0, 80%, 60%)" opacity="0.4" />
+              <circle cx="14" cy="14" r="6" fill="hsl(0, 80%, 60%)" opacity="0.6" />
+              <circle cx="14" cy="14" r="2.5" fill="hsl(0, 80%, 60%)" opacity="0.8" />
+            </svg>
+            <span className="text-muted-foreground">Store blobs = IDG områder</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground italic pl-1">
+            Farve indikerer styrke (rød=lav, gul=middel, grøn=høj)
+          </p>
+        </div>
+
+        <div className="border-t border-border pt-2">
+          <h4 className="text-xs font-semibold text-foreground mb-1.5">Tryksystemer</h4>
         
         {/* High Pressure */}
         <div className="flex items-center gap-2 text-xs">
@@ -71,8 +90,9 @@ export function PressureLegend() {
           </div>
           <span className="text-muted-foreground">Lavtryk</span>
         </div>
+        </div>
 
-        <div className="border-t border-border pt-2 mt-2">
+        <div className="border-t border-border pt-2">
           <h4 className="text-xs font-semibold text-foreground mb-1.5">Fronter</h4>
           
           {/* Cold Front */}

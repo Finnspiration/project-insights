@@ -242,58 +242,115 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
           </Tooltip>
         ))}
 
-        {systems.fronts.map((front, index) => {
+        {/* Front tooltips - one interactive area per point along the front line */}
+        {systems.fronts.map((front, frontIndex) => {
           const midPointIndex = Math.floor(front.points.length / 2);
           const midPoint = front.points[midPointIndex];
           
           return (
-            <Tooltip key={`tooltip-front-${front.id}`}>
-              <TooltipTrigger asChild>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.3 + 0.5 }}
-                  className="absolute pointer-events-auto cursor-pointer"
-                  style={{
-                    left: `${midPoint.x}%`,
-                    top: `${midPoint.y}%`,
-                    transform: 'translate(-50%, -50%)',
-                    width: hoveredFront === front.id ? '100px' : '80px',
-                    height: hoveredFront === front.id ? '40px' : '30px',
-                    borderRadius: '20px',
-                    transition: 'all 0.3s',
-                    border: hoveredFront === front.id ? '2px solid rgba(255,255,255,0.4)' : '2px solid transparent',
-                    backgroundColor: hoveredFront === front.id ? 'rgba(255,255,255,0.05)' : 'transparent',
-                  }}
-                  onMouseEnter={() => setHoveredFront(front.id)}
-                  onMouseLeave={() => setHoveredFront(null)}
-                />
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <div className="space-y-2">
-                  <div className="font-semibold">
-                    {front.type === 'cold' && 'Koldfront'}
-                    {front.type === 'warm' && 'Varmefront'}
-                    {front.type === 'occluded' && 'Okkluderet front'}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Intensitet: {front.intensity}/10
-                  </p>
-                  {front.metadata?.description && (
-                    <p className="text-xs text-muted-foreground">{front.metadata.description}</p>
-                  )}
-                  <p className="text-xs">
-                    {front.type === 'cold' && '▼ Kold luft presser ind - skaber turbulens'}
-                    {front.type === 'warm' && '● Varm luft stiger - gradvis forandring'}
-                    {front.type === 'occluded' && '▼● Kompleks front - blandet dynamik'}
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
+            <div key={`front-interactive-${front.id}`}>
+              {/* Create interactive areas at each point along the front */}
+              {front.points.map((point, pointIndex) => {
+                // Only create interactive areas every 2 points to avoid too many overlaps
+                if (pointIndex % 2 !== 0) return null;
+                
+                return (
+                  <Tooltip key={`tooltip-front-${front.id}-${pointIndex}`}>
+                    <TooltipTrigger asChild>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: frontIndex * 0.3 + 0.3 }}
+                        className="absolute pointer-events-auto cursor-pointer"
+                        style={{
+                          left: `${point.x}%`,
+                          top: `${point.y}%`,
+                          transform: 'translate(-50%, -50%)',
+                          width: hoveredFront === front.id ? '70px' : '50px',
+                          height: hoveredFront === front.id ? '70px' : '50px',
+                          transition: 'all 0.2s ease',
+                          zIndex: 60, // Higher than zones
+                        }}
+                        onMouseEnter={() => setHoveredFront(front.id)}
+                        onMouseLeave={() => setHoveredFront(null)}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="top" 
+                      className={`bg-background/95 backdrop-blur-sm border-border ${
+                        hoveredFront === front.id ? 'min-w-[240px]' : 'min-w-[200px]'
+                      }`}
+                      style={{ zIndex: 70 }}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold text-sm">
+                            {front.type === 'cold' ? '❄️ Kold Front' : 
+                             front.type === 'warm' ? '🌡️ Varm Front' : 
+                             '🌪️ Okkluderet Front'}
+                          </h4>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+                            Intensitet: {front.intensity}/10
+                          </span>
+                        </div>
+                        
+                        <p className="text-xs text-muted-foreground">
+                          {front.metadata?.description || 
+                            (front.type === 'cold' ? 'Kold luft presser ind - skaber turbulens' : 
+                             front.type === 'warm' ? 'Varm luft stiger - gradvis forandring' : 
+                             'Kompleks front - blandet dynamik')}
+                        </p>
+
+                        {front.metadata?.source && (
+                          <div className="text-xs bg-muted/50 p-2 rounded">
+                            <span className="font-medium">Kilde: </span>
+                            {front.metadata.source === 'stakeholder_tension' && 'Interessent spændinger'}
+                            {front.metadata.source === 'change_intensity' && 'Ændringsintensitet'}
+                            {front.metadata.source === 'blind_spot' && '🔴 Blind Spot'}
+                          </div>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
           );
         })}
         </div>
       </TooltipProvider>
+
+      {/* Visual feedback when hovering over a front - highlight the entire front line */}
+      {hoveredFront && (
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 55 }}>
+          {systems.fronts
+            .filter(f => f.id === hoveredFront)
+            .map(front => {
+              const pathData = `M ${front.points.map(p => `${p.x} ${p.y}`).join(' L ')}`;
+              const getStrokeColor = (intensity: number) => {
+                if (intensity >= 8) return 'hsl(0, 80%, 55%)';
+                if (intensity >= 5) return 'hsl(30, 85%, 55%)';
+                return 'hsl(200, 70%, 55%)';
+              };
+              
+              return (
+                <motion.path
+                  key={`highlight-${front.id}`}
+                  d={pathData}
+                  fill="none"
+                  stroke={getStrokeColor(front.intensity)}
+                  strokeWidth="6"
+                  strokeOpacity="0.6"
+                  strokeLinecap="round"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                />
+              );
+            })}
+        </svg>
+      )}
     </div>
   );
 }
+
