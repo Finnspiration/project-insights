@@ -975,5 +975,33 @@
       "rolesUpdated": "Roller Opdateret",
       "rolesUpdatedDesc": "Brugerroller er blevet opdateret"
     }
+  },
+  "weather_control": {
+    "title": "Interaktivt Kontrol Panel",
+    "description": "Juster værdier for at se live påvirkning på vejrkortet",
+    "live_edit": "Live Redigering",
+    "document_analysis": "Dokument Analyse",
+    "save_changes": "Gem ændringer",
+    "reset": "Nulstil",
+    "saving": "Gemmer...",
+    "changes_saved": "Ændringer gemt",
+    "save_failed": "Kunne ikke gemme ændringer",
+    "impact_on_weather": "Påvirkning på vejr:",
+    "morphology_dimensions": "Morfologiske Dimensioner (12)",
+    "idg_profile": "IDG Profil (5 dimensioner)",
+    "low": "Lav",
+    "high": "Høj",
+    "apply_suggestion": "Anvend forslag",
+    "suggestion_applied": "Forslag anvendt",
+    "reanalyze_all": "Genanalyser alle",
+    "documents_reanalyzed": "Dokumenter genanalyseret",
+    "reanalysis_failed": "Genanalyse fejlede",
+    "no_documents": "Ingen dokumenter uploadet endnu. Upload dokumenter for at få AI-forslag.",
+    "no_suggestions": "Ingen morfologiske forslag fra dette dokument.",
+    "suggested_value": "Foreslået værdi:",
+    "confidence": "tillid",
+    "processing": "Behandler...",
+    "documents_uploaded": "dokumenter uploadet",
+    "loading_documents": "Indlæser dokumenter..."
   }
 }
