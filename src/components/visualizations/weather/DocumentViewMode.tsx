@@ -28,6 +28,7 @@ export function DocumentViewMode({ projectId, onApplySuggestion }: DocumentViewM
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [reanalyzing, setReanalyzing] = useState(false);
+  const [reanalyzingSingle, setReanalyzingSingle] = useState<string | null>(null);
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -56,7 +57,7 @@ export function DocumentViewMode({ projectId, onApplySuggestion }: DocumentViewM
     setReanalyzing(true);
     try {
       const { error } = await supabase.functions.invoke('analyze-documents', {
-        body: { projectId },
+        body: { projectId, language },
       });
 
       if (error) throw error;
@@ -68,6 +69,25 @@ export function DocumentViewMode({ projectId, onApplySuggestion }: DocumentViewM
       toast.error(language === 'da' ? 'Genanalyse fejlede' : 'Re-analysis failed');
     } finally {
       setReanalyzing(false);
+    }
+  };
+
+  const handleReanalyzeSingle = async (documentId: string) => {
+    setReanalyzingSingle(documentId);
+    try {
+      const { error } = await supabase.functions.invoke('analyze-single-document', {
+        body: { documentId, language },
+      });
+
+      if (error) throw error;
+      
+      toast.success(language === 'da' ? 'Dokument genanalyseret' : 'Document re-analyzed');
+      await fetchDocuments();
+    } catch (error) {
+      console.error('Error re-analyzing single document:', error);
+      toast.error(language === 'da' ? 'Genanalyse fejlede' : 'Re-analysis failed');
+    } finally {
+      setReanalyzingSingle(null);
     }
   };
 
@@ -149,6 +169,18 @@ export function DocumentViewMode({ projectId, onApplySuggestion }: DocumentViewM
               
               <AccordionContent>
                 <div className="pt-2 space-y-3">
+                  <div className="flex justify-end mb-2">
+                    <Button
+                      onClick={() => handleReanalyzeSingle(doc.id)}
+                      disabled={reanalyzingSingle === doc.id}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      <RefreshCw className={`h-3 w-3 mr-1 ${reanalyzingSingle === doc.id ? 'animate-spin' : ''}`} />
+                      {language === 'da' ? 'Genanalyser dette' : 'Re-analyze this'}
+                    </Button>
+                  </div>
+
                   {!hassuggestions && doc.processed && (
                     <p className="text-sm text-muted-foreground italic">
                       {language === 'da' 
