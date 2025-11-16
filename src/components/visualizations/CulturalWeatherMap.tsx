@@ -90,17 +90,17 @@ export function CulturalWeatherMap({
             <WindPatterns pattern={weatherData.windPatterns} />
           )}
 
-          {/* Layer 3: Pressure Systems (toggleable) */}
+          {/* Layer 3: Temperature Zones (toggleable) - MOVED BEFORE Pressure Systems */}
+          {layers.temperatureZones && (
+            <TemperatureZones zones={weatherData.temperatureZones} />
+          )}
+
+          {/* Layer 4: Pressure Systems (toggleable) - MOVED AFTER Temperature to be on top */}
           {layers.pressureSystems && (
             <>
               <PressureSystems systems={weatherData.pressureSystems} />
               {showPanels && <WeatherLegend />}
             </>
-          )}
-
-          {/* Layer 4: Temperature Zones (toggleable) */}
-          {layers.temperatureZones && (
-            <TemperatureZones zones={weatherData.temperatureZones} />
           )}
 
           {/* Layer 5: Precipitation & Events (toggleable) */}
