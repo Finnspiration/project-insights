@@ -19,7 +19,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
     <div className="absolute inset-0 pointer-events-none">
       <TooltipProvider>
         {/* SVG Layer - Pure Visual (no interactivity) */}
-        <svg className="w-full h-full">
+        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           <defs>
             {/* Isobar gradient */}
             <radialGradient id="pressure-gradient-h">
@@ -121,7 +121,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             >
               {/* The visible front line - visual only */}
               <motion.polyline
-                points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
+                points={front.points.map(p => `${p.x},${p.y}`).join(' ')}
                 fill="none"
                 stroke={front.type === 'cold' ? 'hsl(220, 90%, 60%)' : 'hsl(0, 90%, 60%)'}
                 strokeWidth="3"
@@ -182,7 +182,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             {systems.fronts.map((front) => (
               <polyline
                 key={`hover-${front.id}`}
-                points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
+                points={front.points.map(p => `${p.x},${p.y}`).join(' ')}
                 fill="none"
                 stroke="transparent"
                 strokeWidth="20"
