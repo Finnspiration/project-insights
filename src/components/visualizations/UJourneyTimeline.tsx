@@ -834,11 +834,6 @@ export function UJourneyTimeline({
         </Card>
 
 
-        {/* Theory U Resources */}
-        {resources && resources.length > 0 && <Card>
-            
-            
-          </Card>}
       </div>
     </div>;
 }
