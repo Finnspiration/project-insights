@@ -8,17 +8,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, RefreshCw, Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle2, XCircle, Clock, ExternalLink, BookOpen, Video, GraduationCap, MapPin, Lightbulb, BarChart3, FileText, Heart, Star, X, Download, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, RefreshCw, Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle2, XCircle, Clock, ExternalLink, BookOpen, Video, GraduationCap, MapPin, Lightbulb, BarChart3, FileText, Heart, Star, X, Download, ChevronDown, ChevronUp, Upload, Info, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
 import { DNAEvidenceVisualization } from './theory-u/DNAEvidenceVisualization';
+
 interface UJourneyTimelineProps {
   morphology: any;
   projectId: string;
   projectName: string;
 }
+
 interface TheoryUAnalysis {
   position: string;
   confidence: number;
@@ -111,71 +116,65 @@ const getDefaultTheoryUResources = (language: string) => [{
   link: 'https://www.edx.org/course/ulab',
   relevance: language === 'da' ? 'Gratis online kursus i Theory U' : 'Free online course in Theory U'
 }];
-export function UJourneyTimeline({
-  morphology,
-  projectId
-}: UJourneyTimelineProps) {
-  const {
-    t,
-    i18n
-  } = useTranslation('common');
-  const {
-    toast
-  } = useToast();
+
+export function UJourneyTimeline({ morphology, projectId, projectName }: UJourneyTimelineProps) {
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const language = i18n.language as 'en' | 'da';
   const [analysis, setAnalysis] = useState<TheoryUAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
-  const [favoriteQuotes, setFavoriteQuotes] = useState<Set<string>>(new Set());
+  const [favoriteQuotes, setFavoriteQuotes] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isWhyHereExpanded, setIsWhyHereExpanded] = useState(false);
+  const [isTechnicalExpanded, setIsTechnicalExpanded] = useState(false);
+
+  // Helper function to get confidence percentage
+  const getConfidencePercent = () => {
+    if (!analysis?.confidence) return 0;
+    return Math.round(analysis.confidence * 100);
+  };
+
+  // Check if data quality is low
+  const isLowConfidence = () => {
+    return getConfidencePercent() < 20;
+  };
 
   // Helper function to transform Theory U data structure
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
     if (!data) return null;
-    console.log('🔍 Transforming data, whyHere.documentEvidence:', data?.whyHere?.documentEvidence);
 
     // Map 7-phase AI system to 5-phase UI system
     const mapPhaseToUI = (phase: string): string => {
       const phaseMap: Record<string, string> = {
         'downloading': 'seeing',
-        // Downloading mappes til Observere
         'seeing': 'seeing',
         'sensing': 'sensing',
         'presencing': 'presencing',
         'crystallizing': 'crystallizing',
         'prototyping': 'prototyping',
-        'performing': 'prototyping' // Performing mappes til Prototyping
+        'performing': 'prototyping'
       };
-      return phaseMap[phase.toLowerCase()] || 'seeing'; // Fallback til seeing
+      return phaseMap[phase.toLowerCase()] || 'seeing';
     };
 
-    // Transform from AI response format to component format
-    // Read currentPhase directly (it's stored as a string like "crystallizing")
     const rawPhase = data.currentPhase || data.whyHere?.morphologyScoring?.phase || data.position || 'downloading';
 
-    // Transform documentEvidence from old format (string[]) to new format (object[])
+    // Transform documentEvidence
     let documentEvidence = data.whyHere?.documentEvidence;
-    console.log('📝 Raw documentEvidence type:', typeof documentEvidence, Array.isArray(documentEvidence));
     if (documentEvidence && Array.isArray(documentEvidence)) {
-      // Check if it's the old format (strings) or new format (objects)
-      if (documentEvidence.length > 0) {
-        const firstItem = documentEvidence[0];
-        console.log('🔎 First item type:', typeof firstItem, 'value:', firstItem);
-        if (typeof firstItem === 'string') {
-          // Old format - convert to new format
-          console.log('⚠️ Converting OLD format (strings) to NEW format (objects)');
-          documentEvidence = documentEvidence.map((text: string) => ({
-            text,
-            relevance: 50,
-            // Default relevance for old data
-            source: undefined
-          }));
-        } else {
-          console.log('✅ Already in NEW format (objects with relevance scores)');
-        }
+      if (documentEvidence.length > 0 && typeof documentEvidence[0] === 'string') {
+        documentEvidence = documentEvidence.map((text: string) => ({
+          text,
+          relevance: 50,
+          source: undefined
+        }));
       }
     }
-    console.log('✨ Final transformed documentEvidence:', documentEvidence);
+
     return {
       position: mapPhaseToUI(rawPhase),
       confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
@@ -187,653 +186,741 @@ export function UJourneyTimeline({
         will: data.diagnostics?.openWill?.score || data.openMHW?.will || 0
       },
       whyHere: {
-        ...data.whyHere,
-        documentEvidence
+        morphologySynthesis: data.whyHere?.synthesis || data.whyHere?.morphologySynthesis,
+        morphologyEvidence: data.whyHere?.morphologyEvidence || [],
+        documentEvidence: documentEvidence || [],
+        documentStatus: data.whyHere?.documentStatus || 'none',
+        processingFiles: data.whyHere?.processingFiles || []
       },
-      nextActions: Array.isArray(data.nextActions) ? data.nextActions : [],
-      readinessIndicators: data.readinessIndicators,
-      theoryUResources: data.theoryUResources || []
+      nextActions: data.nextSteps || data.nextActions || [],
+      readinessIndicators: data.readinessIndicators || {},
+      theoryUResources: data.theoryUResources || getDefaultTheoryUResources(language)
     };
   };
 
-  // Fetch user ID and favorite quotes
   useEffect(() => {
-    const fetchUserAndFavorites = async () => {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+    const loadUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
-
-        // Fetch existing favorites for this project
-        const {
-          data: favorites
-        } = await supabase.from('favorite_quotes').select('quote_text').eq('user_id', user.id).eq('project_id', projectId);
+        const { data: favorites } = await supabase
+          .from('favorite_quotes')
+          .select('quote_text')
+          .eq('user_id', user.id)
+          .eq('project_id', projectId);
         if (favorites) {
-          setFavoriteQuotes(new Set(favorites.map(f => f.quote_text)));
+          setFavoriteQuotes(favorites.map(f => f.quote_text));
         }
       }
     };
-    fetchUserAndFavorites();
+    loadUserId();
   }, [projectId]);
-  const handleToggleFavorite = async (quote: {
-    text: string;
-    relevance: number;
-    source?: string;
-  }) => {
+
+  useEffect(() => {
+    fetchAnalysis();
+  }, [projectId, morphology]);
+
+  const handleToggleFavorite = async (quoteText: string) => {
     if (!userId) return;
-    const isFavorite = favoriteQuotes.has(quote.text);
+
+    const isFavorite = favoriteQuotes.includes(quoteText);
+
     if (isFavorite) {
-      // Remove from favorites
-      const {
-        error
-      } = await supabase.from('favorite_quotes').delete().eq('user_id', userId).eq('project_id', projectId).eq('quote_text', quote.text);
+      const { error } = await supabase
+        .from('favorite_quotes')
+        .delete()
+        .eq('user_id', userId)
+        .eq('project_id', projectId)
+        .eq('quote_text', quoteText);
+
       if (!error) {
-        setFavoriteQuotes(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(quote.text);
-          return newSet;
-        });
+        setFavoriteQuotes(prev => prev.filter(q => q !== quoteText));
         toast({
-          title: t('visualizations.theoryU.removedFromFavorites'),
-          description: t('visualizations.theoryU.removedFromFavoritesDesc')
-        });
-      } else {
-        toast({
-          title: t('common.error'),
-          description: t('visualizations.theoryU.favoriteFailed'),
-          variant: 'destructive'
+          title: t('theoryU.removedFromFavorites'),
+          description: t('theoryU.removedFromFavoritesDesc')
         });
       }
     } else {
-      // Add to favorites
-      const {
-        error
-      } = await supabase.from('favorite_quotes').insert({
-        user_id: userId,
-        project_id: projectId,
-        quote_text: quote.text,
-        relevance_score: quote.relevance,
-        theory_u_phase: analysis?.position || 'unknown',
-        source_document: quote.source
-      });
+      const { error } = await supabase
+        .from('favorite_quotes')
+        .insert({
+          user_id: userId,
+          project_id: projectId,
+          quote_text: quoteText,
+          relevance_score: 0,
+          theory_u_phase: analysis?.position || 'unknown'
+        });
+
       if (!error) {
-        setFavoriteQuotes(prev => new Set(prev).add(quote.text));
+        setFavoriteQuotes(prev => [...prev, quoteText]);
         toast({
-          title: t('visualizations.theoryU.addedToFavorites'),
-          description: t('visualizations.theoryU.addedToFavoritesDesc')
+          title: t('theoryU.addedToFavorites'),
+          description: t('theoryU.addedToFavoritesDesc')
         });
       } else {
         toast({
-          title: t('common.error'),
-          description: t('visualizations.theoryU.favoriteFailed'),
+          title: "Error",
+          description: t('theoryU.favoriteFailed'),
           variant: 'destructive'
         });
       }
     }
   };
-  const handleRejectQuote = async (index: number) => {
+
+  const handleRejectQuote = async (quoteIndex: number) => {
     if (!analysis?.whyHere?.documentEvidence) return;
-    const updatedEvidence = analysis.whyHere.documentEvidence.filter((_: any, idx: number) => idx !== index);
 
-    // Optimistic update
-    setAnalysis({
-      ...analysis,
-      whyHere: {
-        ...analysis.whyHere,
-        documentEvidence: updatedEvidence
-      }
-    });
+    const updatedEvidence = [...analysis.whyHere.documentEvidence];
+    updatedEvidence.splice(quoteIndex, 1);
 
-    // Update database
-    await supabase.from('projects').update({
-      theory_u_analysis: {
+    const { error } = await supabase
+      .from('projects')
+      .update({
+        theory_u_analysis: {
+          ...analysis,
+          whyHere: {
+            ...analysis.whyHere,
+            documentEvidence: updatedEvidence
+          }
+        }
+      })
+      .eq('id', projectId);
+
+    if (!error) {
+      setAnalysis({
         ...analysis,
         whyHere: {
           ...analysis.whyHere,
           documentEvidence: updatedEvidence
         }
-      }
-    }).eq('id', projectId);
-    toast({
-      title: t('visualizations.theoryU.quoteRejected'),
-      description: t('visualizations.theoryU.quoteRejectedDesc')
-    });
+      });
+      toast({
+        title: t('theoryU.quoteRejected'),
+        description: t('theoryU.quoteRejectedDesc')
+      });
+    }
   };
+
   const handleRegenerateQuotes = async () => {
     setRefreshing(true);
     try {
-      console.log('🔄 Regenerating quotes with new AI analysis...');
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('analyze-theory-u-position', {
-        body: {
-          projectId,
+      const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+        body: { 
+          projectId, 
           morphology,
-          language: i18n.language,
+          language,
           regenerateQuotes: true
         }
       });
+
       if (error) throw error;
-      console.log('✅ Raw AI response:', data);
-      console.log('📊 Document evidence:', data?.whyHere?.documentEvidence);
-      const transformedData = transformTheoryUData(data);
-      console.log('🔧 Transformed data:', transformedData?.whyHere?.documentEvidence);
-      setAnalysis(transformedData);
-      toast({
-        title: t('visualizations.theoryU.quotesRegenerated'),
-        description: t('visualizations.theoryU.quotesRegeneratedDesc')
-      });
+
+      if (data) {
+        const transformed = transformTheoryUData(data);
+        if (transformed) {
+          setAnalysis(transformed);
+          toast({
+            title: t('theoryU.quotesRegenerated'),
+            description: t('theoryU.quotesRegeneratedDesc')
+          });
+        }
+      }
     } catch (error) {
-      console.error('❌ Failed to regenerate quotes:', error);
+      console.error('Error regenerating quotes:', error);
       toast({
-        title: t('common.error'),
-        description: t('visualizations.theoryU.regenerateFailed'),
+        title: "Error",
+        description: t('theoryU.regenerateFailed'),
         variant: 'destructive'
       });
     } finally {
       setRefreshing(false);
     }
   };
-  const fetchAnalysis = async (forceRefresh = false) => {
-    if (forceRefresh) setRefreshing(true);else setLoading(true);
-    try {
-      console.log('📥 Fetching Theory U analysis, forceRefresh:', forceRefresh);
 
-      // Check cache first (skip if forceRefresh)
-      if (!forceRefresh) {
-        const {
-          data: project
-        } = await supabase.from('projects').select('theory_u_analysis, theory_u_analysis_updated_at').eq('id', projectId).single();
-        if (project?.theory_u_analysis) {
-          console.log('💾 Using cached analysis');
-          const transformed = transformTheoryUData(project.theory_u_analysis);
-          if (transformed) {
-            setAnalysis(transformed);
-            setLoading(false);
-            setRefreshing(false);
-            return;
-          }
-        }
-      } else {
-        console.log('🔄 Force refresh - calling AI for new analysis');
+  const fetchAnalysis = async () => {
+    try {
+      const { data: project, error: projectError } = await supabase
+        .from('projects')
+        .select('theory_u_analysis, theory_u_analysis_updated_at')
+        .eq('id', projectId)
+        .single();
+
+      if (projectError) throw projectError;
+
+      const cacheAge = project.theory_u_analysis_updated_at 
+        ? (Date.now() - new Date(project.theory_u_analysis_updated_at).getTime()) / 1000 / 60 
+        : Infinity;
+
+      if (project.theory_u_analysis && cacheAge < 60) {
+        const transformed = transformTheoryUData(project.theory_u_analysis);
+        setAnalysis(transformed);
+        setLoading(false);
+        return;
       }
 
-      // Call edge function
-      const {
-        data: analysisData,
-        error
-      } = await supabase.functions.invoke('analyze-theory-u-position', {
-        body: {
-          projectId,
+      const { data, error } = await supabase.functions.invoke('analyze-theory-u-position', {
+        body: { 
+          projectId, 
           morphology,
-          language: i18n.language
+          language 
         }
       });
+
       if (error) throw error;
-      if (!analysisData) throw new Error('No analysis data returned');
 
-      // DEBUG: Log edge function output
-      console.log('🔍 EDGE FUNCTION OUTPUT (analyze-theory-u-position):');
-      console.log('═══════════════════════════════════════════════════');
-      console.log('Raw response:', analysisData);
-      console.log('');
-      if (analysisData.whyHere?.morphologyScoring) {
-        console.log('📊 MORFOLOGISK SCORING:');
-        console.log('  Fase:', analysisData.whyHere.morphologyScoring.phase);
-        console.log('  Confidence:', (analysisData.whyHere.morphologyScoring.confidence * 100).toFixed(1) + '%');
-        console.log('  Score:', analysisData.whyHere.morphologyScoring.score);
-        console.log('');
-        console.log('  Top bidrag til denne fase:');
-        analysisData.whyHere.morphologyScoring.topContributions?.slice(0, 5).forEach((contrib: string, i: number) => {
-          console.log(`    ${i + 1}. ${contrib}`);
-        });
-        console.log('');
-        if (analysisData.whyHere.morphologyScoring.allPhaseScores) {
-          console.log('  Alle fase scores (top 3):');
-          analysisData.whyHere.morphologyScoring.allPhaseScores.forEach((phaseScore: any) => {
-            console.log(`    - ${phaseScore.phase}: ${phaseScore.score} points`);
-          });
-        }
-        console.log('');
+      if (data) {
+        const transformed = transformTheoryUData(data);
+        setAnalysis(transformed);
       }
-      if (analysisData.whyHere?.aiNuance) {
-        console.log('🤖 AI NUANCE:');
-        console.log('  ', analysisData.whyHere.aiNuance);
-        console.log('');
-      }
-      console.log('═══════════════════════════════════════════════════');
-
-      // Transform AI response using helper
-      const transformed = transformTheoryUData(analysisData);
-      if (!transformed) {
-        throw new Error('Failed to transform analysis data');
-      }
-
-      // Cache the transformed result
-      await supabase.from('projects').update({
-        theory_u_analysis: transformed,
-        theory_u_analysis_updated_at: new Date().toISOString()
-      }).eq('id', projectId);
-      setAnalysis(transformed);
     } catch (error) {
       console.error('Error fetching Theory U analysis:', error);
       toast({
-        title: t('visualizations.theoryU.errorTitle'),
-        description: t('visualizations.theoryU.errorDescription'),
+        title: t('theoryU.errorTitle'),
+        description: t('theoryU.errorDescription'),
         variant: 'destructive'
       });
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
-  useEffect(() => {
-    fetchAnalysis();
-  }, [projectId]);
-  const handleRefresh = () => {
+
+  const handleRefresh = async () => {
     setRefreshing(true);
-    fetchAnalysis(true);
+    await fetchAnalysis();
+    setRefreshing(false);
   };
 
-  // Render U-curve with current position (redesigned to match Theory U reference)
+  // Render U-curve visualization
   const renderUCurve = () => {
-    const width = 800;
-    const height = 500;
-    const padding = 60;
+    const phases = ['seeing', 'sensing', 'presencing', 'crystallizing', 'prototyping'];
+    const currentIndex = phases.indexOf(analysis?.position || 'seeing');
 
-    // Positioned to match the golden U image
-    const phases = [{
-      key: 'seeing',
-      x: 230,
-      y: 77,
-      label: t('visualizations.theoryU.phases.seeing'),
-      subtitle: t('visualizations.theoryU.phaseSubtitles.seeing')
-    }, {
-      key: 'sensing',
-      x: 180,
-      y: 255,
-      label: t('visualizations.theoryU.phases.sensing'),
-      subtitle: t('visualizations.theoryU.phaseSubtitles.sensing')
-    }, {
-      key: 'presencing',
-      x: 372,
-      y: 385,
-      label: t('visualizations.theoryU.phases.presencing'),
-      subtitle: t('visualizations.theoryU.phaseSubtitles.presencing')
-    }, {
-      key: 'crystallizing',
-      x: 575,
-      y: 253,
-      label: t('visualizations.theoryU.phases.crystallizing'),
-      subtitle: t('visualizations.theoryU.phaseSubtitles.crystallizing')
-    }, {
-      key: 'prototyping',
-      x: 565,
-      y: 77,
-      label: t('visualizations.theoryU.phases.prototyping'),
-      subtitle: t('visualizations.theoryU.phaseSubtitles.prototyping')
-    }];
+    const points = [
+      { x: 10, y: 20 },
+      { x: 25, y: 50 },
+      { x: 50, y: 80 },
+      { x: 75, y: 50 },
+      { x: 90, y: 20 }
+    ];
 
-    // Map AI's 7 phases to our 5 visualization phases
-    const mapPhaseToVisualization = (aiPhase: string): string => {
-      const phaseMap: Record<string, string> = {
-        'downloading': 'seeing',
-        'performing': 'prototyping'
-      };
-      return phaseMap[aiPhase] || aiPhase;
-    };
-    const mappedPhase = analysis?.position ? mapPhaseToVisualization(analysis.position) : null;
-    return <svg width={width} height={height} className="mx-auto" viewBox={`0 0 ${width} ${height}`}>
+    const pathData = `M ${points.map((p, i) => `${p.x},${p.y}`).join(' L ')}`;
+
+    return (
+      <svg viewBox="0 0 100 100" className="w-full h-48">
         <defs>
-          {/* Glow filter for current phase */}
-          <filter id="phaseGlow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          <linearGradient id="uGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+          </linearGradient>
         </defs>
 
-        {/* Background Image - Golden U */}
-        <image href={goldenUBackground} width={width} height={height} preserveAspectRatio="xMidYMid meet" opacity={0.85} />
+        <path
+          d={pathData}
+          fill="none"
+          stroke="url(#uGradient)"
+          strokeWidth="0.5"
+          className="opacity-50"
+        />
 
-        {/* Phase labels with descriptions */}
-        {phases.map((phase, index) => {
-        const isCenter = index === 2;
-        const isCurrentPhase = phase.key === mappedPhase;
-        return <g key={phase.key}>
-              {/* Phase marker circle - mother-of-pearl style */}
-              <defs>
-                <radialGradient id={`pearl-${phase.key}`} cx="30%" cy="30%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-                  <stop offset="40%" stopColor="#f0f0f0" stopOpacity="0.8" />
-                  <stop offset="70%" stopColor="#e0e0e0" stopOpacity="0.7" />
-                  <stop offset="100%" stopColor="#d0d0d0" stopOpacity="0.6" />
-                </radialGradient>
-              </defs>
-              <circle cx={phase.x} cy={phase.y} r={isCurrentPhase ? 10.5 : 8.5} fill={`url(#pearl-${phase.key})`} stroke={isCurrentPhase ? '#ffffff' : '#e0e0e0'} strokeWidth={isCurrentPhase ? 2 : 1.5} className="transition-all" style={{
-            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-          }} />
-              
-              {/* Current position pulse animation */}
-              {isCurrentPhase && <>
-                  <circle cx={phase.x} cy={phase.y} r="15" fill="#FFD700" opacity="0.3" className="animate-pulse" />
-                </>}
-
-              {/* Phase label */}
-              <text x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x} y={isCenter ? phase.y + 50 : phase.y - 4.5} textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'} className={`font-bold ${isCurrentPhase ? 'text-lg' : 'text-sm'}`} style={{
-            fontSize: isCurrentPhase ? '18px' : '16px',
-            fill: '#ffffff'
-          }}>
-                {phase.label}
-              </text>
-              
-              {/* Phase subtitle */}
-              <text x={phase.key === 'sensing' || phase.key === 'seeing' ? phase.x - 25 : phase.key === 'crystallizing' || phase.key === 'prototyping' ? phase.x + 25 : phase.x} y={isCenter ? phase.y + 65 : phase.y + 10.5} textAnchor={phase.key === 'sensing' || phase.key === 'seeing' ? 'end' : phase.key === 'crystallizing' || phase.key === 'prototyping' ? 'start' : 'middle'} className="text-xs" style={{
-            fontSize: '11px',
-            fill: '#ffffff',
-            opacity: 0.8
-          }}>
-                {phase.subtitle}
-              </text>
-            </g>;
-      })}
-      </svg>;
+        {points.map((point, index) => (
+          <g key={index}>
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r={index === currentIndex ? 3 : 2}
+              fill={index === currentIndex ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'}
+              className={index === currentIndex ? 'animate-pulse' : ''}
+            />
+            <text
+              x={point.x}
+              y={point.y - 8}
+              textAnchor="middle"
+              className={`text-[4px] ${index === currentIndex ? 'font-bold fill-primary' : 'fill-muted-foreground'}`}
+            >
+              {t(`theoryU.phases.${phases[index]}`)}
+            </text>
+          </g>
+        ))}
+      </svg>
+    );
   };
+
   const getReadinessColor = (status?: string) => {
     if (!status) return 'text-muted-foreground';
-    switch (status.toLowerCase()) {
-      case 'ready':
-      case 'yes':
-        return 'text-green-600 dark:text-green-400';
-      case 'partially':
-      case 'maybe':
-        return 'text-amber-600 dark:text-amber-400';
-      case 'not ready':
-      case 'no':
-        return 'text-red-600 dark:text-red-400';
-      default:
-        return 'text-muted-foreground';
-    }
+    if (status.toLowerCase().includes('ready')) return 'text-green-500';
+    if (status.toLowerCase().includes('not')) return 'text-red-500';
+    return 'text-yellow-500';
   };
+
   const getReadinessIcon = (status?: string) => {
-    if (!status) return '⚪';
-    switch (status.toLowerCase()) {
-      case 'ready':
-      case 'yes':
-        return '🟢';
-      case 'partially':
-      case 'maybe':
-        return '🟡';
-      case 'not ready':
-      case 'no':
-        return '🔴';
-      default:
-        return '⚪';
-    }
+    if (!status) return '⏸️';
+    if (status.toLowerCase().includes('ready')) return '✅';
+    if (status.toLowerCase().includes('not')) return '❌';
+    return '⚠️';
   };
+
   const getPriorityBadge = (priority: number) => {
-    if (priority === 1) return <Badge variant="destructive" className="text-xs">{t('visualizations.theoryU.priority.high')}</Badge>;
-    if (priority === 2) return <Badge variant="secondary" className="text-xs">{t('visualizations.theoryU.priority.medium')}</Badge>;
-    return <Badge variant="outline" className="text-xs">{t('visualizations.theoryU.priority.low')}</Badge>;
+    if (priority === 1) return <Badge variant="destructive">{t('theoryU.priority.high')}</Badge>;
+    if (priority === 2) return <Badge variant="default">{t('theoryU.priority.medium')}</Badge>;
+    return <Badge variant="secondary">{t('theoryU.priority.low')}</Badge>;
   };
+
+  const resources = analysis?.theoryUResources || getDefaultTheoryUResources(language);
+
   if (loading) {
-    return <Card>
+    return (
+      <Card>
         <CardHeader>
-          <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
-          <CardDescription>{t('visualizations.theoryU.description')}</CardDescription>
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <CardTitle>{t('theoryU.analyzing')}</CardTitle>
+          </div>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-          <p className="text-sm text-muted-foreground">{t('visualizations.theoryU.analyzing')}</p>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </CardContent>
-      </Card>;
+      </Card>
+    );
   }
+
   if (!analysis) {
-    return <Card>
+    return (
+      <Card>
         <CardHeader>
-          <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
-          <CardDescription>{t('visualizations.theoryU.description')}</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5" />
+            {t('theoryU.errorTitle')}
+          </CardTitle>
+          <CardDescription>{t('theoryU.errorDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-12">
-            <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground mb-4">{t('visualizations.theoryU.errorDescription')}</p>
-            <Button onClick={handleRefresh} variant="outline">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              {t('visualizations.theoryU.refresh')}
-            </Button>
-          </div>
+          <Button onClick={handleRefresh}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            {t('theoryU.refresh')}
+          </Button>
         </CardContent>
-      </Card>;
+      </Card>
+    );
   }
-  const mappedSocialField = mapSocialFieldKey(analysis.socialField);
-  const resources = analysis.theoryUResources && analysis.theoryUResources.length > 0 ? analysis.theoryUResources : getDefaultTheoryUResources(i18n.language);
-  return <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-3xl font-bold mb-2">{t('visualizations.theoryU.title')}</h2>
-          <p className="text-muted-foreground">{t('visualizations.theoryU.description')}</p>
-        </div>
-        <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          {t('visualizations.theoryU.refresh')}
-        </Button>
-      </div>
 
+  const confidencePercent = getConfidencePercent();
+  const lowConfidence = isLowConfidence();
+
+  return (
+    <TooltipProvider>
       <div className="space-y-6">
-        {/* Where Are You Section - Redesigned with larger U-curve */}
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <MapPin className="w-6 h-6 text-primary" />
-              {t('visualizations.theoryU.whereAreYou')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8 space-y-8">
-            {/* Large U-Curve Visualization */}
-            <div className="bg-gradient-to-br from-background via-primary/5 to-accent/5 rounded-2xl p-8 border border-border/50 shadow-lg">
-              {renderUCurve()}
-            </div>
+        {/* PHASE 1: Data Quality Warning */}
+        {lowConfidence && (
+          <Alert variant="destructive" className="border-orange-500 bg-orange-500/10">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="flex items-center justify-between">
+              <span>⚠️ {t('theoryU.dataQuality.lowConfidenceWarning')}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/projects/${projectId}?tab=documents`)}
+                className="ml-4"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {t('theoryU.dataQuality.uploadDocuments')}
+              </Button>
+            </AlertTitle>
+            <AlertDescription className="mt-2">
+              {t('theoryU.dataQuality.lowConfidenceMessage', { confidence: confidencePercent.toFixed(1) })}
+              <br />
+              {t('theoryU.dataQuality.uploadDocumentsMessage')}
+            </AlertDescription>
+          </Alert>
+        )}
 
-            {/* Current Phase Info Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.phase')}</p>
-                <div className="space-y-1">
-                  <span className="text-2xl font-bold block">{t(`visualizations.theoryU.phases.${analysis.position}`)}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {analysis.confidence}% {t('visualizations.theoryU.confident')}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.socialField')}</p>
-                <p className="text-xl font-semibold">
-                  {t(`visualizations.theoryU.socialFields.${mappedSocialField}`)}
-                </p>
-              </div>
-
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.depth')}</p>
-                <p className="text-xl font-semibold">
-                  {analysis.depth ? t(`visualizations.theoryU.depths.${analysis.depth.toLowerCase()}`) : '-'}
-                </p>
-              </div>
-
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.openMHW')}</p>
-                <div className="flex gap-4 text-base font-semibold">
-                  <span><strong className="text-primary">M:</strong> {analysis.openMHW?.mind || 0}</span>
-                  <span><strong className="text-primary">H:</strong> {analysis.openMHW?.heart || 0}</span>
-                  <span><strong className="text-primary">W:</strong> {analysis.openMHW?.will || 0}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Why This Phase Section */}
+        {/* Theory U Title */}
         <Card>
           <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl">{t('theoryU.title')}</CardTitle>
+                <CardDescription>{t('theoryU.description')}</CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+              >
+                <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                {t('theoryU.refresh')}
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* NIVEAU 1: Where You Are - Always Visible */}
+        <Card className={lowConfidence ? 'opacity-60' : ''}>
+          <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-primary" />
-              {t('visualizations.theoryU.whyThisPhase')}
+              <MapPin className="h-5 w-5 text-primary" />
+              {t('theoryU.whereAreYou')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Morphology Synthesis */}
-            {analysis.whyHere?.morphologySynthesis && <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                <p className="text-sm leading-relaxed">{analysis.whyHere.morphologySynthesis}</p>
-              </div>}
+            {/* U-Curve */}
+            {renderUCurve()}
 
-            {/* Morphology Evidence */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" />
-                  <h3 className="font-semibold">{t('visualizations.theoryU.morphologyEvidence')}</h3>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => fetchAnalysis(true)} disabled={refreshing} className="h-8 px-2">
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                </Button>
+            {/* Key Information Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Phase */}
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{t('theoryU.phase')}</p>
+                <p className="text-lg font-bold text-primary">
+                  {t(`theoryU.phases.${analysis.position}`)}
+                </p>
+                <p className="text-xs text-muted-foreground italic">
+                  {t(`theoryU.phaseSubtitles.${analysis.position}`)}
+                </p>
               </div>
-              
-              {/* Morphology Evidence - DNA Visualization */}
-              {analysis.whyHere.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 && morphology && <div className="space-y-4">
-                  <h4 className="font-semibold text-sm flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    {t('visualizations.theoryU.morphologyEvidence')}
-                  </h4>
-                  
-                  {/* DNA Helix Visualization */}
-                  <DNAEvidenceVisualization morphology={morphology} evidence={analysis.whyHere.morphologyEvidence} language={i18n.language as 'en' | 'da' || 'en'} />
-                  
-                  {/* Legend */}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground px-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
-                      <span>{t('visualizations.theoryU.evidenceDimensions')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-muted" />
-                      <span>{t('visualizations.theoryU.otherDimensions')}</span>
-                    </div>
-                    <span className="ml-auto italic">{t('visualizations.theoryU.clickToExplore')}</span>
-                  </div>
-                  
-                  {/* Collapsible detailed list */}
-                  <Collapsible>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="w-full">
-                        <ChevronDown className="w-4 h-4 mr-2" />
-                        {t('visualizations.theoryU.showDetails')}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="grid gap-3 mt-4">
-                        {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border">
-                            <Badge variant="secondary" className="mt-0.5 shrink-0">
-                              {evidence.dimension}
-                            </Badge>
-                            <div className="flex-1 space-y-1">
-                              <p className="font-medium text-sm">{evidence.value}</p>
-                              <p className="text-sm text-muted-foreground">{evidence.reasoning}</p>
-                            </div>
-                          </div>)}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>}
-            </div>
 
-            {/* Document Evidence */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-primary" />
-                  <h3 className="font-semibold">{t('visualizations.theoryU.documentEvidence')}</h3>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => handleRegenerateQuotes()} disabled={refreshing} className="h-8 px-2">
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
-              
-              {analysis.whyHere?.documentEvidence && analysis.whyHere.documentEvidence.length > 0 ? <div className="space-y-3">
-                  {analysis.whyHere.documentEvidence.slice(0, showAllQuotes ? undefined : 3).map((quote: {
-                text: string;
-                relevance: number;
-                source?: string;
-              }, idx: number) => {
-                const isFavorite = favoriteQuotes.has(quote.text);
-                const relevanceColor = quote.relevance >= 80 ? 'text-green-600 dark:text-green-400' : quote.relevance >= 60 ? 'text-blue-600 dark:text-blue-400' : quote.relevance >= 40 ? 'text-yellow-600 dark:text-yellow-400' : 'text-orange-600 dark:text-orange-400';
-                return <div key={idx} className="group relative p-4 rounded-lg bg-accent/10 border-l-4 border-accent shadow-sm hover:shadow-md transition-shadow">
-                          {/* Relevance indicator */}
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className={`text-xs ${relevanceColor}`}>
-                              {t('visualizations.theoryU.relevance')}: {quote.relevance}%
-                            </Badge>
-                            <Progress value={quote.relevance} className="h-1.5 w-24" />
-                            {quote.source && <span className="text-xs text-muted-foreground ml-auto">📄 {quote.source}</span>}
-                          </div>
-                          
-                          {/* Quote text */}
-                          <p className="text-sm italic leading-relaxed text-foreground pr-20">
-                            "{quote.text}"
-                          </p>
-                          
-                          {/* Action buttons */}
-                          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleToggleFavorite(quote)}>
-                              <Star className={`w-4 h-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleRejectQuote(idx)}>
-                              <X className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </div>;
-              })}
-                  
-                  {analysis.whyHere.documentEvidence.length > 3 && <Button variant="outline" size="sm" className="w-full" onClick={() => setShowAllQuotes(!showAllQuotes)}>
-                      {showAllQuotes ? <>
-                          <ChevronUp className="w-4 h-4 mr-2" />
-                          {t('visualizations.theoryU.showLess')}
-                        </> : <>
-                          <ChevronDown className="w-4 h-4 mr-2" />
-                          {t('visualizations.theoryU.showMore', {
-                    count: analysis.whyHere.documentEvidence.length - 3
-                  })}
-                        </>}
-                    </Button>}
-                </div> : analysis.whyHere?.documentStatus === 'processing' ? <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-                  <div className="flex items-start gap-3">
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-600 border-t-transparent" />
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                        {t('visualizations.theoryU.documentsProcessing')}
-                      </p>
-                      {analysis.whyHere?.processingFiles && <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
-                          {analysis.whyHere.processingFiles.map((filename: string, idx: number) => <li key={idx}>📄 {filename}</li>)}
-                        </ul>}
-                    </div>
+              {/* Confidence */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      {t('theoryU.confident')}
+                      <Info className="h-3 w-3" />
+                    </p>
+                    <p className="text-lg font-semibold">{confidencePercent}%</p>
+                    <Progress value={confidencePercent} className="h-2" />
                   </div>
-                </div> : <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
-                  <p className="text-sm text-muted-foreground italic text-center">
-                    {t('visualizations.theoryU.noDocuments')}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {lowConfidence 
+                    ? t('theoryU.dataQuality.uploadDocumentsMessage')
+                    : language === 'da' 
+                      ? `Analysen er baseret på både morfologi og dokumenter`
+                      : `Analysis based on both morphology and documents`
+                  }
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Social Field */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      {t('theoryU.socialField')}
+                      <Info className="h-3 w-3" />
+                    </p>
+                    <p className="text-lg font-semibold">
+                      {t(`theoryU.socialFields.${mapSocialFieldKey(analysis.socialField)}`)}
+                    </p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">{t('theoryU.tooltips.socialField')}</p>
+                  <p className="text-sm">
+                    {t(`theoryU.tooltips.socialField${mapSocialFieldKey(analysis.socialField).charAt(0).toUpperCase() + mapSocialFieldKey(analysis.socialField).slice(1)}`)}
                   </p>
-                </div>}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Depth */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      {t('theoryU.depth')}
+                      <Info className="h-3 w-3" />
+                    </p>
+                    <p className="text-lg font-semibold">
+                      {t(`theoryU.depths.${analysis.depth}`)}
+                    </p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">{t('theoryU.tooltips.depth')}</p>
+                  <p className="text-sm">
+                    {t(`theoryU.tooltips.depth${analysis.depth.charAt(0).toUpperCase() + analysis.depth.slice(1)}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             </div>
+
+            {/* Open M/H/W with Progress Bars */}
+            <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-sm font-medium flex items-center gap-1">
+                    {t('theoryU.openMHW')}
+                    <Info className="h-3 w-3" />
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">{t('theoryU.tooltips.openMHW')}</p>
+                  <p className="text-sm mb-2">{t('theoryU.tooltips.openMind')}</p>
+                  <p className="text-sm mb-2">{t('theoryU.tooltips.openHeart')}</p>
+                  <p className="text-sm mb-2">{t('theoryU.tooltips.openWill')}</p>
+                  <p className="text-sm italic">{t('theoryU.tooltips.lowScores')}</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">{language === 'da' ? 'Åbenhed i sind' : 'Openness of Mind'}</span>
+                  <span className="text-sm font-semibold">{analysis.openMHW.mind}/10</span>
+                </div>
+                <Progress value={analysis.openMHW.mind * 10} className="h-2" />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">{language === 'da' ? 'Åbenhed i hjerte' : 'Openness of Heart'}</span>
+                  <span className="text-sm font-semibold">{analysis.openMHW.heart}/10</span>
+                </div>
+                <Progress value={analysis.openMHW.heart * 10} className="h-2" />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">{language === 'da' ? 'Åbenhed i vilje' : 'Openness of Will'}</span>
+                  <span className="text-sm font-semibold">{analysis.openMHW.will}/10</span>
+                </div>
+                <Progress value={analysis.openMHW.will * 10} className="h-2" />
+              </div>
+            </div>
+
+            {/* PHASE 2: What This Means - Narrative */}
+            {!lowConfidence && (
+              <div className="mt-6 p-6 bg-primary/5 rounded-lg border border-primary/20">
+                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-primary" />
+                  {t('theoryU.narrative.whatThisMeans')}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {language === 'da' 
+                    ? `I denne fase handler det om at ${
+                        analysis.position === 'seeing' ? 'observere og se med friske øjne' :
+                        analysis.position === 'sensing' ? 'lytte dybt og sanse med åbent hjerte' :
+                        analysis.position === 'presencing' ? 'forbinde til den dybeste kilde og slippe det gamle' :
+                        analysis.position === 'crystallizing' ? 'krystallisere visionen og sætte retning' :
+                        'skabe prototyper og eksperimentere med det nye'
+                      }. Fokuser på ${
+                        analysis.position === 'seeing' || analysis.position === 'sensing' 
+                          ? 'at FORSTÅ før I HANDLER' 
+                          : 'at skabe KONKRETE eksperimenter'
+                      }.`
+                    : `In this phase, it's about ${
+                        analysis.position === 'seeing' ? 'observing and seeing with fresh eyes' :
+                        analysis.position === 'sensing' ? 'listening deeply and sensing with an open heart' :
+                        analysis.position === 'presencing' ? 'connecting to the deepest source and letting go of the old' :
+                        analysis.position === 'crystallizing' ? 'crystallizing the vision and setting direction' :
+                        'creating prototypes and experimenting with the new'
+                      }. Focus on ${
+                        analysis.position === 'seeing' || analysis.position === 'sensing'
+                          ? 'UNDERSTANDING before you ACT'
+                          : 'creating CONCRETE experiments'
+                      }.`
+                  }
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* NIVEAU 2: Why This Phase - Collapsible */}
+        <Collapsible open={isWhyHereExpanded} onOpenChange={setIsWhyHereExpanded}>
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-0 hover:bg-transparent">
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                    {t('theoryU.whyThisPhase')}
+                  </CardTitle>
+                  {isWhyHereExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </Button>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-6 pt-0">
+                {/* PHASE 2: Narrative Morphology Synthesis */}
+                {analysis.whyHere?.morphologySynthesis && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      {t('theoryU.narrative.yourProjectDNA')}
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {analysis.whyHere.morphologySynthesis}
+                    </p>
+                  </div>
+                )}
 
+                {/* Morphology Evidence with DNA Visualization */}
+                {analysis.whyHere?.morphologyEvidence && analysis.whyHere.morphologyEvidence.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-4">{t('theoryU.morphologyEvidence')}</h4>
+                    <DNAEvidenceVisualization
+                      morphology={morphology}
+                      evidence={analysis.whyHere.morphologyEvidence}
+                      language={language}
+                    />
+                  </div>
+                )}
+
+                {/* Document Evidence */}
+                {analysis.whyHere?.documentEvidence && analysis.whyHere.documentEvidence.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        {t('theoryU.documentEvidence')}
+                      </h4>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRegenerateQuotes}
+                        disabled={refreshing}
+                      >
+                        <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                        {language === 'da' ? 'Regenerer' : 'Regenerate'}
+                      </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {analysis.whyHere.documentEvidence
+                        .slice(0, showAllQuotes ? undefined : 3)
+                        .map((quote, idx) => (
+                          <Card key={idx} className="p-4">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <p className="text-sm italic mb-2">"{quote.text}"</p>
+                                {quote.source && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {language === 'da' ? 'Kilde' : 'Source'}: {quote.source}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 mt-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {t('theoryU.relevance')}: {quote.relevance}%
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleToggleFavorite(quote.text)}
+                                >
+                                  <Star
+                                    className={`h-4 w-4 ${
+                                      favoriteQuotes.includes(quote.text)
+                                        ? 'fill-yellow-400 text-yellow-400'
+                                        : ''
+                                    }`}
+                                  />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRejectQuote(idx)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                    </div>
+
+                    {analysis.whyHere.documentEvidence.length > 3 && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowAllQuotes(!showAllQuotes)}
+                        className="w-full"
+                      >
+                        {showAllQuotes
+                          ? t('theoryU.showLess')
+                          : t('theoryU.showMore', {
+                              count: analysis.whyHere.documentEvidence.length - 3
+                            })}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        {/* Next Actions */}
+        {analysis.nextActions && analysis.nextActions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                {t('theoryU.narrative.concreteNext')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {analysis.nextActions.slice(0, 3).map((action, idx) => (
+                <Card key={idx} className="p-4 border-l-4 border-l-primary">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{idx + 1}.</span>
+                        <p className="font-medium">{action.action}</p>
+                        {getPriorityBadge(action.priority)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{action.rationale}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {action.timeframe}
+                        </span>
+                        {action.theoryUPrinciple && (
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="h-3 w-3" />
+                            {action.theoryUPrinciple}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* NIVEAU 3: Technical Details - Collapsible */}
+        <Collapsible open={isTechnicalExpanded} onOpenChange={setIsTechnicalExpanded}>
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-0 hover:bg-transparent">
+                  <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    {t('theoryU.narrative.seeDetails')}
+                  </CardTitle>
+                  {isTechnicalExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <div className="space-y-2 text-xs font-mono bg-muted/50 p-4 rounded">
+                  <div><span className="font-semibold">Position:</span> {analysis.position}</div>
+                  <div><span className="font-semibold">Confidence:</span> {confidencePercent}%</div>
+                  <div><span className="font-semibold">Social Field:</span> {analysis.socialField}</div>
+                  <div><span className="font-semibold">Depth:</span> {analysis.depth}</div>
+                  <div><span className="font-semibold">Open M/H/W:</span> {analysis.openMHW.mind}/{analysis.openMHW.heart}/{analysis.openMHW.will}</div>
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </div>
-    </div>;
+    </TooltipProvider>
+  );
 }
