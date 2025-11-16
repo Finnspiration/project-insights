@@ -151,23 +151,23 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                   return (
                     <g
                       key={`symbol-${front.id}-${pointIndex}`}
-                      transform={`translate(${point.x}, ${point.y}) rotate(${angle})`}
+                      transform={`translate(${point.x}%, ${point.y}%) rotate(${angle})`}
                     >
                       {front.type === 'cold' ? (
                         <polygon
-                          points="0,-1 2,1 -2,1"
+                          points="0,-2 3,2 -3,2"
                           fill="hsl(220, 90%, 60%)"
                           stroke="white"
-                          strokeWidth="0.3"
+                          strokeWidth="0.5"
                         />
                       ) : (
                         <circle
                           cx="0"
                           cy="0"
-                          r="1.5"
+                          r="2.5"
                           fill="hsl(0, 90%, 60%)"
                           stroke="white"
-                          strokeWidth="0.3"
+                          strokeWidth="0.5"
                         />
                       )}
                     </g>
