@@ -66,7 +66,7 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
         </g>
         
         {/* Static fallback lines if animation doesn't work */}
-        <g opacity="0.5">
+        <g opacity="0.4">
           {pattern.lines.map((line, index) => (
             <line
               key={`static-wind-${index}`}
@@ -75,9 +75,9 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
               x2={`${line.x2}%`}
               y2={`${line.y2}%`}
               stroke="white"
-              strokeWidth="2"
+              strokeWidth="4"
               strokeDasharray="8,4"
-              opacity="0.3"
+              opacity="0.5"
             />
           ))}
         </g>
