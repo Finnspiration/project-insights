@@ -493,7 +493,7 @@ export function mapProjectToWeatherData(
   interventions?: any[],
   blindSpots?: any[]
 ): WeatherData {
-  const stage = morphology?.organizational_stage || 'orange';
+  const stage = morphology?.organizational || 'orange';
   const complexity = morphology?.complexity || 'complicated';
   const { bg, sky } = mapOrganizationalStage(stage);
 
@@ -554,12 +554,12 @@ export function mapProjectToWeatherData(
   ];
 
   const windPatterns = mapInformationFlowToWind(
-    morphology?.information_flow || 'network',
-    morphology?.temporal_dynamics || 'project'
+    morphology?.information || 'network',
+    morphology?.temporal || 'project'
   );
 
   const pressureSystems = mapToPressureSystems(
-    morphology?.risk_profile || 'moderate',
+    morphology?.risk || 'moderate',
     morphology?.stakeholder || 'cooperative',
     blindSpots
   );
