@@ -49,10 +49,15 @@ export function WeatherControlPanel({
   };
 
   const handleApplySuggestion = (dimension: string, value: string) => {
-    onMorphologyChange({
+    // Update morphology with the new value
+    const updatedMorphology = {
       ...morphology,
-      [dimension]: value,
-    });
+      [dimension]: {
+        ...morphology[dimension],
+        selectedValue: value
+      }
+    };
+    onMorphologyChange(updatedMorphology);
     toast.success(language === 'da' ? 'Forslag anvendt' : 'Suggestion applied');
   };
 
