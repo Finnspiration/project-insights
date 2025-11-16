@@ -61,6 +61,13 @@ export function CulturalWeatherMap({
   const [layoutMode, setLayoutMode] = useState<'compact' | 'detailed'>(() => {
     return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
   });
+  const [idgScores, setIdgScores] = useState(idgProfile || {
+    being: 5,
+    thinking: 5,
+    relating: 5,
+    collaborating: 5,
+    acting: 5
+  });
 
   // Use default IDG profile if not provided
   const defaultIDG = {
@@ -170,6 +177,11 @@ export function CulturalWeatherMap({
               morphology={morphology}
               onMorphologyChange={onMorphologyChange}
               weatherMapContent={weatherMapContent}
+              idgScores={idgScores}
+              onIdgScoresChange={(newScores) => {
+                setIdgScores(newScores);
+                if (onIDGChange) onIDGChange(newScores);
+              }}
             />
           ) : (
             <div className="relative w-full h-[600px]">

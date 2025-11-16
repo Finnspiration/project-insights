@@ -7,12 +7,16 @@ interface CompactSplitLayoutProps {
   morphology: any;
   onMorphologyChange: (newMorphology: any) => void;
   weatherMapContent: ReactNode;
+  idgScores?: any;
+  onIdgScoresChange?: (newScores: any) => void;
 }
 
 export function CompactSplitLayout({ 
   morphology, 
   onMorphologyChange, 
-  weatherMapContent 
+  weatherMapContent,
+  idgScores,
+  onIdgScoresChange
 }: CompactSplitLayoutProps) {
   return (
     <ResizablePanelGroup direction="horizontal" className="min-h-[600px] w-full">
@@ -24,6 +28,8 @@ export function CompactSplitLayout({
               <GroupedControls 
                 morphology={morphology}
                 onMorphologyChange={onMorphologyChange}
+                idgScores={idgScores}
+                onIdgScoresChange={onIdgScoresChange}
               />
             </div>
           </ScrollArea>
