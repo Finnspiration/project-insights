@@ -976,5 +976,33 @@
       "rolesUpdated": "Roles Updated",
       "rolesUpdatedDesc": "User roles have been updated successfully"
     }
+  },
+  "weather_control": {
+    "title": "Interactive Control Panel",
+    "description": "Adjust values to see live impact on the weather map",
+    "live_edit": "Live Edit",
+    "document_analysis": "Document Analysis",
+    "save_changes": "Save changes",
+    "reset": "Reset",
+    "saving": "Saving...",
+    "changes_saved": "Changes saved",
+    "save_failed": "Failed to save changes",
+    "impact_on_weather": "Impact on weather:",
+    "morphology_dimensions": "Morphological Dimensions (12)",
+    "idg_profile": "IDG Profile (5 dimensions)",
+    "low": "Low",
+    "high": "High",
+    "apply_suggestion": "Apply suggestion",
+    "suggestion_applied": "Suggestion applied",
+    "reanalyze_all": "Re-analyze all",
+    "documents_reanalyzed": "Documents re-analyzed",
+    "reanalysis_failed": "Re-analysis failed",
+    "no_documents": "No documents uploaded yet. Upload documents to get AI suggestions.",
+    "no_suggestions": "No morphological suggestions from this document.",
+    "suggested_value": "Suggested value:",
+    "confidence": "confidence",
+    "processing": "Processing...",
+    "documents_uploaded": "documents uploaded",
+    "loading_documents": "Loading documents..."
   }
 }

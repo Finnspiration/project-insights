@@ -11,6 +11,7 @@ import { WindPatterns } from './weather/WindPatterns';
 import { PressureSystems } from './weather/PressureSystems';
 import { WeatherLegend } from './weather/WeatherLegend';
 import { PrecipitationEvents } from './weather/PrecipitationEvents';
+import { WeatherControlPanel } from './weather/WeatherControlPanel';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 
 interface CulturalWeatherMapProps {
@@ -20,6 +21,10 @@ interface CulturalWeatherMapProps {
   recommendations?: any[];
   interventions?: any[];
   blindSpots?: any[];
+  projectId?: string;
+  onMorphologyChange?: (newMorphology: any) => void;
+  onIDGChange?: (newIDG: any) => void;
+  showControlPanel?: boolean;
 }
 
 export function CulturalWeatherMap({ 
@@ -28,7 +33,11 @@ export function CulturalWeatherMap({
   theoryUAnalysis,
   recommendations,
   interventions,
-  blindSpots
+  blindSpots,
+  projectId,
+  onMorphologyChange,
+  onIDGChange,
+  showControlPanel = false,
 }: CulturalWeatherMapProps) {
   const { t } = useTranslation('common');
   
@@ -70,18 +79,19 @@ export function CulturalWeatherMap({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CloudRain className="h-5 w-5 text-primary" />
-          {t('visualizations.culturalWeather.title')}
-        </CardTitle>
-        <CardDescription>
-          Multi-lags vejrsystem der viser organisatorisk klima, temperaturzoner, og vejrudsigt
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="relative w-full h-[600px] rounded-lg overflow-hidden border border-border">
+    <div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CloudRain className="h-5 w-5 text-primary" />
+            {t('visualizations.culturalWeather.title')}
+          </CardTitle>
+          <CardDescription>
+            Multi-lags vejrsystem der viser organisatorisk klima, temperaturzoner, og vejrudsigt
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="relative w-full h-[600px] rounded-lg overflow-hidden border border-border">
           {/* Layer 1: Base Climate (always visible) */}
           <BaseClimate data={weatherData.baseClimate} />
 
@@ -136,5 +146,17 @@ export function CulturalWeatherMap({
         </div>
       </CardContent>
     </Card>
+
+    {/* Interactive Control Panel */}
+    {showControlPanel && projectId && onMorphologyChange && (
+      <WeatherControlPanel
+        projectId={projectId}
+        morphology={morphology}
+        idgProfile={idgProfile || defaultIDG}
+        onMorphologyChange={onMorphologyChange}
+        onIDGChange={onIDGChange}
+      />
+    )}
+  </div>
   );
 }

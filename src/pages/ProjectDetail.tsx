@@ -354,12 +354,16 @@ export default function ProjectDetail() {
                 
                 <TabsContent value="weather">
                   <CulturalWeatherMap 
-                    morphology={project.morphology}
-                    idgProfile={project.patterns?.idg_profile}
+                    morphology={previewMorphology || project.morphology}
+                    idgProfile={previewIDG || project.patterns?.idg_profile}
                     theoryUAnalysis={project.theory_u_analysis}
                     recommendations={project.patterns?.recommendations || []}
                     interventions={project.patterns?.interventions || []}
                     blindSpots={blindSpots}
+                    projectId={project.id}
+                    onMorphologyChange={setPreviewMorphology}
+                    onIDGChange={setPreviewIDG}
+                    showControlPanel={true}
                   />
                 </TabsContent>
                 
