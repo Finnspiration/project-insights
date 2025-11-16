@@ -60,7 +60,7 @@ export function CulturalWeatherMap({
     particles: true,
   });
 
-  const [showPanels, setShowPanels] = useState(true);
+  const [showPanels, setShowPanels] = useState(false);
   const [layoutMode, setLayoutMode] = useState<'compact' | 'detailed'>(() => {
     return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
   });
@@ -151,18 +151,16 @@ export function CulturalWeatherMap({
         <WeatherForecast forecast={weatherData.forecast} />
       )}
 
-      {/* Controls */}
-      {showPanels && (
-        <>
-          <LayerControls 
-            layers={layers} 
-            onLayerToggle={handleLayerToggle}
-            showPanels={showPanels}
-            onTogglePanels={handleTogglePanels}
-          />
-          <WeatherLegend />
-        </>
-      )}
+      {/* Layer Controls - Always visible */}
+      <LayerControls 
+        layers={layers} 
+        onLayerToggle={handleLayerToggle}
+        showPanels={showPanels}
+        onTogglePanels={handleTogglePanels}
+      />
+      
+      {/* Weather Legend - Only when panels are shown */}
+      {showPanels && <WeatherLegend />}
 
       {/* Toggle Panels Button */}
       {!showPanels && (
