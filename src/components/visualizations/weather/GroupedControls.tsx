@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { MORPHOLOGY_DIMENSIONS, DimensionKey } from '@/lib/morphologyConfig';
+import { MORPHOLOGY_DIMENSIONS, DimensionKey, DimensionConfig } from '@/lib/morphologyConfig';
 import { MiniSlider } from './MiniSlider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Thermometer, Wind, CloudRain, Gauge, Heart } from 'lucide-react';
@@ -67,12 +67,15 @@ export function GroupedControls({
     const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === dimensionKey);
     if (!dimension) return;
 
-    const newValue = dimension.options[newValueIndex]?.value;
-    if (!newValue) return;
+    const newOption = dimension.options[newValueIndex];
+    if (!newOption) return;
 
     onMorphologyChange({
       ...morphology,
-      [dimensionKey]: newValue,
+      [dimensionKey]: {
+        selectedValue: newOption.value,
+        selectedIndex: newValueIndex
+      }
     });
   };
 
@@ -80,7 +83,14 @@ export function GroupedControls({
     const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === dimensionKey);
     if (!dimension) return 0;
     
-    const currentValue = morphology?.[dimensionKey];
+    const currentData = morphology?.[dimensionKey];
+    // Support both new format (object) and old format (string)
+    if (typeof currentData === 'object' && currentData?.selectedIndex !== undefined) {
+      return currentData.selectedIndex;
+    }
+    
+    // Fallback to searching by value
+    const currentValue = typeof currentData === 'object' ? currentData?.selectedValue : currentData;
     const index = dimension.options.findIndex(opt => opt.value === currentValue);
     return index >= 0 ? index : 0;
   };
@@ -88,7 +98,7 @@ export function GroupedControls({
   return (
     <Accordion 
       type="multiple" 
-      defaultValue={[...Object.keys(WEATHER_GROUPS), 'idg']} 
+      defaultValue={['temperature', 'idg']} 
       className="w-full space-y-2"
     >
       {Object.entries(WEATHER_GROUPS).map(([groupKey, group]) => {
@@ -103,15 +113,17 @@ export function GroupedControls({
             <AccordionTrigger 
               className="px-3 py-2 hover:bg-muted/50 transition-colors [&[data-state=open]]:bg-muted/30"
             >
-              <div className="flex items-center gap-2">
-                <Icon 
-                  className="h-4 w-4 flex-shrink-0" 
-                  style={{ color: group.color }}
-                />
-                <span className="text-sm font-semibold">
-                  {group.translationKey[language]}
-                </span>
-                <span className="text-xs text-muted-foreground ml-auto mr-2">
+              <div className="flex items-center justify-between w-full mr-2">
+                <div className="flex items-center gap-2">
+                  <Icon 
+                    className="h-4 w-4 flex-shrink-0" 
+                    style={{ color: group.color }}
+                  />
+                  <span className="text-sm font-semibold">
+                    {group.translationKey[language]}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground">
                   ({group.dimensions.length})
                 </span>
               </div>
@@ -162,20 +174,24 @@ export function GroupedControls({
         
         <AccordionContent className="px-3 pb-3 pt-2">
           <div className="space-y-3">
-            {IDG_DIMENSIONS.map((idgDim) => (
-              <div key={idgDim.key} className="space-y-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium text-foreground truncate">
-                    {idgDim.translationKey[language]}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                    {idgScores[idgDim.key as keyof typeof idgScores]}/10
-                  </span>
-                </div>
-                
-                <Slider
-                  value={[idgScores[idgDim.key as keyof typeof idgScores]]}
-                  onValueChange={([value]) => {
+            {IDG_DIMENSIONS.map((idgDim) => {
+              // Create a dimension-like config for IDG to use MiniSlider
+              const idgDimensionConfig: DimensionConfig = {
+                key: 'development' as DimensionKey,
+                translationKey: idgDim.translationKey[language],
+                category: 'challenge_and_resources',
+                options: Array.from({ length: 11 }, (_, i) => ({
+                  value: i.toString(),
+                  translationKey: `${i}/10`
+                }))
+              };
+
+              return (
+                <MiniSlider
+                  key={idgDim.key}
+                  dimension={idgDimensionConfig}
+                  currentIndex={idgScores[idgDim.key as keyof typeof idgScores]}
+                  onChange={(value) => {
                     if (onIdgScoresChange) {
                       onIdgScoresChange({
                         ...idgScores,
@@ -183,13 +199,9 @@ export function GroupedControls({
                       });
                     }
                   }}
-                  min={0}
-                  max={10}
-                  step={1}
-                  className="w-full"
                 />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </AccordionContent>
       </AccordionItem>

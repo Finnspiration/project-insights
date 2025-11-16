@@ -17,8 +17,8 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
+      <div className="flex items-start justify-between gap-2 min-h-[20px]">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
           <span className="text-xs font-medium text-foreground truncate">
             {t(dimension.translationKey)}
           </span>
@@ -28,24 +28,31 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
                 <Info className="h-3 w-3 text-muted-foreground flex-shrink-0 cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-xs">
-                <p className="text-xs">{t(dimension.translationKey)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold">{t(dimension.translationKey)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {dimension.options.map(opt => t(opt.translationKey)).join(' → ')}
+                  </p>
+                </div>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
-        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+        <span className="text-[10px] text-muted-foreground text-right truncate max-w-[40%]">
           {t(currentOption?.translationKey || '')}
         </span>
       </div>
       
-      <Slider
-        value={[currentIndex]}
-        onValueChange={([value]) => onChange(value)}
-        min={0}
-        max={dimension.options.length - 1}
-        step={1}
-        className="w-full"
-      />
+      <div className="min-w-[120px] group">
+        <Slider
+          value={[currentIndex]}
+          onValueChange={([value]) => onChange(value)}
+          min={0}
+          max={dimension.options.length - 1}
+          step={1}
+          className="w-full transition-all group-hover:scale-[1.02]"
+        />
+      </div>
     </div>
   );
 }
