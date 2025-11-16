@@ -22,9 +22,8 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
         <Card className="bg-background/80 backdrop-blur-sm border-border/50">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
-                <span>🔮</span>
-                <span>Theory U Vejrudsigt</span>
+              <h3 className="text-sm font-semibold">
+                Vejrudsigt
               </h3>
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
