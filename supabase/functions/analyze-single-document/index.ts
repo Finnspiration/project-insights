@@ -84,7 +84,7 @@ Return JSON with this structure:
     "riskProfile": {"value": "moderate", "confidence": 0.65, "evidence": "exact quote from THIS document"}
   }
 }`,
-      da: `Analyser DETTE SPECIFIKKE dokument og giv morfologi forslag med evidens-citater der kommer UDELUKKENDE fra dette dokument.
+      da: `Analyser DETTE SPECIFIKKE dokument og giv morfologi forslag OG Inner Development Goals (IDG) analyse med evidens-citater der kommer UDELUKKENDE fra dette dokument.
 
 Dokument: ${document.filename}
 Indhold:
@@ -107,6 +107,13 @@ Returner JSON med denne struktur:
     "changeIntensity": {"value": "transformational", "confidence": 0.85, "evidence": "eksakt citat fra DETTE dokument"},
     "informationFlow": {"value": "network", "confidence": 0.7, "evidence": "eksakt citat fra DETTE dokument"},
     "riskProfile": {"value": "moderate", "confidence": 0.65, "evidence": "eksakt citat fra DETTE dokument"}
+  },
+  "idgAnalysis": {
+    "being": {"score": 65, "confidence": 0.75, "evidence": "eksakt citat der viser selvindsigt eller opmærksomhed"},
+    "thinking": {"score": 70, "confidence": 0.8, "evidence": "eksakt citat der viser analytisk tænkning eller perspektiv"},
+    "relating": {"score": 60, "confidence": 0.7, "evidence": "eksakt citat der viser relationsskabelse eller empati"},
+    "collaborating": {"score": 75, "confidence": 0.85, "evidence": "eksakt citat der viser co-creation eller mobilisering"},
+    "acting": {"score": 55, "confidence": 0.65, "evidence": "eksakt citat der viser mod eller udholdenhed"}
   }
 }`
     };

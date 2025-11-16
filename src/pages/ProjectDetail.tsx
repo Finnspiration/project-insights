@@ -459,7 +459,7 @@ export default function ProjectDetail() {
                 </TabsContent>
                 
                 <TabsContent value="idg">
-                  <IDGRadarChart morphology={project.morphology} />
+                  <IDGRadarChart morphology={project.morphology} documents={documents} />
                 </TabsContent>
                 
                 <TabsContent value="bodyscan">

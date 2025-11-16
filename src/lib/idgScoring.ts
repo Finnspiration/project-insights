@@ -13,6 +13,9 @@ export interface IDGEvidence {
   contributions: IDGContribution[];
   totalScore: number;
   percentage: number;
+  documentScore?: number;
+  documentConfidence?: number;
+  documentEvidence?: string;
 }
 
 const REASONING_KEYS = {
@@ -23,21 +26,26 @@ const REASONING_KEYS = {
   challengeCognitive: 'visualizations.idgRadar.evidence.reasoning.challengeCognitive',
   challengeSocial: 'visualizations.idgRadar.evidence.reasoning.challengeSocial',
   challengeAdaptive: 'visualizations.idgRadar.evidence.reasoning.challengeAdaptive',
+  documentBoost: 'visualizations.idgRadar.evidence.reasoning.documentBoost',
 };
 
 const SOURCE_KEYS = {
   development: 'visualizations.idgRadar.evidence.sources.development',
   organizational: 'visualizations.idgRadar.evidence.sources.organizational',
   challenge: 'visualizations.idgRadar.evidence.sources.challenge',
+  documents: 'visualizations.idgRadar.evidence.sources.documents',
 };
 
-export function calculateIDGWithEvidence(morphology: any): IDGEvidence[] {
+export function calculateIDGWithEvidence(morphology: any, documents?: any[]): IDGEvidence[] {
   const development = morphology?.development || 'thinking';
   const organizational = morphology?.organizational || 'orange';
   const challenge = morphology?.challenge || 'technical';
 
   const dimensions = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
   const evidence: IDGEvidence[] = [];
+
+  // Aggregate document-based IDG scores
+  const documentScores = aggregateDocumentIDGScores(documents || []);
 
   for (const dimension of dimensions) {
     const contributions: IDGContribution[] = [];
@@ -149,6 +157,22 @@ export function calculateIDGWithEvidence(morphology: any): IDGEvidence[] {
       score += 10;
     }
 
+    // Document-based contribution (if available)
+    const docData = documentScores[dimension];
+    if (docData && docData.score > 0) {
+      const docBoost = Math.round((docData.score - 50) * 0.3); // 30% weight from documents
+      if (docBoost !== 0) {
+        contributions.push({
+          source: 'Document Analysis',
+          sourceKey: SOURCE_KEYS.documents,
+          value: docBoost,
+          reasoning: `${dimension} receives ${docBoost > 0 ? '+' : ''}${docBoost} based on analysis of uploaded documents`,
+          reasoningKey: REASONING_KEYS.documentBoost,
+        });
+        score += docBoost;
+      }
+    }
+
     // Normalize to 0-100
     const totalScore = Math.min(100, Math.max(0, score));
 
@@ -159,8 +183,55 @@ export function calculateIDGWithEvidence(morphology: any): IDGEvidence[] {
       contributions,
       totalScore,
       percentage: totalScore,
+      documentScore: docData?.score,
+      documentConfidence: docData?.confidence,
+      documentEvidence: docData?.evidence,
     });
   }
 
   return evidence;
+}
+
+function aggregateDocumentIDGScores(documents: any[]): Record<string, { score: number; confidence: number; evidence: string }> {
+  const dimensions = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
+  const aggregated: Record<string, { score: number; confidence: number; evidence: string; count: number }> = {};
+
+  for (const dimension of dimensions) {
+    aggregated[dimension] = { score: 0, confidence: 0, evidence: '', count: 0 };
+  }
+
+  // Aggregate scores from all documents with IDG analysis
+  for (const doc of documents) {
+    const idgAnalysis = doc?.metadata?.idgAnalysis;
+    if (!idgAnalysis) continue;
+
+    for (const dimension of dimensions) {
+      const dimData = idgAnalysis[dimension];
+      if (dimData && dimData.score) {
+        aggregated[dimension].score += dimData.score * (dimData.confidence || 1);
+        aggregated[dimension].confidence += (dimData.confidence || 1);
+        aggregated[dimension].count++;
+        
+        // Keep the most recent evidence (or concatenate if needed)
+        if (dimData.evidence && !aggregated[dimension].evidence) {
+          aggregated[dimension].evidence = dimData.evidence;
+        }
+      }
+    }
+  }
+
+  // Calculate weighted averages
+  const result: Record<string, { score: number; confidence: number; evidence: string }> = {};
+  for (const dimension of dimensions) {
+    const data = aggregated[dimension];
+    if (data.count > 0) {
+      result[dimension] = {
+        score: Math.round(data.score / data.confidence),
+        confidence: Math.round((data.confidence / data.count) * 100) / 100,
+        evidence: data.evidence,
+      };
+    }
+  }
+
+  return result;
 }
