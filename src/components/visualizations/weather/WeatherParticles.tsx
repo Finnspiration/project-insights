@@ -68,11 +68,11 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
-          className="absolute"
+          className="absolute z-50"
           style={{
             left: `${particle.x}%`,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
+            width: particle.type === 'leaf' ? '16px' : `${particle.size}px`,
+            height: particle.type === 'leaf' ? '16px' : `${particle.size}px`,
           }}
           initial={{ y: `${particle.y}%`, opacity: 0 }}
           animate={{
@@ -108,7 +108,7 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
           )}
           {particle.type === 'leaf' && (
             <div
-              className="text-xs"
+              className="text-base"
               style={{
                 filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
               }}
@@ -118,53 +118,6 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
           )}
         </motion.div>
       ))}
-
-      {/* Particle info label */}
-      <motion.div 
-        className="absolute top-32 left-4 bg-background/95 backdrop-blur-md border-2 border-primary/30 rounded-lg px-4 py-3 shadow-xl z-10"
-        animate={{
-          scale: [1, 1.02, 1],
-          borderColor: ['hsl(var(--primary) / 0.3)', 'hsl(var(--primary) / 0.5)', 'hsl(var(--primary) / 0.3)']
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <div className="flex items-center gap-2.5 mb-2">
-          <span className="text-lg">{particleConfig.emoji}</span>
-          <div>
-            <p className="text-sm font-bold text-foreground">
-              {temporalDynamics === 'sprint' ? 'Sprint' : 
-               temporalDynamics === 'project' ? 'Projekt' : 
-               temporalDynamics === 'program' ? 'Program' : 'Transformation'}
-            </p>
-            <p className="text-xs text-muted-foreground font-medium">
-              {particleConfig.count} partikler
-            </p>
-          </div>
-        </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden mb-1.5">
-          <motion.div 
-            className="h-full"
-            style={{ background: particleConfig.color.replace('0.3', '0.8').replace('0.4', '0.8').replace('0.5', '0.8') }}
-            initial={{ width: 0 }}
-            animate={{ 
-              width: `${(particleConfig.count / 40) * 100}%`,
-            }}
-            transition={{ 
-              duration: 1,
-              ease: "easeOut"
-            }}
-          />
-        </div>
-        <p className="text-[10px] text-muted-foreground font-medium">
-          Tempo: {temporalDynamics === 'sprint' ? 'Meget hurtigt' : 
-                  temporalDynamics === 'project' ? 'Hurtigt' : 
-                  temporalDynamics === 'program' ? 'Moderat' : 'Langsomt'}
-        </p>
-      </motion.div>
     </div>
   );
 }
