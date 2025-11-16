@@ -13,7 +13,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="absolute top-4 right-4 w-64 space-y-3">
+    <div className="absolute top-4 right-4 w-64 space-y-3 z-50">
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
