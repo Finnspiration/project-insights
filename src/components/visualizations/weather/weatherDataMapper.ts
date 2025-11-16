@@ -1,7 +1,7 @@
 // Maps project data to weather visualization data
 
 // Force module reload with version bump
-export const WEATHER_MAPPER_VERSION = '2.0.0';
+export const WEATHER_MAPPER_VERSION = '3.0.0';
 console.log('🌊 Weather Mapper loaded, version:', WEATHER_MAPPER_VERSION);
 
 export interface BaseClimateData {
@@ -300,80 +300,36 @@ export function mapToPressureSystems(
     }
   });
 
-  // Create fronts based on stakeholder dynamics
+  // SIMPLIFIED FRONT GENERATION - Top-center only, no legacy baggage
   const fronts: PressureFront[] = [];
-  const stakeholderFronts: Record<string, number> = {
-    unified: 0,
-    cooperative: 1,
-    competitive: 3,
-    adversarial: 5,
-  };
 
-  const numFronts = stakeholderFronts[stakeholder] || 1;
+  // Generate 3 simple fronts in top-center (no complex logic)
+  const frontConfigs = [
+    { id: 'front-1', y: 8, type: 'cold' as const },
+    { id: 'front-2', y: 16, type: 'warm' as const },
+    { id: 'front-3', y: 24, type: 'cold' as const },
+  ];
 
-  for (let i = 0; i < numFronts; i++) {
-    const yPos = 8 + i * 8; // Start at top-center, smaller spacing
+  frontConfigs.forEach(config => {
     fronts.push({
-      id: `front-${i}`,
+      id: config.id,
+      type: config.type,
       points: [
-        { x: 35, y: yPos },
-        { x: 42, y: yPos + 2 },
-        { x: 50, y: yPos - 1 },
-        { x: 58, y: yPos + 2 },
-        { x: 65, y: yPos },
+        { x: 35, y: config.y },
+        { x: 42, y: config.y + 2 },
+        { x: 50, y: config.y - 1 },
+        { x: 58, y: config.y + 2 },
+        { x: 65, y: config.y },
       ],
-      type: i % 2 === 0 ? 'cold' : 'warm',
-      intensity: Math.ceil(numFronts / 2),
+      intensity: 2,
       metadata: {
         source: 'stakeholder',
-        description: stakeholderDescriptions[stakeholder] || 'Ukendt stakeholder-dynamik'
+        description: `Front system ${config.id}`
       }
     });
-    console.log(`✨ Generated front ${i} at y=${yPos} with points:`, fronts[fronts.length - 1].points);
-  }
-
-  // Add extra fronts from stakeholder/political blind spots
-  if (blindSpots && blindSpots.length > 0) {
-    const politicalSpots = blindSpots.filter(bs => {
-      const title = typeof bs.title === 'object' 
-        ? (bs.title.da || bs.title.en || '')
-        : (bs.title || '');
-      const desc = typeof bs.description === 'object'
-        ? (bs.description.da || bs.description.en || '')
-        : (bs.description || '');
-      
-      const text = `${title} ${desc}`.toLowerCase();
-      return text.includes('stakeholder') || 
-             text.includes('politik') || 
-             text.includes('political') ||
-             text.includes('konflikt') ||
-             text.includes('conflict');
-    });
-
-    const extraFrontPaths = [
-      [{ x: 38, y: 26 }, { x: 50, y: 24 }, { x: 62, y: 26 }], // Top-center
-      [{ x: 36, y: 34 }, { x: 50, y: 32 }, { x: 64, y: 34 }], // Below first
-    ];
-
-    politicalSpots.slice(0, 2).forEach((blindSpot, index) => {
-      const title = typeof blindSpot.title === 'object' 
-        ? (blindSpot.title.da || blindSpot.title.en || 'Ukendt')
-        : blindSpot.title;
-
-      fronts.push({
-        id: `front-blindspot-${blindSpot.id}`,
-        type: 'occluded',
-        points: extraFrontPaths[index],
-        intensity: 3,
-        metadata: {
-          source: 'blind_spot',
-          description: `Politisk/stakeholder konflikt: ${title}`,
-          blindSpotId: blindSpot.id,
-          blindSpotTitle: title
-        }
-      });
-    });
-  }
+    
+    console.log(`🔥 CREATED FRONT: ${config.id} at y=${config.y}, first point:`, { x: 35, y: config.y });
+  });
 
   return { zones, fronts };
 }
