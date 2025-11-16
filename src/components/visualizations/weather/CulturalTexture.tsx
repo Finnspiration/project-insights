@@ -1,12 +1,23 @@
 import { motion } from "framer-motion";
 
 interface CulturalTextureProps {
-  culturalContext: string;
+  culturalContext: string | { selectedValue: string } | undefined;
+}
+
+// Helper function to extract value from morphology data
+function getMorphologyValue(value: string | { selectedValue: string } | undefined, defaultValue: string = 'mono'): string {
+  if (!value) return defaultValue;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && 'selectedValue' in value) return value.selectedValue;
+  return defaultValue;
 }
 
 export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
+  // Extract the actual string value
+  const contextValue = getMorphologyValue(culturalContext, 'mono');
+  
   const getTexturePattern = () => {
-    switch (culturalContext) {
+    switch (contextValue) {
       case 'mono':
         // Glat - ingen tekstur
         return null;
@@ -55,7 +66,7 @@ export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
     return null; // Mono har ingen tekstur
   }
 
-  const patternId = `cultural-${culturalContext}`;
+  const patternId = `cultural-${contextValue}`;
 
   return (
     <motion.div
