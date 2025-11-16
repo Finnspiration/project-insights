@@ -99,23 +99,21 @@ export function CulturalWeatherMap({
 
   // Weather map content (to be used in split layout)
   const weatherMapContent = (
-    <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
+    <div className="relative w-full h-full rounded-lg overflow-visible border border-border">
       {/* Layer 1: Base Climate (always visible) */}
       <BaseClimate data={weatherData.baseClimate} />
 
       {/* Layer 2: Weather Particles (toggleable) */}
       {layers.particles && (
-        <div className="absolute inset-0 z-40 pointer-events-none">
-          <WeatherParticles 
-            temporalDynamics={morphology.temporal_dynamics || 'project'}
-          />
-        </div>
+        <WeatherParticles 
+          temporalDynamics={morphology.temporal || morphology.temporal_dynamics || 'project'}
+        />
       )}
 
       {/* Layer 3: Wind Patterns (toggleable) */}
       {layers.windPatterns && (
-        <div className="absolute inset-0 z-50 pointer-events-none">
-          <WindPatterns 
+        <div className="absolute inset-0 z-45 pointer-events-none">
+          <WindPatterns
             key={`wind-${morphology.information_flow}-${morphology.temporal_dynamics}`}
             pattern={weatherData.windPatterns} 
           />

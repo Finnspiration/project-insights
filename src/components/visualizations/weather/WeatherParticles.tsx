@@ -2,7 +2,15 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
 interface WeatherParticlesProps {
-  temporalDynamics: string;
+  temporalDynamics: string | { selectedValue: string };
+}
+
+// Helper to extract morphology value (handles both string and object formats)
+function getMorphologyValue(value: string | { selectedValue: string } | undefined, defaultValue: string = 'project'): string {
+  if (!value) return defaultValue;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && 'selectedValue' in value) return value.selectedValue;
+  return defaultValue;
 }
 
 interface Particle {
@@ -16,6 +24,13 @@ interface Particle {
 }
 
 export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
+  // Extract the actual value from morphology format
+  const temporalValue = getMorphologyValue(temporalDynamics, 'project');
+  
+  // Debug logging
+  console.log('🌧️ WeatherParticles - Raw input:', temporalDynamics);
+  console.log('🌧️ WeatherParticles - Extracted value:', temporalValue);
+  
   const particleConfig = useMemo(() => {
     const configs = {
       sprint: {
@@ -48,11 +63,13 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
       }
     };
 
-    return configs[temporalDynamics as keyof typeof configs] || configs.project;
-  }, [temporalDynamics]);
+    const config = configs[temporalValue as keyof typeof configs] || configs.project;
+    console.log('🌧️ WeatherParticles - Particle config:', config);
+    return config;
+  }, [temporalValue]);
 
   const particles: Particle[] = useMemo(() => {
-    return Array.from({ length: particleConfig.count }, (_, i) => ({
+    const particleArray = Array.from({ length: particleConfig.count }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * -20 - 10, // Start above viewport
@@ -61,6 +78,8 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
       delay: Math.random() * 2,
       type: particleConfig.type,
     }));
+    console.log(`🌧️ WeatherParticles - Generated ${particleArray.length} particles`);
+    return particleArray;
   }, [particleConfig]);
 
   return (
@@ -74,9 +93,9 @@ export function WeatherParticles({ temporalDynamics }: WeatherParticlesProps) {
             width: particle.type === 'leaf' ? '16px' : `${particle.size}px`,
             height: particle.type === 'leaf' ? '16px' : `${particle.size}px`,
           }}
-          initial={{ y: `${particle.y}%`, opacity: 0 }}
+          initial={{ y: '0%', opacity: 0 }}
           animate={{
-            y: '120%',
+            y: '110%',
             opacity: [0, 1, 1, 0],
             x: particle.type === 'leaf' ? [0, 20, -10, 15, 0] : [0, 0], // Leaves sway
             rotate: particle.type === 'leaf' ? [0, 360] : [0, 0],
