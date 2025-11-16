@@ -15,6 +15,9 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [hoveredFront, setHoveredFront] = useState<string | null>(null);
 
+  // Debug logging
+  console.log('🌊 Pressure Fronts:', systems.fronts.length, systems.fronts);
+
   return (
     <div className="absolute inset-0 pointer-events-none">
       <TooltipProvider>
@@ -115,30 +118,28 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
           {systems.fronts.map((front, index) => (
             <motion.g
               key={front.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0.8 }}
+              animate={{
+                opacity: hoveredFront === front.id ? 1 : 0.8,
+              }}
               transition={{ delay: index * 0.3, duration: 0.8 }}
             >
-              {/* The visible front line - visual only */}
+              {/* Front line - INCREASED VISIBILITY */}
               <motion.polyline
                 points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
                 fill="none"
                 stroke={front.type === 'cold' ? 'hsl(220, 90%, 60%)' : 'hsl(0, 90%, 60%)'}
-                strokeWidth="3"
+                strokeWidth="5"
+                strokeDasharray="8,4"
                 strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray={front.type === 'cold' ? '8,4' : '0'}
-                style={{ 
-                  filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.5))',
-                  pointerEvents: 'none'
-                }}
                 animate={{
-                  strokeWidth: hoveredFront === front.id ? 4 : 3,
+                  strokeWidth: hoveredFront === front.id ? 6 : 5,
                   opacity: hoveredFront === front.id ? 1 : 0.8,
                 }}
+                transition={{ duration: 0.2 }}
               />
 
-              {/* Front symbols */}
+              {/* Front symbols - USING NATIVE SVG PERCENTAGE COORDINATES */}
               <g style={{ pointerEvents: 'none' }}>
                 {front.points.map((point, pointIndex) => {
                   if (pointIndex % 2 !== 0) return null;
@@ -149,22 +150,20 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                   const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * (180 / Math.PI);
                   
                   return (
-                    <g
-                      key={`symbol-${front.id}-${pointIndex}`}
-                      transform={`translate(${point.x}%, ${point.y}%) rotate(${angle})`}
-                    >
+                    <g key={`symbol-${front.id}-${pointIndex}`}>
                       {front.type === 'cold' ? (
                         <polygon
-                          points="0,-2 3,2 -3,2"
+                          points={`${point.x - 1.5}%,${point.y - 1}% ${point.x + 1.5}%,${point.y + 1}% ${point.x - 1.5}%,${point.y + 1}%`}
                           fill="hsl(220, 90%, 60%)"
                           stroke="white"
                           strokeWidth="0.5"
+                          transform={`rotate(${angle} ${point.x}% ${point.y}%)`}
                         />
                       ) : (
                         <circle
-                          cx="0"
-                          cy="0"
-                          r="2.5"
+                          cx={`${point.x}%`}
+                          cy={`${point.y}%`}
+                          r="1.5%"
                           fill="hsl(0, 90%, 60%)"
                           stroke="white"
                           strokeWidth="0.5"
