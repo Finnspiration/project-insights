@@ -20,8 +20,8 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
         transition={{ delay: 0.5 }}
       >
         <Card className="bg-background/80 backdrop-blur-sm border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
+          <CardContent className="p-2">
+            <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold">
                 Vejrudsigt
               </h3>
