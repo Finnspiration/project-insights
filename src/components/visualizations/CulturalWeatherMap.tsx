@@ -98,7 +98,10 @@ export function CulturalWeatherMap({
           {/* Layer 2: Wind Patterns (toggleable) - MOVED TO TOP for visibility */}
           {layers.windPatterns && (
             <div className="absolute inset-0 z-50 pointer-events-none">
-              <WindPatterns pattern={weatherData.windPatterns} />
+              <WindPatterns 
+                key={`wind-${morphology.information_flow}-${morphology.temporal_dynamics}`}
+                pattern={weatherData.windPatterns} 
+              />
             </div>
           )}
 
