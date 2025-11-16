@@ -23,25 +23,25 @@ const WEATHER_GROUPS = {
   temperature: {
     icon: Thermometer,
     color: 'hsl(var(--chart-1))',
-    dimensions: ['complexity', 'stakeholder', 'organizational', 'cultural'] as DimensionKey[],
+    dimensions: ['complexity', 'organizational', 'cultural'] as DimensionKey[],
     translationKey: { en: 'Temperature Zones', da: 'Temperatur Zoner' }
   },
   wind: {
     icon: Wind,
     color: 'hsl(var(--chart-2))',
-    dimensions: ['temporal', 'change', 'risk'] as DimensionKey[],
+    dimensions: ['information', 'temporal'] as DimensionKey[],
     translationKey: { en: 'Wind Patterns', da: 'Vind Mønstre' }
   },
   precipitation: {
     icon: CloudRain,
     color: 'hsl(var(--chart-3))',
-    dimensions: ['knowledge', 'challenge'] as DimensionKey[],
+    dimensions: ['knowledge', 'challenge', 'change'] as DimensionKey[],
     translationKey: { en: 'Precipitation & Clouds', da: 'Nedbør & Skyer' }
   },
   pressure: {
     icon: Gauge,
     color: 'hsl(var(--chart-4))',
-    dimensions: ['resources', 'information', 'development'] as DimensionKey[],
+    dimensions: ['risk', 'stakeholder', 'resources', 'development'] as DimensionKey[],
     translationKey: { en: 'Pressure & Fronts', da: 'Tryk & Fronter' }
   }
 };
