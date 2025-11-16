@@ -73,39 +73,39 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
   const particleConfig = useMemo(() => {
     const configs = {
       sprint: {
-        count: 80,
-        speed: [0.5, 1.0], // EKSTREMT HURTIGT
+        count: 50,
+        speed: [0.3, 0.5], // ⚡ EKSTREMT HURTIGT
         type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [10, 16], // SAMME størrelse for alle
+        size: [10, 16],
         blur: 1
       },
       project: {
-        count: 80,
-        speed: [2.5, 4.0], // HURTIGT (5x langsommere end sprint)
+        count: 50,
+        speed: [3.0, 4.0], // 🏃 HURTIGT (8x langsommere)
         type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [10, 16], // SAMME størrelse
+        size: [10, 16],
         blur: 1
       },
       program: {
-        count: 80,
-        speed: [6.0, 9.0], // MODERAT (12x langsommere end sprint)
+        count: 50,
+        speed: [10.0, 12.0], // 🚶 MODERAT (30x langsommere)
         type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [10, 16], // SAMME størrelse
+        size: [10, 16],
         blur: 1
       },
       transformation: {
-        count: 80,
-        speed: [12.0, 18.0], // MEGET LANGSOMT (24x langsommere end sprint)
+        count: 50,
+        speed: [20.0, 25.0], // 🐌 MEGET LANGSOMT (60x langsommere)
         type: 'dust' as const,
         color: stageContrast.color,
         emoji: stageContrast.emoji,
-        size: [10, 16], // SAMME størrelse
+        size: [10, 16],
         blur: 1
       }
     };
@@ -116,16 +116,25 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
   }, [temporalValue, stageContrast]);
 
   const particles: Particle[] = useMemo(() => {
-    const particleArray = Array.from({ length: particleConfig.count }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100, // Spread across entire height
-      size: particleConfig.size[0] + Math.random() * (particleConfig.size[1] - particleConfig.size[0]),
-      duration: particleConfig.speed[0] + Math.random() * (particleConfig.speed[1] - particleConfig.speed[0]),
-      delay: Math.random() * 5,
-      type: particleConfig.type,
-    }));
-    console.log(`🌧️ WeatherParticles - Generated ${particleArray.length} particles`);
+    // Synkroniser partikler i bølger (5 bølger af 10 partikler hver)
+    const wavesCount = 5;
+    const particlesPerWave = particleConfig.count / wavesCount;
+    
+    const particleArray = Array.from({ length: particleConfig.count }, (_, i) => {
+      const waveIndex = Math.floor(i / particlesPerWave);
+      const waveDelay = waveIndex * 0.5; // Hver bølge starter 0.5 sek efter den forrige
+      
+      return {
+        id: i,
+        x: Math.random() * 100,
+        y: -10 + (waveIndex * 5), // Start lidt højere for hver bølge
+        size: particleConfig.size[0] + Math.random() * (particleConfig.size[1] - particleConfig.size[0]),
+        duration: particleConfig.speed[0] + Math.random() * (particleConfig.speed[1] - particleConfig.speed[0]),
+        delay: waveDelay + (Math.random() * 0.3), // Lille variation inden for bølgen
+        type: particleConfig.type,
+      };
+    });
+    console.log(`🌧️ WeatherParticles - Generated ${particleArray.length} particles in ${wavesCount} waves`);
     return particleArray;
   }, [particleConfig]);
 
