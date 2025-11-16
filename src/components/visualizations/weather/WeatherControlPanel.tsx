@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Save, RotateCcw } from 'lucide-react';
+import { Save, RotateCcw, LayoutGrid, Rows3 } from 'lucide-react';
 import { LiveEditMode } from './LiveEditMode';
 import { DocumentViewMode } from './DocumentViewMode';
 import { toast } from 'sonner';
+import { CompactSplitLayout } from './CompactSplitLayout';
 
 interface WeatherControlPanelProps {
   projectId: string;
@@ -32,6 +33,15 @@ export function WeatherControlPanel({
   const { t, i18n } = useTranslation('common');
   const language = i18n.language as 'en' | 'da';
   const [saving, setSaving] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<'compact' | 'detailed'>(() => {
+    return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
+  });
+
+  const handleLayoutToggle = () => {
+    const newMode = layoutMode === 'compact' ? 'detailed' : 'compact';
+    setLayoutMode(newMode);
+    localStorage.setItem('weatherControlLayout', newMode);
+  };
 
   const handleSave = async () => {
     if (!onSaveChanges) return;
@@ -75,32 +85,51 @@ export function WeatherControlPanel({
                 : 'Adjust values to see live impact on the weather map'}
             </CardDescription>
           </div>
-          {hasChanges && (
-            <div className="flex gap-2">
-              {onReset && (
-                <Button 
-                  onClick={onReset} 
-                  variant="outline" 
-                  size="sm"
-                >
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  {language === 'da' ? 'Nulstil' : 'Reset'}
-                </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleLayoutToggle}
+              variant="outline"
+              size="sm"
+            >
+              {layoutMode === 'compact' ? (
+                <>
+                  <Rows3 className="h-4 w-4 mr-2" />
+                  {language === 'da' ? 'Detaljeret' : 'Detailed'}
+                </>
+              ) : (
+                <>
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  {language === 'da' ? 'Kompakt' : 'Compact'}
+                </>
               )}
-              {onSaveChanges && (
-                <Button 
-                  onClick={handleSave} 
-                  disabled={saving}
-                  size="sm"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving 
-                    ? (language === 'da' ? 'Gemmer...' : 'Saving...') 
-                    : (language === 'da' ? 'Gem ændringer' : 'Save changes')}
-                </Button>
-              )}
-            </div>
-          )}
+            </Button>
+            {hasChanges && (
+              <>
+                {onReset && (
+                  <Button 
+                    onClick={onReset} 
+                    variant="outline" 
+                    size="sm"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    {language === 'da' ? 'Nulstil' : 'Reset'}
+                  </Button>
+                )}
+                {onSaveChanges && (
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={saving}
+                    size="sm"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {saving 
+                      ? (language === 'da' ? 'Gemmer...' : 'Saving...') 
+                      : (language === 'da' ? 'Gem ændringer' : 'Save changes')}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </CardHeader>
       
@@ -116,12 +145,20 @@ export function WeatherControlPanel({
           </TabsList>
 
           <TabsContent value="live-edit" className="mt-4">
-            <LiveEditMode
-              morphology={morphology}
-              idgProfile={idgProfile}
-              onMorphologyChange={onMorphologyChange}
-              onIDGChange={onIDGChange}
-            />
+            {layoutMode === 'compact' ? (
+              <div className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-lg">
+                {language === 'da' 
+                  ? 'Kompakt visning er integreret i split-screen layout nedenfor'
+                  : 'Compact view is integrated in the split-screen layout below'}
+              </div>
+            ) : (
+              <LiveEditMode
+                morphology={morphology}
+                idgProfile={idgProfile}
+                onMorphologyChange={onMorphologyChange}
+                onIDGChange={onIDGChange}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="document-analysis" className="mt-4">
