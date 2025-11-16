@@ -6,6 +6,9 @@ interface WindPatternsProps {
 }
 
 export function WindPatterns({ pattern }: WindPatternsProps) {
+  // Debug logging
+  console.log('🌬️ Wind Patterns:', pattern);
+  
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg className="w-full h-full">
@@ -13,14 +16,14 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
           {/* Arrow marker for wind direction */}
           <marker
             id="wind-arrow"
-            markerWidth="6"
-            markerHeight="6"
-            refX="5"
-            refY="3"
+            markerWidth="8"
+            markerHeight="8"
+            refX="6"
+            refY="4"
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <path d="M0,0 L0,6 L6,3 z" fill="white" opacity="0.9" />
+            <path d="M0,0 L0,8 L8,4 z" fill="white" opacity="0.9" />
           </marker>
           
           {/* Glow filter for wind lines */}
@@ -42,18 +45,20 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
               x2={`${line.x2}%`}
               y2={`${line.y2}%`}
               stroke="white"
-              strokeWidth="3"
-              strokeDasharray="8,4"
+              strokeWidth="4"
+              strokeDasharray="12,6"
               markerEnd="url(#wind-arrow)"
               filter="url(#wind-glow)"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.9 }}
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: [0, 0.9, 0.9, 0],
+              }}
               transition={{
                 duration: pattern.speed,
-                delay: index * 0.1,
+                delay: index * 0.2,
                 repeat: Infinity,
                 repeatType: 'loop',
-                ease: 'linear',
+                ease: 'easeInOut',
               }}
             />
           ))}
@@ -67,6 +72,9 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
         </p>
         <p className="text-[10px] text-muted-foreground capitalize">
           Mønster: {pattern.type === 'radial' ? 'Radial' : pattern.type === 'topdown' ? 'Top-down' : pattern.type === 'network' ? 'Netværk' : 'Distribueret'}
+        </p>
+        <p className="text-[10px] text-muted-foreground">
+          Linjer: {pattern.lines.length}
         </p>
       </div>
     </div>
