@@ -36,38 +36,41 @@ export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
         return null;
       
       case 'crossfunctional':
-        // Let mønster - spredte prikker
+        // Let mønster - spredte prikker (MORE VISIBLE)
         const cfId = `${uniqueId}-crossfunctional`;
         return (
           <pattern id={cfId} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <circle cx="10" cy="10" r="1.5" fill="hsl(var(--primary))" opacity="0.08" />
-            <circle cx="30" cy="25" r="1.5" fill="hsl(var(--primary))" opacity="0.08" />
-            <circle cx="20" cy="35" r="1.5" fill="hsl(var(--primary))" opacity="0.08" />
+            <circle cx="10" cy="10" r="4" fill="hsl(var(--primary))" opacity="0.25" />
+            <circle cx="30" cy="25" r="4" fill="hsl(var(--primary))" opacity="0.25" />
+            <circle cx="20" cy="35" r="4" fill="hsl(var(--primary))" opacity="0.25" />
+            <circle cx="35" cy="10" r="3.5" fill="hsl(var(--primary))" opacity="0.25" />
+            <circle cx="15" cy="25" r="3.5" fill="hsl(var(--primary))" opacity="0.25" />
+            <circle cx="5" cy="35" r="3.5" fill="hsl(var(--primary))" opacity="0.25" />
           </pattern>
         );
       
       case 'crossorg':
-        // Grid mønster
+        // Grid mønster (MORE VISIBLE)
         const coId = `${uniqueId}-crossorg`;
         return (
-          <pattern id={coId} x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-            <path d="M 0 0 L 30 0 M 0 0 L 0 30" stroke="hsl(var(--primary))" strokeWidth="0.5" opacity="0.12" fill="none" />
+          <pattern id={coId} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 0 0 L 20 0 M 0 0 L 0 20" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.3" fill="none" />
           </pattern>
         );
       
       case 'crosscultural':
-        // Kompleks tekstur - kombination af linjer og former
+        // Kompleks tekstur - kombination af linjer og former (MORE VISIBLE)
         const ccId = `${uniqueId}-crosscultural`;
         return (
           <pattern id={ccId} x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
             {/* Diagonale linjer */}
-            <path d="M 0 0 L 50 50 M 0 50 L 50 0" stroke="hsl(var(--primary))" strokeWidth="0.5" opacity="0.1" fill="none" />
-            {/* Små cirkler */}
-            <circle cx="15" cy="15" r="2" fill="hsl(var(--secondary))" opacity="0.08" />
-            <circle cx="35" cy="35" r="2" fill="hsl(var(--accent))" opacity="0.08" />
-            {/* Små firkanter */}
-            <rect x="30" y="10" width="3" height="3" fill="hsl(var(--primary))" opacity="0.08" />
-            <rect x="10" y="35" width="3" height="3" fill="hsl(var(--primary))" opacity="0.08" />
+            <path d="M 0 0 L 50 50 M 0 50 L 50 0" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.25" fill="none" />
+            {/* Større cirkler */}
+            <circle cx="15" cy="15" r="5" fill="hsl(var(--secondary))" opacity="0.3" />
+            <circle cx="35" cy="35" r="5" fill="hsl(var(--accent))" opacity="0.3" />
+            {/* Større firkanter */}
+            <rect x="28" y="8" width="6" height="6" fill="hsl(var(--primary))" opacity="0.35" />
+            <rect x="8" y="33" width="6" height="6" fill="hsl(var(--primary))" opacity="0.35" />
           </pattern>
         );
       
