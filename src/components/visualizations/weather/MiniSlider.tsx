@@ -16,7 +16,7 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
   const currentOption = dimension.options[currentIndex];
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 @container">
       <div className="flex items-start justify-between gap-2 min-h-[20px]">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
           <span className="text-xs font-medium text-foreground truncate">
@@ -38,20 +38,26 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
             </Tooltip>
           </TooltipProvider>
         </div>
-        <span className="text-[10px] text-muted-foreground text-right truncate max-w-[40%]">
+        <span className="text-[10px] text-muted-foreground text-right truncate max-w-[40%] @[240px]:inline hidden">
           {t(currentOption?.translationKey || '')}
         </span>
       </div>
       
-      <div className="min-w-[120px] group">
+      <div className="w-full group">
         <Slider
           value={[currentIndex]}
           onValueChange={([value]) => onChange(value)}
           min={0}
           max={dimension.options.length - 1}
           step={1}
-          className="w-full transition-all group-hover:scale-[1.02]"
+          className="w-full transition-all group-hover:scale-[1.01]"
         />
+      </div>
+      
+      <div className="@[240px]:hidden flex justify-end mt-0.5">
+        <span className="text-[9px] text-muted-foreground">
+          {t(currentOption?.translationKey || '')}
+        </span>
       </div>
     </div>
   );

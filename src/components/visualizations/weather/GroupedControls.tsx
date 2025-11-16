@@ -129,8 +129,8 @@ export function GroupedControls({
               </div>
             </AccordionTrigger>
             
-            <AccordionContent className="px-3 pb-3 pt-2">
-              <div className="space-y-3">
+            <AccordionContent className="px-2 pb-2 pt-1 @md:px-3 @md:pb-3 @md:pt-2">
+              <div className="space-y-2 @md:space-y-3">
                 {group.dimensions.map((dimensionKey) => {
                   const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === dimensionKey);
                   if (!dimension) return null;
@@ -172,8 +172,8 @@ export function GroupedControls({
           </div>
         </AccordionTrigger>
         
-        <AccordionContent className="px-3 pb-3 pt-2">
-          <div className="space-y-3">
+        <AccordionContent className="px-2 pb-2 pt-1 @md:px-3 @md:pb-3 @md:pt-2">
+          <div className="space-y-2 @md:space-y-3">
             {IDG_DIMENSIONS.map((idgDim) => {
               // Create a dimension-like config for IDG to use MiniSlider
               const idgDimensionConfig: DimensionConfig = {
