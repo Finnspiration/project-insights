@@ -75,6 +75,8 @@ export default function ProjectDetail() {
   // Preview state for live editing (separate from saved state)
   const [previewMorphology, setPreviewMorphology] = useState<any>(null);
   const [previewIDG, setPreviewIDG] = useState<any>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalMorphology, setOriginalMorphology] = useState<any>(null);
 
   const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
 
@@ -108,15 +110,74 @@ export default function ProjectDetail() {
     });
   };
 
+  const handleSaveChanges = async () => {
+    if (!previewMorphology || !project) return;
+    
+    try {
+      // Generate new DNA code from preview morphology
+      const dimensionKeys = Object.keys(previewMorphology);
+      const newDnaCode = dimensionKeys
+        .map(key => previewMorphology[key]?.selectedValue || '')
+        .filter(Boolean)
+        .join('-');
+      
+      // Save to database
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          morphology: previewMorphology,
+          dna_code: newDnaCode,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', project.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setProject({ ...project, morphology: previewMorphology, dna_code: newDnaCode });
+      setOriginalMorphology(previewMorphology);
+      setHasUnsavedChanges(false);
+      setPreviewMorphology(null);
+      setPreviewIDG(null);
+      
+      const { toast } = await import('@/hooks/use-toast');
+      toast({
+        title: t('common.success'),
+        description: 'Ændringer gemt!',
+      });
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      const { toast } = await import('@/hooks/use-toast');
+      toast({
+        title: t('common.error'),
+        description: 'Kunne ikke gemme ændringer',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleReset = () => {
+    setPreviewMorphology(null);
+    setPreviewIDG(null);
+    setHasUnsavedChanges(false);
+    
+    import('@/hooks/use-toast').then(({ toast }) => {
+      toast({
+        title: 'Nulstillet',
+        description: 'Gået tilbage til original morfologi',
+      });
+    });
+  };
+
   // Initialize preview state when project loads
   useEffect(() => {
     if (project?.morphology) {
-      setPreviewMorphology(project.morphology);
+      setPreviewMorphology(null);
+      setPreviewIDG(null);
+      setOriginalMorphology(project.morphology);
+      setHasUnsavedChanges(false);
     }
-    if (project?.patterns?.idg_profile) {
-      setPreviewIDG(project.patterns.idg_profile);
-    }
-  }, [project?.morphology, project?.patterns?.idg_profile]);
+  }, [project?.id]);
 
   const fetchDocuments = async () => {
     if (!id) return;
@@ -157,6 +218,19 @@ export default function ProjectDetail() {
     fetchDocuments();
     fetchBlindSpots();
   }, [id]);
+
+  // Warn about unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'Du har ugemte ændringer. Er du sikker?';
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   if (loading) {
     return (
@@ -361,8 +435,17 @@ export default function ProjectDetail() {
                     interventions={project.patterns?.interventions || []}
                     blindSpots={blindSpots}
                     projectId={project.id}
-                    onMorphologyChange={setPreviewMorphology}
-                    onIDGChange={setPreviewIDG}
+                    onMorphologyChange={(updated) => {
+                      setPreviewMorphology(updated);
+                      setHasUnsavedChanges(true);
+                    }}
+                    onIDGChange={(updated) => {
+                      setPreviewIDG(updated);
+                      setHasUnsavedChanges(true);
+                    }}
+                    onSaveChanges={handleSaveChanges}
+                    onReset={handleReset}
+                    hasChanges={hasUnsavedChanges}
                     showControlPanel={true}
                   />
                 </TabsContent>
