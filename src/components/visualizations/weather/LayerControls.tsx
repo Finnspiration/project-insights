@@ -12,8 +12,9 @@ interface LayerControlsProps {
     temperatureZones: boolean;
     precipitation: boolean;
     forecast: boolean;
+    culturalTexture: boolean;
   };
-  onLayerToggle: (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast') => void;
+  onLayerToggle: (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'culturalTexture') => void;
   showPanels: boolean;
   onTogglePanels: () => void;
 }
@@ -86,6 +87,18 @@ export function LayerControls({ layers, onLayerToggle, showPanels, onTogglePanel
                 id="temperature-zones"
                 checked={layers.temperatureZones}
                 onCheckedChange={() => onLayerToggle('temperatureZones')}
+              />
+            </div>
+
+            {/* Cultural Texture */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="cultural-texture" className="text-xs cursor-pointer">
+                Kulturel Tekstur
+              </Label>
+              <Switch
+                id="cultural-texture"
+                checked={layers.culturalTexture}
+                onCheckedChange={() => onLayerToggle('culturalTexture')}
               />
             </div>
 

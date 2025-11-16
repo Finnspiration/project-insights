@@ -59,6 +59,7 @@ export function CulturalWeatherMap({
     precipitation: true,
     forecast: true,
     particles: true,
+    culturalTexture: true,
   });
 
   const [showPanels, setShowPanels] = useState(true);
@@ -91,7 +92,7 @@ export function CulturalWeatherMap({
     blindSpots
   );
 
-  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles') => {
+  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles' | 'culturalTexture') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
@@ -105,14 +106,16 @@ export function CulturalWeatherMap({
       {/* Layer 1: Base Climate (always visible) */}
       <BaseClimate data={weatherData.baseClimate} />
 
-      {/* Layer 1.5: Cultural Texture Overlay (always visible) */}
-      <CulturalTexture 
-        key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
-        culturalContext={morphology.cultural || 'mono'} 
-      />
-
-      {/* Cultural Context Indicator */}
-      <CulturalContextIndicator culturalContext={morphology.cultural || 'mono'} />
+      {/* Layer 1.5: Cultural Texture Overlay (toggleable) */}
+      {layers.culturalTexture && (
+        <>
+          <CulturalTexture 
+            key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
+            culturalContext={morphology.cultural || 'mono'} 
+          />
+          <CulturalContextIndicator culturalContext={morphology.cultural || 'mono'} />
+        </>
+      )}
 
       {/* Layer 2: Weather Particles (follows windPatterns toggle) */}
       {layers.windPatterns && (
