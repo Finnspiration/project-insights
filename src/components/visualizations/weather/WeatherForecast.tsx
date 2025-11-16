@@ -85,12 +85,6 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
                     ))}
                   </div>
 
-                  {/* Legend */}
-                  <div className="mt-4 pt-3 border-t border-border/30">
-                    <p className="text-[10px] text-muted-foreground">
-                      Baseret på Theory U position og beredskapsindikatorer
-                    </p>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
