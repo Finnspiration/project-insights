@@ -22,7 +22,7 @@ export function CompactSplitLayout({
     <ResizablePanelGroup direction="horizontal" className="min-h-[600px] w-full">
       {/* Controls Panel - Left Side */}
       <ResizablePanel defaultSize={35} minSize={25} maxSize={45}>
-        <div className="h-full border-r border-border/50 bg-muted/20">
+        <div className="h-full border-r border-border/50 bg-muted/20 min-w-[280px]">
           <ScrollArea className="h-full">
             <div className="p-4">
               <GroupedControls 
