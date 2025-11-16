@@ -1,17 +1,18 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CloudRain, Eye } from 'lucide-react';
-import { useState } from 'react';
+import { Eye, EyeOff, CloudRain } from 'lucide-react';
 import { BaseClimate } from './weather/BaseClimate';
+import { WindPatterns } from './weather/WindPatterns';
 import { TemperatureZones } from './weather/TemperatureZones';
+import { PressureSystems } from './weather/PressureSystems';
+import { PrecipitationEvents } from './weather/PrecipitationEvents';
 import { WeatherForecast } from './weather/WeatherForecast';
 import { LayerControls } from './weather/LayerControls';
-import { WindPatterns } from './weather/WindPatterns';
-import { PressureSystems } from './weather/PressureSystems';
 import { WeatherLegend } from './weather/WeatherLegend';
-import { PrecipitationEvents } from './weather/PrecipitationEvents';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
+import { CompactSplitLayout } from './weather/CompactSplitLayout';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 
 interface CulturalWeatherMapProps {
@@ -57,6 +58,9 @@ export function CulturalWeatherMap({
   });
 
   const [showPanels, setShowPanels] = useState(true);
+  const [layoutMode, setLayoutMode] = useState<'compact' | 'detailed'>(() => {
+    return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
+  });
 
   // Use default IDG profile if not provided
   const defaultIDG = {
@@ -84,6 +88,70 @@ export function CulturalWeatherMap({
     setShowPanels(!showPanels);
   };
 
+  // Weather map content (to be used in split layout)
+  const weatherMapContent = (
+    <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
+      {/* Layer 1: Base Climate (always visible) */}
+      <BaseClimate data={weatherData.baseClimate} />
+
+      {/* Layer 2: Wind Patterns (toggleable) */}
+      {layers.windPatterns && (
+        <div className="absolute inset-0 z-50 pointer-events-none">
+          <WindPatterns 
+            key={`wind-${morphology.information_flow}-${morphology.temporal_dynamics}`}
+            pattern={weatherData.windPatterns} 
+          />
+        </div>
+      )}
+
+      {/* Layer 3: Temperature Zones (toggleable) */}
+      {layers.temperatureZones && (
+        <TemperatureZones zones={weatherData.temperatureZones} />
+      )}
+
+      {/* Layer 4: Pressure Systems (toggleable) */}
+      {layers.pressureSystems && (
+        <PressureSystems systems={weatherData.pressureSystems} />
+      )}
+
+      {/* Layer 5: Precipitation (toggleable) */}
+      {layers.precipitation && (
+        <PrecipitationEvents events={weatherData.precipitation} />
+      )}
+
+      {/* Layer 6: Forecast (toggleable) */}
+      {layers.forecast && (
+        <WeatherForecast forecast={weatherData.forecast} />
+      )}
+
+      {/* Controls */}
+      {showPanels && (
+        <>
+          <LayerControls 
+            layers={layers} 
+            onLayerToggle={handleLayerToggle}
+            showPanels={showPanels}
+            onTogglePanels={handleTogglePanels}
+          />
+          <WeatherLegend />
+        </>
+      )}
+
+      {/* Toggle Panels Button */}
+      {!showPanels && (
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={handleTogglePanels}
+          className="absolute top-4 right-4 shadow-lg"
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          Vis paneler
+        </Button>
+      )}
+    </div>
+  );
+
   return (
     <div>
       <Card>
@@ -97,70 +165,22 @@ export function CulturalWeatherMap({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="relative w-full h-[600px] rounded-lg overflow-hidden border border-border">
-          {/* Layer 1: Base Climate (always visible) */}
-          <BaseClimate data={weatherData.baseClimate} />
-
-          {/* Layer 2: Wind Patterns (toggleable) - MOVED TO TOP for visibility */}
-          {layers.windPatterns && (
-            <div className="absolute inset-0 z-50 pointer-events-none">
-              <WindPatterns 
-                key={`wind-${morphology.information_flow}-${morphology.temporal_dynamics}`}
-                pattern={weatherData.windPatterns} 
-              />
+          {showControlPanel && layoutMode === 'compact' && projectId && morphology && onMorphologyChange ? (
+            <CompactSplitLayout
+              morphology={morphology}
+              onMorphologyChange={onMorphologyChange}
+              weatherMapContent={weatherMapContent}
+            />
+          ) : (
+            <div className="relative w-full h-[600px]">
+              {weatherMapContent}
             </div>
           )}
+        </CardContent>
+      </Card>
 
-          {/* Layer 3: Temperature Zones (toggleable) - MOVED BEFORE Pressure Systems */}
-          {layers.temperatureZones && (
-            <TemperatureZones zones={weatherData.temperatureZones} />
-          )}
-
-          {/* Layer 4: Pressure Systems (toggleable) - MOVED AFTER Temperature to be on top */}
-          {layers.pressureSystems && (
-            <>
-              <PressureSystems systems={weatherData.pressureSystems} />
-              {showPanels && <WeatherLegend />}
-            </>
-          )}
-
-          {/* Layer 5: Precipitation & Events (toggleable) */}
-          {layers.precipitation && (
-            <PrecipitationEvents events={weatherData.precipitation} />
-          )}
-
-          {/* Layer 6: Forecast (toggleable) */}
-          {layers.forecast && showPanels && <WeatherForecast forecast={weatherData.forecast} />}
-
-          {/* Layer Controls */}
-          {showPanels && (
-            <LayerControls 
-              layers={layers} 
-              onLayerToggle={handleLayerToggle}
-              showPanels={showPanels}
-              onTogglePanels={handleTogglePanels}
-            />
-          )}
-
-          {/* Master Toggle (always visible when panels hidden) */}
-          {!showPanels && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleTogglePanels}
-              className="absolute top-4 right-4 shadow-lg"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Vis paneler
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-
-    {/* Interactive Control Panel */}
-    {showControlPanel && showPanels && projectId && morphology && (
-      <div className="mt-6">
+      {/* Interactive Control Panel (Detailed Mode) */}
+      {showControlPanel && showPanels && projectId && morphology && (
         <WeatherControlPanel
           projectId={projectId}
           morphology={morphology}
@@ -171,8 +191,7 @@ export function CulturalWeatherMap({
           onReset={onReset}
           hasChanges={hasChanges}
         />
-      </div>
-    )}
-  </div>
+      )}
+    </div>
   );
 }
