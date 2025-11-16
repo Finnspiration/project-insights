@@ -103,8 +103,8 @@ export function CulturalWeatherMap({
       {/* Layer 1: Base Climate (always visible) */}
       <BaseClimate data={weatherData.baseClimate} />
 
-      {/* Layer 2: Weather Particles (toggleable) */}
-      {layers.particles && (
+      {/* Layer 2: Weather Particles (follows windPatterns toggle) */}
+      {layers.windPatterns && (
         <WeatherParticles 
           key={`particles-${morphology.organizational}-${morphology.temporal}`}
           temporalDynamics={morphology.temporal || morphology.temporal_dynamics || 'project'}
