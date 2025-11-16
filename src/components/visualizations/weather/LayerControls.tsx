@@ -68,7 +68,7 @@ export function LayerControls({ layers, onLayerToggle, showPanels, onTogglePanel
             {/* Pressure Systems */}
             <div className="flex items-center justify-between">
               <Label htmlFor="pressure-systems" className="text-xs cursor-pointer">
-                Trykssystemer
+                Højtryk & lavtryk
               </Label>
               <Switch
                 id="pressure-systems"
