@@ -1,5 +1,22 @@
 // Maps project data to weather visualization data
 
+// Helper function to extract morphology value (handles both string and object formats)
+function getMorphologyValue(morphologyData: any, key: string, defaultValue: string): string {
+  const data = morphologyData?.[key];
+  
+  // New format: { selectedValue: "...", selectedIndex: 0 }
+  if (typeof data === 'object' && data?.selectedValue) {
+    return data.selectedValue;
+  }
+  
+  // Old format: just a string
+  if (typeof data === 'string') {
+    return data;
+  }
+  
+  return defaultValue;
+}
+
 export interface BaseClimateData {
   backgroundColor: string;
   skyDensity: number;
@@ -493,8 +510,9 @@ export function mapProjectToWeatherData(
   interventions?: any[],
   blindSpots?: any[]
 ): WeatherData {
-  const stage = morphology?.organizational || 'orange';
-  const complexity = morphology?.complexity || 'complicated';
+  // Extract values using helper (handles both formats)
+  const stage = getMorphologyValue(morphology, 'organizational', 'orange');
+  const complexity = getMorphologyValue(morphology, 'complexity', 'complicated');
   const { bg, sky } = mapOrganizationalStage(stage);
 
   const baseClimate: BaseClimateData = {
@@ -554,13 +572,13 @@ export function mapProjectToWeatherData(
   ];
 
   const windPatterns = mapInformationFlowToWind(
-    morphology?.information || 'network',
-    morphology?.temporal || 'project'
+    getMorphologyValue(morphology, 'information', 'network'),
+    getMorphologyValue(morphology, 'temporal', 'project')
   );
 
   const pressureSystems = mapToPressureSystems(
-    morphology?.risk || 'moderate',
-    morphology?.stakeholder || 'cooperative',
+    getMorphologyValue(morphology, 'risk', 'moderate'),
+    getMorphologyValue(morphology, 'stakeholder', 'cooperative'),
     blindSpots
   );
 
