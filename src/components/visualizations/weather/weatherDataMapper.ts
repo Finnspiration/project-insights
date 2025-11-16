@@ -308,15 +308,15 @@ export function mapToPressureSystems(
   const numFronts = stakeholderFronts[stakeholder] || 1;
 
   for (let i = 0; i < numFronts; i++) {
-    const yPos = 30 + i * 15;
+    const yPos = 8 + i * 8; // Start at top-center, smaller spacing
     fronts.push({
       id: `front-${i}`,
       points: [
-        { x: 10, y: yPos },
-        { x: 30, y: yPos + 5 },
-        { x: 50, y: yPos - 3 },
-        { x: 70, y: yPos + 7 },
-        { x: 90, y: yPos },
+        { x: 35, y: yPos },
+        { x: 42, y: yPos + 2 },
+        { x: 50, y: yPos - 1 },
+        { x: 58, y: yPos + 2 },
+        { x: 65, y: yPos },
       ],
       type: i % 2 === 0 ? 'cold' : 'warm',
       intensity: Math.ceil(numFronts / 2),
@@ -346,8 +346,8 @@ export function mapToPressureSystems(
     });
 
     const extraFrontPaths = [
-      [{ x: 28, y: 48 }, { x: 42, y: 45 }, { x: 58, y: 47 }],
-      [{ x: 48, y: 62 }, { x: 62, y: 60 }, { x: 76, y: 63 }],
+      [{ x: 38, y: 26 }, { x: 50, y: 24 }, { x: 62, y: 26 }], // Top-center
+      [{ x: 36, y: 34 }, { x: 50, y: 32 }, { x: 64, y: 34 }], // Below first
     ];
 
     politicalSpots.slice(0, 2).forEach((blindSpot, index) => {
