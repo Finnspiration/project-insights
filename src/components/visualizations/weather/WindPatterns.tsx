@@ -45,7 +45,7 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
               x2={`${line.x2}%`}
               y2={`${line.y2}%`}
               stroke="rgba(255, 255, 255, 0.9)"
-              strokeWidth="3"
+              strokeWidth={pattern.speed === 2 ? "4" : pattern.speed === 4 ? "3.5" : "3"}
               strokeDasharray="10,5"
               strokeLinecap="round"
               markerEnd="url(#wind-arrow)"
@@ -83,16 +83,31 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
         </g>
       </svg>
 
-      {/* Wind info label - moved to fixed position */}
-      <div className="absolute top-16 left-4 bg-background/90 backdrop-blur-sm border border-border/50 rounded-lg px-3 py-2 shadow-lg z-10">
-        <p className="text-xs font-semibold">
-          Vindhastighed: {pattern.speed === 2 ? 'Hurtig' : pattern.speed === 4 ? 'Mellem' : pattern.speed === 6 ? 'Langsom' : 'Meget langsom'}
-        </p>
-        <p className="text-[10px] text-muted-foreground capitalize">
-          Mønster: {pattern.type === 'radial' ? 'Radial' : pattern.type === 'topdown' ? 'Top-down' : pattern.type === 'network' ? 'Netværk' : 'Distribueret'}
-        </p>
-        <p className="text-[10px] text-muted-foreground">
-          Linjer: {pattern.lines.length}
+      {/* Wind info label - enhanced visual feedback */}
+      <div className="absolute top-16 left-4 bg-background/95 backdrop-blur-md border-2 border-primary/30 rounded-lg px-4 py-2.5 shadow-xl z-10">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-base">
+            {pattern.speed === 2 ? '🌪️' : pattern.speed === 4 ? '💨' : pattern.speed === 6 ? '🌬️' : '🍃'}
+          </span>
+          <div>
+            <p className="text-xs font-bold text-foreground">
+              {pattern.speed === 2 ? 'Meget hurtig' : pattern.speed === 4 ? 'Hurtig' : pattern.speed === 6 ? 'Moderat' : 'Langsom'}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {Math.round(10 / pattern.speed * 10)} km/t
+            </p>
+          </div>
+        </div>
+        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+          <motion.div 
+            className="h-full bg-gradient-to-r from-primary to-accent"
+            initial={{ width: 0 }}
+            animate={{ width: `${(10 / pattern.speed) * 10}%` }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          />
+        </div>
+        <p className="text-[9px] text-muted-foreground mt-1 capitalize">
+          {pattern.type === 'radial' ? 'Radial' : pattern.type === 'topdown' ? 'Top-down' : pattern.type === 'network' ? 'Netværk' : 'Distribueret'}
         </p>
       </div>
     </div>

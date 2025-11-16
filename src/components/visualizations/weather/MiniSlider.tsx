@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { DimensionConfig } from '@/lib/morphologyConfig';
+import { DimensionConfig, DimensionKey } from '@/lib/morphologyConfig';
 import { Info } from 'lucide-react';
 
 interface MiniSliderProps {
@@ -9,6 +9,21 @@ interface MiniSliderProps {
   currentIndex: number;
   onChange: (index: number) => void;
 }
+
+const IMPACT_DESCRIPTIONS: Record<DimensionKey, { da: string; elements: string[] }> = {
+  complexity: { da: 'Antal skyer i himlen', elements: ['☁️ Sky-tæthed'] },
+  organizational: { da: 'Baggrundsfarve gradient', elements: ['🎨 Baggrund', '☁️ Skyfarve'] },
+  cultural: { da: 'Temperatur nuancer', elements: ['🌡️ Varme-zoner'] },
+  information: { da: 'Vindretning og mønster', elements: ['🌬️ Vindlinjer', '↗️ Retning'] },
+  temporal: { da: 'Vindhastighed animation', elements: ['💨 Hastighed', '⚡ Animation'] },
+  risk: { da: 'Antal højtryksområder (H)', elements: ['🔴 H-zoner', '⭕ Isobarer'] },
+  stakeholder: { da: 'Antal fronter og spændinger', elements: ['〰️ Fronter', '❄️ Kold/varm'] },
+  knowledge: { da: 'Skytæthed og type', elements: ['☁️ Skyer', '🌥️ Dække'] },
+  challenge: { da: 'Nedbørsintensitet', elements: ['🌧️ Regn', '⛈️ Torden'] },
+  change: { da: 'Nedbørstype og intensitet', elements: ['💧 Nedbør', '❄️ Sne'] },
+  resources: { da: 'Trykforskelle', elements: ['📊 Tryk-gradienter'] },
+  development: { da: 'IDG kompetencer', elements: ['🧠 Radar', '📈 Scores'] }
+};
 
 export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProps) {
   const { t } = useTranslation('common');
@@ -28,11 +43,26 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
                 <Info className="h-3 w-3 text-muted-foreground flex-shrink-0 cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-xs">
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <p className="text-xs font-semibold">{t(dimension.translationKey)}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground">
                     {dimension.options.map(opt => t(opt.translationKey)).join(' → ')}
                   </p>
+                  {IMPACT_DESCRIPTIONS[dimension.key] && (
+                    <div className="pt-1.5 mt-1.5 border-t border-border">
+                      <p className="text-[10px] font-medium text-primary mb-0.5">Påvirker:</p>
+                      <p className="text-[9px] text-muted-foreground mb-1">
+                        {IMPACT_DESCRIPTIONS[dimension.key].da}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {IMPACT_DESCRIPTIONS[dimension.key].elements.map(el => (
+                          <span key={el} className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                            {el}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TooltipContent>
             </Tooltip>
