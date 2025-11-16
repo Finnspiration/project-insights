@@ -24,7 +24,7 @@ export function LayerControls({ layers, onLayerToggle, showPanels, onTogglePanel
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.3 }}
-      className="absolute bottom-4 left-4 min-w-fit"
+      className="absolute bottom-4 left-4 min-w-fit z-50"
     >
       <Card className="bg-background/80 backdrop-blur-sm border-border/50">
         <CardContent className="p-4 min-w-[220px]">
