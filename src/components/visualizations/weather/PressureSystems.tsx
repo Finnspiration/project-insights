@@ -19,7 +19,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
     <div className="absolute inset-0 pointer-events-none">
       <TooltipProvider>
         {/* SVG Layer - Pure Visual (no interactivity) */}
-        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg className="w-full h-full">
           <defs>
             {/* Isobar gradient */}
             <radialGradient id="pressure-gradient-h">
@@ -151,7 +151,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                   return (
                     <g
                       key={`symbol-${front.id}-${pointIndex}`}
-                      transform={`translate(${point.x}, ${point.y}) rotate(${angle})`}
+                      transform={`translate(${point.x}%, ${point.y}%) rotate(${angle})`}
                     >
                       {front.type === 'cold' ? (
                         <polygon
