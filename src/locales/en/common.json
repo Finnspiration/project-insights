@@ -800,7 +800,28 @@
         "acting": "Acting"
       },
       "score": "Score",
-      "target": "Target"
+      "target": "Target",
+      "evidence": {
+        "title": "IDG Evidence Breakdown",
+        "description": "See how morphological dimensions contribute to each IDG score",
+        "baseScore": "Base Score",
+        "contributions": "Contributions",
+        "totalScore": "Total Score",
+        "sources": {
+          "development": "Primary Development Focus",
+          "organizational": "Organizational Stage",
+          "challenge": "Challenge Type"
+        },
+        "reasoning": {
+          "developmentBoost": "{{dimension}} receives +30 because it's your primary development focus",
+          "organizationalGreen": "{{dimension}} receives +15 because Green/Teal organizations emphasize collective decision-making and relationships",
+          "organizationalOrange": "{{dimension}} receives +15 because Orange organizations emphasize rational analysis and achievement",
+          "organizationalRedAmber": "{{dimension}} receives +15 because Red/Amber organizations emphasize immediate action and control",
+          "challengeCognitive": "{{dimension}} receives +10 because your project faces cognitive challenges requiring analytical reasoning",
+          "challengeSocial": "{{dimension}} receives +10 because your project faces social challenges requiring interpersonal skills",
+          "challengeAdaptive": "{{dimension}} receives +10 because your project requires adaptive capacity and self-awareness"
+        }
+      }
     }
   },
   "insights": {

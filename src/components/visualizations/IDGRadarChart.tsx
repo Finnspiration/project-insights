@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Target } from 'lucide-react';
+import { calculateIDGWithEvidence } from '@/lib/idgScoring';
+import { IDGEvidenceBreakdownPanel } from './idg/IDGEvidenceBreakdownPanel';
 
 interface IDGRadarChartProps {
   morphology: any;
@@ -65,6 +67,7 @@ export function IDGRadarChart({ morphology }: IDGRadarChartProps) {
   };
 
   const scores = calculateScores();
+  const evidence = calculateIDGWithEvidence(morphology);
 
   const data = IDG_DIMENSIONS.map((dim) => ({
     dimension: t(`visualizations.idgRadar.dimensions.${dim}`),
@@ -138,6 +141,9 @@ export function IDGRadarChart({ morphology }: IDGRadarChartProps) {
               </div>
             ))}
           </div>
+
+          {/* Evidence Breakdown Panel */}
+          <IDGEvidenceBreakdownPanel evidence={evidence} />
 
           {/* Context Info */}
           <div className="grid grid-cols-2 gap-4 text-center text-sm">
