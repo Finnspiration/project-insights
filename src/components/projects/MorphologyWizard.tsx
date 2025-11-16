@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -74,13 +74,6 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
   const [aiSuggestions, setAiSuggestions] = useState<any>(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
-  // Fetch AI suggestions when wizard opens
-  useState(() => {
-    if (open && projectId && !aiSuggestions && !loadingSuggestions) {
-      fetchAiSuggestions();
-    }
-  });
-
   const fetchAiSuggestions = async () => {
     setLoadingSuggestions(true);
     try {
@@ -103,6 +96,13 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
       setLoadingSuggestions(false);
     }
   };
+
+  // Fetch AI suggestions when wizard opens
+  useEffect(() => {
+    if (open && projectId && !aiSuggestions && !loadingSuggestions) {
+      fetchAiSuggestions();
+    }
+  }, [open, projectId]);
 
   const currentDimension = DIMENSIONS[currentStep];
   const totalSteps = DIMENSIONS.length;
