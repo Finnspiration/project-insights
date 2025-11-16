@@ -21,7 +21,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
       >
         <Card className="bg-background/80 backdrop-blur-sm border-border/50">
           <CardContent className="p-2">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">
                 Vejrudsigt
               </h3>
@@ -44,7 +44,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
+                  className="overflow-hidden mt-2"
                 >
                   <div className="space-y-3">
                     {forecast.map((day, index) => (
