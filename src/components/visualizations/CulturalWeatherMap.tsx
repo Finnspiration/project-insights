@@ -71,6 +71,8 @@ export function CulturalWeatherMap({
       interventions,
       blindSpots
     );
+    console.log('🚨 FRONTS COUNT:', data.pressureSystems.fronts.length);
+    console.log('🚨 FRONTS DATA:', JSON.stringify(data.pressureSystems.fronts, null, 2));
     console.log('📍 First front points:', data.pressureSystems.fronts[0]?.points);
     console.log('📍 All fronts:', data.pressureSystems.fronts.map((f, i) => ({ 
       id: i, 
