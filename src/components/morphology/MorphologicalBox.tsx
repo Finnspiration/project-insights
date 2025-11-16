@@ -10,7 +10,8 @@ import { MorphologyDescription } from './MorphologyDescription';
 import { DNAHelixVisualization } from './DNAHelixVisualization';
 import { MorphologyScoringTable } from './MorphologyScoringTable';
 import { RegenerateDNAButton } from '../projects/RegenerateDNAButton';
-import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List, BarChart3 } from 'lucide-react';
+import { AggregationDetailsDialog } from './AggregationDetailsDialog';
+import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List, BarChart3, Combine } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,9 @@ export function MorphologicalBox({
   const [isCodeOpen, setIsCodeOpen] = useState(false);
   const [theoryUAnalysis, setTheoryUAnalysis] = useState<any>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [aggregationData, setAggregationData] = useState<any>(null);
+  const [showAggregationDialog, setShowAggregationDialog] = useState(false);
+  const [isAggregating, setIsAggregating] = useState(false);
 
   const handleSelect = async (dimensionKey: string, value: string) => {
     const updatedMorphology = { ...morphology, [dimensionKey]: value };
@@ -106,6 +110,45 @@ export function MorphologicalBox({
     }
   };
 
+  const handleAggregateMorphology = async () => {
+    if (!projectId) return;
+
+    setIsAggregating(true);
+    console.log('🔄 Aggregating morphology from all documents...');
+
+    try {
+      const { data, error } = await supabase.functions.invoke('aggregate-morphology', {
+        body: { projectId }
+      });
+
+      if (error) {
+        console.error('Error aggregating morphology:', error);
+        toast.error(t('morphology.aggregateError') || 'Failed to aggregate morphology');
+        return;
+      }
+
+      if (data) {
+        console.log('✅ Morphology aggregated:', data);
+        setAggregationData(data.metadata);
+        setShowAggregationDialog(true);
+        toast.success(
+          t('morphology.aggregateSuccess') || 
+          `Morphology aggregated from ${data.metadata.analyzedDocuments} documents!`
+        );
+        
+        // Refresh project data
+        if (onReassess) {
+          setTimeout(() => onReassess(), 1000);
+        }
+      }
+    } catch (error) {
+      console.error('Error aggregating morphology:', error);
+      toast.error(t('morphology.aggregateError') || 'Failed to aggregate morphology');
+    } finally {
+      setIsAggregating(false);
+    }
+  };
+
   // Fetch Theory U analysis and auto-regenerate if morphologyScoring is missing
   useEffect(() => {
     if (!projectId) return;
@@ -143,15 +186,29 @@ export function MorphologicalBox({
               {t('morphology.visualBox.description') || '12-dimensional project assessment matrix'}
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onReassess}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            {t('morphology.reassess') || 'Re-assess'}
-          </Button>
+          <div className="flex items-center gap-2">
+            {projectId && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleAggregateMorphology}
+                disabled={isAggregating}
+                className="flex items-center gap-2"
+              >
+                <Combine className={`h-4 w-4 ${isAggregating ? 'animate-spin' : ''}`} />
+                {t('morphology.aggregate') || 'Aggregate from Documents'}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onReassess}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              {t('morphology.reassess') || 'Re-assess'}
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -312,6 +369,13 @@ export function MorphologicalBox({
           </div>
         </Collapsible>
       </CardContent>
+
+      {/* Aggregation Details Dialog */}
+      <AggregationDetailsDialog
+        open={showAggregationDialog}
+        onOpenChange={setShowAggregationDialog}
+        aggregationData={aggregationData}
+      />
     </Card>
   );
 }
