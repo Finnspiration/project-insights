@@ -95,9 +95,11 @@ export function CulturalWeatherMap({
           {/* Layer 1: Base Climate (always visible) */}
           <BaseClimate data={weatherData.baseClimate} />
 
-          {/* Layer 2: Wind Patterns (toggleable) */}
+          {/* Layer 2: Wind Patterns (toggleable) - MOVED TO TOP for visibility */}
           {layers.windPatterns && (
-            <WindPatterns pattern={weatherData.windPatterns} />
+            <div className="absolute inset-0 z-50 pointer-events-none">
+              <WindPatterns pattern={weatherData.windPatterns} />
+            </div>
           )}
 
           {/* Layer 3: Temperature Zones (toggleable) - MOVED BEFORE Pressure Systems */}

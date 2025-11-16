@@ -16,14 +16,14 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
           {/* Arrow marker for wind direction */}
           <marker
             id="wind-arrow"
-            markerWidth="8"
-            markerHeight="8"
-            refX="6"
-            refY="4"
+            markerWidth="10"
+            markerHeight="10"
+            refX="5"
+            refY="5"
             orient="auto"
-            markerUnits="strokeWidth"
+            markerUnits="userSpaceOnUse"
           >
-            <path d="M0,0 L0,8 L8,4 z" fill="white" opacity="0.9" />
+            <path d="M0,0 L10,5 L0,10 z" fill="white" opacity="0.95" />
           </marker>
           
           {/* Glow filter for wind lines */}
@@ -44,22 +44,40 @@ export function WindPatterns({ pattern }: WindPatternsProps) {
               y1={`${line.y1}%`}
               x2={`${line.x2}%`}
               y2={`${line.y2}%`}
-              stroke="white"
-              strokeWidth="4"
-              strokeDasharray="12,6"
+              stroke="rgba(255, 255, 255, 0.9)"
+              strokeWidth="3"
+              strokeDasharray="10,5"
+              strokeLinecap="round"
               markerEnd="url(#wind-arrow)"
               filter="url(#wind-glow)"
-              initial={{ opacity: 0 }}
+              initial={{ opacity: 0.7 }}
               animate={{ 
-                opacity: [0, 0.9, 0.9, 0],
+                opacity: [0.7, 1, 0.7],
+                strokeDashoffset: [0, -50],
               }}
               transition={{
                 duration: pattern.speed,
-                delay: index * 0.2,
+                delay: index * 0.3,
                 repeat: Infinity,
-                repeatType: 'loop',
-                ease: 'easeInOut',
+                ease: 'linear',
               }}
+            />
+          ))}
+        </g>
+        
+        {/* Static fallback lines if animation doesn't work */}
+        <g opacity="0.5">
+          {pattern.lines.map((line, index) => (
+            <line
+              key={`static-wind-${index}`}
+              x1={`${line.x1}%`}
+              y1={`${line.y1}%`}
+              x2={`${line.x2}%`}
+              y2={`${line.y2}%`}
+              stroke="white"
+              strokeWidth="2"
+              strokeDasharray="8,4"
+              opacity="0.3"
             />
           ))}
         </g>
