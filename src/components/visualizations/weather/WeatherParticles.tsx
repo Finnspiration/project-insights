@@ -57,13 +57,17 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
   const temporalValue = getMorphologyValue(temporalDynamics, 'project');
   const stageValue = getMorphologyValue(organizationalStage, 'orange');
   
-  // Get contrast color based on organizational stage
-  const stageContrast = getStageContrastColor(stageValue);
-  
   // Debug logging
   console.log('🌧️ WeatherParticles - Raw temporal input:', temporalDynamics);
   console.log('🌧️ WeatherParticles - Extracted temporal value:', temporalValue);
-  console.log('🌧️ WeatherParticles - Organizational stage:', stageValue);
+  console.log('🌧️ WeatherParticles - Raw organizational input:', organizationalStage);
+  console.log('🌧️ WeatherParticles - Extracted organizational value:', stageValue);
+  
+  // Get contrast color based on organizational stage (recalculate every time)
+  const stageContrast = useMemo(() => {
+    return getStageContrastColor(stageValue);
+  }, [stageValue]);
+  
   console.log('🌧️ WeatherParticles - Contrast color:', stageContrast);
   
   const particleConfig = useMemo(() => {
