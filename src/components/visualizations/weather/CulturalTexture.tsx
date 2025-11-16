@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 interface CulturalTextureProps {
   culturalContext: string | { selectedValue: string } | undefined;
@@ -16,16 +17,29 @@ export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
   // Extract the actual string value
   const contextValue = getMorphologyValue(culturalContext, 'mono');
   
+  // Generate unique ID for this render to force SVG update
+  const [uniqueId] = useState(() => `cultural-${Date.now()}-${Math.random()}`);
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('🎨 CulturalTexture render:', {
+      contextValue,
+      uniqueId,
+      rawInput: culturalContext
+    });
+  }, [contextValue, uniqueId, culturalContext]);
+  
   const getTexturePattern = () => {
     switch (contextValue) {
       case 'mono':
-        // Glat - ingen tekstur
+        console.log('🎨 CulturalTexture: Mono context - no texture rendered');
         return null;
       
       case 'crossfunctional':
         // Let mønster - spredte prikker
+        const cfId = `${uniqueId}-crossfunctional`;
         return (
-          <pattern id="cultural-crossfunctional" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+          <pattern id={cfId} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
             <circle cx="10" cy="10" r="1.5" fill="hsl(var(--primary))" opacity="0.08" />
             <circle cx="30" cy="25" r="1.5" fill="hsl(var(--primary))" opacity="0.08" />
             <circle cx="20" cy="35" r="1.5" fill="hsl(var(--primary))" opacity="0.08" />
@@ -34,16 +48,18 @@ export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
       
       case 'crossorg':
         // Grid mønster
+        const coId = `${uniqueId}-crossorg`;
         return (
-          <pattern id="cultural-crossorg" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+          <pattern id={coId} x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
             <path d="M 0 0 L 30 0 M 0 0 L 0 30" stroke="hsl(var(--primary))" strokeWidth="0.5" opacity="0.12" fill="none" />
           </pattern>
         );
       
       case 'crosscultural':
         // Kompleks tekstur - kombination af linjer og former
+        const ccId = `${uniqueId}-crosscultural`;
         return (
-          <pattern id="cultural-crosscultural" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+          <pattern id={ccId} x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
             {/* Diagonale linjer */}
             <path d="M 0 0 L 50 50 M 0 50 L 50 0" stroke="hsl(var(--primary))" strokeWidth="0.5" opacity="0.1" fill="none" />
             {/* Små cirkler */}
@@ -66,10 +82,12 @@ export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
     return null; // Mono har ingen tekstur
   }
 
-  const patternId = `cultural-${contextValue}`;
+  // Extract pattern ID from the pattern element
+  const patternId = pattern.props.id;
 
   return (
     <motion.div
+      key={`texture-${contextValue}-${uniqueId}`} // Force remount on change
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
