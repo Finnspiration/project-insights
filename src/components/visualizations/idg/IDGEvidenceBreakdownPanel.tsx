@@ -91,6 +91,18 @@ export function IDGEvidenceBreakdownPanel({ evidence }: IDGEvidenceBreakdownPane
                     </div>
                   )}
 
+                  {/* Document evidence */}
+                  {item.documentEvidence && (
+                    <div className="mt-3 p-3 bg-accent/20 rounded-md border border-accent/30">
+                      <p className="text-xs font-semibold text-accent-foreground mb-1">
+                        {t('visualizations.idgRadar.evidence.documentEvidence')}
+                      </p>
+                      <blockquote className="text-xs italic text-muted-foreground border-l-2 border-accent pl-2">
+                        "{item.documentEvidence}"
+                      </blockquote>
+                    </div>
+                  )}
+
                   {/* Progress Bar */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs text-muted-foreground">

@@ -7,11 +7,12 @@ import { IDGEvidenceBreakdownPanel } from './idg/IDGEvidenceBreakdownPanel';
 
 interface IDGRadarChartProps {
   morphology: any;
+  documents?: any[];
 }
 
 const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
 
-export function IDGRadarChart({ morphology }: IDGRadarChartProps) {
+export function IDGRadarChart({ morphology, documents }: IDGRadarChartProps) {
   const { t } = useTranslation('common');
 
   // Calculate scores based on morphology
@@ -67,7 +68,7 @@ export function IDGRadarChart({ morphology }: IDGRadarChartProps) {
   };
 
   const scores = calculateScores();
-  const evidence = calculateIDGWithEvidence(morphology);
+  const evidence = calculateIDGWithEvidence(morphology, documents);
 
   const data = IDG_DIMENSIONS.map((dim) => ({
     dimension: t(`visualizations.idgRadar.dimensions.${dim}`),
