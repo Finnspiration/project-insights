@@ -127,7 +127,7 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
       return {
         id: i,
         x: Math.random() * 100,
-        y: -10 + (waveIndex * 5), // Start lidt højere for hver bølge
+        y: (waveIndex * 20) + Math.random() * 15, // Spred bølger over hele højden (0%, 20%, 40%, 60%, 80%)
         size: particleConfig.size[0] + Math.random() * (particleConfig.size[1] - particleConfig.size[0]),
         duration: particleConfig.speed[0] + Math.random() * (particleConfig.speed[1] - particleConfig.speed[0]),
         delay: waveDelay + (Math.random() * 0.3), // Lille variation inden for bølgen
@@ -142,7 +142,7 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
     <div className="absolute inset-0 pointer-events-none overflow-visible">
       {particles.map((particle) => (
         <motion.div
-          key={particle.id}
+          key={`${particle.id}-${temporalValue}`}
           className="absolute z-50"
           style={{
             left: `${particle.x}%`,
