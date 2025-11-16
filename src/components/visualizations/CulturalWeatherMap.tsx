@@ -106,7 +106,7 @@ export function CulturalWeatherMap({
 
       {/* Layer 1.5: Cultural Texture Overlay (always visible) */}
       <CulturalTexture 
-        key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}`}
+        key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
         culturalContext={morphology.cultural || 'mono'} 
       />
 
