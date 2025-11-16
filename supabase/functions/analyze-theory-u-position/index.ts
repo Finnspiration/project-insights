@@ -92,7 +92,24 @@ serve(async (req) => {
     const aiData = await aiResponse.json();
     let aiContent = aiData.choices?.[0]?.message?.content?.trim() || '{}';
     aiContent = aiContent.replace(/```json|```/g, '').trim();
-    const aiAnalysis = JSON.parse(aiContent);
+    
+    let aiAnalysis;
+    try {
+      aiAnalysis = JSON.parse(aiContent);
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', parseError);
+      console.error('AI content was:', aiContent);
+      // Fallback to basic structure
+      aiAnalysis = {
+        currentPhase: morphologyAnalysis?.phase || 'seeing',
+        confidence: morphologyAnalysis?.confidence || 0.5,
+        diagnostics: { aiParseError: true },
+        whyHere: { aiNuance: 'AI response parsing failed, using morphology only' },
+        nextActions: [],
+        readinessIndicators: {},
+        theoryUResources: []
+      };
+    }
 
     // STEP 3: Generate morphologyEvidence array
     const morphologyEvidence = morphologyAnalysis ? 
@@ -240,17 +257,24 @@ ${doc.content.substring(0, 8000)}`;
         const data = await response.json();
         let content = data.choices?.[0]?.message?.content?.trim() || '{"quotes":[]}';
         content = content.replace(/```json|```/g, '').trim();
-        const parsed = JSON.parse(content);
         
-        // Add source to each quote (HARDCODED from current document)
-        const quotesWithSource = (parsed.quotes || []).map((q: any) => ({
-          text: q.text,
-          relevance: q.relevance,
-          source: doc.filename  // ← HARDCODED SOURCE!
-        }));
-        
-        console.log(`✅ Extracted ${quotesWithSource.length} quotes from ${doc.filename}`);
-        allQuotes.push(...quotesWithSource);
+        try {
+          const parsed = JSON.parse(content);
+          
+          // Add source to each quote (HARDCODED from current document)
+          const quotesWithSource = (parsed.quotes || []).map((q: any) => ({
+            text: q.text,
+            relevance: q.relevance,
+            source: doc.filename  // ← HARDCODED SOURCE!
+          }));
+          
+          console.log(`✅ Extracted ${quotesWithSource.length} quotes from ${doc.filename}`);
+          allQuotes.push(...quotesWithSource);
+        } catch (parseError) {
+          console.error(`❌ JSON parse error for ${doc.filename}:`, parseError);
+          console.error(`Malformed content: ${content.substring(0, 500)}...`);
+          // Skip this document's quotes but continue processing others
+        }
       } else {
         console.warn(`⚠️ Failed to extract quotes from ${doc.filename}: ${response.status}`);
       }
