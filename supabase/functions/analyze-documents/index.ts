@@ -197,8 +197,70 @@ Returner JSON med denne struktur:
 
     const analysis = JSON.parse(content);
 
+    // Map AI response keys to database keys
+    const keyMapping: Record<string, string> = {
+      'stakeholderDynamics': 'stakeholder',
+      'knowledgeIntensity': 'knowledge',
+      'culturalContext': 'cultural',
+      'temporalDynamics': 'temporal',
+      'organizationalStage': 'organizational',
+      'primaryChallenge': 'challenge',
+      'innerDevelopmentNeeds': 'development',
+      'resourceCharacteristics': 'resources',
+      'changeIntensity': 'change',
+      'informationFlow': 'information',
+      'riskProfile': 'risk',
+      'complexity': 'complexity' // unchanged
+    };
+
+    const mappedSuggestions: any = {};
+    if (analysis.morphologySuggestions) {
+      for (const [aiKey, dbKey] of Object.entries(keyMapping)) {
+        if (analysis.morphologySuggestions[aiKey]) {
+          mappedSuggestions[dbKey] = analysis.morphologySuggestions[aiKey];
+        }
+      }
+    }
+
+    // Calculate overall confidence
+    const allConfidences = Object.values(mappedSuggestions)
+      .map((s: any) => s.confidence || 0);
+    const overallConfidence = allConfidences.length > 0
+      ? allConfidences.reduce((a, b) => a + b, 0) / allConfidences.length
+      : 0;
+
+    console.log(`Overall confidence: ${(overallConfidence * 100).toFixed(1)}%`);
+
+    // Update each document with analysis metadata
+    for (const doc of documents) {
+      const { error: updateError } = await supabase
+        .from('documents')
+        .update({
+          metadata: {
+            ...(doc.metadata || {}), // preserve existing metadata
+            morphologySuggestions: mappedSuggestions,
+            overallConfidence: overallConfidence,
+            analysisTimestamp: new Date().toISOString(),
+            patterns: analysis.patterns || null,
+            blindSpots: analysis.blindSpots || null
+          }
+        })
+        .eq('id', doc.id);
+
+      if (updateError) {
+        console.error(`Failed to update document ${doc.id}:`, updateError);
+      } else {
+        console.log(`Updated metadata for document: ${doc.filename}`);
+      }
+    }
+
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify({
+        ...analysis,
+        morphologySuggestions: mappedSuggestions, // Return mapped version
+        updatedDocuments: documents.length,
+        overallConfidence: overallConfidence
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
