@@ -24,6 +24,9 @@ interface CulturalWeatherMapProps {
   projectId?: string;
   onMorphologyChange?: (newMorphology: any) => void;
   onIDGChange?: (newIDG: any) => void;
+  onSaveChanges?: () => Promise<void>;
+  onReset?: () => void;
+  hasChanges?: boolean;
   showControlPanel?: boolean;
 }
 
@@ -37,6 +40,9 @@ export function CulturalWeatherMap({
   projectId,
   onMorphologyChange,
   onIDGChange,
+  onSaveChanges,
+  onReset,
+  hasChanges,
   showControlPanel = false,
 }: CulturalWeatherMapProps) {
   const { t } = useTranslation('common');
@@ -153,14 +159,19 @@ export function CulturalWeatherMap({
     </Card>
 
     {/* Interactive Control Panel */}
-    {showControlPanel && projectId && onMorphologyChange && (
-      <WeatherControlPanel
-        projectId={projectId}
-        morphology={morphology}
-        idgProfile={idgProfile || defaultIDG}
-        onMorphologyChange={onMorphologyChange}
-        onIDGChange={onIDGChange}
-      />
+    {showControlPanel && showPanels && projectId && morphology && (
+      <div className="mt-6">
+        <WeatherControlPanel
+          projectId={projectId}
+          morphology={morphology}
+          idgProfile={idgProfile}
+          onMorphologyChange={onMorphologyChange}
+          onIDGChange={onIDGChange}
+          onSaveChanges={onSaveChanges}
+          onReset={onReset}
+          hasChanges={hasChanges}
+        />
+      </div>
     )}
   </div>
   );
