@@ -786,47 +786,6 @@
         "debating": "Debat",
         "dialogue": "Dialog",
         "collective_creativity": "Kollektiv Kreativitet"
-      },
-      "dataQuality": {
-        "lowConfidenceWarning": "Lav Datakvalitet",
-        "lowConfidenceMessage": "Analysen er baseret på projektkonfiguration alene ({{confidence}}% tillid)",
-        "uploadDocumentsMessage": "Upload projektdokumenter for præcis diagnose",
-        "uploadDocuments": "Upload Dokumenter",
-        "basedOnMorphologyOnly": "Foreløbig Analyse (Baseret på Morfologi Alene)"
-      },
-      "tooltips": {
-        "socialField": "Kvaliteten af samtalerne i projektet",
-        "socialFieldDownloading": "'Downloading' betyder at samtaler er høflige men overfladiske, udfordrer ikke antagelser endnu",
-        "socialFieldDebating": "'Debatterende' betyder at samtaler involverer meningsudveksling men stadig kan gå dybere til refleksiv dialog",
-        "socialFieldDialogue": "'Dialog' betyder dybe, refleksive samtaler hvor folk virkelig lytter og udforsker sammen",
-        "socialFieldCreativity": "'Kollektiv Kreativitet' betyder at samtaler udnytter kollektiv visdom og medskabelse",
-        "depth": "Refleksionens dybde i projektet",
-        "depthSurface": "'Overflade' betyder at projektet endnu ikke er gået dybt nok. Dette er normalt i tidlige faser.",
-        "depthShallow": "'Lav' betyder noget refleksion men ikke dyb undersøgelse endnu",
-        "depthDeep": "'Dyb' betyder betydelig refleksion og stilling spørgsmålstegn ved antagelser",
-        "depthProfound": "'Dybtgående' betyder at røre essensen, fundamentale skift i forståelse",
-        "openMHW": "Grad af åbenhed i Sind, Hjerte og Vilje",
-        "openMind": "Sind: Villighed til at udfordre antagelser og se med friske øjne",
-        "openHeart": "Hjerte: Empati og emotionel åbenhed overfor andres perspektiver",
-        "openWill": "Vilje: Mod til at slippe kontrol og lade det nye fremstå",
-        "lowScores": "Lave scores indikerer behov for mere tillid og psykologisk tryghed i teamet"
-      },
-      "narrative": {
-        "yourProjectDNA": "Jeres Projekt-DNA Fortæller:",
-        "yourPositionIs": "I befinder jer i {{phase}}-fasen fordi:",
-        "whatThisMeans": "Hvad Dette Betyder:",
-        "concreteNext": "Konkrete Næste Skridt:",
-        "whyThisDiagnosis": "Hvorfor Denne Diagnose?",
-        "goDeeper": "Gå Dybere",
-        "seeDetails": "Se Tekniske Detaljer",
-        "missingData": {
-          "title": "Vi mangler mere kontekst for præcis analyse",
-          "missing": "Vi mangler:",
-          "projectDocumentation": "Projektdokumentation",
-          "meetingNotes": "Mødereferater eller dialoger",
-          "teamReflections": "Refleksioner fra teamet",
-          "alternative": "Alternativt: Beskriv jeres situation gennem AI chatten for bedre analyse"
-        }
       }
     },
     "idgRadar": {

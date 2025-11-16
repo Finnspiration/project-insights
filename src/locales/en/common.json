@@ -787,47 +787,6 @@
         "debating": "Debating",
         "dialogue": "Dialogue",
         "collective_creativity": "Collective Creativity"
-      },
-      "dataQuality": {
-        "lowConfidenceWarning": "Low Data Quality",
-        "lowConfidenceMessage": "Analysis is based on project configuration alone ({{confidence}}% confidence)",
-        "uploadDocumentsMessage": "Upload project documents for accurate diagnosis",
-        "uploadDocuments": "Upload Documents",
-        "basedOnMorphologyOnly": "Preliminary Analysis (Based on Morphology Alone)"
-      },
-      "tooltips": {
-        "socialField": "Quality of conversations in the project",
-        "socialFieldDownloading": "'Downloading' means conversations are polite but superficial, not yet challenging assumptions",
-        "socialFieldDebating": "'Debating' means conversations involve exchanging views but can go deeper to reflective dialogue",
-        "socialFieldDialogue": "'Dialogue' means deep, reflective conversations where people truly listen and explore together",
-        "socialFieldCreativity": "'Collective Creativity' means conversations tap into collective wisdom and co-creation",
-        "depth": "Depth of reflection in the project",
-        "depthSurface": "'Surface' means the project hasn't gone deep enough yet. This is normal in early phases.",
-        "depthShallow": "'Shallow' means some reflection but not deep inquiry yet",
-        "depthDeep": "'Deep' means significant reflection and questioning of assumptions",
-        "depthProfound": "'Profound' means touching the essence, fundamental shifts in understanding",
-        "openMHW": "Degree of openness in Mind, Heart, and Will",
-        "openMind": "Mind: Willingness to challenge assumptions and see with fresh eyes",
-        "openHeart": "Heart: Empathy and emotional openness to others' perspectives",
-        "openWill": "Will: Courage to let go of control and let the new emerge",
-        "lowScores": "Low scores indicate need for more trust and psychological safety in the team"
-      },
-      "narrative": {
-        "yourProjectDNA": "Your Project DNA Tells Us:",
-        "yourPositionIs": "You are in the {{phase}} phase because:",
-        "whatThisMeans": "What This Means:",
-        "concreteNext": "Concrete Next Steps:",
-        "whyThisDiagnosis": "Why This Diagnosis?",
-        "goDeepe r": "Go Deeper",
-        "seeDetails": "See Technical Details",
-        "missingData": {
-          "title": "We need more context for precise analysis",
-          "missing": "We're missing:",
-          "projectDocumentation": "Project documentation",
-          "meetingNotes": "Meeting notes or dialogues",
-          "teamReflections": "Reflections from the team",
-          "alternative": "Alternative: Describe your situation through the AI chat for better analysis"
-        }
       }
     },
     "idgRadar": {
