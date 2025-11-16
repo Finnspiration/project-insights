@@ -107,6 +107,7 @@ export function CulturalWeatherMap({
       {layers.particles && (
         <WeatherParticles 
           temporalDynamics={morphology.temporal || morphology.temporal_dynamics || 'project'}
+          organizationalStage={morphology.organizational_stage || 'orange'}
         />
       )}
 
