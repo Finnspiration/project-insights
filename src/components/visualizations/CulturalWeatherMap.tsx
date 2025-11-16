@@ -14,6 +14,7 @@ import { LayerControls } from './weather/LayerControls';
 import { WeatherLegend } from './weather/WeatherLegend';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
 import { CompactSplitLayout } from './weather/CompactSplitLayout';
+import { CulturalTexture } from './weather/CulturalTexture';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 
 interface CulturalWeatherMapProps {
@@ -103,9 +104,14 @@ export function CulturalWeatherMap({
       {/* Layer 1: Base Climate (always visible) */}
       <BaseClimate data={weatherData.baseClimate} />
 
+      {/* Layer 1.5: Cultural Texture Overlay (always visible) */}
+      <CulturalTexture 
+        culturalContext={morphology.cultural || 'mono'} 
+      />
+
       {/* Layer 2: Weather Particles (follows windPatterns toggle) */}
       {layers.windPatterns && (
-        <WeatherParticles 
+        <WeatherParticles
           key={`particles-${morphology.organizational}-${morphology.temporal}`}
           temporalDynamics={morphology.temporal || morphology.temporal_dynamics || 'project'}
           organizationalStage={morphology.organizational || 'orange'}
