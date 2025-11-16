@@ -799,7 +799,28 @@
         "acting": "Handling"
       },
       "score": "Score",
-      "target": "Mål"
+      "target": "Mål",
+      "evidence": {
+        "title": "IDG Evidens Breakdown",
+        "description": "Se hvordan morfologiske dimensioner bidrager til hver IDG-score",
+        "baseScore": "Base Score",
+        "contributions": "Bidrag",
+        "totalScore": "Total Score",
+        "sources": {
+          "development": "Primært Udviklingsfokus",
+          "organizational": "Organisatorisk Stadium",
+          "challenge": "Udfordringstype"
+        },
+        "reasoning": {
+          "developmentBoost": "{{dimension}} får +30 fordi det er dit primære udviklingsfokus",
+          "organizationalGreen": "{{dimension}} får +15 fordi Grønne/Teal organisationer prioriterer kollektiv beslutningstagning og relationer",
+          "organizationalOrange": "{{dimension}} får +15 fordi Orange organisationer prioriterer rationel analyse og præstationer",
+          "organizationalRedAmber": "{{dimension}} får +15 fordi Røde/Ravgule organisationer prioriterer øjeblikkelig handling og kontrol",
+          "challengeCognitive": "{{dimension}} får +10 fordi dit projekt står overfor kognitive udfordringer der kræver analytisk ræsonnement",
+          "challengeSocial": "{{dimension}} får +10 fordi dit projekt står overfor sociale udfordringer der kræver interpersonelle færdigheder",
+          "challengeAdaptive": "{{dimension}} får +10 fordi dit projekt kræver adaptiv kapacitet og selvindsigt"
+        }
+      }
     }
   },
   "insights": {
