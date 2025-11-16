@@ -99,7 +99,10 @@ export function PressureLegend() {
         <p className="text-[10px] text-muted-foreground mt-2 italic">
           Mørkere farver = højere intensitet
         </p>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
