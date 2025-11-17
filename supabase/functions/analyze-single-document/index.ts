@@ -132,10 +132,11 @@ Returner JSON med denne struktur:
           { role: 'system', content: systemPrompts[language as keyof typeof systemPrompts] || systemPrompts.en },
           { role: 'user', content: userPrompts[language as keyof typeof userPrompts] || userPrompts.en }
         ],
-        response_format: { type: 'json_object' },
         max_completion_tokens: 3000,
       }),
     });
+
+    console.log('AI response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -144,11 +145,18 @@ Returner JSON med denne struktur:
     }
 
     const data = await response.json();
+    console.log('AI response data keys:', Object.keys(data));
+    console.log('Choices array length:', data.choices?.length);
+    
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
+      console.error('No content in response. Full data:', JSON.stringify(data, null, 2));
       throw new Error('No content in AI response');
     }
+    
+    console.log('Content length:', content.length);
+    console.log('Content preview:', content.slice(0, 200));
 
     console.log('AI analysis complete for document:', document.filename);
 
