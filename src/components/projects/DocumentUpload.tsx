@@ -51,6 +51,8 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
   const [textTitle, setTextTitle] = useState('');
   const [uploadingText, setUploadingText] = useState(false);
   const [processingDocs, setProcessingDocs] = useState<Set<string>>(new Set());
+  const [reanalyzingSingle, setReanalyzingSingle] = useState<Set<string>>(new Set());
+  const [reanalyzing, setReanalyzing] = useState(false);
 
   const formatFileSize = (bytes: number | null): string => {
     if (!bytes) return 'Unknown';
@@ -325,6 +327,70 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
     }
   };
 
+  const handleReanalyzeSingle = async (documentId: string) => {
+    setReanalyzingSingle(prev => new Set(prev).add(documentId));
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-single-document', {
+        body: { documentId }
+      });
+
+      if (error) throw error;
+
+      toast.success(t('documents.reanalyzeSuccess'));
+      onUploadSuccess();
+    } catch (error: any) {
+      console.error('Error reanalyzing document:', error);
+      toast.error(t('documents.reanalyzeError'));
+    } finally {
+      setReanalyzingSingle(prev => {
+        const next = new Set(prev);
+        next.delete(documentId);
+        return next;
+      });
+    }
+  };
+
+  const handleReanalyzeAll = async () => {
+    if (documents.length === 0) return;
+
+    setReanalyzing(true);
+    const processedDocs = documents.filter(doc => doc.processed);
+    
+    if (processedDocs.length === 0) {
+      toast.error(t('documents.noProcessedDocuments'));
+      setReanalyzing(false);
+      return;
+    }
+
+    try {
+      for (let i = 0; i < processedDocs.length; i++) {
+        const doc = processedDocs[i];
+        toast.info(t('documents.reanalyzeBatchProgress', { 
+          current: i + 1, 
+          total: processedDocs.length 
+        }));
+
+        const { error } = await supabase.functions.invoke('analyze-single-document', {
+          body: { documentId: doc.id }
+        });
+
+        if (error) {
+          console.error(`Error reanalyzing ${doc.filename}:`, error);
+          toast.error(`${doc.filename}: ${t('documents.reanalyzeError')}`);
+        }
+      }
+
+      toast.success(t('documents.reanalyzeAllSuccess'));
+      onUploadSuccess();
+    } catch (error: any) {
+      console.error('Error in batch reanalysis:', error);
+      toast.error(t('documents.reanalyzeError'));
+    } finally {
+      setReanalyzing(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -432,7 +498,27 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
 
         {documents.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-semibold">{t('documents.uploaded')}</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">{t('documents.uploaded')}</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReanalyzeAll}
+                disabled={reanalyzing || uploading}
+              >
+                {reanalyzing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    {t('documents.reanalyzing')}
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    {t('documents.reanalyzeAll')}
+                  </>
+                )}
+              </Button>
+            </div>
             {documents.map((doc) => (
               <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -522,8 +608,35 @@ export function DocumentUpload({ projectId, documents, onUploadSuccess }: Docume
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => downloadDocument(doc)}><Download className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => confirmDelete(doc)}><Trash2 className="w-4 h-4" /></Button>
+                  {doc.metadata?.idgAnalysis && (
+                    <Badge variant="secondary" className="text-xs">
+                      {t('documents.hasIDG')}
+                    </Badge>
+                  )}
+                  {doc.processed && !doc.metadata?.idgAnalysis && (
+                    <Badge variant="outline" className="text-xs">
+                      {t('documents.missingIDG')}
+                    </Badge>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => downloadDocument(doc)}>
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleReanalyzeSingle(doc.id)}
+                    disabled={reanalyzingSingle.has(doc.id) || !doc.processed}
+                    title={!doc.processed ? t('documents.reanalyzeThis') : ''}
+                  >
+                    {reanalyzingSingle.has(doc.id) ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => confirmDelete(doc)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             ))}
