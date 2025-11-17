@@ -153,6 +153,8 @@ Returner JSON med denne struktur:
     console.log('AI analysis complete for document:', document.filename);
 
     const analysis = JSON.parse(content);
+    console.log('Has morphologySuggestions:', !!analysis.morphologySuggestions);
+    console.log('Has idgAnalysis:', !!analysis.idgAnalysis);
 
     // Map AI response keys to database keys
     const keyMapping: Record<string, string> = {
@@ -179,6 +181,12 @@ Returner JSON med denne struktur:
       }
     }
 
+    // Parse IDG analysis if present
+    const idgAnalysis = analysis.idgAnalysis || null;
+    if (idgAnalysis) {
+      console.log('IDG analysis found:', Object.keys(idgAnalysis));
+    }
+
     // Calculate overall confidence
     const allConfidences = Object.values(mappedSuggestions)
       .map((s: any) => s.confidence || 0);
@@ -195,6 +203,7 @@ Returner JSON med denne struktur:
         metadata: {
           ...(document.metadata || {}),
           morphologySuggestions: mappedSuggestions,
+          idgAnalysis: idgAnalysis,
           overallConfidence: overallConfidence,
           analysisTimestamp: new Date().toISOString(),
           sourceDocument: {
@@ -216,6 +225,7 @@ Returner JSON med denne struktur:
     return new Response(
       JSON.stringify({
         morphologySuggestions: mappedSuggestions,
+        idgAnalysis: idgAnalysis,
         overallConfidence: overallConfidence,
         documentId: document.id,
         filename: document.filename
