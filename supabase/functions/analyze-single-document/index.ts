@@ -166,7 +166,19 @@ Returner JSON med denne struktur:
 
     console.log('AI analysis complete for document:', document.filename);
 
-    const analysis = JSON.parse(content);
+    // Remove markdown code block wrapper if present (Gemini often wraps JSON in ```json ... ```)
+    let cleanContent = content.trim();
+    if (cleanContent.startsWith('```json')) {
+      cleanContent = cleanContent.slice(7); // Remove ```json
+    } else if (cleanContent.startsWith('```')) {
+      cleanContent = cleanContent.slice(3); // Remove ```
+    }
+    if (cleanContent.endsWith('```')) {
+      cleanContent = cleanContent.slice(0, -3); // Remove trailing ```
+    }
+    cleanContent = cleanContent.trim();
+
+    const analysis = JSON.parse(cleanContent);
     console.log('Has morphologySuggestions:', !!analysis.morphologySuggestions);
     console.log('Has idgAnalysis:', !!analysis.idgAnalysis);
 
