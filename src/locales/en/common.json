@@ -629,6 +629,32 @@
       "title": "Project Body Scan",
       "description": "Visual health check of your project's vital signs",
       "vitalSigns": "Vital Signs",
+      "basedOnDocuments": "Based on {{count}} documents + morphology",
+      "basedOnMorphologyOnly": "Based on morphology only (upload documents for deeper analysis)",
+      "aiRecommendations": "AI-Driven Recommendations",
+      "suggestedInterventions": "Suggested Interventions",
+      "affectedBodyParts": "Affects",
+      "markAsStarted": "Mark as started",
+      "markAsCompleted": "Mark as completed",
+      "completed": "Completed",
+      "timeframe": "Timeframe",
+      "fromDocuments": "From documents",
+      "action": "Action",
+      "interventionTypes": {
+        "coaching": "Coaching",
+        "workshop": "Workshop",
+        "process": "Process",
+        "tool": "Tool"
+      },
+      "parts": {
+        "head": "Head",
+        "face": "Face",
+        "shoulders": "Shoulders",
+        "torso": "Heart",
+        "belly": "Belly",
+        "spine": "Spine",
+        "legs": "Legs"
+      },
       "parts": {
         "head": "Strategy & Clarity",
         "face": "Communication & Conflict",

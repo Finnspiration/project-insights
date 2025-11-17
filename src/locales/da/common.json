@@ -628,6 +628,32 @@
       "title": "Projekt Kropsscanning",
       "description": "Visuelt sundhedstjek af dit projekts vitale tegn",
       "vitalSigns": "Vitale Tegn",
+      "basedOnDocuments": "Baseret på {{count}} dokumenter + morfologi",
+      "basedOnMorphologyOnly": "Baseret kun på morfologi (upload dokumenter for dybere analyse)",
+      "aiRecommendations": "AI-drevne anbefalinger",
+      "suggestedInterventions": "Foreslåede interventioner",
+      "affectedBodyParts": "Påvirker",
+      "markAsStarted": "Marker som igangsat",
+      "markAsCompleted": "Marker som afsluttet",
+      "completed": "Afsluttet",
+      "timeframe": "Tidsramme",
+      "fromDocuments": "Fra dokumenter",
+      "action": "Handling",
+      "interventionTypes": {
+        "coaching": "Coaching",
+        "workshop": "Workshop",
+        "process": "Proces",
+        "tool": "Værktøj"
+      },
+      "parts": {
+        "head": "Hoved",
+        "face": "Ansigt",
+        "shoulders": "Skuldre",
+        "torso": "Hjerte",
+        "belly": "Mave",
+        "spine": "Rygrad",
+        "legs": "Ben"
+      },
       "parts": {
         "head": "Strategi & Klarhed",
         "face": "Kommunikation & Konflikt",
