@@ -127,7 +127,7 @@ Returner JSON med denne struktur:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-5-mini',
         messages: [
           { role: 'system', content: systemPrompts[language as keyof typeof systemPrompts] || systemPrompts.en },
           { role: 'user', content: userPrompts[language as keyof typeof userPrompts] || userPrompts.en }
