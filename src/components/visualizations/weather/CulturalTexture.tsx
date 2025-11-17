@@ -14,8 +14,19 @@ function getMorphologyValue(value: string | { selectedValue: string } | undefine
 }
 
 export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
-  // Extract the actual string value
-  const contextValue = getMorphologyValue(culturalContext, 'mono');
+  // Extract and normalize the actual string value
+  let contextValue = getMorphologyValue(culturalContext, 'mono');
+  
+  // Normalize cross_functional to crossfunctional, cross_organizational to crossorg, etc.
+  const normalizeValue = (val: string): string => {
+    return val
+      .toLowerCase()
+      .replace(/_/g, '')
+      .replace('organizational', 'org')
+      .replace('cultural', 'cultural');
+  };
+  
+  contextValue = normalizeValue(contextValue);
   
   // Generate unique ID for this render to force SVG update
   const [uniqueId] = useState(() => `cultural-${Date.now()}-${Math.random()}`);
