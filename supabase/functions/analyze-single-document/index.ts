@@ -127,12 +127,12 @@ Returner JSON med denne struktur:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-5-mini',
+        model: 'google/gemini-2.5-pro',
         messages: [
           { role: 'system', content: systemPrompts[language as keyof typeof systemPrompts] || systemPrompts.en },
           { role: 'user', content: userPrompts[language as keyof typeof userPrompts] || userPrompts.en }
         ],
-        max_completion_tokens: 3000,
+        max_tokens: 4000,
       }),
     });
 
