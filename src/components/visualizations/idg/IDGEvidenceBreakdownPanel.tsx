@@ -94,7 +94,7 @@ export function IDGEvidenceBreakdownPanel({ evidence }: IDGEvidenceBreakdownPane
                   {/* Document evidence */}
                   {item.documentEvidence && (
                     <div className="mt-3 p-3 bg-accent/20 rounded-md border border-accent/30">
-                      <p className="text-xs font-semibold text-accent-foreground mb-1">
+                      <p className="text-xs font-semibold text-foreground mb-1">
                         {t('visualizations.idgRadar.evidence.documentEvidence')}
                       </p>
                       <blockquote className="text-xs italic text-muted-foreground border-l-2 border-accent pl-2">
