@@ -59,7 +59,7 @@ serve(async (req) => {
     };
 
     const userPrompts = {
-      en: `Analyze THIS SPECIFIC document and provide morphology suggestions with evidence quotes that come EXCLUSIVELY from this document.
+      en: `Analyze THIS SPECIFIC document and provide BOTH morphology suggestions AND IDG (Inner Development Goals) analysis with evidence quotes that come EXCLUSIVELY from this document.
 
 Document: ${document.filename}
 Content:
@@ -67,23 +67,14 @@ ${document.content.slice(0, 50000)}
 
 CRITICAL: All evidence quotes MUST be exact quotes from the content above. Do not reference other documents.
 
-Return JSON with this structure:
-{
-  "morphologySuggestions": {
-    "complexity": {"value": "complex", "confidence": 0.8, "evidence": "exact quote from THIS document"},
-    "stakeholderDynamics": {"value": "cooperative", "confidence": 0.7, "evidence": "exact quote from THIS document"},
-    "knowledgeIntensity": {"value": "innovative", "confidence": 0.9, "evidence": "exact quote from THIS document"},
-    "culturalContext": {"value": "cross_functional", "confidence": 0.6, "evidence": "exact quote from THIS document"},
-    "temporalDynamics": {"value": "transformation", "confidence": 0.75, "evidence": "exact quote from THIS document"},
-    "organizationalStage": {"value": "green", "confidence": 0.65, "evidence": "exact quote from THIS document"},
-    "primaryChallenge": {"value": "adaptive", "confidence": 0.8, "evidence": "exact quote from THIS document"},
-    "innerDevelopmentNeeds": {"value": "relating", "confidence": 0.7, "evidence": "exact quote from THIS document"},
-    "resourceCharacteristics": {"value": "balanced", "confidence": 0.6, "evidence": "exact quote from THIS document"},
-    "changeIntensity": {"value": "transformational", "confidence": 0.85, "evidence": "exact quote from THIS document"},
-    "informationFlow": {"value": "network", "confidence": 0.7, "evidence": "exact quote from THIS document"},
-    "riskProfile": {"value": "moderate", "confidence": 0.65, "evidence": "exact quote from THIS document"}
-  }
-}`,
+You MUST provide scores for all 5 IDG dimensions:
+- Being (self-awareness, presence, inner compass)
+- Thinking (critical thinking, perspective, sense-making)
+- Relating (appreciation, connectedness, humility)
+- Collaborating (communication, co-creation, trust)
+- Acting (courage, optimism, perseverance)
+
+Return COMPLETE analysis with both morphology AND IDG scores.`,
       da: `Analyser DETTE SPECIFIKKE dokument og giv morfologi forslag OG Inner Development Goals (IDG) analyse med evidens-citater der kommer UDELUKKENDE fra dette dokument.
 
 Dokument: ${document.filename}
@@ -295,7 +286,7 @@ Returner JSON med denne struktur:
               required: ["being", "thinking", "relating", "collaborating", "acting"]
             }
           },
-          required: ["morphologySuggestions"]
+          required: ["morphologySuggestions", "idgAnalysis"]
         }
       }
     };
