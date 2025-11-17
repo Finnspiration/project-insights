@@ -269,6 +269,16 @@
       "failed": "Failed",
       "pending": "Pending"
     },
+    "reanalyzeAll": "Re-analyze All",
+    "reanalyzeThis": "Re-analyze",
+    "reanalyzing": "Re-analyzing...",
+    "reanalyzeSuccess": "Document re-analyzed with IDG data",
+    "reanalyzeError": "Failed to re-analyze document",
+    "reanalyzeAllSuccess": "All documents re-analyzed successfully",
+    "reanalyzeBatchProgress": "Processing {{current}} of {{total}} documents",
+    "noProcessedDocuments": "No processed documents to re-analyze",
+    "hasIDG": "IDG ✓",
+    "missingIDG": "Missing IDG",
     "metadata": {
       "chars": "chars",
       "words": "words",

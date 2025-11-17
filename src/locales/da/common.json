@@ -269,6 +269,16 @@
       "failed": "Fejlet",
       "pending": "Afventer"
     },
+    "reanalyzeAll": "Genanalyser Alle",
+    "reanalyzeThis": "Genanalyser",
+    "reanalyzing": "Genanalyserer...",
+    "reanalyzeSuccess": "Dokument genanalyseret med IDG-data",
+    "reanalyzeError": "Kunne ikke genanalysere dokument",
+    "reanalyzeAllSuccess": "Alle dokumenter genanalyseret succesfuldt",
+    "reanalyzeBatchProgress": "Processerer {{current}} af {{total}} dokumenter",
+    "noProcessedDocuments": "Ingen processerede dokumenter at genanalysere",
+    "hasIDG": "IDG ✓",
+    "missingIDG": "Mangler IDG",
     "metadata": {
       "chars": "tegn",
       "words": "ord",
