@@ -148,10 +148,16 @@ Returner JSON med denne struktur:
     console.log('AI response data keys:', Object.keys(data));
     console.log('Choices array length:', data.choices?.length);
     
+    if (data.choices && data.choices.length > 0) {
+      console.log('First choice keys:', Object.keys(data.choices[0]));
+      console.log('First choice message:', JSON.stringify(data.choices[0].message, null, 2));
+      console.log('Finish reason:', data.choices[0].finish_reason);
+    }
+    
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      console.error('No content in response. Full data:', JSON.stringify(data, null, 2));
+      console.error('No content in response. Full choices array:', JSON.stringify(data.choices, null, 2));
       throw new Error('No content in AI response');
     }
     
