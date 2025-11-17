@@ -118,7 +118,187 @@ Returner JSON med denne struktur:
 }`
     };
 
-    console.log('Calling AI for single document analysis...');
+    console.log('Calling AI with tool calling for structured output...');
+    
+    // Define morphology analysis tool for structured output
+    const morphologyTool = {
+      type: "function",
+      function: {
+        name: "analyze_morphology",
+        description: "Analyze document and return morphology suggestions with evidence",
+        parameters: {
+          type: "object",
+          properties: {
+            morphologySuggestions: {
+              type: "object",
+              properties: {
+                complexity: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["simple", "complicated", "complex", "chaotic"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                stakeholderDynamics: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["unified", "cooperative", "competitive", "adversarial"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                knowledgeIntensity: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["routine", "adaptive", "innovative", "breakthrough"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                culturalContext: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["mono", "cross_functional", "cross_organizational", "cross_cultural"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                temporalDynamics: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["sprint", "project", "program", "transformation"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                organizationalStage: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["red", "amber", "orange", "green", "teal"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                primaryChallenge: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["technical", "social", "political", "cognitive", "adaptive"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                innerDevelopmentNeeds: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["being", "thinking", "relating", "collaborating", "acting"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                resourceCharacteristics: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["rich", "balanced", "constrained", "scarce"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                changeIntensity: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["incremental", "transitional", "transformational", "disruptive"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                informationFlow: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["centralized", "hierarchical", "network", "distributed"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                },
+                riskProfile: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string", enum: ["low", "moderate", "high", "extreme"] },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["value", "confidence", "evidence"]
+                }
+              },
+              required: ["complexity", "stakeholderDynamics", "knowledgeIntensity", "culturalContext", "temporalDynamics", "organizationalStage", "primaryChallenge", "innerDevelopmentNeeds", "resourceCharacteristics", "changeIntensity", "informationFlow", "riskProfile"]
+            },
+            idgAnalysis: {
+              type: "object",
+              properties: {
+                being: {
+                  type: "object",
+                  properties: {
+                    score: { type: "number", minimum: 0, maximum: 100 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["score", "confidence", "evidence"]
+                },
+                thinking: {
+                  type: "object",
+                  properties: {
+                    score: { type: "number", minimum: 0, maximum: 100 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["score", "confidence", "evidence"]
+                },
+                relating: {
+                  type: "object",
+                  properties: {
+                    score: { type: "number", minimum: 0, maximum: 100 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["score", "confidence", "evidence"]
+                },
+                collaborating: {
+                  type: "object",
+                  properties: {
+                    score: { type: "number", minimum: 0, maximum: 100 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["score", "confidence", "evidence"]
+                },
+                acting: {
+                  type: "object",
+                  properties: {
+                    score: { type: "number", minimum: 0, maximum: 100 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    evidence: { type: "string" }
+                  },
+                  required: ["score", "confidence", "evidence"]
+                }
+              },
+              required: ["being", "thinking", "relating", "collaborating", "acting"]
+            }
+          },
+          required: ["morphologySuggestions"]
+        }
+      }
+    };
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -132,7 +312,8 @@ Returner JSON med denne struktur:
           { role: 'system', content: systemPrompts[language as keyof typeof systemPrompts] || systemPrompts.en },
           { role: 'user', content: userPrompts[language as keyof typeof userPrompts] || userPrompts.en }
         ],
-        max_tokens: 4000,
+        tools: [morphologyTool],
+        tool_choice: { type: "function", function: { name: "analyze_morphology" } }
       }),
     });
 
@@ -150,35 +331,25 @@ Returner JSON med denne struktur:
     
     if (data.choices && data.choices.length > 0) {
       console.log('First choice keys:', Object.keys(data.choices[0]));
-      console.log('First choice message:', JSON.stringify(data.choices[0].message, null, 2));
+      console.log('First choice message type:', typeof data.choices[0].message);
+      console.log('Has tool_calls:', !!data.choices[0].message?.tool_calls);
       console.log('Finish reason:', data.choices[0].finish_reason);
     }
     
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      console.error('No content in response. Full choices array:', JSON.stringify(data.choices, null, 2));
-      throw new Error('No content in AI response');
+    // Parse tool call response
+    if (!data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments) {
+      console.error('No tool calls in AI response. Full response:', JSON.stringify(data, null, 2));
+      throw new Error('No tool calls in AI response');
     }
-    
-    console.log('Content length:', content.length);
-    console.log('Content preview:', content.slice(0, 200));
+
+    const toolCallArgs = data.choices[0].message.tool_calls[0].function.arguments;
+    console.log('Tool call arguments type:', typeof toolCallArgs);
+    console.log('Tool call arguments length:', toolCallArgs.length);
+    console.log('Tool call preview:', toolCallArgs.slice(0, 200));
 
     console.log('AI analysis complete for document:', document.filename);
 
-    // Remove markdown code block wrapper if present (Gemini often wraps JSON in ```json ... ```)
-    let cleanContent = content.trim();
-    if (cleanContent.startsWith('```json')) {
-      cleanContent = cleanContent.slice(7); // Remove ```json
-    } else if (cleanContent.startsWith('```')) {
-      cleanContent = cleanContent.slice(3); // Remove ```
-    }
-    if (cleanContent.endsWith('```')) {
-      cleanContent = cleanContent.slice(0, -3); // Remove trailing ```
-    }
-    cleanContent = cleanContent.trim();
-
-    const analysis = JSON.parse(cleanContent);
+    const analysis = JSON.parse(toolCallArgs);
     console.log('Has morphologySuggestions:', !!analysis.morphologySuggestions);
     console.log('Has idgAnalysis:', !!analysis.idgAnalysis);
 
