@@ -463,7 +463,11 @@ export default function ProjectDetail() {
                 </TabsContent>
                 
                 <TabsContent value="bodyscan">
-                  <ProjectBodyScan morphology={project.morphology} />
+              <ProjectBodyScan 
+                morphology={project.morphology}
+                documents={documents}
+                projectPatterns={project.patterns}
+              />
                 </TabsContent>
                 
                 <TabsContent value="blob">

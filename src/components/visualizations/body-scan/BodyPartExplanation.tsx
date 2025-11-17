@@ -6,13 +6,42 @@ interface BodyPartExplanationProps {
   part: 'head' | 'face' | 'shoulders' | 'torso' | 'belly' | 'spine' | 'legs';
   data: any;
   morphology: any;
+  documents?: any[];
   isHovered: boolean;
   onHover: () => void;
   onLeave: () => void;
 }
 
-export function BodyPartExplanation({ part, data, morphology, isHovered, onHover, onLeave }: BodyPartExplanationProps) {
+export function BodyPartExplanation({ part, data, morphology, documents, isHovered, onHover, onLeave }: BodyPartExplanationProps) {
   const { t } = useTranslation('common');
+  
+  // Get relevant quote from documents
+  const getRelevantQuote = (): string | null => {
+    if (!documents || documents.length === 0) return null;
+    
+    // Find a document with relevant IDG analysis
+    const partIDGMap: Record<string, string[]> = {
+      head: ['thinking'],
+      face: ['relating'],
+      torso: ['being', 'relating'],
+      legs: ['acting', 'collaborating']
+    };
+    
+    const relevantIDGs = partIDGMap[part] || [];
+    for (const doc of documents) {
+      if (doc.metadata?.idgAnalysis) {
+        for (const idgKey of relevantIDGs) {
+          const quotes = doc.metadata.idgAnalysis[`${idgKey}Quotes`];
+          if (quotes && quotes.length > 0) {
+            return quotes[0];
+          }
+        }
+      }
+    }
+    return null;
+  };
+  
+  const quote = getRelevantQuote();
   
   const partNumbers: Record<string, number> = {
     head: 1,
@@ -144,6 +173,17 @@ export function BodyPartExplanation({ part, data, morphology, isHovered, onHover
       <p className="text-sm text-muted-foreground ml-8">
         {getDescription()}
       </p>
+      
+      {quote && (
+        <div className="mt-2 ml-8 p-2 bg-accent/20 rounded border border-accent/30">
+          <p className="text-xs font-semibold text-foreground mb-1">
+            {t('visualizations.bodyScan.fromDocuments')}
+          </p>
+          <blockquote className="text-xs italic text-muted-foreground border-l-2 border-accent pl-2">
+            "{quote}"
+          </blockquote>
+        </div>
+      )}
     </div>
   );
 }
