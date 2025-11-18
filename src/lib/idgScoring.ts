@@ -37,9 +37,9 @@ const SOURCE_KEYS = {
 };
 
 export function calculateIDGWithEvidence(morphology: any, documents?: any[]): IDGEvidence[] {
-  const development = morphology?.development || 'thinking';
-  const organizational = morphology?.organizational || 'orange';
-  const challenge = morphology?.challenge || 'technical';
+  const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
+  const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
+  const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
 
   const dimensions = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
   const evidence: IDGEvidence[] = [];

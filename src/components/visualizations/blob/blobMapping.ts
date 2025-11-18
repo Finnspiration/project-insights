@@ -166,33 +166,33 @@ function mapRisk(risk?: string): { color: string; intensity: number } {
 
 // Main mapping function
 export function mapMorphologyToBlob(morphology: any): BlobVisualData {
-  const resourceData = mapResources(morphology?.resources);
-  const riskData = mapRisk(morphology?.risk);
+  const resourceData = mapResources(morphology?.resources?.selectedValue || morphology?.resources);
+  const riskData = mapRisk(morphology?.risk?.selectedValue || morphology?.risk);
   
   return {
     // Shape
-    roughness: mapComplexity(morphology?.complexity),
-    arms: mapStakeholder(morphology?.stakeholder),
-    symmetry: mapInformation(morphology?.information),
+    roughness: mapComplexity(morphology?.complexity?.selectedValue || morphology?.complexity),
+    arms: mapStakeholder(morphology?.stakeholder?.selectedValue || morphology?.stakeholder),
+    symmetry: mapInformation(morphology?.information?.selectedValue || morphology?.information),
     
     // Color
-    baseHue: mapOrganizational(morphology?.organizational),
-    colorSpread: mapCultural(morphology?.cultural),
+    baseHue: mapOrganizational(morphology?.organizational?.selectedValue || morphology?.organizational),
+    colorSpread: mapCultural(morphology?.cultural?.selectedValue || morphology?.cultural),
     saturation: resourceData.saturation,
     brightness: resourceData.brightness,
     
     // Animation
-    pulseSpeed: mapTemporal(morphology?.temporal),
-    rotationSpeed: mapChange(morphology?.change),
+    pulseSpeed: mapTemporal(morphology?.temporal?.selectedValue || morphology?.temporal),
+    rotationSpeed: mapChange(morphology?.change?.selectedValue || morphology?.change),
     
     // Effects
-    noiseIntensity: mapChallenge(morphology?.challenge),
-    coreGlow: mapDevelopment(morphology?.inner_development),
+    noiseIntensity: mapChallenge(morphology?.challenge?.selectedValue || morphology?.challenge),
+    coreGlow: mapDevelopment(morphology?.development?.selectedValue || morphology?.development),
     outerGlowColor: riskData.color,
     outerGlowIntensity: riskData.intensity,
     
     // Pattern
-    innerPattern: mapKnowledge(morphology?.knowledge),
+    innerPattern: mapKnowledge(morphology?.knowledge?.selectedValue || morphology?.knowledge),
     
     // Scale
     resourceScale: resourceData.scale
