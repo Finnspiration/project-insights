@@ -93,7 +93,14 @@ export function CulturalTexture({ culturalContext }: CulturalTextureProps) {
   const pattern = getTexturePattern();
   
   if (!pattern) {
-    return null; // Mono har ingen tekstur
+    console.log('🎨 CulturalTexture: No pattern generated (mono context)');
+    return null;
+  }
+
+  // ✅ Add pattern validation
+  if (!pattern.props || !pattern.props.id) {
+    console.error('🎨 CulturalTexture: Invalid pattern structure', pattern);
+    return null;
   }
 
   // Extract pattern ID from the pattern element
