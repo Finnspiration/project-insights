@@ -17,9 +17,9 @@ export function IDGRadarChart({ morphology, documents }: IDGRadarChartProps) {
 
   // Calculate scores based on morphology
   const calculateScores = () => {
-    const development = morphology?.development || 'thinking';
-    const organizational = morphology?.organizational || 'orange';
-    const challenge = morphology?.challenge || 'technical';
+    const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
+    const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
+    const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
 
     // Base scores
     const scores: Record<string, number> = {

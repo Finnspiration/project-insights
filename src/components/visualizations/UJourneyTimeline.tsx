@@ -307,13 +307,23 @@ export function UJourneyTimeline({
     setRefreshing(true);
     try {
       console.log('🔄 Regenerating quotes with new AI analysis...');
+      
+      // Normalize morphology to new format
+      const normalizedMorphology: Record<string, string> = {};
+      Object.keys(morphology).forEach(key => {
+        const value = morphology[key];
+        normalizedMorphology[key] = typeof value === 'object' && value?.selectedValue 
+          ? value.selectedValue 
+          : value;
+      });
+      
       const {
         data,
         error
       } = await supabase.functions.invoke('analyze-theory-u-position', {
         body: {
           projectId,
-          morphology,
+          morphology: normalizedMorphology,
           language: i18n.language,
           regenerateQuotes: true
         }
@@ -364,13 +374,22 @@ export function UJourneyTimeline({
       }
 
       // Call edge function
+      // Normalize morphology to new format
+      const normalizedMorphology: Record<string, string> = {};
+      Object.keys(morphology).forEach(key => {
+        const value = morphology[key];
+        normalizedMorphology[key] = typeof value === 'object' && value?.selectedValue 
+          ? value.selectedValue 
+          : value;
+      });
+      
       const {
         data: analysisData,
         error
       } = await supabase.functions.invoke('analyze-theory-u-position', {
         body: {
           projectId,
-          morphology,
+          morphology: normalizedMorphology,
           language: i18n.language
         }
       });
