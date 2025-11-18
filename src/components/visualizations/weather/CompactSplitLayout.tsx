@@ -18,6 +18,8 @@ export function CompactSplitLayout({
   idgScores,
   onIdgScoresChange
 }: CompactSplitLayoutProps) {
+  console.log('📊 CompactSplitLayout received IDG scores:', idgScores);
+  
   return (
     <ResizablePanelGroup direction="horizontal" className="min-h-[600px] w-full">
       {/* Controls Panel - Left Side */}

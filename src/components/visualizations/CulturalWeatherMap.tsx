@@ -74,6 +74,13 @@ export function CulturalWeatherMap({
   
   // Initialize IDG scores from documents if available, otherwise use provided idgProfile
   const [idgScores, setIdgScores] = useState(() => {
+    console.log('📊 CulturalWeatherMap - IDG Initialization:', {
+      hasDocumentIDG,
+      documentAverageIDG,
+      idgProfile,
+      willUse: hasDocumentIDG ? documentAverageIDG : (idgProfile || { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 })
+    });
+    
     if (hasDocumentIDG) {
       return documentAverageIDG;
     }
@@ -88,7 +95,15 @@ export function CulturalWeatherMap({
 
   // Update IDG scores when documents change
   useEffect(() => {
+    console.log('📊 CulturalWeatherMap - IDG Update Check:', {
+      hasDocumentIDG,
+      hasChanges,
+      currentIdgScores: idgScores,
+      documentAverageIDG
+    });
+    
     if (hasDocumentIDG && !hasChanges) {
+      console.log('📊 CulturalWeatherMap - Updating IDG scores from documents:', documentAverageIDG);
       setIdgScores(documentAverageIDG);
     }
   }, [documents, hasDocumentIDG, hasChanges]);
