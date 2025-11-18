@@ -105,8 +105,8 @@ export function DNAEvidenceVisualization({
     });
     
     return {
-      x: xPosition,
-      y: yPosition,
+      x: Number(xPosition.toFixed(2)),
+      y: Number(yPosition.toFixed(2)),
       index: i,
       strand: (i % 2 === 0) ? 1 : 2,
       dimension,
@@ -183,10 +183,10 @@ export function DNAEvidenceVisualization({
             {[1, 2].map(strand => {
               const strandPoints = helixPoints.filter(p => p.strand === strand);
               const pathData = strandPoints.reduce((acc, point, idx) => {
-                if (idx === 0) return `M ${point.x} ${point.y}`;
+                if (idx === 0) return `M ${Number(point.x).toFixed(2)} ${Number(point.y).toFixed(2)}`;
                 const prevPoint = strandPoints[idx - 1];
-                const cpX = (prevPoint.x + point.x) / 2;
-                return `${acc} Q ${cpX} ${prevPoint.y}, ${point.x} ${point.y}`;
+                const cpX = (Number(prevPoint.x) + Number(point.x)) / 2;
+                return `${acc} Q ${cpX.toFixed(2)} ${Number(prevPoint.y).toFixed(2)}, ${Number(point.x).toFixed(2)} ${Number(point.y).toFixed(2)}`;
               }, '');
 
               return (
@@ -209,10 +209,10 @@ export function DNAEvidenceVisualization({
               return (
                 <line
                   key={`connection-${idx}`}
-                  x1={from.x}
-                  y1={from.y}
-                  x2={to.x}
-                  y2={to.y}
+                  x1={Number(from.x)}
+                  y1={Number(from.y)}
+                  x2={Number(to.x)}
+                  y2={Number(to.y)}
                   stroke="hsl(var(--muted-foreground))"
                   strokeWidth="1"
                   opacity="0.2"
@@ -286,8 +286,8 @@ export function DNAEvidenceVisualization({
                   {/* Glow effect for highlighted dimensions */}
                   {point.isHighlighted && (
                     <rect
-                      x={point.x - estimatedWidth/2 - 4}
-                      y={point.y - badgeHeight/2 - 4}
+                      x={Number(point.x) - estimatedWidth/2 - 4}
+                      y={Number(point.y) - badgeHeight/2 - 4}
                       width={estimatedWidth + 8}
                       height={badgeHeight + 8}
                       rx="10"
@@ -300,8 +300,8 @@ export function DNAEvidenceVisualization({
                   
                   {/* Badge background */}
                   <rect
-                    x={point.x - estimatedWidth/2}
-                    y={point.y - badgeHeight/2}
+                    x={Number(point.x) - estimatedWidth/2}
+                    y={Number(point.y) - badgeHeight/2}
                     width={estimatedWidth}
                     height={badgeHeight}
                     rx="8"
@@ -314,8 +314,8 @@ export function DNAEvidenceVisualization({
                   
                   {/* Native SVG text - cross-browser compatible */}
                   <text
-                    x={point.x}
-                    y={point.y}
+                    x={Number(point.x)}
+                    y={Number(point.y)}
                     textAnchor="middle"
                     dominantBaseline="middle"
                     fill="white"
