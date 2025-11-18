@@ -3,25 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS } from '@/lib/morphologyConfig';
 import { DimensionDetailDialog } from '@/components/morphology/DimensionDetailDialog';
 
-// Map database keys to MORPHOLOGY_DIMENSIONS keys
-const KEY_MAPPING: Record<string, string> = {
-  'complexity': 'complexity_level',
-  'stakeholder': 'stakeholder_dynamics',
-  'knowledge': 'knowledge_intensity',
-  'cultural': 'cultural_context',
-  'temporal': 'temporal_dynamics',
-  'organizational': 'organizational_stage',
-  'challenge': 'primary_challenge',
-  'development': 'development_needs',
-  'resources': 'resource_characteristics',
-  'change': 'change_intensity',
-  'information': 'information_flow',
-  'risk': 'risk_profile'
-};
-
-// Normalize value format (lowercase db → PascalCase/camelCase)
-const normalizeValue = (value: string): string => {
-  if (!value) return '';
+// Normalize value format - handles both string and object input
+const normalizeValue = (value: string | { selectedValue: string; selectedIndex: number }): string => {
+  // Extract string value if object
+  const stringValue = typeof value === 'object' && value !== null && 'selectedValue' in value 
+    ? value.selectedValue 
+    : value as string;
+    
+  if (!stringValue) return '';
+  
   // Handle special cases
   const specialCases: Record<string, string> = {
     'crossfunctional': 'CrossFunctional',
@@ -29,13 +19,13 @@ const normalizeValue = (value: string): string => {
     'crosscultural': 'CrossCultural',
   };
   
-  const lowerValue = value.toLowerCase().replace(/[-_\s]/g, '');
+  const lowerValue = stringValue.toLowerCase().replace(/[-_\s]/g, '');
   if (specialCases[lowerValue]) {
     return specialCases[lowerValue];
   }
   
   // Default: capitalize first letter
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  return stringValue.charAt(0).toUpperCase() + stringValue.slice(1);
 };
 
 interface MorphologyEvidence {
@@ -45,7 +35,7 @@ interface MorphologyEvidence {
 }
 
 interface DNAEvidenceVisualizationProps {
-  morphology: Record<string, string>;
+  morphology: Record<string, string | { selectedValue: string; selectedIndex: number }>;
   evidence: MorphologyEvidence[];
   language?: 'en' | 'da';
 }
@@ -60,11 +50,19 @@ export function DNAEvidenceVisualization({
   
   const currentLanguage = (i18n.language || language) as 'en' | 'da';
   
-  // Normalize morphology data to match MORPHOLOGY_DIMENSIONS structure
+  // Early return if no morphology data
+  if (!morphology || Object.keys(morphology).length === 0) {
+    return (
+      <div className="text-center text-muted-foreground p-8">
+        {currentLanguage === 'da' ? 'Ingen morfologi data tilgængelig' : 'No morphology data available'}
+      </div>
+    );
+  }
+  
+  // Normalize morphology data to string format
   const normalizedMorphology = Object.entries(morphology).reduce((acc, [key, value]) => {
-    const fullKey = KEY_MAPPING[key] || key;
-    const normalizedValue = normalizeValue(value as string);
-    acc[fullKey] = normalizedValue;
+    const normalizedValue = normalizeValue(value);
+    acc[key] = normalizedValue;
     return acc;
   }, {} as Record<string, string>);
 
@@ -92,8 +90,6 @@ export function DNAEvidenceVisualization({
     const yPosition = centerY + amplitude * Math.sin((xPosition / wavelength) * Math.PI * 2 + phase);
     
     const dimension = MORPHOLOGY_DIMENSIONS[i];
-    // FIX: Map short key to full key for normalizedMorphology lookup
-    const fullDimensionKey = KEY_MAPPING[dimension.key] || dimension.key;
     
     const isHighlighted = evidenceDimensionKeys.includes(dimension.key);
     const evidenceItem = evidence.find(e => {
@@ -110,7 +106,6 @@ export function DNAEvidenceVisualization({
       index: i,
       strand: (i % 2 === 0) ? 1 : 2,
       dimension,
-      fullDimensionKey, // Store full key for correct value lookup
       isHighlighted,
       evidenceItem
     };
