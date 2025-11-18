@@ -105,7 +105,7 @@ export function CulturalWeatherMap({
       <BaseClimate data={weatherData.baseClimate} />
 
       {/* Layer 1.5: Cultural Texture Overlay (follows temperatureZones toggle) */}
-      {showPanels && layers.temperatureZones && (
+      {layers.temperatureZones && (
         <CulturalTexture 
           key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
           culturalContext={morphology.cultural || 'mono'} 
@@ -113,7 +113,7 @@ export function CulturalWeatherMap({
       )}
 
       {/* Layer 2: Weather Particles (follows windPatterns toggle) */}
-      {showPanels && layers.windPatterns && (
+      {layers.windPatterns && (
         <WeatherParticles
           key={`particles-${morphology.organizational}-${morphology.temporal}`}
           temporalDynamics={morphology.temporal || morphology.temporal_dynamics || 'project'}
@@ -122,7 +122,7 @@ export function CulturalWeatherMap({
       )}
 
       {/* Layer 3: Wind Patterns (toggleable) */}
-      {showPanels && layers.windPatterns && (
+      {layers.windPatterns && (
         <div className="absolute inset-0 z-45 pointer-events-none">
           <WindPatterns
             key={`wind-${morphology.information_flow}-${morphology.temporal_dynamics}`}
@@ -132,22 +132,22 @@ export function CulturalWeatherMap({
       )}
 
       {/* Layer 4: Temperature Zones (toggleable) */}
-      {showPanels && layers.temperatureZones && (
+      {layers.temperatureZones && (
         <TemperatureZones zones={weatherData.temperatureZones} />
       )}
 
       {/* Layer 4: Pressure Systems (toggleable) */}
-      {showPanels && layers.pressureSystems && (
+      {layers.pressureSystems && (
         <PressureSystems systems={weatherData.pressureSystems} />
       )}
 
       {/* Layer 5: Precipitation (toggleable) */}
-      {showPanels && layers.precipitation && (
+      {layers.precipitation && (
         <PrecipitationEvents events={weatherData.precipitation} />
       )}
 
       {/* Layer 6: Forecast (toggleable) */}
-      {showPanels && layers.forecast && (
+      {layers.forecast && (
         <WeatherForecast forecast={weatherData.forecast} />
       )}
 
