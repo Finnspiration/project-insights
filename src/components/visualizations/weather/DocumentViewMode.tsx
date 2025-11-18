@@ -19,14 +19,15 @@ interface Document {
 
 interface DocumentViewModeProps {
   projectId: string;
+  documents?: any[];
   onApplySuggestion?: (dimension: string, value: string) => void;
 }
 
-export function DocumentViewMode({ projectId, onApplySuggestion }: DocumentViewModeProps) {
+export function DocumentViewMode({ projectId, documents: propDocuments, onApplySuggestion }: DocumentViewModeProps) {
   const { t, i18n } = useTranslation('common');
   const language = i18n.language as 'en' | 'da';
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState<Document[]>(propDocuments || []);
+  const [loading, setLoading] = useState(!propDocuments);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [reanalyzingSingle, setReanalyzingSingle] = useState<string | null>(null);
 
@@ -50,8 +51,13 @@ export function DocumentViewMode({ projectId, onApplySuggestion }: DocumentViewM
   };
 
   useEffect(() => {
-    fetchDocuments();
-  }, [projectId]);
+    if (!propDocuments) {
+      fetchDocuments();
+    } else {
+      setDocuments(propDocuments);
+      setLoading(false);
+    }
+  }, [projectId, propDocuments]);
 
   const handleReanalyze = async () => {
     setReanalyzing(true);

@@ -10,6 +10,8 @@ import { useMemo } from 'react';
 interface LiveEditModeProps {
   morphology: any;
   idgProfile?: any;
+  documentAverageIDG?: any;
+  hasIDGData?: boolean;
   onMorphologyChange: (newMorphology: any) => void;
   onIDGChange?: (newIDG: any) => void;
 }
@@ -17,6 +19,8 @@ interface LiveEditModeProps {
 export function LiveEditMode({ 
   morphology, 
   idgProfile, 
+  documentAverageIDG,
+  hasIDGData = false,
   onMorphologyChange,
   onIDGChange 
 }: LiveEditModeProps) {
