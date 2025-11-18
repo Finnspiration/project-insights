@@ -435,6 +435,7 @@ export default function ProjectDetail() {
                     interventions={project.patterns?.interventions || []}
                     blindSpots={blindSpots}
                     projectId={project.id}
+                    documents={documents}
                     onMorphologyChange={(updated) => {
                       setPreviewMorphology(updated);
                       setHasUnsavedChanges(true);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { WeatherControlPanel } from './weather/WeatherControlPanel';
 import { CompactSplitLayout } from './weather/CompactSplitLayout';
 import { CulturalTexture } from './weather/CulturalTexture';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
+import { aggregateIDGScoresFromDocuments, hasIDGAnalysis } from '@/lib/idgAggregation';
 
 interface CulturalWeatherMapProps {
   morphology: any;
@@ -25,6 +26,7 @@ interface CulturalWeatherMapProps {
   interventions?: any[];
   blindSpots?: any[];
   projectId?: string;
+  documents?: any[];
   onMorphologyChange?: (newMorphology: any) => void;
   onIDGChange?: (newIDG: any) => void;
   onSaveChanges?: () => Promise<void>;
@@ -41,6 +43,7 @@ export function CulturalWeatherMap({
   interventions,
   blindSpots,
   projectId,
+  documents = [],
   onMorphologyChange,
   onIDGChange,
   onSaveChanges,
@@ -50,6 +53,10 @@ export function CulturalWeatherMap({
 }: CulturalWeatherMapProps) {
   const { t } = useTranslation('common');
   
+  // Calculate document-averaged IDG scores
+  const documentAverageIDG = aggregateIDGScoresFromDocuments(documents);
+  const hasDocumentIDG = hasIDGAnalysis(documents);
+
   // Layer visibility state
   const [layers, setLayers] = useState({
     windPatterns: true,
@@ -64,13 +71,27 @@ export function CulturalWeatherMap({
   const [layoutMode, setLayoutMode] = useState<'compact' | 'detailed'>(() => {
     return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
   });
-  const [idgScores, setIdgScores] = useState(idgProfile || {
-    being: 5,
-    thinking: 5,
-    relating: 5,
-    collaborating: 5,
-    acting: 5
+  
+  // Initialize IDG scores from documents if available, otherwise use provided idgProfile
+  const [idgScores, setIdgScores] = useState(() => {
+    if (hasDocumentIDG) {
+      return documentAverageIDG;
+    }
+    return idgProfile || {
+      being: 5,
+      thinking: 5,
+      relating: 5,
+      collaborating: 5,
+      acting: 5
+    };
   });
+
+  // Update IDG scores when documents change
+  useEffect(() => {
+    if (hasDocumentIDG && !hasChanges) {
+      setIdgScores(documentAverageIDG);
+    }
+  }, [documents, hasDocumentIDG, hasChanges]);
 
   // Use default IDG profile if not provided
   const defaultIDG = {

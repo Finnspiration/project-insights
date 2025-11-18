@@ -13,6 +13,9 @@ interface WeatherControlPanelProps {
   projectId: string;
   morphology: any;
   idgProfile?: any;
+  documentAverageIDG?: any;
+  hasIDGData?: boolean;
+  documents?: any[];
   onMorphologyChange: (newMorphology: any) => void;
   onIDGChange?: (newIDG: any) => void;
   onSaveChanges?: () => Promise<void>;
@@ -24,6 +27,9 @@ export function WeatherControlPanel({
   projectId,
   morphology,
   idgProfile,
+  documentAverageIDG,
+  hasIDGData = false,
+  documents = [],
   onMorphologyChange,
   onIDGChange,
   onSaveChanges,
@@ -155,6 +161,8 @@ export function WeatherControlPanel({
               <LiveEditMode
                 morphology={morphology}
                 idgProfile={idgProfile}
+                documentAverageIDG={documentAverageIDG}
+                hasIDGData={hasIDGData}
                 onMorphologyChange={onMorphologyChange}
                 onIDGChange={onIDGChange}
               />
@@ -164,6 +172,7 @@ export function WeatherControlPanel({
           <TabsContent value="document-analysis" className="mt-4">
             <DocumentViewMode
               projectId={projectId}
+              documents={documents}
               onApplySuggestion={handleApplySuggestion}
             />
           </TabsContent>

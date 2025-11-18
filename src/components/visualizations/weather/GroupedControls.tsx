@@ -2,8 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { MORPHOLOGY_DIMENSIONS, DimensionKey, DimensionConfig } from '@/lib/morphologyConfig';
 import { MiniSlider } from './MiniSlider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Thermometer, Wind, CloudRain, Gauge, Heart } from 'lucide-react';
+import { Thermometer, Wind, CloudRain, Gauge, Heart, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface GroupedControlsProps {
   morphology: any;
@@ -16,6 +18,14 @@ interface GroupedControlsProps {
     acting: number;
   };
   onIdgScoresChange?: (newScores: any) => void;
+  documentAverageIDG?: {
+    being: number;
+    thinking: number;
+    relating: number;
+    collaborating: number;
+    acting: number;
+  };
+  hasIDGData?: boolean;
 }
 
 // Weather impact grouping
@@ -58,10 +68,18 @@ export function GroupedControls({
   morphology, 
   onMorphologyChange,
   idgScores = { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 },
-  onIdgScoresChange
+  onIdgScoresChange,
+  documentAverageIDG,
+  hasIDGData = false
 }: GroupedControlsProps) {
   const { i18n } = useTranslation('common');
   const language = i18n.language as 'en' | 'da';
+
+  const handleResetIDGToAverage = () => {
+    if (documentAverageIDG && onIdgScoresChange) {
+      onIdgScoresChange(documentAverageIDG);
+    }
+  };
 
   const handleDimensionChange = (dimensionKey: string, newValueIndex: number) => {
     const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === dimensionKey);
@@ -84,15 +102,13 @@ export function GroupedControls({
     if (!dimension) return 0;
     
     const currentData = morphology?.[dimensionKey];
-    // Support both new format (object) and old format (string)
+    // After migration, all morphology should be in object format
     if (typeof currentData === 'object' && currentData?.selectedIndex !== undefined) {
       return currentData.selectedIndex;
     }
     
-    // Fallback to searching by value
-    const currentValue = typeof currentData === 'object' ? currentData?.selectedValue : currentData;
-    const index = dimension.options.findIndex(opt => opt.value === currentValue);
-    return index >= 0 ? index : 0;
+    // Should not happen after migration, but fallback just in case
+    return 0;
   };
 
   return (
@@ -158,21 +174,46 @@ export function GroupedControls({
         <AccordionTrigger 
           className="px-3 py-2 hover:bg-muted/50 transition-colors [&[data-state=open]]:bg-muted/30"
         >
-          <div className="flex items-center gap-2">
-            <Heart 
-              className="h-4 w-4 flex-shrink-0" 
-              style={{ color: 'hsl(var(--chart-5))' }}
-            />
-            <span className="text-sm font-semibold">
-              {language === 'en' ? 'Inner Development Goals' : 'Indre Udviklings Mål'}
-            </span>
-            <span className="text-xs text-muted-foreground ml-auto mr-2">
+          <div className="flex items-center justify-between w-full mr-2">
+            <div className="flex items-center gap-2">
+              <Heart 
+                className="h-4 w-4 flex-shrink-0" 
+                style={{ color: 'hsl(var(--chart-5))' }}
+              />
+              <span className="text-sm font-semibold">
+                {language === 'en' ? 'Inner Development Goals' : 'Indre Udviklings Mål'}
+              </span>
+              {hasIDGData && (
+                <Badge variant="secondary" className="text-xs">
+                  {language === 'en' ? 'Document Average' : 'Dokument Gennemsnit'}
+                </Badge>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground">
               (5)
             </span>
           </div>
         </AccordionTrigger>
         
         <AccordionContent className="px-2 pb-2 pt-1 @md:px-3 @md:pb-3 @md:pt-2">
+          {hasIDGData && documentAverageIDG && onIdgScoresChange && (
+            <div className="mb-3 flex items-center justify-between px-1">
+              <p className="text-xs text-muted-foreground">
+                {language === 'en' 
+                  ? 'Showing average from document analysis' 
+                  : 'Viser gennemsnit fra dokumentanalyse'}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetIDGToAverage}
+                className="h-7 text-xs gap-1"
+              >
+                <RotateCcw className="h-3 w-3" />
+                {language === 'en' ? 'Reset' : 'Nulstil'}
+              </Button>
+            </div>
+          )}
           <div className="space-y-2 @md:space-y-3">
             {IDG_DIMENSIONS.map((idgDim) => {
               // Create a dimension-like config for IDG to use MiniSlider
