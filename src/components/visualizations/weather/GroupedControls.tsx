@@ -227,12 +227,20 @@ export function GroupedControls({
                 }))
               };
 
+              const currentValue = idgScores?.[idgDim.key as keyof typeof idgScores] ?? 5;
+              console.log(`🎯 IDG ${idgDim.key}:`, {
+                currentValue,
+                rawValue: idgScores?.[idgDim.key as keyof typeof idgScores],
+                fullIdgScores: idgScores
+              });
+
               return (
                 <MiniSlider
                   key={idgDim.key}
                   dimension={idgDimensionConfig}
-                  currentIndex={idgScores[idgDim.key as keyof typeof idgScores]}
+                  currentIndex={currentValue}
                   onChange={(value) => {
+                    console.log(`🎯 IDG ${idgDim.key} changed to:`, value);
                     if (onIdgScoresChange) {
                       onIdgScoresChange({
                         ...idgScores,
