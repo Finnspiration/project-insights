@@ -116,46 +116,38 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
   }, [temporalValue, stageContrast]);
 
   const particles: Particle[] = useMemo(() => {
-    // Synkroniser partikler i bølger (5 bølger af 10 partikler hver)
-    const wavesCount = 5;
-    const particlesPerWave = particleConfig.count / wavesCount;
+    const count = particleConfig.count;
+    const [minSpeed, maxSpeed] = particleConfig.speed;
+    const [minSize, maxSize] = particleConfig.size;
     
-    const particleArray = Array.from({ length: particleConfig.count }, (_, i) => {
-      const waveIndex = Math.floor(i / particlesPerWave);
-      const waveDelay = waveIndex * 0.5; // Hver bølge starter 0.5 sek efter den forrige
-      
-      return {
-        id: i,
-        x: Math.random() * 100,
-        y: (waveIndex * 20) + Math.random() * 15, // Spred bølger over hele højden (0%, 20%, 40%, 60%, 80%)
-        size: particleConfig.size[0] + Math.random() * (particleConfig.size[1] - particleConfig.size[0]),
-        duration: particleConfig.speed[0] + Math.random() * (particleConfig.speed[1] - particleConfig.speed[0]),
-        delay: waveDelay + (Math.random() * 0.3), // Lille variation inden for bølgen
-        type: particleConfig.type,
-      };
-    });
-    console.log(`🌧️ WeatherParticles - Generated ${particleArray.length} particles in ${wavesCount} waves`);
+    const particleArray = Array.from({ length: count }, (_, i) => ({
+      id: i,
+      x: Math.random() * 800, // ✅ PIXEL RANGE instead of 0-100
+      y: Math.random() * 600, // ✅ PIXEL RANGE instead of 0-600
+      size: minSize + Math.random() * (maxSize - minSize),
+      duration: minSpeed + Math.random() * (maxSpeed - minSpeed),
+      delay: Math.random() * 3,
+      type: particleConfig.type
+    }));
+    
+    console.log(`🌧️ WeatherParticles - Generated ${particleArray.length} particles (pixel coordinates)`);
     return particleArray;
   }, [particleConfig]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-visible">
+    <svg 
+      className="absolute inset-0 w-full h-full pointer-events-none" 
+      viewBox="0 0 800 600"
+      preserveAspectRatio="xMidYMid slice"
+    >
       {particles.map((particle) => (
-        <motion.div
+        <motion.g
           key={`${particle.id}-${temporalValue}`}
-          className="absolute z-50"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-          }}
-          initial={{ opacity: 0, scale: 0.5 }}
+          initial={{ opacity: 0 }}
           animate={{
-            y: ['0%', '120%'],
+            y: [particle.y, 650], // ✅ Move beyond viewBox (600+50)
+            x: [particle.x, particle.x + 10, particle.x - 5, particle.x + 8, particle.x],
             opacity: [0, 1, 1, 1, 0],
-            x: [0, 10, -5, 8, 0], // Subtle sway for all particles
-            rotate: [0, 180, 360], // Gentle rotation
             scale: [0.5, 1, 1, 0.8],
           }}
           transition={{
@@ -165,16 +157,18 @@ export function WeatherParticles({ temporalDynamics, organizationalStage }: Weat
             ease: 'easeInOut',
           }}
         >
-          {/* All particles use dust/glow style */}
-          <div
-            className="w-full h-full rounded-full"
+          <circle
+            cx={particle.x}
+            cy={0}
+            r={particle.size / 2}
+            fill={particleConfig.color}
+            filter={`blur(${particleConfig.blur}px)`}
             style={{
-              background: `radial-gradient(circle, ${particleConfig.color} 0%, transparent 70%)`,
-              filter: `blur(${particleConfig.blur}px)`,
+              opacity: 0.9,
             }}
           />
-        </motion.div>
+        </motion.g>
       ))}
-    </div>
+    </svg>
   );
 }

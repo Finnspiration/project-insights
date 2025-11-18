@@ -5,15 +5,19 @@ function getMorphologyValue(morphologyData: any, key: string, defaultValue: stri
   const data = morphologyData?.[key];
   
   // New format: { selectedValue: "...", selectedIndex: 0 }
-  if (typeof data === 'object' && data?.selectedValue) {
-    return data.selectedValue;
+  if (typeof data === 'object' && data !== null && 'selectedValue' in data) {
+    const value = data.selectedValue;
+    console.log(`📊 weatherDataMapper: ${key} = ${value} (from object)`);
+    return value;
   }
   
   // Old format: just a string
   if (typeof data === 'string') {
+    console.log(`📊 weatherDataMapper: ${key} = ${data} (string)`);
     return data;
   }
   
+  console.warn(`📊 weatherDataMapper: ${key} missing, using default "${defaultValue}"`);
   return defaultValue;
 }
 
