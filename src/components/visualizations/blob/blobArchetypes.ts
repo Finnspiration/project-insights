@@ -81,6 +81,15 @@ export async function detectArchetype(
     return hardcoded;
   }
   
+  // Helper to safely extract string from multilingual object or string
+  const extractString = (value: any, fallback: string = 'Unknown'): string => {
+    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (typeof value === 'object' && value !== null) {
+      return value[language] || value.en || value.da || fallback;
+    }
+    return fallback;
+  };
+  
   // Try to fetch/generate AI archetype
   try {
     const { data, error } = await supabase.functions.invoke('generate-archetype', {
@@ -91,10 +100,10 @@ export async function detectArchetype(
     
     const archetype = data.archetype;
     return {
-      name: archetype.name[language] || archetype.name.en || archetype.name.da || Object.values(archetype.name)[0],
-      icon: archetype.icon,
-      color: archetype.color,
-      description: archetype.description[language] || archetype.description.en || archetype.description.da || Object.values(archetype.description)[0]
+      name: extractString(archetype.name, 'AI Generated Archetype'),
+      icon: typeof archetype.icon === 'string' ? archetype.icon : '🔮',
+      color: typeof archetype.color === 'string' ? archetype.color : '#8B5CF6',
+      description: extractString(archetype.description, 'Unique project archetype')
     };
   } catch (error) {
     console.error('Failed to generate archetype:', error);
