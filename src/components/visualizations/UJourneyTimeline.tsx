@@ -611,7 +611,8 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     return <Badge variant="outline" className="text-xs">{t('visualizations.theoryU.priority.low')}</Badge>;
   };
   if (loading) {
-    return <Card>
+    return (
+      <Card>
         <CardHeader>
           <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
           <CardDescription>{t('visualizations.theoryU.description')}</CardDescription>
@@ -620,10 +621,12 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
           <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
           <p className="text-sm text-muted-foreground">{t('visualizations.theoryU.analyzing')}</p>
         </CardContent>
-      </Card>;
+      </Card>
+    );
   }
   if (!analysis) {
-    return <Card>
+    return (
+      <Card>
         <CardHeader>
           <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
           <CardDescription>{t('visualizations.theoryU.description')}</CardDescription>
@@ -638,11 +641,15 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
             </Button>
           </div>
         </CardContent>
-      </Card>;
+      </Card>
+    );
   }
+  
   const mappedSocialField = mapSocialFieldKey(analysis.socialField);
   const resources = analysis.theoryUResources && analysis.theoryUResources.length > 0 ? analysis.theoryUResources : getDefaultTheoryUResources(i18n.language);
-  return <div className="space-y-8">
+  
+  return (
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
