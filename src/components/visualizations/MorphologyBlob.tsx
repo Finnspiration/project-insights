@@ -44,9 +44,34 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     );
   }
   
+  // Helper to safely extract morphology value (handles both string and object formats)
+  const getMorphologyValue = (key: string): string => {
+    const value = morphology[key];
+    if (typeof value === 'object' && value !== null) {
+      return value.selectedValue || '';
+    }
+    return value || '';
+  };
+  
+  // Normalize morphology early - ensures all values are strings
+  const normalizedMorphology = {
+    complexity: getMorphologyValue('complexity'),
+    stakeholder: getMorphologyValue('stakeholder'),
+    knowledge: getMorphologyValue('knowledge'),
+    cultural: getMorphologyValue('cultural'),
+    organizational: getMorphologyValue('organizational'),
+    temporal: getMorphologyValue('temporal'),
+    development: getMorphologyValue('development'),
+    risk: getMorphologyValue('risk'),
+    primary: getMorphologyValue('primary'),
+    change: getMorphologyValue('change'),
+    information: getMorphologyValue('information'),
+    resource: getMorphologyValue('resource')
+  };
+  
   let blobData;
   try {
-    blobData = mapMorphologyToBlob(morphology);
+    blobData = mapMorphologyToBlob(normalizedMorphology);
   } catch (error) {
     console.error('Error mapping morphology to blob:', error);
     return (
@@ -235,11 +260,6 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   };
 
   // Direct edit handler for inline edit icon
-  const getMorphologyValue = (key: string) => {
-    const value = morphology[key];
-    return typeof value === 'object' ? value?.selectedValue : value;
-  };
-
   const handleDirectEdit = (dimensionKey: string, currentValue: string) => {
     setViewMode({ 
       type: 'editing', 
@@ -511,8 +531,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.complexity')} 
-                value={t(`morphology.dimensions.complexity.options.${morphology.complexity}`)} 
-                detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`} 
+                value={t(`morphology.dimensions.complexity.options.${normalizedMorphology.complexity}`)} 
+                detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`}
                 visualColor={getDimensionVisuals('complexity', blobData).color} 
                 visualIcon={getDimensionVisuals('complexity', blobData).icon} 
                 isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'complexity'} 
@@ -533,8 +553,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.stakeholder')} 
-                value={t(`morphology.dimensions.stakeholder.options.${morphology.stakeholder}`)} 
-                detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`} 
+                value={t(`morphology.dimensions.stakeholder.options.${normalizedMorphology.stakeholder}`)} 
+                detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`}
                 visualColor={getDimensionVisuals('stakeholder', blobData).color} 
                 visualIcon={getDimensionVisuals('stakeholder', blobData).icon} 
                 isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'stakeholder'} 
@@ -555,8 +575,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.knowledge')} 
-                value={t(`morphology.dimensions.knowledge.options.${morphology.knowledge}`)} 
-                detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`} 
+                value={t(`morphology.dimensions.knowledge.options.${normalizedMorphology.knowledge}`)} 
+                detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`}
                 visualColor={getDimensionVisuals('knowledge', blobData).color} 
                 visualIcon={getDimensionVisuals('knowledge', blobData).icon} 
                 visualPattern={blobData.innerPattern} 
@@ -578,8 +598,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.cultural')} 
-                value={t(`morphology.dimensions.cultural.options.${morphology.cultural}`)} 
-                detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`} 
+                value={t(`morphology.dimensions.cultural.options.${normalizedMorphology.cultural}`)} 
+                detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`}
                 visualColor={getDimensionVisuals('cultural', blobData).color} 
                 visualIcon={getDimensionVisuals('cultural', blobData).icon} 
                 isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'cultural'} 
@@ -600,8 +620,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.organizational')} 
-                value={t(`morphology.dimensions.organizational.options.${morphology.organizational}`)} 
-                detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`} 
+                value={t(`morphology.dimensions.organizational.options.${normalizedMorphology.organizational}`)} 
+                detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`}
                 visualColor={getDimensionVisuals('organizational', blobData).color} 
                 visualIcon={getDimensionVisuals('organizational', blobData).icon} 
                 isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'organizational'} 
@@ -622,8 +642,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.temporal')} 
-                value={t(`morphology.dimensions.temporal.options.${morphology.temporal}`)} 
-                detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`} 
+                value={t(`morphology.dimensions.temporal.options.${normalizedMorphology.temporal}`)} 
+                detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`}
                 visualColor={getDimensionVisuals('temporal', blobData).color} 
                 visualIcon={getDimensionVisuals('temporal', blobData).icon} 
                 isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'temporal'} 
@@ -644,8 +664,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               
               <StatusRow 
                 label={t('visualizations.blob.vars.development')} 
-                value={t(`morphology.dimensions.development.options.${morphology.development}`)} 
-                detail={`${t('visualizations.blob.vars.coreGlow')}: ${(blobData.coreGlow * 100).toFixed(0)}%`} 
+                value={t(`morphology.dimensions.development.options.${normalizedMorphology.development}`)} 
+                detail={`${t('visualizations.blob.vars.coreGlow')}: ${(blobData.coreGlow * 100).toFixed(0)}%`}
                 visualColor={getDimensionVisuals('development', blobData).color} 
                 visualIcon={getDimensionVisuals('development', blobData).icon} 
                 glowIntensity={blobData.coreGlow} 
