@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Project {
   id: string;
@@ -460,7 +461,9 @@ export default function ProjectDetail() {
                 </TabsContent>
                 
                 <TabsContent value="idg">
-                  <IDGRadarChart morphology={project.morphology} documents={documents} />
+                  <ErrorBoundary>
+                    <IDGRadarChart morphology={project.morphology} documents={documents} />
+                  </ErrorBoundary>
                 </TabsContent>
                 
                 <TabsContent value="bodyscan">

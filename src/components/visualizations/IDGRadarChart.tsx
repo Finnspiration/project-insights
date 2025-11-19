@@ -12,8 +12,25 @@ interface IDGRadarChartProps {
 
 const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
 
-export function IDGRadarChart({ morphology, documents }: IDGRadarChartProps) {
+export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps) {
   const { t } = useTranslation('common');
+
+  // Defensive check for morphology
+  if (!morphology) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-primary" />
+            {t('visualizations.idgRadar.title')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Calculate scores based on morphology
   const calculateScores = () => {
@@ -68,7 +85,16 @@ export function IDGRadarChart({ morphology, documents }: IDGRadarChartProps) {
   };
 
   const scores = calculateScores();
-  const evidence = calculateIDGWithEvidence(morphology, documents);
+  
+  // Safely calculate evidence with error handling
+  let evidence = [];
+  try {
+    evidence = calculateIDGWithEvidence(morphology, documents || []);
+  } catch (error) {
+    console.error('Error calculating IDG evidence:', error);
+    // Provide empty evidence if calculation fails
+    evidence = [];
+  }
 
   const data = IDG_DIMENSIONS.map((dim) => ({
     dimension: t(`visualizations.idgRadar.dimensions.${dim}`),
@@ -143,8 +169,10 @@ export function IDGRadarChart({ morphology, documents }: IDGRadarChartProps) {
             ))}
           </div>
 
-          {/* Evidence Breakdown Panel */}
-          <IDGEvidenceBreakdownPanel evidence={evidence} />
+          {/* Evidence Breakdown Panel - only show if we have evidence */}
+          {evidence && evidence.length > 0 && (
+            <IDGEvidenceBreakdownPanel evidence={evidence} />
+          )}
 
           {/* Context Info */}
           <div className="grid grid-cols-2 gap-4 text-center text-sm">
