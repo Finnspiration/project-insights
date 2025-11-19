@@ -32,56 +32,68 @@ export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps
     );
   }
 
-  // Calculate scores based on morphology
-  const calculateScores = () => {
-    const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
-    const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
-    const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
+  // Calculate scores based on morphology with defensive defaults
+  const calculateScores = (): Record<string, number> => {
+    try {
+      const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
+      const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
+      const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
 
-    // Base scores
-    const scores: Record<string, number> = {
-      being: 50,
-      thinking: 50,
-      relating: 50,
-      collaborating: 50,
-      acting: 50,
-    };
+      // Base scores
+      const scores: Record<string, number> = {
+        being: 50,
+        thinking: 50,
+        relating: 50,
+        collaborating: 50,
+        acting: 50,
+      };
 
-    // Boost primary development dimension
-    if (development && scores[development] !== undefined) {
-      scores[development] += 30;
-    }
+      // Boost primary development dimension
+      if (development && scores[development] !== undefined) {
+        scores[development] += 30;
+      }
 
-    // Organizational stage influences
-    if (organizational === 'green' || organizational === 'teal') {
-      scores.relating += 15;
-      scores.collaborating += 15;
-    }
-    if (organizational === 'orange') {
-      scores.thinking += 15;
-      scores.acting += 10;
-    }
-    if (organizational === 'red' || organizational === 'amber') {
-      scores.acting += 15;
-    }
+      // Organizational stage influences
+      if (organizational === 'green' || organizational === 'teal') {
+        scores.relating += 15;
+        scores.collaborating += 15;
+      }
+      if (organizational === 'orange') {
+        scores.thinking += 15;
+        scores.acting += 10;
+      }
+      if (organizational === 'red' || organizational === 'amber') {
+        scores.acting += 15;
+      }
 
-    // Challenge type influences
-    if (challenge === 'cognitive') {
-      scores.thinking += 10;
-    }
-    if (challenge === 'social') {
-      scores.relating += 10;
-    }
-    if (challenge === 'adaptive') {
-      scores.being += 10;
-    }
+      // Challenge type influences
+      if (challenge === 'cognitive') {
+        scores.thinking += 10;
+      }
+      if (challenge === 'social') {
+        scores.relating += 10;
+      }
+      if (challenge === 'adaptive') {
+        scores.being += 10;
+      }
 
-    // Normalize to 0-100
-    Object.keys(scores).forEach((key) => {
-      scores[key] = Math.min(100, Math.max(0, scores[key]));
-    });
+      // Normalize to 0-100
+      Object.keys(scores).forEach((key) => {
+        scores[key] = Math.min(100, Math.max(0, scores[key]));
+      });
 
-    return scores;
+      return scores;
+    } catch (error) {
+      console.error('Error calculating IDG scores:', error);
+      // Return safe defaults
+      return {
+        being: 50,
+        thinking: 50,
+        relating: 50,
+        collaborating: 50,
+        acting: 50,
+      };
+    }
   };
 
   const scores = calculateScores();
@@ -96,15 +108,19 @@ export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps
     evidence = [];
   }
 
+  // Ensure all data points have valid numeric values for Recharts
   const data = IDG_DIMENSIONS.map((dim) => ({
     dimension: t(`visualizations.idgRadar.dimensions.${dim}`),
-    score: scores[dim],
+    score: typeof scores[dim] === 'number' && !isNaN(scores[dim]) ? scores[dim] : 50,
     fullMark: 100,
   }));
 
-  // Calculate average score
+  // Calculate average score with safety checks
   const avgScore = Math.round(
-    IDG_DIMENSIONS.reduce((sum, dim) => sum + scores[dim], 0) / IDG_DIMENSIONS.length
+    IDG_DIMENSIONS.reduce((sum, dim) => {
+      const score = scores[dim];
+      return sum + (typeof score === 'number' && !isNaN(score) ? score : 50);
+    }, 0) / IDG_DIMENSIONS.length
   );
 
   return (
@@ -151,22 +167,25 @@ export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps
 
           {/* Dimension Scores */}
           <div className="space-y-2">
-            {IDG_DIMENSIONS.map((dim) => (
-              <div key={dim} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium capitalize">
-                    {t(`visualizations.idgRadar.dimensions.${dim}`)}
-                  </span>
-                  <span className="text-muted-foreground">{scores[dim]}/100</span>
+            {IDG_DIMENSIONS.map((dim) => {
+              const score = typeof scores[dim] === 'number' && !isNaN(scores[dim]) ? scores[dim] : 50;
+              return (
+                <div key={dim} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium capitalize">
+                      {t(`visualizations.idgRadar.dimensions.${dim}`)}
+                    </span>
+                    <span className="text-muted-foreground">{score}/100</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-500 rounded-full"
+                      style={{ width: `${score}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-500 rounded-full"
-                    style={{ width: `${scores[dim]}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Evidence Breakdown Panel - only show if we have evidence */}
@@ -178,11 +197,15 @@ export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps
           <div className="grid grid-cols-2 gap-4 text-center text-sm">
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-muted-foreground mb-1">Primary Focus</p>
-              <p className="font-medium capitalize">{morphology?.development || 'N/A'}</p>
+              <p className="font-medium capitalize">
+                {morphology?.development?.selectedValue || morphology?.development || 'N/A'}
+              </p>
             </div>
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-muted-foreground mb-1">Org Stage</p>
-              <p className="font-medium capitalize">{morphology?.organizational || 'N/A'}</p>
+              <p className="font-medium capitalize">
+                {morphology?.organizational?.selectedValue || morphology?.organizational || 'N/A'}
+              </p>
             </div>
           </div>
         </div>
