@@ -1,5 +1,14 @@
 // Maps project data to weather visualization data
 
+// Safe string extraction helper
+function extractSafeString(value: any, fallback: string = 'Ukendt'): string {
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (typeof value === 'object' && value !== null) {
+    return value.da || value.en || fallback;
+  }
+  return fallback;
+}
+
 // Helper function to extract morphology value (handles both string and object formats)
 function getMorphologyValue(morphologyData: any, key: string, defaultValue: string): string {
   const data = morphologyData?.[key];
@@ -420,8 +429,8 @@ export function mapToPrecipitation(
           x: 20 + i * 30,
           y: 30 + i * 10,
           priority: 'high',
-          title: typeof spot.title === 'object' ? spot.title.da || spot.title.en : spot.title,
-          description: 'Kritisk blind vinkel',
+          title: extractSafeString(spot.title, 'Kritisk blind vinkel'),
+          description: extractSafeString(spot.description, 'Høj prioritet område kræver opmærksomhed'),
           source: 'blindspot',
         });
       });
@@ -439,8 +448,8 @@ export function mapToPrecipitation(
           x: 40 + i * 30,
           y: 50 + i * 15,
           priority: 'medium',
-          title: typeof rec.title === 'object' ? rec.title.da || rec.title.en : rec.title,
-          description: 'Anbefaling',
+          title: extractSafeString(rec.title, 'Anbefaling'),
+          description: extractSafeString(rec.description, 'Handling anbefalet'),
           source: 'recommendation',
         });
       });
@@ -455,8 +464,8 @@ export function mapToPrecipitation(
         x: 60 + i * 20,
         y: 70,
         priority: 'low',
-        title: typeof int.title === 'object' ? int.title.da || int.title.en : int.title,
-        description: 'Intervention',
+        title: extractSafeString(int.title, 'Positiv udvikling'),
+        description: extractSafeString(int.description, 'Gode fremskridt'),
         source: 'intervention',
       });
     });

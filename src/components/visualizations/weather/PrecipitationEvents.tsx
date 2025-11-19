@@ -9,6 +9,20 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
+// Safe text rendering helper
+const safeRenderText = (value: any, fallback: string = ''): string => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'object' && value !== null) {
+    // Handle multilingual objects
+    if ('da' in value || 'en' in value) {
+      return value.da || value.en || fallback;
+    }
+    console.warn('Unexpected object in PrecipitationEvents:', value);
+  }
+  return fallback;
+};
+
 interface PrecipitationEventsProps {
   events: PrecipitationEvent[];
 }
@@ -187,9 +201,9 @@ export function PrecipitationEvents({ events }: PrecipitationEventsProps) {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{getEventEmoji(event.type)}</span>
-                    <p className="font-semibold text-sm">{event.title}</p>
+                    <p className="font-semibold text-sm">{safeRenderText(event.title, 'Ukendt hændelse')}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{event.description}</p>
+                  <p className="text-xs text-muted-foreground">{safeRenderText(event.description, 'Ingen beskrivelse')}</p>
                   <div className="flex items-center gap-2 text-xs">
                     <span className="capitalize">Kilde: {event.source === 'blindspot' ? 'Blind vinkel' : event.source === 'recommendation' ? 'Anbefaling' : 'Intervention'}</span>
                     <span className="text-muted-foreground">•</span>
