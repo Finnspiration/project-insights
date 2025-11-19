@@ -14,11 +14,40 @@ interface ProjectBodyScanProps {
   projectPatterns?: any;
 }
 
-export function ProjectBodyScan({ morphology, documents, projectPatterns }: ProjectBodyScanProps) {
+export function ProjectBodyScan({ morphology, documents = [], projectPatterns }: ProjectBodyScanProps) {
   const { t } = useTranslation('common');
   const [hoveredPart, setHoveredPart] = useState<string | null>(null);
   
-  const bodyData = calculateBodyData(morphology, documents, projectPatterns);
+  // Defensive check for morphology
+  if (!morphology) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.bodyScan.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  let bodyData;
+  try {
+    bodyData = calculateBodyData(morphology, documents, projectPatterns);
+  } catch (error) {
+    console.error('Error calculating body data:', error);
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.bodyScan.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive">Fejl ved beregning af body scan data.</p>
+        </CardContent>
+      </Card>
+    );
+  }
   
   // Get top 3 recommendations
   const topRecommendations = projectPatterns?.recommendations

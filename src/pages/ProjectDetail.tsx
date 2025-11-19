@@ -428,36 +428,40 @@ export default function ProjectDetail() {
                 </TabsList>
                 
                 <TabsContent value="weather">
-                  <CulturalWeatherMap 
-                    morphology={previewMorphology || project.morphology}
-                    idgProfile={previewIDG || project.patterns?.idg_profile}
-                    theoryUAnalysis={project.theory_u_analysis}
-                    recommendations={project.patterns?.recommendations || []}
-                    interventions={project.patterns?.interventions || []}
-                    blindSpots={blindSpots}
-                    projectId={project.id}
-                    documents={documents}
-                    onMorphologyChange={(updated) => {
-                      setPreviewMorphology(updated);
-                      setHasUnsavedChanges(true);
-                    }}
-                    onIDGChange={(updated) => {
-                      setPreviewIDG(updated);
-                      setHasUnsavedChanges(true);
-                    }}
-                    onSaveChanges={handleSaveChanges}
-                    onReset={handleReset}
-                    hasChanges={hasUnsavedChanges}
-                    showControlPanel={true}
-                  />
+                  <ErrorBoundary>
+                    <CulturalWeatherMap 
+                      morphology={previewMorphology || project.morphology}
+                      idgProfile={previewIDG || project.patterns?.idg_profile}
+                      theoryUAnalysis={project.theory_u_analysis}
+                      recommendations={project.patterns?.recommendations || []}
+                      interventions={project.patterns?.interventions || []}
+                      blindSpots={blindSpots}
+                      projectId={project.id}
+                      documents={documents}
+                      onMorphologyChange={(updated) => {
+                        setPreviewMorphology(updated);
+                        setHasUnsavedChanges(true);
+                      }}
+                      onIDGChange={(updated) => {
+                        setPreviewIDG(updated);
+                        setHasUnsavedChanges(true);
+                      }}
+                      onSaveChanges={handleSaveChanges}
+                      onReset={handleReset}
+                      hasChanges={hasUnsavedChanges}
+                      showControlPanel={true}
+                    />
+                  </ErrorBoundary>
                 </TabsContent>
                 
                 <TabsContent value="ujourney">
-                  <UJourneyTimeline 
-                    morphology={project.morphology}
-                    projectId={project.id}
-                    projectName={projectName}
-                  />
+                  <ErrorBoundary>
+                    <UJourneyTimeline 
+                      morphology={project.morphology}
+                      projectId={project.id}
+                      projectName={projectName}
+                    />
+                  </ErrorBoundary>
                 </TabsContent>
                 
                 <TabsContent value="idg">
@@ -467,19 +471,23 @@ export default function ProjectDetail() {
                 </TabsContent>
                 
                 <TabsContent value="bodyscan">
-              <ProjectBodyScan 
-                morphology={project.morphology}
-                documents={documents}
-                projectPatterns={project.patterns}
-              />
+                  <ErrorBoundary>
+                    <ProjectBodyScan 
+                      morphology={project.morphology}
+                      documents={documents}
+                      projectPatterns={project.patterns}
+                    />
+                  </ErrorBoundary>
                 </TabsContent>
                 
                 <TabsContent value="blob">
-                <MorphologyBlob 
-                  morphology={project.morphology} 
-                  projectId={project.id}
-                  onMorphologyUpdate={updateProjectMorphology}
-                />
+                  <ErrorBoundary>
+                    <MorphologyBlob 
+                      morphology={project.morphology} 
+                      projectId={project.id}
+                      onMorphologyUpdate={updateProjectMorphology}
+                    />
+                  </ErrorBoundary>
                 </TabsContent>
               </Tabs>
             )}

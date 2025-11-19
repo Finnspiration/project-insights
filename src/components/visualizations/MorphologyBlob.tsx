@@ -29,7 +29,38 @@ type ViewMode =
 
 export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: MorphologyBlobProps) {
   const { t, i18n } = useTranslation('common');
-  const blobData = mapMorphologyToBlob(morphology);
+  
+  // Defensive check for morphology
+  if (!morphology) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  let blobData;
+  try {
+    blobData = mapMorphologyToBlob(morphology);
+  } catch (error) {
+    console.error('Error mapping morphology to blob:', error);
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive">Fejl ved generering af morfologi blob.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [viewMode, setViewMode] = useState<ViewMode>({ type: 'idle' });
