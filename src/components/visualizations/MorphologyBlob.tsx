@@ -473,10 +473,10 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               borderColor: archetype.color,
               color: archetype.color
             }}>
-                {archetype.icon} {archetype.description ? archetype.name : t(archetype.nameKey || '')}
+                {archetype.icon} {archetype.description ? (typeof archetype.name === 'string' ? archetype.name : JSON.stringify(archetype.name)) : t(archetype.nameKey || '')}
               </Badge>
               <p className="text-sm text-muted-foreground mt-2">
-                {archetype.description || t(archetype.descriptionKey || '')}
+                {typeof archetype.description === 'string' ? archetype.description : (archetype.descriptionKey ? t(archetype.descriptionKey) : '')}
               </p>
             </div>
           </div>
