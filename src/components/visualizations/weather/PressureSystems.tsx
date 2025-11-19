@@ -126,7 +126,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             >
               {/* Front line - INCREASED VISIBILITY */}
               <motion.polyline
-                points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
+                points={front.points.map(p => `${p.x},${p.y}`).join(' ')}
                 fill="none"
                 stroke={front.type === 'cold' ? 'hsl(220, 90%, 60%)' : 'hsl(0, 90%, 60%)'}
                 strokeWidth="5"
@@ -139,7 +139,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                 transition={{ duration: 0.2 }}
               />
 
-              {/* Front symbols - USING NATIVE SVG PERCENTAGE COORDINATES */}
+              {/* Front symbols - USING NATIVE SVG COORDINATES */}
               <g style={{ pointerEvents: 'none' }}>
                 {front.points.map((point, pointIndex) => {
                   if (pointIndex % 2 !== 0) return null;
@@ -153,17 +153,17 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                     <g key={`symbol-${front.id}-${pointIndex}`}>
                       {front.type === 'cold' ? (
                         <polygon
-                          points={`${point.x - 1.5}%,${point.y - 1}% ${point.x + 1.5}%,${point.y + 1}% ${point.x - 1.5}%,${point.y + 1}%`}
+                          points={`${point.x - 1.5},${point.y - 1} ${point.x + 1.5},${point.y + 1} ${point.x - 1.5},${point.y + 1}`}
                           fill="hsl(220, 90%, 60%)"
                           stroke="white"
                           strokeWidth="0.5"
-                          transform={`rotate(${angle} ${point.x}% ${point.y}%)`}
+                          transform={`rotate(${angle} ${point.x} ${point.y})`}
                         />
                       ) : (
                         <circle
-                          cx={`${point.x}%`}
-                          cy={`${point.y}%`}
-                          r="1.5%"
+                          cx={point.x}
+                          cy={point.y}
+                          r="1.5"
                           fill="hsl(0, 90%, 60%)"
                           stroke="white"
                           strokeWidth="0.5"
@@ -181,7 +181,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
             {systems.fronts.map((front) => (
               <polyline
                 key={`hover-${front.id}`}
-                points={front.points.map(p => `${p.x}%,${p.y}%`).join(' ')}
+                points={front.points.map(p => `${p.x},${p.y}`).join(' ')}
                 fill="none"
                 stroke="transparent"
                 strokeWidth="20"
