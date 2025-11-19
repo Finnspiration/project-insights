@@ -78,6 +78,7 @@ export default function ProjectDetail() {
   const [previewIDG, setPreviewIDG] = useState<any>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalMorphology, setOriginalMorphology] = useState<any>(null);
+  const [activeVisualizationTab, setActiveVisualizationTab] = useState<string>('weather');
 
   const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
 
@@ -408,7 +409,7 @@ export default function ProjectDetail() {
 
           <TabsContent value="visualizations" className="space-y-6">
             {project.dna_code && project.morphology && (
-              <Tabs defaultValue="weather" className="space-y-6">
+              <Tabs value={activeVisualizationTab} onValueChange={setActiveVisualizationTab} className="space-y-6">
                 <TabsList>
                   <TabsTrigger value="weather">
                     {t('visualizations.culturalWeather.title')}
@@ -427,68 +428,70 @@ export default function ProjectDetail() {
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="weather">
-                  <ErrorBoundary>
-                    <CulturalWeatherMap 
-                      morphology={previewMorphology || project.morphology}
-                      idgProfile={previewIDG || project.patterns?.idg_profile}
-                      theoryUAnalysis={project.theory_u_analysis}
-                      recommendations={project.patterns?.recommendations || []}
-                      interventions={project.patterns?.interventions || []}
-                      blindSpots={blindSpots}
-                      projectId={project.id}
-                      documents={documents}
-                      onMorphologyChange={(updated) => {
-                        setPreviewMorphology(updated);
-                        setHasUnsavedChanges(true);
-                      }}
-                      onIDGChange={(updated) => {
-                        setPreviewIDG(updated);
-                        setHasUnsavedChanges(true);
-                      }}
-                      onSaveChanges={handleSaveChanges}
-                      onReset={handleReset}
-                      hasChanges={hasUnsavedChanges}
-                      showControlPanel={true}
-                    />
-                  </ErrorBoundary>
-                </TabsContent>
-                
-                <TabsContent value="ujourney">
-                  <ErrorBoundary>
-                    <UJourneyTimeline 
-                      morphology={project.morphology}
-                      projectId={project.id}
-                      projectName={projectName}
-                    />
-                  </ErrorBoundary>
-                </TabsContent>
-                
-                <TabsContent value="idg">
-                  <ErrorBoundary>
-                    <IDGRadarChart morphology={project.morphology} documents={documents} />
-                  </ErrorBoundary>
-                </TabsContent>
-                
-                <TabsContent value="bodyscan">
-                  <ErrorBoundary>
-                    <ProjectBodyScan 
-                      morphology={project.morphology}
-                      documents={documents}
-                      projectPatterns={project.patterns}
-                    />
-                  </ErrorBoundary>
-                </TabsContent>
-                
-                <TabsContent value="blob">
-                  <ErrorBoundary>
-                    <MorphologyBlob 
-                      morphology={project.morphology} 
-                      projectId={project.id}
-                      onMorphologyUpdate={updateProjectMorphology}
-                    />
-                  </ErrorBoundary>
-                </TabsContent>
+                <div className="min-h-[400px]">
+                  {activeVisualizationTab === 'weather' && (
+                    <ErrorBoundary>
+                      <CulturalWeatherMap 
+                        morphology={previewMorphology || project.morphology}
+                        idgProfile={previewIDG || project.patterns?.idg_profile}
+                        theoryUAnalysis={project.theory_u_analysis}
+                        recommendations={project.patterns?.recommendations || []}
+                        interventions={project.patterns?.interventions || []}
+                        blindSpots={blindSpots}
+                        projectId={project.id}
+                        documents={documents}
+                        onMorphologyChange={(updated) => {
+                          setPreviewMorphology(updated);
+                          setHasUnsavedChanges(true);
+                        }}
+                        onIDGChange={(updated) => {
+                          setPreviewIDG(updated);
+                          setHasUnsavedChanges(true);
+                        }}
+                        onSaveChanges={handleSaveChanges}
+                        onReset={handleReset}
+                        hasChanges={hasUnsavedChanges}
+                        showControlPanel={true}
+                      />
+                    </ErrorBoundary>
+                  )}
+                  
+                  {activeVisualizationTab === 'ujourney' && (
+                    <ErrorBoundary>
+                      <UJourneyTimeline 
+                        morphology={project.morphology}
+                        projectId={project.id}
+                        projectName={projectName}
+                      />
+                    </ErrorBoundary>
+                  )}
+                  
+                  {activeVisualizationTab === 'idg' && (
+                    <ErrorBoundary>
+                      <IDGRadarChart morphology={project.morphology} documents={documents} />
+                    </ErrorBoundary>
+                  )}
+                  
+                  {activeVisualizationTab === 'bodyscan' && (
+                    <ErrorBoundary>
+                      <ProjectBodyScan 
+                        morphology={project.morphology}
+                        documents={documents}
+                        projectPatterns={project.patterns}
+                      />
+                    </ErrorBoundary>
+                  )}
+                  
+                  {activeVisualizationTab === 'blob' && (
+                    <ErrorBoundary>
+                      <MorphologyBlob 
+                        morphology={project.morphology} 
+                        projectId={project.id}
+                        onMorphologyUpdate={updateProjectMorphology}
+                      />
+                    </ErrorBoundary>
+                  )}
+                </div>
               </Tabs>
             )}
           </TabsContent>
