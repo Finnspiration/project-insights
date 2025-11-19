@@ -283,9 +283,15 @@ export function mapToPressureSystems(
     ];
 
     highPrioritySpots.slice(0, 3).forEach((blindSpot, index) => {
+      // Extract title - handle both string and multilingual object formats
       const title = typeof blindSpot.title === 'object' 
         ? (blindSpot.title.da || blindSpot.title.en || 'Ukendt')
-        : blindSpot.title;
+        : blindSpot.title || 'Ukendt';
+      
+      // Extract description - handle both string and multilingual object formats
+      const description = typeof blindSpot.description === 'object'
+        ? (blindSpot.description.da || blindSpot.description.en || '')
+        : blindSpot.description || '';
       
       zones.push({
         id: `h-blindspot-${blindSpot.id}`,
@@ -294,9 +300,9 @@ export function mapToPressureSystems(
         intensity: 3,
         metadata: {
           source: 'blind_spot',
-          description: `Kritisk blind spot: ${title}`,
+          description: description ? `${title}: ${description}` : `Kritisk blind spot: ${title}`,
           blindSpotId: blindSpot.id,
-          blindSpotTitle: title,
+          blindSpotTitle: title, // Always a string now
           priority: blindSpot.priority
         }
       });
