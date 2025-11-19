@@ -20,6 +20,7 @@ interface UJourneyTimelineProps {
   projectId: string;
   projectName: string;
 }
+
 interface TheoryUAnalysis {
   position: string;
   confidence: number;
@@ -112,17 +113,24 @@ const getDefaultTheoryUResources = (language: string) => [{
   link: 'https://www.edx.org/course/ulab',
   relevance: language === 'da' ? 'Gratis online kursus i Theory U' : 'Free online course in Theory U'
 }];
-export function UJourneyTimeline({
-  morphology,
-  projectId
-}: UJourneyTimelineProps) {
-  const {
-    t,
-    i18n
-  } = useTranslation('common');
-  const {
-    toast
-  } = useToast();
+
+export function UJourneyTimeline({ morphology, projectId, projectName }: UJourneyTimelineProps) {
+  // Defensive check for morphology
+  if (!morphology) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Theory U Rejse Timeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  const { t, i18n } = useTranslation('common');
+  const { toast } = useToast();
   const [analysis, setAnalysis] = useState<TheoryUAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -861,5 +869,6 @@ export function UJourneyTimeline({
 
 
       </div>
-    </div>;
+    </div>
+  );
 }
