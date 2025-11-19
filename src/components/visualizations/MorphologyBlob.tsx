@@ -306,27 +306,27 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
       outerGlow: {
         title: t('visualizations.blob.zones.outerGlow.title'),
         description: t('visualizations.blob.zones.outerGlow.description'),
-        dimension: `${t('morphology.dimensions.risk.title')}: ${t('morphology.dimensions.risk.options.' + morphology.risk)}`
+        dimension: `${t('morphology.dimensions.risk.title')}: ${t('morphology.dimensions.risk.options.' + normalizedMorphology.risk)}`
       },
       mainShape: {
         title: t('visualizations.blob.zones.mainShape.title'),
         description: t('visualizations.blob.zones.mainShape.description'),
-        dimension: `${t('morphology.dimensions.complexity.title')}: ${t('morphology.dimensions.complexity.options.' + morphology.complexity)}, ${t('morphology.dimensions.stakeholder.title')}: ${t('morphology.dimensions.stakeholder.options.' + morphology.stakeholder)}`
+        dimension: `${t('morphology.dimensions.complexity.title')}: ${t('morphology.dimensions.complexity.options.' + normalizedMorphology.complexity)}, ${t('morphology.dimensions.stakeholder.title')}: ${t('morphology.dimensions.stakeholder.options.' + normalizedMorphology.stakeholder)}`
       },
       culturalOverlay: {
         title: t('visualizations.blob.zones.culturalOverlay.title'),
         description: t('visualizations.blob.zones.culturalOverlay.description'),
-        dimension: `${t('morphology.dimensions.cultural.title')}: ${t('morphology.dimensions.cultural.options.' + morphology.cultural)}, ${t('morphology.dimensions.organizational.title')}: ${t('morphology.dimensions.organizational.options.' + morphology.organizational)}`
+        dimension: `${t('morphology.dimensions.cultural.title')}: ${t('morphology.dimensions.cultural.options.' + normalizedMorphology.cultural)}, ${t('morphology.dimensions.organizational.title')}: ${t('morphology.dimensions.organizational.options.' + normalizedMorphology.organizational)}`
       },
       innerPattern: {
         title: t('visualizations.blob.zones.innerPattern.title'),
         description: t('visualizations.blob.zones.innerPattern.description'),
-        dimension: `${t('morphology.dimensions.knowledge.title')}: ${t('morphology.dimensions.knowledge.options.' + morphology.knowledge)}`
+        dimension: `${t('morphology.dimensions.knowledge.title')}: ${t('morphology.dimensions.knowledge.options.' + normalizedMorphology.knowledge)}`
       },
       coreGlow: {
         title: t('visualizations.blob.zones.coreGlow.title'),
         description: t('visualizations.blob.zones.coreGlow.description'),
-        dimension: `${t('morphology.dimensions.development.title')}: ${t('morphology.dimensions.development.options.' + morphology.development)}`
+        dimension: `${t('morphology.dimensions.development.title')}: ${t('morphology.dimensions.development.options.' + normalizedMorphology.development)}`
       }
     };
     return zoneMap[zone];
@@ -508,7 +508,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
             <div className="space-y-2">
               <StatusRow 
                 label={t('visualizations.blob.vars.risk')} 
-                value={morphology.risk} 
+                value={t(`morphology.dimensions.risk.options.${normalizedMorphology.risk}`)}
                 detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`} 
                 visualColor={getDimensionVisuals('risk', blobData).color} 
                 visualIcon={getDimensionVisuals('risk', blobData).icon} 
@@ -841,7 +841,7 @@ function StatusRow(props: StatusRowProps) {
               className="capitalize" 
               style={props.visualColor ? { borderColor: `${props.visualColor}60` } : {}}
             >
-              {props.value}
+              {typeof props.value === 'string' ? props.value : JSON.stringify(props.value)}
             </Badge>
             
             {/* Inline Edit Icon - appears on hover */}
