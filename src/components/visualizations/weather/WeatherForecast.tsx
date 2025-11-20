@@ -46,40 +46,40 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden mt-2"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {forecast.map((day, index) => (
                       <motion.div
                         key={day.day}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 + index * 0.1 }}
-                        className="space-y-2"
+                        className="space-y-1.5"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-2xl">{day.icon}</span>
+                            <span className="text-xl">{day.icon}</span>
                             <div>
                               <p className="text-xs font-semibold">{day.day}</p>
-                              <p className="text-xs text-muted-foreground">{day.condition}</p>
+                              <p className="text-[10px] text-muted-foreground">{day.condition}</p>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="text-xs font-medium">{day.confidence}%</p>
-                            <p className="text-[10px] text-muted-foreground">tillid</p>
+                            <p className="text-[9px] text-muted-foreground">tillid</p>
                           </div>
                         </div>
 
                         {/* Confidence bar */}
-                        <Progress value={day.confidence} className="h-1" />
+                        <Progress value={day.confidence} className="h-0.5" />
 
                         {/* Description */}
-                        <p className="text-[11px] text-muted-foreground italic leading-tight">
+                        <p className="text-[10px] text-muted-foreground italic leading-tight">
                           {day.description}
                         </p>
 
                         {/* Divider except for last item */}
                         {index < forecast.length - 1 && (
-                          <div className="border-t border-border/30 pt-2" />
+                          <div className="border-t border-border/30 pt-1" />
                         )}
                       </motion.div>
                     ))}
