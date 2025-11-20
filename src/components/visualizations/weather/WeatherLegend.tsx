@@ -17,7 +17,7 @@ export function WeatherLegend() {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors rounded-t-lg"
       >
-        <h3 className="text-xs font-semibold text-foreground">Vejrlegend</h3>
+        <h3 className="text-xs font-semibold text-foreground">Temperatur, tryk & fronter</h3>
         {isExpanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
