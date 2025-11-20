@@ -18,6 +18,85 @@ export interface IDGEvidence {
   documentEvidence?: string;
 }
 
+// New interface for calculated scores in both scales
+export interface IDGScoresCalculation {
+  radarScores: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
+  weatherScores: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
+}
+
+// Calculate IDG scores from morphology - returns both 0-100 (radar) and 0-10 (weather) scales
+export function calculateIDGScoresFromMorphology(morphology: any): IDGScoresCalculation {
+  try {
+    const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
+    const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
+    const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
+
+    // Base scores (0-100 scale)
+    const radarScores: Record<string, number> = {
+      being: 50,
+      thinking: 50,
+      relating: 50,
+      collaborating: 50,
+      acting: 50,
+    };
+
+    // Boost primary development dimension
+    if (development && radarScores[development] !== undefined) {
+      radarScores[development] += 30;
+    }
+
+    // Organizational stage influences
+    if (organizational === 'green' || organizational === 'teal') {
+      radarScores.relating += 15;
+      radarScores.collaborating += 15;
+    }
+    if (organizational === 'orange') {
+      radarScores.thinking += 15;
+      radarScores.acting += 10;
+    }
+    if (organizational === 'red' || organizational === 'amber') {
+      radarScores.acting += 15;
+    }
+
+    // Challenge type influences
+    if (challenge === 'cognitive') {
+      radarScores.thinking += 10;
+    }
+    if (challenge === 'social') {
+      radarScores.relating += 10;
+    }
+    if (challenge === 'adaptive') {
+      radarScores.being += 10;
+    }
+
+    // Normalize to 0-100
+    Object.keys(radarScores).forEach((key) => {
+      radarScores[key] = Math.min(100, Math.max(0, radarScores[key]));
+    });
+
+    // Convert to 0-10 scale for weather map
+    const weatherScores = {
+      being: radarScores.being / 10,
+      thinking: radarScores.thinking / 10,
+      relating: radarScores.relating / 10,
+      collaborating: radarScores.collaborating / 10,
+      acting: radarScores.acting / 10,
+    };
+
+    return {
+      radarScores: radarScores as any,
+      weatherScores: weatherScores as any,
+    };
+  } catch (error) {
+    console.error('Error calculating IDG scores from morphology:', error);
+    // Return safe defaults
+    return {
+      radarScores: { being: 50, thinking: 50, relating: 50, collaborating: 50, acting: 50 },
+      weatherScores: { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 },
+    };
+  }
+}
+
 const REASONING_KEYS = {
   developmentBoost: 'visualizations.idgRadar.evidence.reasoning.developmentBoost',
   organizationalGreen: 'visualizations.idgRadar.evidence.reasoning.organizationalGreen',

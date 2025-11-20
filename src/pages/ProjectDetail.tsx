@@ -23,6 +23,7 @@ import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { calculateIDGScoresFromMorphology, IDGScoresCalculation } from '@/lib/idgScoring';
 
 interface Project {
   id: string;
@@ -80,8 +81,8 @@ export default function ProjectDetail() {
   const [originalMorphology, setOriginalMorphology] = useState<any>(null);
   const [activeVisualizationTab, setActiveVisualizationTab] = useState<string>('weather');
   
-  // IDG scores calculated by IDGRadarChart (0-10 scale for weather map)
-  const [calculatedIDGScores, setCalculatedIDGScores] = useState<{ being: number; thinking: number; relating: number; collaborating: number; acting: number } | null>(null);
+  // IDG scores calculated from morphology (both scales)
+  const [projectIDGScores, setProjectIDGScores] = useState<IDGScoresCalculation | null>(null);
 
   const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
 
@@ -98,6 +99,13 @@ export default function ProjectDetail() {
 
       if (error) throw error;
       setProject(data);
+      
+      // Calculate IDG scores from morphology immediately
+      if (data.morphology) {
+        const idgScores = calculateIDGScoresFromMorphology(data.morphology);
+        setProjectIDGScores(idgScores);
+        console.log('📊 ProjectDetail - IDG Scores Calculated:', idgScores);
+      }
     } catch (error) {
       console.error('Error fetching project:', error);
     } finally {
@@ -436,7 +444,11 @@ export default function ProjectDetail() {
                     <ErrorBoundary>
                       <CulturalWeatherMap 
                         morphology={previewMorphology || project.morphology}
-                        idgProfile={calculatedIDGScores || previewIDG || project.patterns?.idg_profile}
+                        idgProfile={
+                          previewIDG || 
+                          projectIDGScores?.weatherScores || 
+                          project.patterns?.idg_profile
+                        }
                         theoryUAnalysis={project.theory_u_analysis}
                         recommendations={project.patterns?.recommendations || []}
                         interventions={project.patterns?.interventions || []}
@@ -472,9 +484,9 @@ export default function ProjectDetail() {
                   {activeVisualizationTab === 'idg' && (
                     <ErrorBoundary>
                       <IDGRadarChart 
-                        morphology={project.morphology} 
+                        morphology={previewMorphology || project.morphology} 
                         documents={documents}
-                        onScoresCalculated={setCalculatedIDGScores}
+                        precalculatedScores={projectIDGScores?.radarScores}
                       />
                     </ErrorBoundary>
                   )}

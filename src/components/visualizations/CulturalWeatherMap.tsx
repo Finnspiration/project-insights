@@ -72,58 +72,23 @@ export function CulturalWeatherMap({
     return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
   });
   
-  // Initialize IDG scores - prioritize provided idgProfile, then documents, then defaults
+  // Initialize IDG scores - use idgProfile if provided, otherwise defaults
   const [idgScores, setIdgScores] = useState(() => {
+    const defaultScores = { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 };
     console.log('📊 CulturalWeatherMap - IDG Initialization:', {
-      hasDocumentIDG,
-      documentAverageIDG,
       idgProfile,
-      willUse: idgProfile || (hasDocumentIDG ? documentAverageIDG : { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 })
+      willUse: idgProfile || defaultScores
     });
-    
-    // CRITICAL: Prioritize idgProfile from parent (calculated by IDGRadarChart)
-    if (idgProfile) {
-      return idgProfile;
-    }
-    
-    // Fallback to document-based scores
-    if (hasDocumentIDG) {
-      return documentAverageIDG;
-    }
-    
-    // Final fallback to defaults
-    return {
-      being: 5,
-      thinking: 5,
-      relating: 5,
-      collaborating: 5,
-      acting: 5
-    };
+    return idgProfile || defaultScores;
   });
 
-  // Update IDG scores when idgProfile prop changes (priority) or documents change
+  // Update IDG scores when idgProfile prop changes
   useEffect(() => {
-    console.log('📊 CulturalWeatherMap - IDG Update Check:', {
-      hasDocumentIDG,
-      hasChanges,
-      currentIdgScores: idgScores,
-      documentAverageIDG,
-      idgProfile
-    });
-    
-    // CRITICAL: Always use idgProfile if provided (calculated by IDGRadarChart)
     if (idgProfile) {
-      console.log('📊 CulturalWeatherMap - Using IDG from idgProfile prop:', idgProfile);
+      console.log('📊 CulturalWeatherMap - Updating IDG from prop:', idgProfile);
       setIdgScores(idgProfile);
-      return;
     }
-    
-    // Fallback to document-based scores if no changes pending
-    if (hasDocumentIDG && !hasChanges) {
-      console.log('📊 CulturalWeatherMap - Updating IDG scores from documents:', documentAverageIDG);
-      setIdgScores(documentAverageIDG);
-    }
-  }, [idgProfile, documents, hasDocumentIDG, hasChanges]);
+  }, [idgProfile]);
 
   // Use default IDG profile if not provided
   const defaultIDG = {
