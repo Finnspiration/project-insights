@@ -40,7 +40,7 @@ export function WeatherLegend() {
         <div>
           <h4 className="text-xs font-semibold text-foreground mb-1">Temperaturzoner</h4>
           <div className="flex items-center gap-2 text-xs mb-0.5">
-            <svg width="28" height="28" viewBox="0 0 28 28">
+            <svg width="24" height="24" viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="10" fill="hsl(0, 80%, 60%)" opacity="0.4" />
               <circle cx="14" cy="14" r="6" fill="hsl(0, 80%, 60%)" opacity="0.6" />
               <circle cx="14" cy="14" r="2.5" fill="hsl(0, 80%, 60%)" opacity="0.8" />
@@ -56,9 +56,9 @@ export function WeatherLegend() {
           <h4 className="text-xs font-semibold text-foreground mb-1">Tryksystemer</h4>
         
         {/* High Pressure */}
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 text-xs mb-0.5">
           <div className="flex flex-col items-center">
-            <svg width="28" height="28" viewBox="0 0 28 28">
+            <svg width="24" height="24" viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="8" fill="none" stroke="hsl(0, 70%, 55%)" strokeWidth="1.5" strokeOpacity="0.5" strokeDasharray="2,1" />
               <circle cx="14" cy="14" r="2.5" fill="hsl(0, 80%, 60%)" opacity="0.8" />
               <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">H</text>
@@ -68,9 +68,9 @@ export function WeatherLegend() {
         </div>
 
         {/* High Pressure from Blind Spot */}
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 text-xs mb-0.5">
           <div className="flex flex-col items-center">
-            <svg width="28" height="28" viewBox="0 0 28 28">
+            <svg width="24" height="24" viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="8" fill="none" stroke="hsl(0, 85%, 45%)" strokeWidth="2" strokeOpacity="0.7" strokeDasharray="2,1" />
               <circle cx="14" cy="14" r="2.5" fill="hsl(0, 90%, 55%)" opacity="0.8" />
               <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">H</text>
@@ -80,9 +80,9 @@ export function WeatherLegend() {
         </div>
 
         {/* Low Pressure */}
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 text-xs mb-0.5">
           <div className="flex flex-col items-center">
-            <svg width="28" height="28" viewBox="0 0 28 28">
+            <svg width="24" height="24" viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="8" fill="none" stroke="hsl(220, 70%, 50%)" strokeWidth="1.5" strokeOpacity="0.5" strokeDasharray="2,1" />
               <circle cx="14" cy="14" r="2.5" fill="hsl(220, 80%, 60%)" opacity="0.8" />
               <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">L</text>
@@ -96,7 +96,7 @@ export function WeatherLegend() {
           <h4 className="text-xs font-semibold text-foreground mb-1">Fronter</h4>
           
           {/* Cold Front */}
-          <div className="flex items-center gap-2 text-xs mb-1">
+          <div className="flex items-center gap-2 text-xs mb-0.5">
             <svg width="28" height="12" viewBox="0 0 28 12">
               <line x1="0" y1="6" x2="28" y2="6" stroke="hsl(220, 80%, 50%)" strokeWidth="1.5" opacity="0.8" />
               <polygon points="8,4 9,8 10,4" fill="hsl(220, 80%, 50%)" opacity="0.9" />
