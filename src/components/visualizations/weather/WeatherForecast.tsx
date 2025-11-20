@@ -46,7 +46,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden mt-2"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {forecast.map((day, index) => (
                       <motion.div
                         key={day.day}
@@ -79,7 +79,7 @@ export function WeatherForecast({ forecast }: WeatherForecastProps) {
 
                         {/* Divider except for last item */}
                         {index < forecast.length - 1 && (
-                          <div className="border-t border-border/30 pt-1" />
+                          <div className="border-t border-border/30 pt-0.5" />
                         )}
                       </motion.div>
                     ))}
