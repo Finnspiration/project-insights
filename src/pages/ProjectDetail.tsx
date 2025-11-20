@@ -79,6 +79,9 @@ export default function ProjectDetail() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalMorphology, setOriginalMorphology] = useState<any>(null);
   const [activeVisualizationTab, setActiveVisualizationTab] = useState<string>('weather');
+  
+  // IDG scores calculated by IDGRadarChart (0-10 scale for weather map)
+  const [calculatedIDGScores, setCalculatedIDGScores] = useState<{ being: number; thinking: number; relating: number; collaborating: number; acting: number } | null>(null);
 
   const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
 
@@ -433,7 +436,7 @@ export default function ProjectDetail() {
                     <ErrorBoundary>
                       <CulturalWeatherMap 
                         morphology={previewMorphology || project.morphology}
-                        idgProfile={previewIDG || project.patterns?.idg_profile}
+                        idgProfile={calculatedIDGScores || previewIDG || project.patterns?.idg_profile}
                         theoryUAnalysis={project.theory_u_analysis}
                         recommendations={project.patterns?.recommendations || []}
                         interventions={project.patterns?.interventions || []}
@@ -468,7 +471,11 @@ export default function ProjectDetail() {
                   
                   {activeVisualizationTab === 'idg' && (
                     <ErrorBoundary>
-                      <IDGRadarChart morphology={project.morphology} documents={documents} />
+                      <IDGRadarChart 
+                        morphology={project.morphology} 
+                        documents={documents}
+                        onScoresCalculated={setCalculatedIDGScores}
+                      />
                     </ErrorBoundary>
                   )}
                   

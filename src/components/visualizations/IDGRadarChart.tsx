@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
@@ -8,11 +9,12 @@ import { IDGEvidenceBreakdownPanel } from './idg/IDGEvidenceBreakdownPanel';
 interface IDGRadarChartProps {
   morphology: any;
   documents?: any[];
+  onScoresCalculated?: (scores: { being: number; thinking: number; relating: number; collaborating: number; acting: number }) => void;
 }
 
 const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
 
-export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps) {
+export function IDGRadarChart({ morphology, documents = [], onScoresCalculated }: IDGRadarChartProps) {
   const { t } = useTranslation('common');
 
   // Defensive check for morphology
@@ -97,6 +99,20 @@ export function IDGRadarChart({ morphology, documents = [] }: IDGRadarChartProps
   };
 
   const scores = calculateScores();
+  
+  // Notify parent component of calculated scores (normalized to 0-10 scale for weather map)
+  useEffect(() => {
+    if (onScoresCalculated) {
+      const normalizedScores = {
+        being: scores.being / 10,
+        thinking: scores.thinking / 10,
+        relating: scores.relating / 10,
+        collaborating: scores.collaborating / 10,
+        acting: scores.acting / 10,
+      };
+      onScoresCalculated(normalizedScores);
+    }
+  }, [scores.being, scores.thinking, scores.relating, scores.collaborating, scores.acting, onScoresCalculated]);
   
   // Safely calculate evidence with error handling
   let evidence = [];
