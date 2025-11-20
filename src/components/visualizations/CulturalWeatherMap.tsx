@@ -165,17 +165,19 @@ export function CulturalWeatherMap({
       )}
 
       {/* Layer 6: Forecast (toggleable) */}
-      {layers.forecast && (
+      {showPanels && layers.forecast && (
         <WeatherForecast forecast={weatherData.forecast} />
       )}
 
-      {/* Layer Controls - Always visible */}
-      <LayerControls 
-        layers={layers} 
-        onLayerToggle={handleLayerToggle}
-        showPanels={showPanels}
-        onTogglePanels={handleTogglePanels}
-      />
+      {/* Layer Controls - Only when panels are shown */}
+      {showPanels && (
+        <LayerControls 
+          layers={layers} 
+          onLayerToggle={handleLayerToggle}
+          showPanels={showPanels}
+          onTogglePanels={handleTogglePanels}
+        />
+      )}
       
       {/* Weather Legend - Only when panels are shown */}
       {showPanels && <WeatherLegend />}
