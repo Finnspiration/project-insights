@@ -542,62 +542,161 @@ export function mapProjectToWeatherData(
     complexity: complexity,
   };
 
-  // Use default IDG profile if not provided
-  const defaultIDG = { being: 5, thinking: 6, relating: 5, collaborating: 6, acting: 5 };
-  const profile = idgProfile || defaultIDG;
+  // Map morphology dimension values to scores (0-10)
+  const valueToScore = (dimension: string, value: string): number => {
+    const scoreMaps: Record<string, Record<string, number>> = {
+      complexity: { simple: 2, complicated: 5, complex: 8, chaotic: 10 },
+      organizational: { red: 2, amber: 4, orange: 6, green: 8, teal: 10 },
+      cultural: { mono: 2, crossfunctional: 5, crossorg: 7, crosscultural: 10 },
+      knowledge: { routine: 2, adaptive: 5, innovative: 8, breakthrough: 10 },
+      challenge: { technical: 3, social: 5, political: 7, cognitive: 8, adaptive: 10 },
+      development: { being: 2, thinking: 4, relating: 6, collaborating: 8, acting: 10 },
+      resources: { rich: 10, balanced: 7, constrained: 4, scarce: 2 },
+      stakeholder: { unified: 10, cooperative: 7, competitive: 4, adversarial: 2 },
+      temporal: { sprint: 3, project: 5, program: 7, transformation: 10 },
+      change: { incremental: 3, transitional: 5, transformational: 8, disruptive: 10 },
+      information: { centralized: 3, hierarchical: 5, network: 7, distributed: 10 },
+      risk: { low: 2, moderate: 5, high: 8, extreme: 10 },
+    };
+    
+    return scoreMaps[dimension]?.[value] || 5;
+  };
 
-  // Create 5 temperature regions based on IDG profile
+  // Create temperature regions based on MORPHOLOGY dimensions (grouped by category)
+  // Temperatur Zoner group: complexity, organizational, cultural
+  const complexityValue = getMorphologyValue(morphology, 'complexity', 'complicated');
+  const orgValue = getMorphologyValue(morphology, 'organizational', 'orange');
+  const culturalValue = getMorphologyValue(morphology, 'cultural', 'mono');
+  
+  // Nedbør & Skyer group: knowledge, challenge, change
+  const knowledgeValue = getMorphologyValue(morphology, 'knowledge', 'adaptive');
+  const challengeValue = getMorphologyValue(morphology, 'challenge', 'technical');
+  const changeValue = getMorphologyValue(morphology, 'change', 'transitional');
+  
+  // Vind Mønstre group: information, temporal  
+  const infoValue = getMorphologyValue(morphology, 'information', 'network');
+  const temporalValue = getMorphologyValue(morphology, 'temporal', 'project');
+  
+  // Tryk & Fronter group: risk, stakeholder, resources, development
+  const riskValue = getMorphologyValue(morphology, 'risk', 'moderate');
+  const stakeholderValue = getMorphologyValue(morphology, 'stakeholder', 'cooperative');
+  const resourcesValue = getMorphologyValue(morphology, 'resources', 'balanced');
+  const developmentValue = getMorphologyValue(morphology, 'development', 'thinking');
+
   const temperatureZones: TemperatureRegion[] = [
+    // Temperatur Zoner (3 dimensions)
     {
-      id: 'being',
-      name: 'Væren',
-      score: profile.being,
-      temperature: mapIDGScoreToTemperature(profile.being),
-      color: getTemperatureColor(mapIDGScoreToTemperature(profile.being)),
-      position: { x: 20, y: 20 }, // NW
+      id: 'complexity',
+      name: 'Kompleksitetsniveau',
+      score: valueToScore('complexity', complexityValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('complexity', complexityValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('complexity', complexityValue))),
+      position: { x: 15, y: 15 },
     },
     {
-      id: 'thinking',
-      name: 'Tænkning',
-      score: profile.thinking,
-      temperature: mapIDGScoreToTemperature(profile.thinking),
-      color: getTemperatureColor(mapIDGScoreToTemperature(profile.thinking)),
-      position: { x: 80, y: 20 }, // NE
+      id: 'organizational',
+      name: 'Organisatorisk Stadium',
+      score: valueToScore('organizational', orgValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('organizational', orgValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('organizational', orgValue))),
+      position: { x: 15, y: 45 },
     },
     {
-      id: 'relating',
-      name: 'Relationsdannelse',
-      score: profile.relating,
-      temperature: mapIDGScoreToTemperature(profile.relating),
-      color: getTemperatureColor(mapIDGScoreToTemperature(profile.relating)),
-      position: { x: 50, y: 50 }, // Center
+      id: 'cultural',
+      name: 'Kulturel Kontekst',
+      score: valueToScore('cultural', culturalValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('cultural', culturalValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('cultural', culturalValue))),
+      position: { x: 15, y: 75 },
+    },
+    
+    // Vind Mønstre (2 dimensions)
+    {
+      id: 'information',
+      name: 'Informationsflow',
+      score: valueToScore('information', infoValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('information', infoValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('information', infoValue))),
+      position: { x: 35, y: 30 },
     },
     {
-      id: 'collaborating',
-      name: 'Samarbejde',
-      score: profile.collaborating,
-      temperature: mapIDGScoreToTemperature(profile.collaborating),
-      color: getTemperatureColor(mapIDGScoreToTemperature(profile.collaborating)),
-      position: { x: 20, y: 80 }, // SW
+      id: 'temporal',
+      name: 'Temporal Dynamik',
+      score: valueToScore('temporal', temporalValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('temporal', temporalValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('temporal', temporalValue))),
+      position: { x: 35, y: 60 },
+    },
+    
+    // Nedbør & Skyer (3 dimensions)
+    {
+      id: 'knowledge',
+      name: 'Vidensintensitet',
+      score: valueToScore('knowledge', knowledgeValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('knowledge', knowledgeValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('knowledge', knowledgeValue))),
+      position: { x: 60, y: 20 },
     },
     {
-      id: 'acting',
-      name: 'Handling',
-      score: profile.acting,
-      temperature: mapIDGScoreToTemperature(profile.acting),
-      color: getTemperatureColor(mapIDGScoreToTemperature(profile.acting)),
-      position: { x: 80, y: 80 }, // SE
+      id: 'challenge',
+      name: 'Primær Udfordring',
+      score: valueToScore('challenge', challengeValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('challenge', challengeValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('challenge', challengeValue))),
+      position: { x: 60, y: 50 },
+    },
+    {
+      id: 'change',
+      name: 'Forandringsintensitet',
+      score: valueToScore('change', changeValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('change', changeValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('change', changeValue))),
+      position: { x: 60, y: 80 },
+    },
+    
+    // Tryk & Fronter (4 dimensions)
+    {
+      id: 'risk',
+      name: 'Risikoprofil',
+      score: valueToScore('risk', riskValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('risk', riskValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('risk', riskValue))),
+      position: { x: 85, y: 15 },
+    },
+    {
+      id: 'stakeholder',
+      name: 'Interessentdynamik',
+      score: valueToScore('stakeholder', stakeholderValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('stakeholder', stakeholderValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('stakeholder', stakeholderValue))),
+      position: { x: 85, y: 40 },
+    },
+    {
+      id: 'resources',
+      name: 'Ressourcekarakteristika',
+      score: valueToScore('resources', resourcesValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('resources', resourcesValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('resources', resourcesValue))),
+      position: { x: 85, y: 65 },
+    },
+    {
+      id: 'development',
+      name: 'Indre Udviklingsbehov',
+      score: valueToScore('development', developmentValue),
+      temperature: mapIDGScoreToTemperature(valueToScore('development', developmentValue)),
+      color: getTemperatureColor(mapIDGScoreToTemperature(valueToScore('development', developmentValue))),
+      position: { x: 85, y: 90 },
     },
   ];
 
   const windPatterns = mapInformationFlowToWind(
-    getMorphologyValue(morphology, 'information', 'network'),
-    getMorphologyValue(morphology, 'temporal', 'project')
+    infoValue,
+    temporalValue
   );
 
   const pressureSystems = mapToPressureSystems(
-    getMorphologyValue(morphology, 'risk', 'moderate'),
-    getMorphologyValue(morphology, 'stakeholder', 'cooperative'),
+    riskValue,
+    stakeholderValue,
     blindSpots
   );
 
