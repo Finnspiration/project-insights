@@ -129,15 +129,15 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
             {zones.find((z) => z.id === hoveredZone)?.name}
           </p>
           <p className="text-xs text-muted-foreground">
-            IDG Score: {zones.find((z) => z.id === hoveredZone)?.score}/10
+            Score: {zones.find((z) => z.id === hoveredZone)?.score}/10
           </p>
           <div className="flex items-center gap-2 mt-1">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: zones.find((z) => z.id === hoveredZone)?.color }}
             />
-            <p className="text-xs">
-              Temp: {Math.round(zones.find((z) => z.id === hoveredZone)?.temperature || 0)}°C
+            <p className="text-xs font-medium">
+              Temperatur: {Math.round(zones.find((z) => z.id === hoveredZone)?.temperature || 0)}°C
             </p>
           </div>
         </motion.div>
