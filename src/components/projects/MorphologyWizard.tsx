@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { MorphologyComparisonDialog } from './MorphologyComparisonDialog';
 
 interface MorphologyWizardProps {
   open: boolean;
@@ -73,6 +74,7 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<any>(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   const fetchAiSuggestions = async () => {
     setLoadingSuggestions(true);
@@ -147,18 +149,36 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
       if (error) throw error;
 
       toast.success(t('morphology.success'));
-      onOpenChange(false);
-      onSuccess?.();
       
-      // Reset wizard
-      setCurrentStep(0);
-      setMorphology({});
+      // Show comparison dialog if we have AI suggestions
+      if (aiSuggestions?.morphologySuggestions) {
+        setShowComparison(true);
+      } else {
+        // No AI suggestions, just close
+        onOpenChange(false);
+        onSuccess?.();
+        
+        // Reset wizard
+        setCurrentStep(0);
+        setMorphology({});
+      }
     } catch (error) {
       console.error('Error saving morphology:', error);
       toast.error(t('morphology.error'));
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleComparisonClose = () => {
+    setShowComparison(false);
+    onOpenChange(false);
+    onSuccess?.();
+    
+    // Reset wizard
+    setCurrentStep(0);
+    setMorphology({});
+    setAiSuggestions(null);
   };
 
   const getOptions = (dimension: DimensionKey) => {
@@ -324,6 +344,13 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
           )}
         </div>
       </DialogContent>
+
+      <MorphologyComparisonDialog
+        open={showComparison}
+        onOpenChange={handleComparisonClose}
+        userChoices={morphology as Record<string, string | undefined>}
+        aiSuggestions={aiSuggestions?.morphologySuggestions || {}}
+      />
     </Dialog>
   );
 }
