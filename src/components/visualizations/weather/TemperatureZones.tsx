@@ -112,7 +112,7 @@ export function TemperatureZones({ zones }: TemperatureZonesProps) {
         </g>
       </svg>
 
-      {/* Hover tooltip */}
+      {/* Morphology temperature zone tooltip (NOT IDG) */}
       {hoveredZone && tooltipPosition && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
