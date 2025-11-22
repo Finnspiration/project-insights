@@ -195,19 +195,19 @@ export function IDGOverlay({ idgScores, language = 'en' }: IDGOverlayProps) {
           }}
           className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 pointer-events-none shadow-lg z-50"
         >
-          <p className="text-sm font-semibold whitespace-nowrap">
-            {idgDimensions.find(d => d.dimension === hoveredDimension)?.label[language]}
+          <p className="text-sm font-semibold whitespace-nowrap mb-1">
+            IDG: {idgDimensions.find(d => d.dimension === hoveredDimension)?.label[language]}
           </p>
           <p className="text-xs text-muted-foreground">
-            IDG Score: {idgDimensions.find(d => d.dimension === hoveredDimension)?.score}/10
+            Score: {idgDimensions.find(d => d.dimension === hoveredDimension)?.score}/10
           </p>
           <div className="flex items-center gap-2 mt-1">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: idgDimensions.find(d => d.dimension === hoveredDimension)?.color }}
             />
-            <p className="text-xs">
-              {Math.round(idgDimensions.find(d => d.dimension === hoveredDimension)?.temperature || 0)}°C
+            <p className="text-xs font-medium">
+              Temperatur: {Math.round(idgDimensions.find(d => d.dimension === hoveredDimension)?.temperature || 0)}°C
             </p>
           </div>
         </motion.div>
