@@ -102,12 +102,32 @@ export function GroupedControls({
     if (!dimension) return 0;
     
     const currentData = morphology?.[dimensionKey];
-    // After migration, all morphology should be in object format
-    if (typeof currentData === 'object' && currentData?.selectedIndex !== undefined) {
-      return currentData.selectedIndex;
+    
+    // If morphology data exists in object format
+    if (typeof currentData === 'object') {
+      // PRIORITIZE selectedValue - find its index in options
+      if (currentData?.selectedValue) {
+        const correctIndex = dimension.options.findIndex(
+          opt => opt.value === currentData.selectedValue
+        );
+        if (correctIndex !== -1) {
+          return correctIndex;
+        }
+      }
+      // Fallback to selectedIndex if value lookup fails
+      if (currentData?.selectedIndex !== undefined) {
+        return currentData.selectedIndex;
+      }
     }
     
-    // Should not happen after migration, but fallback just in case
+    // Legacy fallback: if it's a string value, find its index
+    if (typeof currentData === 'string') {
+      const correctIndex = dimension.options.findIndex(
+        opt => opt.value === currentData
+      );
+      return correctIndex !== -1 ? correctIndex : 0;
+    }
+    
     return 0;
   };
 
