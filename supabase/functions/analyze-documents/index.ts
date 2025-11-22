@@ -86,21 +86,21 @@ serve(async (req) => {
 Documents:
 ${combinedContent}
 
-Return JSON with this structure:
+Return JSON with this structure (use EXACT values from allowed options):
 {
   "morphologySuggestions": {
-    "complexity": {"value": "complex", "confidence": 0.8, "evidence": "quote from doc"},
-    "stakeholderDynamics": {"value": "cooperative", "confidence": 0.7, "evidence": "quote"},
-    "knowledgeIntensity": {"value": "innovative", "confidence": 0.9, "evidence": "quote"},
-    "culturalContext": {"value": "cross_functional", "confidence": 0.6, "evidence": "quote"},
-    "temporalDynamics": {"value": "transformation", "confidence": 0.75, "evidence": "quote"},
-    "organizationalStage": {"value": "green", "confidence": 0.65, "evidence": "quote"},
-    "primaryChallenge": {"value": "adaptive", "confidence": 0.8, "evidence": "quote"},
-    "innerDevelopmentNeeds": {"value": "relating", "confidence": 0.7, "evidence": "quote"},
-    "resourceCharacteristics": {"value": "balanced", "confidence": 0.6, "evidence": "quote"},
-    "changeIntensity": {"value": "transformational", "confidence": 0.85, "evidence": "quote"},
-    "informationFlow": {"value": "network", "confidence": 0.7, "evidence": "quote"},
-    "riskProfile": {"value": "moderate", "confidence": 0.65, "evidence": "quote"}
+    "complexity": {"value": "simple|complicated|complex|chaotic", "confidence": 0.8, "evidence": "quote from doc"},
+    "stakeholderDynamics": {"value": "unified|cooperative|competitive|adversarial", "confidence": 0.7, "evidence": "quote"},
+    "knowledgeIntensity": {"value": "routine|adaptive|innovative|breakthrough", "confidence": 0.9, "evidence": "quote"},
+    "culturalContext": {"value": "mono|crossfunctional|crossorg|crosscultural", "confidence": 0.6, "evidence": "quote"},
+    "temporalDynamics": {"value": "sprint|project|program|transformation", "confidence": 0.75, "evidence": "quote"},
+    "organizationalStage": {"value": "red|amber|orange|green|teal", "confidence": 0.65, "evidence": "quote"},
+    "primaryChallenge": {"value": "technical|social|political|cognitive|adaptive", "confidence": 0.8, "evidence": "quote"},
+    "innerDevelopmentNeeds": {"value": "being|thinking|relating|collaborating|acting", "confidence": 0.7, "evidence": "quote"},
+    "resourceCharacteristics": {"value": "rich|balanced|constrained|scarce", "confidence": 0.6, "evidence": "quote"},
+    "changeIntensity": {"value": "incremental|transitional|transformational|disruptive", "confidence": 0.85, "evidence": "quote"},
+    "informationFlow": {"value": "centralized|hierarchical|network|distributed", "confidence": 0.7, "evidence": "quote"},
+    "riskProfile": {"value": "low|moderate|high|extreme", "confidence": 0.65, "evidence": "quote"}
   },
   "patterns": {
     "metaphors": {"machine": 0.2, "organism": 0.4, "brain": 0.3, "culture": 0.1},
@@ -127,21 +127,21 @@ Return JSON with this structure:
 Dokumenter:
 ${combinedContent}
 
-Returner JSON med denne struktur:
+Returner JSON med denne struktur (brug PRÆCISE værdier fra tilladte muligheder):
 {
   "morphologySuggestions": {
-    "complexity": {"value": "complex", "confidence": 0.8, "evidence": "citat fra dok"},
-    "stakeholderDynamics": {"value": "cooperative", "confidence": 0.7, "evidence": "citat"},
-    "knowledgeIntensity": {"value": "innovative", "confidence": 0.9, "evidence": "citat"},
-    "culturalContext": {"value": "cross_functional", "confidence": 0.6, "evidence": "citat"},
-    "temporalDynamics": {"value": "transformation", "confidence": 0.75, "evidence": "citat"},
-    "organizationalStage": {"value": "green", "confidence": 0.65, "evidence": "citat"},
-    "primaryChallenge": {"value": "adaptive", "confidence": 0.8, "evidence": "citat"},
-    "innerDevelopmentNeeds": {"value": "relating", "confidence": 0.7, "evidence": "citat"},
-    "resourceCharacteristics": {"value": "balanced", "confidence": 0.6, "evidence": "citat"},
-    "changeIntensity": {"value": "transformational", "confidence": 0.85, "evidence": "citat"},
-    "informationFlow": {"value": "network", "confidence": 0.7, "evidence": "citat"},
-    "riskProfile": {"value": "moderate", "confidence": 0.65, "evidence": "citat"}
+    "complexity": {"value": "simple|complicated|complex|chaotic", "confidence": 0.8, "evidence": "citat fra dok"},
+    "stakeholderDynamics": {"value": "unified|cooperative|competitive|adversarial", "confidence": 0.7, "evidence": "citat"},
+    "knowledgeIntensity": {"value": "routine|adaptive|innovative|breakthrough", "confidence": 0.9, "evidence": "citat"},
+    "culturalContext": {"value": "mono|crossfunctional|crossorg|crosscultural", "confidence": 0.6, "evidence": "citat"},
+    "temporalDynamics": {"value": "sprint|project|program|transformation", "confidence": 0.75, "evidence": "citat"},
+    "organizationalStage": {"value": "red|amber|orange|green|teal", "confidence": 0.65, "evidence": "citat"},
+    "primaryChallenge": {"value": "technical|social|political|cognitive|adaptive", "confidence": 0.8, "evidence": "citat"},
+    "innerDevelopmentNeeds": {"value": "being|thinking|relating|collaborating|acting", "confidence": 0.7, "evidence": "citat"},
+    "resourceCharacteristics": {"value": "rich|balanced|constrained|scarce", "confidence": 0.6, "evidence": "citat"},
+    "changeIntensity": {"value": "incremental|transitional|transformational|disruptive", "confidence": 0.85, "evidence": "citat"},
+    "informationFlow": {"value": "centralized|hierarchical|network|distributed", "confidence": 0.7, "evidence": "citat"},
+    "riskProfile": {"value": "low|moderate|high|extreme", "confidence": 0.65, "evidence": "citat"}
   },
   "patterns": {
     "metaphors": {"machine": 0.2, "organism": 0.4, "brain": 0.3, "culture": 0.1},
