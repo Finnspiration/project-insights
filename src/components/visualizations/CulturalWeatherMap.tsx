@@ -15,6 +15,7 @@ import { WeatherLegend } from './weather/WeatherLegend';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
 import { CompactSplitLayout } from './weather/CompactSplitLayout';
 import { CulturalTexture } from './weather/CulturalTexture';
+import { IDGOverlay } from './weather/IDGOverlay';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 import { aggregateIDGScoresFromDocuments, hasIDGAnalysis } from '@/lib/idgAggregation';
 
@@ -65,6 +66,7 @@ export function CulturalWeatherMap({
     precipitation: true,
     forecast: true,
     particles: true,
+    idgOverlay: true,
   });
 
   const [showPanels, setShowPanels] = useState(false);
@@ -108,7 +110,7 @@ export function CulturalWeatherMap({
     blindSpots
   );
 
-  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles') => {
+  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles' | 'idgOverlay') => {
     setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
@@ -154,17 +156,25 @@ export function CulturalWeatherMap({
         <TemperatureZones zones={weatherData.temperatureZones} />
       )}
 
-      {/* Layer 4: Pressure Systems (toggleable) */}
+      {/* Layer 4.5: IDG Overlay (toggleable) */}
+      {layers.idgOverlay && (
+        <IDGOverlay 
+          idgScores={idgScores}
+          language={t('lang') as 'en' | 'da'}
+        />
+      )}
+
+      {/* Layer 5: Pressure Systems (toggleable) */}
       {layers.pressureSystems && (
         <PressureSystems systems={weatherData.pressureSystems} />
       )}
 
-      {/* Layer 5: Precipitation (toggleable) */}
+      {/* Layer 6: Precipitation (toggleable) */}
       {layers.precipitation && (
         <PrecipitationEvents events={weatherData.precipitation} />
       )}
 
-      {/* Layer 6: Forecast (toggleable) */}
+      {/* Layer 7: Forecast (toggleable) */}
       {showPanels && layers.forecast && (
         <WeatherForecast forecast={weatherData.forecast} />
       )}
