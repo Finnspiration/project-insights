@@ -36,7 +36,7 @@ const getTemperatureColor = (temperature: number): string => {
 };
 
 export function IDGOverlay({ idgScores, language = 'en' }: IDGOverlayProps) {
-  const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
+  const [hoveredDimension, setHoveredDimension] = useState<IDGScore | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
 
   // Define IDG dimensions with positions forming a pentagon around the map
@@ -122,7 +122,7 @@ export function IDGOverlay({ idgScores, language = 'en' }: IDGOverlayProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
             onMouseEnter={(e) => {
-              setHoveredDimension(idg.dimension);
+              setHoveredDimension(idg);
               const svg = e.currentTarget.ownerSVGElement;
               if (svg) {
                 const rect = svg.getBoundingClientRect();
@@ -141,7 +141,7 @@ export function IDGOverlay({ idgScores, language = 'en' }: IDGOverlayProps) {
             <motion.circle
               cx={`${idg.position.x}%`}
               cy={`${idg.position.y}%`}
-              r={hoveredDimension === idg.dimension ? '8%' : '6%'}
+              r={hoveredDimension?.dimension === idg.dimension ? '8%' : '6%'}
               fill={`url(#idg-${idg.dimension})`}
               transition={{ duration: 0.3 }}
             />
@@ -153,7 +153,7 @@ export function IDGOverlay({ idgScores, language = 'en' }: IDGOverlayProps) {
               r="2%"
               fill={idg.color}
               stroke="white"
-              strokeWidth={hoveredDimension === idg.dimension ? 2 : 1}
+              strokeWidth={hoveredDimension?.dimension === idg.dimension ? 2 : 1}
               opacity={0.9}
             />
 
@@ -196,18 +196,18 @@ export function IDGOverlay({ idgScores, language = 'en' }: IDGOverlayProps) {
           className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 pointer-events-none shadow-lg z-50"
         >
           <p className="text-sm font-semibold whitespace-nowrap mb-1">
-            IDG: {idgDimensions.find(d => d.dimension === hoveredDimension)?.label[language]}
+            IDG: {hoveredDimension.label[language]}
           </p>
           <p className="text-xs text-muted-foreground">
-            Score: {idgDimensions.find(d => d.dimension === hoveredDimension)?.score}/10
+            Score: {hoveredDimension.score}/10
           </p>
           <div className="flex items-center gap-2 mt-1">
             <div
               className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: idgDimensions.find(d => d.dimension === hoveredDimension)?.color }}
+              style={{ backgroundColor: hoveredDimension.color }}
             />
             <p className="text-xs font-medium">
-              Temperatur: {Math.round(idgDimensions.find(d => d.dimension === hoveredDimension)?.temperature || 0)}°C
+              Temperatur: {Math.round(hoveredDimension.temperature)}°C
             </p>
           </div>
         </motion.div>
