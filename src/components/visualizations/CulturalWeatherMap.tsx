@@ -52,7 +52,7 @@ export function CulturalWeatherMap({
   hasChanges,
   showControlPanel = false,
 }: CulturalWeatherMapProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   
   // Calculate document-averaged IDG scores
   const documentAverageIDG = aggregateIDGScoresFromDocuments(documents);
@@ -160,7 +160,7 @@ export function CulturalWeatherMap({
       {layers.idgOverlay && (
         <IDGOverlay 
           idgScores={idgScores}
-          language={t('lang') as 'en' | 'da'}
+          language={i18n.language as 'en' | 'da'}
         />
       )}
 
