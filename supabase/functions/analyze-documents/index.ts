@@ -275,6 +275,7 @@ Returner JSON med denne struktur:
 
     return new Response(
       JSON.stringify({
+        morphologySuggestions: mappedSuggestions,
         patterns: analysis.patterns,
         blindSpots: analysis.blindSpots,
         analyzedDocuments: individualResults.length,
