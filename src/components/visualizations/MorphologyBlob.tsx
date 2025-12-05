@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,6 +10,7 @@ import { getZoneStyles, getDimensionVisuals } from './blob/colorMapping';
 import { useArchetype } from '@/hooks/useArchetype';
 import { Blob3DScene, mapMorphologyTo3DBlob } from './blob3d';
 import { EnhancedBlob3DLegend } from './blob3d/EnhancedBlob3DLegend';
+import { BlobDemoMode } from './blob3d/BlobDemoMode';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -88,6 +89,28 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
   const [legendHoveredLobe, setLegendHoveredLobe] = useState<number | null>(null);
   const blobContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Demo mode state
+  const [demoMorphology, setDemoMorphology] = useState<Record<string, string> | null>(null);
+  const [demoDimension, setDemoDimension] = useState<string | null>(null);
+  const isDemoActive = demoMorphology !== null;
+  
+  // Demo mode handlers
+  const handleDemoMorphologyChange = useCallback((newMorphology: Record<string, string>) => {
+    setDemoMorphology(newMorphology);
+  }, []);
+  
+  const handleDemoStateChange = useCallback((isActive: boolean, currentDimension: string | null) => {
+    if (!isActive) {
+      setDemoMorphology(null);
+      setDemoDimension(null);
+    } else {
+      setDemoDimension(currentDimension);
+    }
+  }, []);
+  
+  // Active morphology - use demo morphology when demo is active
+  const activeMorphology = isDemoActive ? demoMorphology : normalizedMorphology;
   
   // Use React Query for archetype loading - prevents race conditions
   const { data: archetype, isLoading: isLoadingArchetype, isFetching } = useArchetype(
@@ -304,15 +327,22 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
             <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
               <div className={`w-full h-full transition-opacity duration-500 ${isFetching ? 'opacity-80' : 'opacity-100'}`}>
                 <Blob3DScene 
-                  data={mapMorphologyTo3DBlob(normalizedMorphology)} 
-                  selectedLobe={legendHoveredLobe ?? (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null)}
+                  data={mapMorphologyTo3DBlob(activeMorphology)} 
+                  selectedLobe={legendHoveredLobe ?? (demoDimension ? Object.keys(dimensionToZone).indexOf(demoDimension) : (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null))}
                 />
               </div>
             </Suspense>
             
+            {/* Demo Mode Controls */}
+            <BlobDemoMode
+              baseMorphology={normalizedMorphology}
+              onDemoMorphologyChange={handleDemoMorphologyChange}
+              onDemoStateChange={handleDemoStateChange}
+            />
+            
             {/* Enhanced Draggable Legend with Editing */}
             <EnhancedBlob3DLegend 
-              morphology={normalizedMorphology}
+              morphology={activeMorphology}
               projectId={projectId}
               onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
               onMorphologyUpdate={onMorphologyUpdate}
