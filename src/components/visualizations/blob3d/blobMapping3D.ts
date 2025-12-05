@@ -71,6 +71,14 @@ export interface Blob3DData {
   knowledgeGlowSharpness: number;  // 1 = sharp edge, 0 = diffuse aura
   knowledgeGlowColor: string;      // Edge glow color
   
+  // NEW: Knowledge shape visualization
+  knowledgeShape: 'grid3d' | 'mesh_sphere' | 'crystal' | 'supernova';
+  knowledgeShapeIntensity: number;   // 0-1 how prominent the shape is
+  knowledgeShapeScale: number;       // Overall scale of knowledge shape
+  knowledgeShapeColor: string;       // Color of knowledge shape
+  supernovaRayCount: number;         // For supernova: number of rays
+  supernovaExpansionRate: number;    // For supernova: how fast it expands
+  
   // NEW: Organizational-based background
   backgroundColors: { top: string; bottom: string };
   organizationalAmbientColor: string;
@@ -295,6 +303,12 @@ function mapKnowledgeToVisuals(knowledge?: string): {
   outerParticleOrganization: number; // 1 = ring, 0 = chaotic cloud
   knowledgeGlowIntensity: number;  // Edge glow strength
   knowledgeGlowSharpness: number;  // 1 = sharp, 0 = diffuse
+  // NEW: Distinct knowledge shape
+  knowledgeShape: 'grid3d' | 'mesh_sphere' | 'crystal' | 'supernova';
+  knowledgeShapeIntensity: number;
+  knowledgeShapeScale: number;
+  supernovaRayCount: number;
+  supernovaExpansionRate: number;
 } {
   const map: Record<string, { 
     pattern: 'grid' | 'waves' | 'particles' | 'chaos'; 
@@ -305,19 +319,29 @@ function mapKnowledgeToVisuals(knowledge?: string): {
     outerParticleOrganization: number;
     knowledgeGlowIntensity: number;
     knowledgeGlowSharpness: number;
+    knowledgeShape: 'grid3d' | 'mesh_sphere' | 'crystal' | 'supernova';
+    knowledgeShapeIntensity: number;
+    knowledgeShapeScale: number;
+    supernovaRayCount: number;
+    supernovaExpansionRate: number;
   }> = {
-    // Routine: Crystalline/faceted, organized ring, sharp edge glow
+    // Routine: 3D Grid structure - predictability
     routine: { 
       pattern: 'grid', 
       wireframeOpacity: 0.6, 
       wobble: 0.1,
-      surfaceSmoothing: 0,          // Faceted surface
-      outerParticleCount: 120,      // Many particles in organized ring
+      surfaceSmoothing: 0,
+      outerParticleCount: 120,
       outerParticleOrganization: 1.0,
-      knowledgeGlowIntensity: 0.9,  // Strong edge glow
-      knowledgeGlowSharpness: 1.0   // Sharp, concentrated
+      knowledgeGlowIntensity: 0.9,
+      knowledgeGlowSharpness: 1.0,
+      knowledgeShape: 'grid3d',
+      knowledgeShapeIntensity: 1.0,
+      knowledgeShapeScale: 1.2,
+      supernovaRayCount: 0,
+      supernovaExpansionRate: 0
     },
-    // Adaptive: Partially faceted, undulating ring, medium glow
+    // Adaptive: Mesh sphere - flexible structure
     adaptive: { 
       pattern: 'waves', 
       wireframeOpacity: 0.3, 
@@ -326,9 +350,14 @@ function mapKnowledgeToVisuals(knowledge?: string): {
       outerParticleCount: 90,
       outerParticleOrganization: 0.7,
       knowledgeGlowIntensity: 0.6,
-      knowledgeGlowSharpness: 0.7
+      knowledgeGlowSharpness: 0.7,
+      knowledgeShape: 'mesh_sphere',
+      knowledgeShapeIntensity: 0.9,
+      knowledgeShapeScale: 1.0,
+      supernovaRayCount: 0,
+      supernovaExpansionRate: 0
     },
-    // Innovative: Smooth surface, scattered particles, diffuse glow
+    // Innovative: Multi-faceted crystal - creative structures
     innovative: { 
       pattern: 'particles', 
       wireframeOpacity: 0.1, 
@@ -337,18 +366,28 @@ function mapKnowledgeToVisuals(knowledge?: string): {
       outerParticleCount: 70,
       outerParticleOrganization: 0.3,
       knowledgeGlowIntensity: 0.4,
-      knowledgeGlowSharpness: 0.4
+      knowledgeGlowSharpness: 0.4,
+      knowledgeShape: 'crystal',
+      knowledgeShapeIntensity: 0.85,
+      knowledgeShapeScale: 1.1,
+      supernovaRayCount: 0,
+      supernovaExpansionRate: 0
     },
-    // Breakthrough: Organic with distortion, chaotic cloud, pulsing diffuse aura
+    // Breakthrough: Supernova - breaking all boundaries
     breakthrough: { 
       pattern: 'chaos', 
       wireframeOpacity: 0, 
       wobble: 0.8,
-      surfaceSmoothing: 1.0,        // Completely smooth/organic
-      outerParticleCount: 180,      // Many particles in chaotic cloud
-      outerParticleOrganization: 0, // Fully chaotic
-      knowledgeGlowIntensity: 0.7,  // Strong but diffuse
-      knowledgeGlowSharpness: 0.1   // Very diffuse aura
+      surfaceSmoothing: 1.0,
+      outerParticleCount: 180,
+      outerParticleOrganization: 0,
+      knowledgeGlowIntensity: 0.7,
+      knowledgeGlowSharpness: 0.1,
+      knowledgeShape: 'supernova',
+      knowledgeShapeIntensity: 1.0,
+      knowledgeShapeScale: 1.5,
+      supernovaRayCount: 24,
+      supernovaExpansionRate: 0.8
     }
   };
   return map[knowledge || 'adaptive'] || map.adaptive;
@@ -667,6 +706,14 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     knowledgeGlowIntensity: knowledgeVisuals.knowledgeGlowIntensity,
     knowledgeGlowSharpness: knowledgeVisuals.knowledgeGlowSharpness,
     knowledgeGlowColor: hslToString(hue, resourceData.saturation, Math.min(85, resourceData.brightness + 20)),
+    
+    // NEW Knowledge shape visualization
+    knowledgeShape: knowledgeVisuals.knowledgeShape,
+    knowledgeShapeIntensity: knowledgeVisuals.knowledgeShapeIntensity,
+    knowledgeShapeScale: knowledgeVisuals.knowledgeShapeScale,
+    knowledgeShapeColor: hslToString(hue, Math.min(100, resourceData.saturation + 10), 70),
+    supernovaRayCount: knowledgeVisuals.supernovaRayCount,
+    supernovaExpansionRate: knowledgeVisuals.supernovaExpansionRate,
     
     // NEW Organizational-based background
     backgroundColors: {
