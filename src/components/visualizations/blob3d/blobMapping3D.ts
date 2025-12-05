@@ -145,14 +145,14 @@ function mapTemporalToPulse(temporal?: string): number {
   return map[temporal || 'project'] || 2.0;
 }
 
-// Organizational → Base hue
+// Organizational → Base hue (more distinct colors)
 function mapOrganizationalToHue(organizational?: string): number {
   const map: Record<string, number> = {
-    red: 0,
-    amber: 35,
-    orange: 25,
-    green: 145,
-    teal: 190
+    red: 0,      // Pure red
+    amber: 40,   // Orange-yellow
+    orange: 25,  // Orange
+    green: 140,  // Green
+    teal: 185    // Cyan-teal
   };
   return map[organizational || 'orange'] || 25;
 }
@@ -201,10 +201,10 @@ function mapResources(resources?: string): {
   scale: number 
 } {
   const map: Record<string, { size: number; saturation: number; brightness: number; scale: number }> = {
-    rich: { size: 0.8, saturation: 90, brightness: 70, scale: 1.3 },
-    balanced: { size: 0.6, saturation: 70, brightness: 60, scale: 1.0 },
-    constrained: { size: 0.45, saturation: 50, brightness: 50, scale: 0.85 },
-    scarce: { size: 0.3, saturation: 40, brightness: 40, scale: 0.7 }
+    rich: { size: 0.8, saturation: 95, brightness: 65, scale: 1.3 },
+    balanced: { size: 0.6, saturation: 85, brightness: 55, scale: 1.0 },
+    constrained: { size: 0.45, saturation: 70, brightness: 50, scale: 0.85 },
+    scarce: { size: 0.3, saturation: 55, brightness: 45, scale: 0.7 }
   };
   return map[resources || 'balanced'] || map.balanced;
 }
