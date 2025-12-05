@@ -147,7 +147,7 @@ export function EnhancedBlob3DLegend({
     const effects: Record<string, { en: string; da: string }> = {
       spikesRoughness: { en: 'Spikes & surface', da: 'Pigge & overflade' },
       lobesSpread: { en: 'Lobes & spread', da: 'Arme & spredning' },
-      wireframePattern: { en: 'Wireframe & pattern', da: 'Gitter & mønster' },
+      wireframePattern: { en: 'Orbit & edge glow', da: 'Kredsløb & kantglød' },
       multiHueColors: { en: 'Multi-hue colors', da: 'Multi-farve nuancer' },
       primaryHue: { en: 'Primary hue', da: 'Primær farvetone' },
       pulseSpeed: { en: 'Pulse speed', da: 'Pulshastighed' },
