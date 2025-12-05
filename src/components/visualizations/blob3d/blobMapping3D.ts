@@ -75,6 +75,15 @@ export interface Blob3DData {
   backgroundColors: { top: string; bottom: string };
   organizationalAmbientColor: string;
   organizationalAmbientIntensity: number;
+  
+  // NEW: Stakeholder dynamics properties
+  stakeholderMode: 'unified' | 'cooperative' | 'competitive' | 'adversarial';
+  showConnections: boolean;           // Show tubes/strings between lobes
+  connectionThickness: number;        // Tube thickness
+  lobesTouching: boolean;             // Lobes should overlap/touch
+  lobeMovementPattern: 'static' | 'gentle' | 'diverging' | 'chaotic';
+  collisionIntensity: number;         // 0-1 how much lobes collide
+  fragmentationChance: number;        // 0-1 chance of spawning fragments
 }
 
 // Convert HSL values to full HSL color string
@@ -204,12 +213,75 @@ function mapStakeholderToLobes(stakeholder?: string): number {
 // Stakeholder → Lobe spread
 function mapStakeholderToSpread(stakeholder?: string): number {
   const map: Record<string, number> = {
-    unified: 0.6,
-    cooperative: 0.8,
-    competitive: 1.0,
-    adversarial: 1.3
+    unified: 0.3,      // Very close - touching
+    cooperative: 0.6,  // Close but with visible connections
+    competitive: 1.0,  // Spread apart, moving away
+    adversarial: 1.4   // Far apart, colliding
   };
   return map[stakeholder || 'unified'] || 0.8;
+}
+
+// NEW: Stakeholder → Full dynamics configuration
+function mapStakeholderToDynamics(stakeholder?: string): {
+  mode: 'unified' | 'cooperative' | 'competitive' | 'adversarial';
+  showConnections: boolean;
+  connectionThickness: number;
+  lobesTouching: boolean;
+  lobeMovementPattern: 'static' | 'gentle' | 'diverging' | 'chaotic';
+  collisionIntensity: number;
+  fragmentationChance: number;
+} {
+  const map: Record<string, {
+    mode: 'unified' | 'cooperative' | 'competitive' | 'adversarial';
+    showConnections: boolean;
+    connectionThickness: number;
+    lobesTouching: boolean;
+    lobeMovementPattern: 'static' | 'gentle' | 'diverging' | 'chaotic';
+    collisionIntensity: number;
+    fragmentationChance: number;
+  }> = {
+    // Unified: All blobs touch each other, gentle breathing motion
+    unified: {
+      mode: 'unified',
+      showConnections: false,
+      connectionThickness: 0,
+      lobesTouching: true,
+      lobeMovementPattern: 'static',
+      collisionIntensity: 0,
+      fragmentationChance: 0
+    },
+    // Cooperative: Connected with tubes/strings, gentle synchronized movement
+    cooperative: {
+      mode: 'cooperative',
+      showConnections: true,
+      connectionThickness: 0.04,
+      lobesTouching: false,
+      lobeMovementPattern: 'gentle',
+      collisionIntensity: 0,
+      fragmentationChance: 0
+    },
+    // Competitive: Moving in different directions, no connections
+    competitive: {
+      mode: 'competitive',
+      showConnections: false,
+      connectionThickness: 0,
+      lobesTouching: false,
+      lobeMovementPattern: 'diverging',
+      collisionIntensity: 0.3,
+      fragmentationChance: 0
+    },
+    // Adversarial: Colliding, breaking apart, spawning fragments
+    adversarial: {
+      mode: 'adversarial',
+      showConnections: false,
+      connectionThickness: 0,
+      lobesTouching: false,
+      lobeMovementPattern: 'chaotic',
+      collisionIntensity: 0.8,
+      fragmentationChance: 0.5
+    }
+  };
+  return map[stakeholder || 'unified'] || map.unified;
 }
 
 // Knowledge → ENHANCED visual properties with dramatic differences
@@ -515,6 +587,7 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
   const informationEffects = mapInformationToEffects(information);
   const riskEffects = mapRiskToEffects(risk);
   const backgroundEffects = mapOrganizationalToBackground(organizational);
+  const stakeholderDynamics = mapStakeholderToDynamics(stakeholder);
   
   // Generate colors
   const colors = generateColors(hue, colorCount, resourceData.saturation, resourceData.brightness);
@@ -601,6 +674,15 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
       bottom: backgroundEffects.bottomColor
     },
     organizationalAmbientColor: backgroundEffects.ambientColor,
-    organizationalAmbientIntensity: backgroundEffects.ambientIntensity
+    organizationalAmbientIntensity: backgroundEffects.ambientIntensity,
+    
+    // NEW Stakeholder dynamics
+    stakeholderMode: stakeholderDynamics.mode,
+    showConnections: stakeholderDynamics.showConnections,
+    connectionThickness: stakeholderDynamics.connectionThickness,
+    lobesTouching: stakeholderDynamics.lobesTouching,
+    lobeMovementPattern: stakeholderDynamics.lobeMovementPattern,
+    collisionIntensity: stakeholderDynamics.collisionIntensity,
+    fragmentationChance: stakeholderDynamics.fragmentationChance
   };
 }

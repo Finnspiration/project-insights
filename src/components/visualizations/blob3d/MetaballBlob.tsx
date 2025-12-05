@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Blob3DData } from './blobMapping3D';
@@ -929,13 +929,183 @@ function CoreSphere({
   );
 }
 
-export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps) {
+// Stakeholder Connections - tubes/strings between lobes for cooperative mode
+function StakeholderConnections({
+  positions,
+  thickness,
+  color,
+  pulseSpeed
+}: {
+  positions: [number, number, number][];
+  thickness: number;
+  color: THREE.Color;
+  pulseSpeed: number;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   
-  const lobePositions = useMemo(() => {
+  const connections = useMemo(() => {
+    const lines: { start: THREE.Vector3; end: THREE.Vector3; midpoint: THREE.Vector3 }[] = [];
+    
+    // Connect each lobe to adjacent lobes
+    for (let i = 0; i < positions.length; i++) {
+      const nextIndex = (i + 1) % positions.length;
+      const start = new THREE.Vector3(...positions[i]);
+      const end = new THREE.Vector3(...positions[nextIndex]);
+      const midpoint = start.clone().add(end).multiplyScalar(0.5);
+      // Pull midpoint slightly toward center for curved appearance
+      midpoint.multiplyScalar(0.85);
+      lines.push({ start, end, midpoint });
+    }
+    
+    return lines;
+  }, [positions]);
+  
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const time = state.clock.elapsedTime;
+    
+    // Gentle pulse on connections
+    groupRef.current.children.forEach((child, i) => {
+      const pulse = 1 + Math.sin(time * pulseSpeed + i * 0.5) * 0.15;
+      child.scale.setScalar(pulse);
+    });
+  });
+  
+  return (
+    <group ref={groupRef}>
+      {connections.map((conn, i) => {
+        const curve = new THREE.QuadraticBezierCurve3(conn.start, conn.midpoint, conn.end);
+        const tubeGeo = new THREE.TubeGeometry(curve, 16, thickness, 8, false);
+        
+        return (
+          <mesh key={i} geometry={tubeGeo}>
+            <meshPhysicalMaterial
+              color={color}
+              emissive={color}
+              emissiveIntensity={0.3}
+              roughness={0.3}
+              metalness={0.2}
+              transmission={0.3}
+              transparent
+              opacity={0.8}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+// Collision Fragments - small particles that spawn from adversarial collisions
+function CollisionFragments({
+  positions,
+  intensity,
+  color,
+  fragmentCount
+}: {
+  positions: [number, number, number][];
+  intensity: number;
+  color: THREE.Color;
+  fragmentCount: number;
+}) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const velocitiesRef = useRef<Float32Array | null>(null);
+  const lifetimesRef = useRef<Float32Array | null>(null);
+  
+  const geometry = useMemo(() => {
+    const count = Math.floor(fragmentCount * intensity * 30);
+    const geo = new THREE.BufferGeometry();
+    const positionsArr = new Float32Array(count * 3);
+    velocitiesRef.current = new Float32Array(count * 3);
+    lifetimesRef.current = new Float32Array(count);
+    
+    // Initialize fragments near random lobe positions
+    for (let i = 0; i < count; i++) {
+      const lobeIndex = Math.floor(Math.random() * positions.length);
+      const lobe = positions[lobeIndex];
+      
+      positionsArr[i * 3] = lobe[0] + (Math.random() - 0.5) * 0.3;
+      positionsArr[i * 3 + 1] = lobe[1] + (Math.random() - 0.5) * 0.3;
+      positionsArr[i * 3 + 2] = lobe[2] + (Math.random() - 0.5) * 0.3;
+      
+      // Random outward velocity
+      velocitiesRef.current[i * 3] = (Math.random() - 0.5) * 0.02;
+      velocitiesRef.current[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
+      velocitiesRef.current[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
+      
+      lifetimesRef.current[i] = Math.random();
+    }
+    
+    geo.setAttribute('position', new THREE.BufferAttribute(positionsArr, 3));
+    return geo;
+  }, [positions, fragmentCount, intensity]);
+  
+  useFrame(() => {
+    if (!pointsRef.current || !velocitiesRef.current || !lifetimesRef.current) return;
+    
+    const posAttr = pointsRef.current.geometry.attributes.position;
+    
+    for (let i = 0; i < posAttr.count; i++) {
+      // Update lifetime
+      lifetimesRef.current[i] -= 0.008;
+      
+      if (lifetimesRef.current[i] <= 0) {
+        // Respawn at random lobe
+        const lobeIndex = Math.floor(Math.random() * positions.length);
+        const lobe = positions[lobeIndex];
+        
+        posAttr.setXYZ(
+          i,
+          lobe[0] + (Math.random() - 0.5) * 0.2,
+          lobe[1] + (Math.random() - 0.5) * 0.2,
+          lobe[2] + (Math.random() - 0.5) * 0.2
+        );
+        
+        velocitiesRef.current[i * 3] = (Math.random() - 0.5) * 0.03;
+        velocitiesRef.current[i * 3 + 1] = (Math.random() - 0.5) * 0.03;
+        velocitiesRef.current[i * 3 + 2] = (Math.random() - 0.5) * 0.03;
+        
+        lifetimesRef.current[i] = 0.8 + Math.random() * 0.4;
+      } else {
+        // Move fragment
+        posAttr.setXYZ(
+          i,
+          posAttr.getX(i) + velocitiesRef.current[i * 3],
+          posAttr.getY(i) + velocitiesRef.current[i * 3 + 1],
+          posAttr.getZ(i) + velocitiesRef.current[i * 3 + 2]
+        );
+      }
+    }
+    
+    posAttr.needsUpdate = true;
+  });
+  
+  if (intensity < 0.3) return null;
+  
+  return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        size={0.06}
+        color={color}
+        transparent
+        opacity={0.7}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const lobeRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const lobeVelocitiesRef = useRef<THREE.Vector3[]>([]);
+  
+  // Base positions calculated from spread and count
+  const basePositions = useMemo(() => {
     const positions: [number, number, number][] = [];
     const count = data.lobeCount;
-    const spread = data.lobeSpread;
+    const spread = data.lobesTouching ? 0.15 : data.lobeSpread; // Very close for unified
     const symmetry = data.symmetry;
     
     const goldenAngle = Math.PI * (3 - Math.sqrt(5));
@@ -956,8 +1126,73 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
       positions.push([x, y * spread * 0.6, z]);
     }
     
+    // Initialize velocities for animated modes
+    lobeVelocitiesRef.current = positions.map(() => new THREE.Vector3(
+      (Math.random() - 0.5) * 0.01,
+      (Math.random() - 0.5) * 0.01,
+      (Math.random() - 0.5) * 0.01
+    ));
+    
     return positions;
-  }, [data.lobeCount, data.lobeSpread, data.symmetry]);
+  }, [data.lobeCount, data.lobeSpread, data.symmetry, data.lobesTouching]);
+  
+  const [animatedPositions, setAnimatedPositions] = useState<[number, number, number][]>(basePositions);
+  
+  // Animate lobe positions based on stakeholder mode
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const time = state.clock.elapsedTime;
+    groupRef.current.rotation.y = time * data.rotationSpeed * 0.3;
+    
+    // Update lobe positions based on movement pattern
+    if (data.lobeMovementPattern !== 'static') {
+      const newPositions = [...basePositions].map((pos, i): [number, number, number] => {
+        const basePos = new THREE.Vector3(...pos);
+        
+        switch (data.lobeMovementPattern) {
+          case 'gentle':
+            // Gentle synchronized breathing
+            const breathe = Math.sin(time * 0.5 + i * 0.3) * 0.05;
+            return [
+              basePos.x * (1 + breathe),
+              basePos.y * (1 + breathe),
+              basePos.z * (1 + breathe)
+            ];
+            
+          case 'diverging':
+            // Moving away from center in different directions
+            const divergeAmount = Math.sin(time * 0.3 + i * 1.2) * 0.15;
+            const direction = basePos.clone().normalize();
+            return [
+              basePos.x + direction.x * divergeAmount,
+              basePos.y + direction.y * divergeAmount * 0.5,
+              basePos.z + direction.z * divergeAmount
+            ];
+            
+          case 'chaotic':
+            // Chaotic movement with occasional "collision bounces"
+            const chaos = 0.08;
+            const chaoticOffset = new THREE.Vector3(
+              Math.sin(time * 2 + i * 4.1) * chaos + Math.sin(time * 5 + i) * chaos * 0.5,
+              Math.cos(time * 1.7 + i * 3.2) * chaos * 0.5,
+              Math.sin(time * 2.3 + i * 2.8) * chaos + Math.cos(time * 4 + i * 2) * chaos * 0.5
+            );
+            return [
+              basePos.x + chaoticOffset.x,
+              basePos.y + chaoticOffset.y,
+              basePos.z + chaoticOffset.z
+            ];
+            
+          default:
+            return [basePos.x, basePos.y, basePos.z];
+        }
+      });
+      
+      setAnimatedPositions(newPositions);
+    }
+  });
+  
+  const lobePositions = data.lobeMovementPattern === 'static' ? basePositions : animatedPositions;
   
   const lobeColors = useMemo(() => {
     return lobePositions.map((_, i) => {
@@ -969,11 +1204,6 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   const primaryThreeColor = useMemo(() => new THREE.Color(data.primaryColor), [data.primaryColor]);
   const challengeColor = useMemo(() => new THREE.Color(data.glowColor), [data.glowColor]);
   const knowledgeGlowColor = useMemo(() => new THREE.Color(data.knowledgeGlowColor || data.primaryColor), [data.knowledgeGlowColor, data.primaryColor]);
-  
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    groupRef.current.rotation.y = state.clock.elapsedTime * data.rotationSpeed * 0.3;
-  });
   
   return (
     <group ref={groupRef} scale={data.resourceScale}>
@@ -1044,6 +1274,26 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
         coreVisibility={data.coreVisibility}
         scale={data.resourceScale}
       />
+      
+      {/* Stakeholder Connections - tubes for cooperative mode */}
+      {data.showConnections && (
+        <StakeholderConnections
+          positions={lobePositions}
+          thickness={data.connectionThickness}
+          color={primaryThreeColor}
+          pulseSpeed={data.pulseSpeed}
+        />
+      )}
+      
+      {/* Collision Fragments - particles for adversarial mode */}
+      {data.stakeholderMode === 'adversarial' && (
+        <CollisionFragments
+          positions={lobePositions}
+          intensity={data.collisionIntensity}
+          color={challengeColor}
+          fragmentCount={data.lobeCount}
+        />
+      )}
       
       {/* Outer lobes/spheres */}
       {lobePositions.map((pos, i) => (
