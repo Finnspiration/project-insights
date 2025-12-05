@@ -99,24 +99,42 @@ function hslToString(hue: number, saturation: number, lightness: number): string
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-// Generate multi-hue colors with VERY distinct hues for Cultural
+// Generate multi-hue colors with DRAMATICALLY distinct colors for Cultural dimension
 function generateMultiHueColors(baseHue: number, colorCount: number, saturation: number, lightness: number): string[] {
+  // MONO: All colors exactly the same
   if (colorCount === 1) {
     return [hslToString(baseHue, saturation, lightness)];
   }
   
-  // Use maximally different hues for each color count
-  const hueOffsets: Record<number, number[]> = {
-    2: [0, 180],           // Complementary
-    3: [0, 120, 240],      // Triadic
-    4: [0, 90, 180, 270],  // Tetradic
-  };
+  // CROSS-FUNCTIONAL (2 colors): Complementary colors - opposite on color wheel
+  if (colorCount === 2) {
+    return [
+      hslToString(baseHue, saturation, lightness),
+      hslToString((baseHue + 180) % 360, saturation, lightness)
+    ];
+  }
   
-  const offsets = hueOffsets[colorCount] || [0];
-  return offsets.map(offset => {
-    const hue = (baseHue + offset) % 360;
-    return hslToString(hue, saturation, lightness);
-  });
+  // CROSS-ORGANIZATIONAL (3 colors): Triadic - evenly spaced, with saturation variation
+  if (colorCount === 3) {
+    return [
+      hslToString(baseHue, saturation, lightness),
+      hslToString((baseHue + 120) % 360, Math.min(100, saturation + 10), lightness - 5),
+      hslToString((baseHue + 240) % 360, Math.max(50, saturation - 10), lightness + 5)
+    ];
+  }
+  
+  // CROSS-CULTURAL (4 colors): Maximum diversity - different hues, saturations, AND lightness
+  if (colorCount === 4) {
+    return [
+      hslToString(baseHue, saturation, lightness),                                    // Base color
+      hslToString((baseHue + 90) % 360, Math.min(100, saturation + 15), lightness + 10),  // Warm shift, brighter
+      hslToString((baseHue + 180) % 360, Math.max(50, saturation - 10), lightness - 8),   // Complement, darker
+      hslToString((baseHue + 270) % 360, saturation, Math.min(75, lightness + 5))         // Cool shift
+    ];
+  }
+  
+  // Fallback
+  return [hslToString(baseHue, saturation, lightness)];
 }
 
 // Generate color array based on hue and colorCount (legacy - less distinct)
