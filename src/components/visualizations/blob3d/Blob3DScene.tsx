@@ -1,6 +1,6 @@
 import { Suspense, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import { OrbitControls, Environment } from '@react-three/drei';
 import { MetaballBlob } from './MetaballBlob';
 import { Blob3DData } from './blobMapping3D';
 
@@ -138,15 +138,6 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
             selectedLobe={selectedLobe}
           />
           
-          {/* Contact shadow on floor */}
-          <ContactShadows
-            position={[0, -1.8, 0]}
-            opacity={0.5}
-            scale={6}
-            blur={2.5}
-            far={5}
-            color="#000"
-          />
           
           {/* Camera controls */}
           <OrbitControls
