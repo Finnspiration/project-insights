@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Info, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Info, X, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 interface DimensionInfo {
@@ -12,21 +11,22 @@ interface DimensionInfo {
   effect: string;
   effectKey: string;
   zone: string;
+  lobeIndex: number;
 }
 
 const DIMENSION_MAP: DimensionInfo[] = [
-  { key: 'complexity', icon: '🌀', effect: 'Surface roughness/deformation', effectKey: 'surfaceRoughness', zone: 'mainShape' },
-  { key: 'stakeholder', icon: '👥', effect: 'Number of lobes and spread', effectKey: 'lobesSpread', zone: 'mainShape' },
-  { key: 'knowledge', icon: '🧠', effect: 'Inner pattern and wobble', effectKey: 'innerPatternWobble', zone: 'innerPattern' },
-  { key: 'cultural', icon: '🌍', effect: 'Color count and variety', effectKey: 'colorVariety', zone: 'culturalOverlay' },
-  { key: 'organizational', icon: '🏢', effect: 'Primary color hue', effectKey: 'primaryHue', zone: 'coreGlow' },
-  { key: 'temporal', icon: '⏱️', effect: 'Pulse/breathing speed', effectKey: 'pulseSpeed', zone: 'outerGlow' },
-  { key: 'development', icon: '🌱', effect: 'Core glow and transmission', effectKey: 'coreGlowTransmission', zone: 'innerPattern' },
-  { key: 'risk', icon: '✨', effect: 'Outer glow color and intensity', effectKey: 'outerGlow', zone: 'outerGlow' },
-  { key: 'challenge', icon: '⚡', effect: 'Noise particle intensity', effectKey: 'noiseParticles', zone: 'mainShape' },
-  { key: 'resources', icon: '💎', effect: 'Overall scale and size', effectKey: 'scaleSize', zone: 'mainShape' },
-  { key: 'change', icon: '🔄', effect: 'Rotation speed', effectKey: 'rotationSpeed', zone: 'outerGlow' },
-  { key: 'information', icon: '🔗', effect: 'Shape symmetry', effectKey: 'symmetry', zone: 'mainShape' },
+  { key: 'complexity', icon: '🌀', effect: 'Surface roughness/deformation', effectKey: 'surfaceRoughness', zone: 'mainShape', lobeIndex: 0 },
+  { key: 'stakeholder', icon: '👥', effect: 'Number of lobes and spread', effectKey: 'lobesSpread', zone: 'mainShape', lobeIndex: 1 },
+  { key: 'knowledge', icon: '🧠', effect: 'Inner pattern and wobble', effectKey: 'innerPatternWobble', zone: 'innerPattern', lobeIndex: 2 },
+  { key: 'cultural', icon: '🌍', effect: 'Color count and variety', effectKey: 'colorVariety', zone: 'culturalOverlay', lobeIndex: 3 },
+  { key: 'organizational', icon: '🏢', effect: 'Primary color hue', effectKey: 'primaryHue', zone: 'coreGlow', lobeIndex: 4 },
+  { key: 'temporal', icon: '⏱️', effect: 'Pulse/breathing speed', effectKey: 'pulseSpeed', zone: 'outerGlow', lobeIndex: 5 },
+  { key: 'development', icon: '🌱', effect: 'Core glow and transmission', effectKey: 'coreGlowTransmission', zone: 'innerPattern', lobeIndex: 6 },
+  { key: 'risk', icon: '✨', effect: 'Outer glow color and intensity', effectKey: 'outerGlow', zone: 'outerGlow', lobeIndex: 7 },
+  { key: 'challenge', icon: '⚡', effect: 'Noise particle intensity', effectKey: 'noiseParticles', zone: 'mainShape', lobeIndex: 8 },
+  { key: 'resources', icon: '💎', effect: 'Overall scale and size', effectKey: 'scaleSize', zone: 'mainShape', lobeIndex: 9 },
+  { key: 'change', icon: '🔄', effect: 'Rotation speed', effectKey: 'rotationSpeed', zone: 'outerGlow', lobeIndex: 10 },
+  { key: 'information', icon: '🔗', effect: 'Shape symmetry', effectKey: 'symmetry', zone: 'mainShape', lobeIndex: 11 },
 ];
 
 const ZONE_COLORS: Record<string, string> = {
@@ -39,10 +39,11 @@ const ZONE_COLORS: Record<string, string> = {
 
 interface Blob3DLegendProps {
   morphology: Record<string, string>;
+  onHoverDimension?: (dimensionKey: string | null, lobeIndex: number | null) => void;
   className?: string;
 }
 
-export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
+export function Blob3DLegend({ morphology, onHoverDimension, className }: Blob3DLegendProps) {
   const { t, i18n } = useTranslation('common');
   const language = i18n.language as 'en' | 'da';
   
@@ -53,6 +54,7 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
   });
   
   const [isExpanded, setIsExpanded] = useState(true);
+  const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
 
   // Save preference to localStorage
   useEffect(() => {
@@ -102,6 +104,13 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
     return effects[effectKey]?.[language] || effectKey;
   };
 
+  const handleDimensionHover = (dim: DimensionInfo | null) => {
+    const key = dim?.key || null;
+    const lobeIndex = dim?.lobeIndex ?? null;
+    setHoveredDimension(key);
+    onHoverDimension?.(key, lobeIndex);
+  };
+
   if (!isOpen) {
     return (
       <Button
@@ -126,15 +135,17 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
     <div
       className={cn(
         "absolute top-2 right-2 z-10 w-72",
-        "bg-background/85 backdrop-blur-md",
+        "bg-background/90 backdrop-blur-md",
         "border border-border/50 rounded-xl shadow-xl",
         "animate-in fade-in-0 slide-in-from-right-2 duration-300",
+        "flex flex-col max-h-[calc(100%-16px)]",
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-border/30">
+      <div className="flex items-center justify-between p-3 border-b border-border/30 flex-shrink-0">
         <div className="flex items-center gap-2">
+          <GripVertical className="h-3 w-3 text-muted-foreground" />
           <Info className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold">
             {language === 'da' ? 'Parameter Guide' : 'Parameter Guide'}
@@ -163,10 +174,17 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
         </div>
       </div>
       
-      {/* Content */}
+      {/* Content - scrollable */}
       {isExpanded && (
-        <ScrollArea className="max-h-[400px]">
-          <div className="p-2 space-y-1">
+        <div 
+          className="flex-1 overflow-y-auto overscroll-contain"
+          style={{ 
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'hsl(var(--muted-foreground) / 0.3) transparent'
+          }}
+          onMouseLeave={() => handleDimensionHover(null)}
+        >
+          <div className="p-2 space-y-0.5">
             {DIMENSION_MAP.map((dim) => {
               const value = getMorphologyValue(dim.key);
               const translatedName = t(`morphology.dimensions.${dim.key}.title`);
@@ -174,21 +192,39 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
                 ? t(`morphology.dimensions.${dim.key}.options.${value}`)
                 : (language === 'da' ? 'Ikke sat' : 'Not set');
               const zoneColor = ZONE_COLORS[dim.zone];
+              const isHovered = hoveredDimension === dim.key;
               
               return (
                 <div
                   key={dim.key}
+                  onMouseEnter={() => handleDimensionHover(dim)}
                   className={cn(
                     "flex items-start gap-2 p-2 rounded-lg",
-                    "hover:bg-muted/50 transition-colors cursor-default",
+                    "transition-all duration-200 cursor-pointer",
+                    isHovered 
+                      ? "bg-primary/15 scale-[1.02] shadow-sm" 
+                      : "hover:bg-muted/50",
                     "group"
                   )}
+                  style={isHovered ? { 
+                    borderLeft: `3px solid ${zoneColor}`,
+                    paddingLeft: '5px'
+                  } : undefined}
                 >
                   {/* Icon with zone color indicator */}
                   <div className="relative flex-shrink-0">
-                    <span className="text-lg">{dim.icon}</span>
+                    <span className={cn(
+                      "text-lg transition-transform duration-200",
+                      isHovered && "scale-125"
+                    )}>
+                      {dim.icon}
+                    </span>
                     <div 
-                      className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-background"
+                      className={cn(
+                        "absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-background",
+                        "transition-transform duration-200",
+                        isHovered && "scale-150"
+                      )}
                       style={{ backgroundColor: zoneColor }}
                       title={dim.zone}
                     />
@@ -197,7 +233,10 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-xs font-medium truncate">
+                      <span className={cn(
+                        "text-xs font-medium truncate transition-colors",
+                        isHovered && "text-primary"
+                      )}>
                         {translatedName}
                       </span>
                     </div>
@@ -205,23 +244,34 @@ export function Blob3DLegend({ morphology, className }: Blob3DLegendProps) {
                       {translatedValue.split(' - ')[0]}
                     </div>
                     <div 
-                      className="text-[9px] mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity"
+                      className={cn(
+                        "text-[9px] mt-0.5 transition-opacity",
+                        isHovered ? "opacity-100" : "opacity-60 group-hover:opacity-100"
+                      )}
                       style={{ color: zoneColor }}
                     >
                       → {getEffectTranslation(dim.effectKey)}
                     </div>
                   </div>
+                  
+                  {/* Hover indicator */}
+                  {isHovered && (
+                    <div 
+                      className="w-1 h-full rounded-full animate-pulse"
+                      style={{ backgroundColor: zoneColor }}
+                    />
+                  )}
                 </div>
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
       )}
       
       {/* Footer hint */}
-      <div className="px-3 py-1.5 border-t border-border/30 bg-muted/30">
+      <div className="px-3 py-1.5 border-t border-border/30 bg-muted/30 flex-shrink-0">
         <p className="text-[9px] text-muted-foreground text-center">
-          {language === 'da' ? 'Tryk L for at toggle' : 'Press L to toggle'}
+          {language === 'da' ? 'Tryk L for at toggle • Scroll for at se alle' : 'Press L to toggle • Scroll to see all'}
         </p>
       </div>
     </div>

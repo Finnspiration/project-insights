@@ -91,6 +91,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const [viewMode, setViewMode] = useState<ViewMode>({ type: 'idle' });
   const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
   const [isSaving, setIsSaving] = useState(false);
+  const [legendHoveredLobe, setLegendHoveredLobe] = useState<number | null>(null);
   const blobContainerRef = useRef<HTMLDivElement>(null);
   
   // Use React Query for archetype loading - prevents race conditions
@@ -354,12 +355,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
                 <Blob3DScene 
                   data={mapMorphologyTo3DBlob(normalizedMorphology)} 
-                  selectedLobe={selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null}
+                  selectedLobe={legendHoveredLobe ?? (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null)}
                 />
               </Suspense>
               
               {/* Toggleable Legend for 3D Blob */}
-              <Blob3DLegend morphology={normalizedMorphology} />
+              <Blob3DLegend 
+                morphology={normalizedMorphology} 
+                onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
+              />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
               {showZoneTooltip && selectedZone && (() => {
