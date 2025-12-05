@@ -1141,6 +1141,7 @@ function Lobe({
   index,
   glowColor,
   glowIntensity,
+  culturalGlowIntensity,
   isSelected,
   symmetry,
   baseShape,
@@ -1163,6 +1164,7 @@ function Lobe({
   index: number;
   glowColor: string;
   glowIntensity: number;
+  culturalGlowIntensity: number;
   isSelected: boolean;
   symmetry: number;
   baseShape: 'sphere' | 'regular_crystal' | 'irregular_crystal' | 'chaotic_blob';
@@ -1297,7 +1299,13 @@ function Lobe({
       const riskPulse = glowIntensity > 0.5 
         ? 1 + Math.sin(time * 3 + index) * 0.3 * glowIntensity 
         : 1;
-      const targetEmissive = isSelected ? 0.6 : glowIntensity * 0.5 * riskPulse;
+      // Cultural neon glow - pulsing effect for cross-cultural
+      const culturalPulse = culturalGlowIntensity > 0.5 
+        ? 1 + Math.sin(time * 4 + index * 1.5) * 0.4 * culturalGlowIntensity 
+        : 1;
+      const baseEmissive = isSelected ? 0.6 : glowIntensity * 0.5 * riskPulse;
+      const culturalEmissive = culturalGlowIntensity * 0.6 * culturalPulse;
+      const targetEmissive = Math.max(baseEmissive, culturalEmissive);
       materialRef.current.emissiveIntensity = THREE.MathUtils.lerp(
         materialRef.current.emissiveIntensity,
         targetEmissive,
@@ -1314,21 +1322,25 @@ function Lobe({
   const materialMetalness = baseShape === 'regular_crystal' ? 0.2 :
                             baseShape === 'irregular_crystal' ? 0.15 : 0;
   
+  // Neon effect: lower roughness and higher clearcoat for cultural diversity
+  const neonRoughness = Math.max(0.02, materialRoughness - culturalGlowIntensity * 0.1);
+  const neonClearcoat = Math.min(1.0, (baseShape === 'sphere' ? 1.0 : 0.6) + culturalGlowIntensity * 0.3);
+  
   return (
     <mesh ref={meshRef} position={position} geometry={geometry}>
       <meshPhysicalMaterial
         ref={materialRef}
         color={threeColor}
-        emissive={isSelected ? threeColor : threeGlowColor}
-        emissiveIntensity={glowIntensity * 0.2}
-        roughness={materialRoughness}
+        emissive={culturalGlowIntensity > 0.5 ? threeColor : (isSelected ? threeColor : threeGlowColor)}
+        emissiveIntensity={Math.max(glowIntensity * 0.2, culturalGlowIntensity * 0.4)}
+        roughness={neonRoughness}
         metalness={materialMetalness}
         transmission={transmission}
         thickness={thickness}
         ior={ior}
-        clearcoat={baseShape === 'sphere' ? 1.0 : 0.6}
+        clearcoat={neonClearcoat}
         clearcoatRoughness={baseShape === 'sphere' ? 0.02 : 0.15}
-        envMapIntensity={1.5}
+        envMapIntensity={1.5 + culturalGlowIntensity * 0.5}
         transparent
         opacity={0.95}
       />
@@ -1799,6 +1811,7 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
           index={i}
           glowColor={data.glowColor}
           glowIntensity={data.glowIntensity}
+          culturalGlowIntensity={data.culturalGlowIntensity}
           isSelected={selectedLobe === i}
           symmetry={data.symmetry}
           baseShape={data.baseShape}

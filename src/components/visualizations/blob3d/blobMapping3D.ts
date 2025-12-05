@@ -63,6 +63,9 @@ export interface Blob3DData {
   outerAuraColor: string;      // Aura color
   multiHueColors: string[];    // Distinct hue colors for cultural
   
+  // NEW: Cultural neon glow effect
+  culturalGlowIntensity: number;  // 0-1 neon glow based on cultural diversity
+  
   // NEW: Knowledge-specific visual properties
   surfaceSmoothing: number;        // 0 = faceted/crystalline, 1 = smooth/organic
   outerParticleCount: number;      // 50-250 orbiting particles
@@ -109,27 +112,29 @@ function generateMultiHueColors(baseHue: number, colorCount: number, saturation:
   // CROSS-FUNCTIONAL (2 colors): Complementary colors - opposite on color wheel
   if (colorCount === 2) {
     return [
-      hslToString(baseHue, saturation, lightness),
-      hslToString((baseHue + 180) % 360, saturation, lightness)
+      hslToString(baseHue, Math.min(100, saturation + 5), lightness),
+      hslToString((baseHue + 180) % 360, Math.min(100, saturation + 5), lightness)
     ];
   }
   
   // CROSS-ORGANIZATIONAL (3 colors): Triadic - evenly spaced, with saturation variation
   if (colorCount === 3) {
     return [
-      hslToString(baseHue, saturation, lightness),
-      hslToString((baseHue + 120) % 360, Math.min(100, saturation + 10), lightness - 5),
-      hslToString((baseHue + 240) % 360, Math.max(50, saturation - 10), lightness + 5)
+      hslToString(baseHue, Math.min(100, saturation + 10), lightness),
+      hslToString((baseHue + 120) % 360, Math.min(100, saturation + 15), lightness + 5),
+      hslToString((baseHue + 240) % 360, Math.min(100, saturation + 10), lightness - 5)
     ];
   }
   
-  // CROSS-CULTURAL (4 colors): Maximum diversity - different hues, saturations, AND lightness
+  // CROSS-CULTURAL (4 colors): NEON - maximum vibrancy with high saturation
   if (colorCount === 4) {
+    const neonSat = Math.min(100, saturation + 25); // Boost saturation for neon effect
+    const neonLight = Math.min(70, lightness + 10); // Brighter for neon
     return [
-      hslToString(baseHue, saturation, lightness),                                    // Base color
-      hslToString((baseHue + 90) % 360, Math.min(100, saturation + 15), lightness + 10),  // Warm shift, brighter
-      hslToString((baseHue + 180) % 360, Math.max(50, saturation - 10), lightness - 8),   // Complement, darker
-      hslToString((baseHue + 270) % 360, saturation, Math.min(75, lightness + 5))         // Cool shift
+      hslToString(baseHue, neonSat, neonLight),                           // Neon base
+      hslToString((baseHue + 85) % 360, 100, 60),                          // Neon warm (full saturation)
+      hslToString((baseHue + 180) % 360, 100, 55),                         // Neon complement (full saturation)
+      hslToString((baseHue + 270) % 360, 95, 65)                           // Neon cool
     ];
   }
   
@@ -411,15 +416,15 @@ function mapKnowledgeToVisuals(knowledge?: string): {
   return map[knowledge || 'adaptive'] || map.adaptive;
 }
 
-// Cultural → Color count (now with multi-hue)
-function mapCulturalToColorCount(cultural?: string): number {
-  const map: Record<string, number> = {
-    mono: 1,
-    crossfunctional: 2,
-    crossorg: 3,
-    crosscultural: 4
+// Cultural → Color count AND glow intensity
+function mapCulturalToEffects(cultural?: string): { colorCount: number; glowIntensity: number } {
+  const map: Record<string, { colorCount: number; glowIntensity: number }> = {
+    mono: { colorCount: 1, glowIntensity: 0 },
+    crossfunctional: { colorCount: 2, glowIntensity: 0.2 },
+    crossorg: { colorCount: 3, glowIntensity: 0.5 },
+    crosscultural: { colorCount: 4, glowIntensity: 1.0 }  // Full neon glow
   };
-  return map[cultural || 'mono'] || 1;
+  return map[cultural || 'mono'] || map.mono;
 }
 
 // Temporal → Pulse speed
@@ -636,7 +641,8 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
   // Get derived values
   const hue = mapOrganizationalToHue(organizational);
   const resourceData = mapResources(resources);
-  const colorCount = mapCulturalToColorCount(cultural);
+  const culturalEffects = mapCulturalToEffects(cultural);
+  const colorCount = culturalEffects.colorCount;
   const complexityEffects = mapComplexityToEffects(complexity);
   const challengeEffects = mapChallengeToEffects(challenge);
   const developmentCore = mapDevelopmentToCore(development);
@@ -716,6 +722,7 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     outerAuraIntensity: riskEffects.auraIntensity,
     outerAuraColor: riskEffects.auraColor,
     multiHueColors,
+    culturalGlowIntensity: culturalEffects.glowIntensity,
     
     // NEW Knowledge-specific properties
     surfaceSmoothing: knowledgeVisuals.surfaceSmoothing,
