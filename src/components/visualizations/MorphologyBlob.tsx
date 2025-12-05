@@ -13,6 +13,7 @@ import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Blob3DScene, mapMorphologyTo3DBlob } from './blob3d';
+import { Blob3DLegend } from './blob3d/Blob3DLegend';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -356,6 +357,9 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   selectedLobe={selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null}
                 />
               </Suspense>
+              
+              {/* Toggleable Legend for 3D Blob */}
+              <Blob3DLegend morphology={normalizedMorphology} />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
               {showZoneTooltip && selectedZone && (() => {
