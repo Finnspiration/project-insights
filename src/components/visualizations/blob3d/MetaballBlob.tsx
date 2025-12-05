@@ -650,7 +650,7 @@ function ChallengeNoise({
   );
 }
 
-// Single organic lobe/sphere with deformable surface
+// Single organic lobe/sphere with complexity-driven shape
 function Lobe({ 
   position, 
   size, 
@@ -667,7 +667,12 @@ function Lobe({
   glowColor,
   glowIntensity,
   isSelected,
-  symmetry
+  symmetry,
+  baseShape,
+  crystalFaces,
+  deformationIntensity,
+  hasHolesInSurface,
+  hasCraters
 }: {
   position: [number, number, number];
   size: number;
@@ -675,7 +680,7 @@ function Lobe({
   transmission: number;
   roughness: number;
   surfaceRoughness: number;
-  surfaceSmoothing: number; // NEW: 0 = faceted/crystalline, 1 = smooth/organic
+  surfaceSmoothing: number;
   thickness: number;
   ior: number;
   pulseSpeed: number;
@@ -685,6 +690,11 @@ function Lobe({
   glowIntensity: number;
   isSelected: boolean;
   symmetry: number;
+  baseShape: 'sphere' | 'regular_crystal' | 'irregular_crystal' | 'chaotic_blob';
+  crystalFaces: number;
+  deformationIntensity: number;
+  hasHolesInSurface: boolean;
+  hasCraters: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
@@ -693,45 +703,97 @@ function Lobe({
   const threeGlowColor = useMemo(() => new THREE.Color(glowColor), [glowColor]);
   
   const geometry = useMemo(() => {
-    // Segments based on surfaceSmoothing: low = faceted (8-16), high = smooth (48-64)
-    const segments = Math.floor(8 + surfaceSmoothing * 56);
-    
-    // Use IcosahedronGeometry for low smoothing (crystalline), SphereGeometry for high (organic)
     let geo: THREE.BufferGeometry;
-    if (surfaceSmoothing < 0.3) {
-      // Faceted/crystalline look
-      const detail = Math.floor(1 + surfaceSmoothing * 3);
-      geo = new THREE.IcosahedronGeometry(1, detail);
-    } else {
-      // Smooth organic look
-      geo = new THREE.SphereGeometry(1, segments, segments);
+    
+    switch (baseShape) {
+      case 'sphere':
+        // Perfect smooth sphere for Simple
+        geo = new THREE.SphereGeometry(1, 64, 64);
+        break;
+        
+      case 'regular_crystal':
+        // Regular crystal - clean platonic solid (icosahedron or dodecahedron)
+        geo = new THREE.IcosahedronGeometry(1, 0); // detail 0 = clean edges
+        break;
+        
+      case 'irregular_crystal':
+        // Irregular crystal - deformed platonic solid
+        geo = new THREE.DodecahedronGeometry(1, 0);
+        break;
+        
+      case 'chaotic_blob':
+        // Chaotic blob - organic deformed sphere base
+        geo = new THREE.SphereGeometry(1, 24, 24);
+        break;
+        
+      default:
+        geo = new THREE.SphereGeometry(1, 32, 32);
     }
     
     const positions = geo.attributes.position;
     
-    // Apply surface roughness deformation (reduced for smooth surfaces)
-    const deformationAmount = surfaceRoughness * (1 - surfaceSmoothing * 0.5);
-    if (deformationAmount > 0.1) {
+    // Apply deformation based on complexity type
+    if (baseShape === 'irregular_crystal' && deformationIntensity > 0) {
+      // Asymmetric deformation for irregular crystals
       for (let i = 0; i < positions.count; i++) {
         const x = positions.getX(i);
         const y = positions.getY(i);
         const z = positions.getZ(i);
         
-        const noise = 
-          Math.sin(x * 5 + index) * 
-          Math.cos(y * 5 + index) * 
-          Math.sin(z * 5 + index);
+        // Unique deformation per vertex with index-based variation
+        const noise1 = Math.sin(x * 4 + index * 1.7) * Math.cos(y * 3.5) * 0.3;
+        const noise2 = Math.cos(z * 5 + index * 2.1) * Math.sin(x * 2.8) * 0.25;
+        const noise3 = Math.sin(y * 3.2 + z * 4.1 + index) * 0.2;
         
-        const deformation = 1 + noise * deformationAmount * 0.3;
+        const deformation = 1 + (noise1 + noise2 + noise3) * deformationIntensity * 0.5;
         
         positions.setXYZ(i, x * deformation, y * deformation, z * deformation);
       }
-      positions.needsUpdate = true;
-      geo.computeVertexNormals();
+    } else if (baseShape === 'chaotic_blob') {
+      // Chaotic deformation with bulges, indentations, and asymmetry
+      for (let i = 0; i < positions.count; i++) {
+        const x = positions.getX(i);
+        const y = positions.getY(i);
+        const z = positions.getZ(i);
+        
+        // Multiple noise frequencies for organic chaos
+        const lowFreq = Math.sin(x * 2 + index) * Math.cos(y * 2.3) * Math.sin(z * 1.8) * 0.4;
+        const midFreq = Math.sin(x * 5 + y * 4 + index * 0.7) * 0.25;
+        const highFreq = Math.sin(x * 10 + z * 8 + index * 1.3) * Math.cos(y * 9) * 0.15;
+        
+        // Add bulges (positive) and craters (negative)
+        const bulgeAngle = Math.atan2(z, x);
+        const bulgeMask = Math.sin(bulgeAngle * 3 + index) * 0.3;
+        
+        let deformation = 1 + (lowFreq + midFreq + highFreq + bulgeMask) * deformationIntensity;
+        
+        // Add crater-like depressions
+        if (hasCraters) {
+          const craterNoise = Math.sin(x * 7 + index * 2.5) * Math.sin(y * 7) * Math.sin(z * 7);
+          if (craterNoise > 0.5) {
+            deformation *= 0.7; // Create indentation
+          }
+        }
+        
+        positions.setXYZ(i, x * deformation, y * deformation, z * deformation);
+      }
+    } else if (baseShape === 'regular_crystal') {
+      // Slight uniform variation to keep it clean but not perfect
+      for (let i = 0; i < positions.count; i++) {
+        const x = positions.getX(i);
+        const y = positions.getY(i);
+        const z = positions.getZ(i);
+        
+        const subtleNoise = 1 + Math.sin(index * 0.5) * 0.05;
+        positions.setXYZ(i, x * subtleNoise, y * subtleNoise, z * subtleNoise);
+      }
     }
     
+    positions.needsUpdate = true;
+    geo.computeVertexNormals();
+    
     return geo;
-  }, [surfaceRoughness, surfaceSmoothing, index]);
+  }, [baseShape, deformationIntensity, index, hasCraters]);
   
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -751,8 +813,10 @@ function Lobe({
     meshRef.current.position.y = position[1] + wobbleY;
     meshRef.current.position.z = position[2] + wobbleZ;
     
-    meshRef.current.rotation.x = Math.sin(time * 0.3 + phaseOffset) * 0.1;
-    meshRef.current.rotation.y = time * 0.1;
+    // More rotation variation for chaotic shapes
+    const rotationMultiplier = baseShape === 'chaotic_blob' ? 0.3 : 0.1;
+    meshRef.current.rotation.x = Math.sin(time * 0.3 + phaseOffset) * rotationMultiplier;
+    meshRef.current.rotation.y = time * rotationMultiplier;
     
     if (materialRef.current) {
       const riskPulse = glowIntensity > 0.5 
@@ -767,6 +831,14 @@ function Lobe({
     }
   });
   
+  // Adjust material properties based on shape type
+  const materialRoughness = baseShape === 'sphere' ? 0.05 : 
+                            baseShape === 'regular_crystal' ? 0.15 :
+                            baseShape === 'irregular_crystal' ? 0.25 : 0.35;
+  
+  const materialMetalness = baseShape === 'regular_crystal' ? 0.2 :
+                            baseShape === 'irregular_crystal' ? 0.15 : 0;
+  
   return (
     <mesh ref={meshRef} position={position} geometry={geometry}>
       <meshPhysicalMaterial
@@ -774,13 +846,13 @@ function Lobe({
         color={threeColor}
         emissive={isSelected ? threeColor : threeGlowColor}
         emissiveIntensity={glowIntensity * 0.2}
-        roughness={roughness}
-        metalness={0.0}
+        roughness={materialRoughness}
+        metalness={materialMetalness}
         transmission={transmission}
         thickness={thickness}
         ior={ior}
-        clearcoat={0.8}
-        clearcoatRoughness={0.1}
+        clearcoat={baseShape === 'sphere' ? 1.0 : 0.6}
+        clearcoatRoughness={baseShape === 'sphere' ? 0.02 : 0.15}
         envMapIntensity={1.5}
         transparent
         opacity={0.95}
@@ -993,6 +1065,11 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
           glowIntensity={data.glowIntensity}
           isSelected={selectedLobe === i}
           symmetry={data.symmetry}
+          baseShape={data.baseShape}
+          crystalFaces={data.crystalFaces}
+          deformationIntensity={data.deformationIntensity}
+          hasHolesInSurface={data.hasHolesInSurface}
+          hasCraters={data.hasCraters}
         />
       ))}
     </group>

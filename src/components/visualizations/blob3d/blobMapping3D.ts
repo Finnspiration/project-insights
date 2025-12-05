@@ -9,6 +9,14 @@ export interface Blob3DData {
   surfaceRoughness: number;    // 0.1-0.9 - surface deformation (complexity)
   symmetry: number;            // 0.3-1.0 (information flow)
   
+  // NEW: Complexity-driven base shape
+  baseShape: 'sphere' | 'regular_crystal' | 'irregular_crystal' | 'chaotic_blob';
+  crystalFaces: number;        // Number of faces for crystal shapes (4-20)
+  hasHolesInSurface: boolean;  // For chaotic: holes in the surface
+  hasCraters: boolean;         // For chaotic: crater-like depressions
+  hasSharpEdges: boolean;      // For chaotic: some sharp angular parts
+  deformationIntensity: number; // 0-1 how much the shape is deformed
+  
   // Color - from organizational, cultural, resources
   primaryColor: string;        // HSL string based on organizational
   secondaryColor: string;      // Complementary/analogous
@@ -113,15 +121,73 @@ function getSecondaryColor(hue: number, saturation: number, lightness: number): 
   return hslToString(secondaryHue, saturation * 0.9, lightness + 5);
 }
 
-// Complexity → Surface roughness/deformation AND spikes
-function mapComplexityToEffects(complexity?: string): { roughness: number; spikeContribution: number } {
-  const map: Record<string, { roughness: number; spikeContribution: number }> = {
-    simple: { roughness: 0.1, spikeContribution: 0 },
-    complicated: { roughness: 0.35, spikeContribution: 0.3 },
-    complex: { roughness: 0.6, spikeContribution: 0.6 },
-    chaotic: { roughness: 0.9, spikeContribution: 1.0 }
+// Complexity → Base shape + Surface roughness/deformation AND spikes
+function mapComplexityToEffects(complexity?: string): { 
+  roughness: number; 
+  spikeContribution: number;
+  baseShape: 'sphere' | 'regular_crystal' | 'irregular_crystal' | 'chaotic_blob';
+  crystalFaces: number;
+  hasHolesInSurface: boolean;
+  hasCraters: boolean;
+  hasSharpEdges: boolean;
+  deformationIntensity: number;
+} {
+  const map: Record<string, { 
+    roughness: number; 
+    spikeContribution: number;
+    baseShape: 'sphere' | 'regular_crystal' | 'irregular_crystal' | 'chaotic_blob';
+    crystalFaces: number;
+    hasHolesInSurface: boolean;
+    hasCraters: boolean;
+    hasSharpEdges: boolean;
+    deformationIntensity: number;
+  }> = {
+    // Simple: Perfect smooth spheres
+    simple: { 
+      roughness: 0.05, 
+      spikeContribution: 0,
+      baseShape: 'sphere',
+      crystalFaces: 64,
+      hasHolesInSurface: false,
+      hasCraters: false,
+      hasSharpEdges: false,
+      deformationIntensity: 0
+    },
+    // Complicated: Regular crystals (platonic solids - clean geometric)
+    complicated: { 
+      roughness: 0.2, 
+      spikeContribution: 0.2,
+      baseShape: 'regular_crystal',
+      crystalFaces: 20, // Icosahedron
+      hasHolesInSurface: false,
+      hasCraters: false,
+      hasSharpEdges: true,
+      deformationIntensity: 0.1
+    },
+    // Complex: Irregular crystals (deformed, asymmetric)
+    complex: { 
+      roughness: 0.5, 
+      spikeContribution: 0.5,
+      baseShape: 'irregular_crystal',
+      crystalFaces: 12, // Dodecahedron base, but deformed
+      hasHolesInSurface: false,
+      hasCraters: true,
+      hasSharpEdges: true,
+      deformationIntensity: 0.6
+    },
+    // Chaotic: Irregular soft blobs with holes, edges, craters
+    chaotic: { 
+      roughness: 0.9, 
+      spikeContribution: 0.8,
+      baseShape: 'chaotic_blob',
+      crystalFaces: 8,
+      hasHolesInSurface: true,
+      hasCraters: true,
+      hasSharpEdges: true,
+      deformationIntensity: 1.0
+    }
   };
-  return map[complexity || 'simple'] || { roughness: 0.3, spikeContribution: 0.2 };
+  return map[complexity || 'simple'] || map.simple;
 }
 
 // Stakeholder → Lobe count (arms)
@@ -466,6 +532,14 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     lobeSpread: mapStakeholderToSpread(stakeholder),
     surfaceRoughness: complexityEffects.roughness,
     symmetry: informationEffects.symmetry,
+    
+    // NEW: Complexity-driven base shape
+    baseShape: complexityEffects.baseShape,
+    crystalFaces: complexityEffects.crystalFaces,
+    hasHolesInSurface: complexityEffects.hasHolesInSurface,
+    hasCraters: complexityEffects.hasCraters,
+    hasSharpEdges: complexityEffects.hasSharpEdges,
+    deformationIntensity: complexityEffects.deformationIntensity,
     
     // Color - now with multi-hue
     primaryColor: hslToString(hue, resourceData.saturation, resourceData.brightness),
