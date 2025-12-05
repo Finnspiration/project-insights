@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { MORPHOLOGY_DIMENSIONS, DimensionConfig } from '@/lib/morphologyConfig';
+import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
+import { DIMENSION_KEYS, DIMENSION_ICONS } from './dimensionConfig';
 
 interface BlobDemoModeProps {
   baseMorphology: Record<string, string>;
@@ -13,38 +14,6 @@ interface BlobDemoModeProps {
   onDemoStateChange: (isActive: boolean, currentDimension: string | null) => void;
   className?: string;
 }
-
-// Dimension icons for display
-const DIMENSION_ICONS: Record<string, string> = {
-  complexity: '🌀',
-  stakeholder: '👥',
-  knowledge: '🧠',
-  cultural: '🌍',
-  organizational: '🏢',
-  temporal: '⏱️',
-  development: '🌱',
-  risk: '🔥',
-  challenge: '⚡',
-  resources: '💎',
-  change: '🔄',
-  information: '🕳️',
-};
-
-// Order dimensions for best visual demonstration flow
-const DEMO_DIMENSION_ORDER = [
-  'risk',        // Start with dramatic background changes
-  'complexity',  // Spikes
-  'challenge',   // More spikes + particles
-  'information', // Holes
-  'knowledge',   // Orbit + glow + surface
-  'stakeholder', // Lobe count
-  'cultural',    // Multi-colors
-  'organizational', // Base hue
-  'development', // Core visibility
-  'resources',   // Scale/size
-  'temporal',    // Pulse speed
-  'change',      // Rotation speed
-];
 
 export function BlobDemoMode({
   baseMorphology,
@@ -64,18 +33,18 @@ export function BlobDemoMode({
   const CYCLE_INTERVAL = 1500; // ms between option changes
   
   // Get current dimension config
-  const currentDimensionKey = DEMO_DIMENSION_ORDER[currentDimensionIndex];
+  const currentDimensionKey = DIMENSION_KEYS[currentDimensionIndex];
   const currentDimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === currentDimensionKey);
   const currentOptions = currentDimension?.options || [];
   const currentOption = currentOptions[currentOptionIndex];
   
   // Calculate overall progress
-  const totalSteps = DEMO_DIMENSION_ORDER.reduce((sum, key) => {
+  const totalSteps = DIMENSION_KEYS.reduce((sum, key) => {
     const dim = MORPHOLOGY_DIMENSIONS.find(d => d.key === key);
     return sum + (dim?.options.length || 0);
   }, 0);
   
-  const completedSteps = DEMO_DIMENSION_ORDER.slice(0, currentDimensionIndex).reduce((sum, key) => {
+  const completedSteps = DIMENSION_KEYS.slice(0, currentDimensionIndex).reduce((sum, key) => {
     const dim = MORPHOLOGY_DIMENSIONS.find(d => d.key === key);
     return sum + (dim?.options.length || 0);
   }, 0) + currentOptionIndex;
@@ -99,7 +68,7 @@ export function BlobDemoMode({
     if (currentOptionIndex < currentOptions.length - 1) {
       // Next option in same dimension
       setCurrentOptionIndex(prev => prev + 1);
-    } else if (currentDimensionIndex < DEMO_DIMENSION_ORDER.length - 1) {
+    } else if (currentDimensionIndex < DIMENSION_KEYS.length - 1) {
       // Next dimension
       setCurrentDimensionIndex(prev => prev + 1);
       setCurrentOptionIndex(0);
@@ -112,7 +81,7 @@ export function BlobDemoMode({
   
   // Skip to next dimension
   const skipDimension = useCallback(() => {
-    if (currentDimensionIndex < DEMO_DIMENSION_ORDER.length - 1) {
+    if (currentDimensionIndex < DIMENSION_KEYS.length - 1) {
       setCurrentDimensionIndex(prev => prev + 1);
       setCurrentOptionIndex(0);
     } else {
@@ -388,14 +357,14 @@ export function BlobDemoMode({
         <div className="space-y-1">
           <div className="flex justify-between text-[10px] text-muted-foreground">
             <span>{language === 'da' ? 'Samlet fremdrift' : 'Overall progress'}</span>
-            <span>{currentDimensionIndex + 1} / {DEMO_DIMENSION_ORDER.length}</span>
+            <span>{currentDimensionIndex + 1} / {DIMENSION_KEYS.length}</span>
           </div>
           <Progress value={overallProgress} className="h-1" />
         </div>
         
         {/* Dimension queue preview */}
         <div className="flex flex-wrap gap-1">
-          {DEMO_DIMENSION_ORDER.map((key, idx) => (
+          {DIMENSION_KEYS.map((key, idx) => (
             <div
               key={key}
               className={cn(
