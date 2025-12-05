@@ -66,7 +66,7 @@ function BackgroundGradient({
   );
 }
 
-// Atmospheric fog/haze effect
+// Atmospheric fog/haze effect - ENHANCED for risk visibility
 function AtmosphericHaze({ 
   color, 
   intensity 
@@ -75,6 +75,7 @@ function AtmosphericHaze({
   intensity: number 
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   
   useFrame((state) => {
@@ -83,21 +84,48 @@ function AtmosphericHaze({
     meshRef.current.rotation.z = time * 0.05;
     
     const material = meshRef.current.material as THREE.MeshBasicMaterial;
-    material.opacity = (0.05 + Math.sin(time * 0.5) * 0.02) * intensity;
+    // Much higher opacity for visibility
+    material.opacity = (0.15 + Math.sin(time * 0.5) * 0.08) * intensity;
+    
+    // Animate warning ring
+    if (ringRef.current) {
+      const ringMaterial = ringRef.current.material as THREE.MeshBasicMaterial;
+      const pulse = Math.sin(time * 3) * 0.5 + 0.5;
+      ringMaterial.opacity = pulse * intensity * 0.6;
+      ringRef.current.scale.setScalar(1.8 + pulse * 0.3);
+    }
   });
   
-  if (intensity < 0.2) return null;
+  // Lower threshold - show even at low risk
+  if (intensity < 0.1) return null;
   
   return (
-    <mesh ref={meshRef} position={[0, 0, -2]}>
-      <circleGeometry args={[4, 64]} />
-      <meshBasicMaterial
-        color={threeColor}
-        transparent
-        opacity={0.08 * intensity}
-        blending={THREE.AdditiveBlending}
-      />
-    </mesh>
+    <group>
+      {/* Main haze circle */}
+      <mesh ref={meshRef} position={[0, 0, -2]}>
+        <circleGeometry args={[5, 64]} />
+        <meshBasicMaterial
+          color={threeColor}
+          transparent
+          opacity={0.2 * intensity}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      
+      {/* Pulsing warning ring for high risk */}
+      {intensity > 0.4 && (
+        <mesh ref={ringRef} position={[0, 0, -1]}>
+          <ringGeometry args={[1.6, 2.0, 64]} />
+          <meshBasicMaterial
+            color={threeColor}
+            transparent
+            opacity={0.3 * intensity}
+            blending={THREE.AdditiveBlending}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+    </group>
   );
 }
 

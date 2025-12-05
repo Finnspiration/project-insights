@@ -367,7 +367,7 @@ function mapInformationToEffects(information?: string): {
   return map[information || 'hierarchical'] || { symmetry: 0.7, holeCount: 2, holeSize: 0.12 };
 }
 
-// Risk → Glow color, intensity, background style, and aura
+// Risk → Glow color, intensity, background style, and aura - ENHANCED visibility
 function mapRiskToEffects(risk?: string): { 
   color: string; 
   intensity: number;
@@ -383,28 +383,28 @@ function mapRiskToEffects(risk?: string): {
     auraColor: string;
   }> = {
     low: { 
-      color: '#10B981', 
-      intensity: 0.3, 
+      color: '#22C55E',  // Brighter green
+      intensity: 0.35, 
       backgroundStyle: 'neutral',
-      auraIntensity: 0.1,
-      auraColor: '#10B981'
+      auraIntensity: 0.25,  // Increased from 0.1
+      auraColor: '#22C55E'
     },
     moderate: { 
-      color: '#F59E0B', 
-      intensity: 0.5, 
+      color: '#FBBF24',  // Brighter amber
+      intensity: 0.6,    // Increased 
       backgroundStyle: 'warm',
-      auraIntensity: 0.4,
+      auraIntensity: 0.55,  // Increased from 0.4
       auraColor: '#F59E0B'
     },
     high: { 
-      color: '#F97316', 
-      intensity: 0.75, 
+      color: '#F97316',  // Orange
+      intensity: 0.85,   // Increased
       backgroundStyle: 'danger',
-      auraIntensity: 0.7,
+      auraIntensity: 0.8,   // Increased from 0.7
       auraColor: '#EF4444'
     },
     extreme: { 
-      color: '#EF4444', 
+      color: '#EF4444',  // Red
       intensity: 1.0, 
       backgroundStyle: 'critical',
       auraIntensity: 1.0,

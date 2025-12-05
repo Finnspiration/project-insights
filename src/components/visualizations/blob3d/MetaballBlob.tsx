@@ -375,7 +375,7 @@ function KnowledgeGlow({
   );
 }
 
-// Outer Aura/Glow for Risk visualization
+// Outer Aura/Glow for Risk visualization - ENHANCED
 function OuterAura({ 
   intensity, 
   color,
@@ -386,33 +386,71 @@ function OuterAura({
   pulseSpeed: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const innerMeshRef = useRef<THREE.Mesh>(null);
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
     
-    // Pulsing scale for dramatic effect
-    const pulse = 1 + Math.sin(time * pulseSpeed) * 0.1 * intensity;
+    // Pulsing scale for dramatic effect - more intense pulsing at high risk
+    const pulseAmount = intensity > 0.7 ? 0.2 : 0.1;
+    const pulse = 1 + Math.sin(time * pulseSpeed * 1.5) * pulseAmount * intensity;
     meshRef.current.scale.setScalar(pulse);
     
     // Update opacity based on pulse
     const material = meshRef.current.material as THREE.MeshBasicMaterial;
-    material.opacity = (0.15 + Math.sin(time * pulseSpeed * 1.5) * 0.1) * intensity;
+    material.opacity = (0.25 + Math.sin(time * pulseSpeed * 2) * 0.15) * intensity;
+    
+    // Inner glow layer
+    if (innerMeshRef.current) {
+      const innerMat = innerMeshRef.current.material as THREE.MeshBasicMaterial;
+      innerMat.opacity = (0.35 + Math.sin(time * pulseSpeed * 2.5) * 0.2) * intensity;
+      innerMeshRef.current.scale.setScalar(1 + Math.sin(time * pulseSpeed * 2) * 0.05);
+    }
   });
   
-  if (intensity < 0.2) return null;
+  // Show even at low risk levels
+  if (intensity < 0.1) return null;
   
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[1.5, 32, 32]} />
-      <meshBasicMaterial
-        color={threeColor}
-        transparent
-        opacity={0.2 * intensity}
-        side={THREE.BackSide}
-      />
-    </mesh>
+    <group>
+      {/* Inner glow - closer to blob */}
+      <mesh ref={innerMeshRef}>
+        <sphereGeometry args={[1.15, 32, 32]} />
+        <meshBasicMaterial
+          color={threeColor}
+          transparent
+          opacity={0.4 * intensity}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      
+      {/* Outer aura */}
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[1.6, 32, 32]} />
+        <meshBasicMaterial
+          color={threeColor}
+          transparent
+          opacity={0.25 * intensity}
+          side={THREE.BackSide}
+        />
+      </mesh>
+      
+      {/* Critical risk: additional danger ring */}
+      {intensity > 0.8 && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.4, 0.02, 16, 64]} />
+          <meshBasicMaterial
+            color={threeColor}
+            transparent
+            opacity={0.8}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      )}
+    </group>
   );
 }
 
