@@ -9,21 +9,223 @@ interface MetaballBlobProps {
   selectedLobe?: number | null;
 }
 
-// Create noise function for surface deformation
-function createNoiseTexture(): THREE.DataTexture {
-  const size = 64;
-  const data = new Uint8Array(size * size * 4);
-  for (let i = 0; i < size * size; i++) {
-    const stride = i * 4;
-    const value = Math.random() * 255;
-    data[stride] = value;
-    data[stride + 1] = value;
-    data[stride + 2] = value;
-    data[stride + 3] = 255;
-  }
-  const texture = new THREE.DataTexture(data, size, size);
-  texture.needsUpdate = true;
-  return texture;
+// Spikes component for Complexity + Challenge visualization
+function Spikes({ 
+  count, 
+  length, 
+  color,
+  glowColor,
+  glowIntensity 
+}: { 
+  count: number; 
+  length: number;
+  color: THREE.Color;
+  glowColor: THREE.Color;
+  glowIntensity: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  const spikes = useMemo(() => {
+    const items: { position: THREE.Vector3; rotation: THREE.Euler; scale: number }[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      // Distribute spikes on sphere surface using golden spiral
+      const goldenRatio = (1 + Math.sqrt(5)) / 2;
+      const theta = 2 * Math.PI * i / goldenRatio;
+      const phi = Math.acos(1 - 2 * (i + 0.5) / count);
+      
+      const x = Math.sin(phi) * Math.cos(theta);
+      const y = Math.sin(phi) * Math.sin(theta);
+      const z = Math.cos(phi);
+      
+      const position = new THREE.Vector3(x * 0.7, y * 0.7, z * 0.7);
+      
+      // Point spike outward
+      const direction = position.clone().normalize();
+      const rotation = new THREE.Euler(
+        Math.atan2(direction.y, Math.sqrt(direction.x ** 2 + direction.z ** 2)),
+        Math.atan2(direction.x, direction.z),
+        0
+      );
+      
+      const scale = 0.8 + Math.random() * 0.4;
+      items.push({ position, rotation, scale });
+    }
+    
+    return items;
+  }, [count]);
+  
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const time = state.clock.elapsedTime;
+    
+    // Subtle pulsing of spikes
+    groupRef.current.children.forEach((child, i) => {
+      const scale = 1 + Math.sin(time * 2 + i * 0.5) * 0.1;
+      child.scale.y = scale;
+    });
+  });
+  
+  if (count === 0) return null;
+  
+  // Mix primary color with glow color based on risk intensity
+  const spikeColor = color.clone().lerp(glowColor, glowIntensity * 0.5);
+  
+  return (
+    <group ref={groupRef}>
+      {spikes.map((spike, i) => (
+        <mesh 
+          key={i} 
+          position={spike.position}
+          rotation={spike.rotation}
+        >
+          <coneGeometry args={[0.03, length * spike.scale, 8]} />
+          <meshPhysicalMaterial
+            color={spikeColor}
+            emissive={glowColor}
+            emissiveIntensity={glowIntensity * 0.8}
+            roughness={0.3}
+            metalness={0.4}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Holes/Voids component for Information dimension
+function Holes({ 
+  count, 
+  size, 
+  color 
+}: { 
+  count: number; 
+  size: number;
+  color: THREE.Color;
+}) {
+  const holesData = useMemo(() => {
+    const items: THREE.Vector3[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      // Distribute holes evenly
+      const goldenRatio = (1 + Math.sqrt(5)) / 2;
+      const theta = 2 * Math.PI * i / goldenRatio;
+      const phi = Math.acos(1 - 2 * (i + 0.5) / count);
+      
+      const x = Math.sin(phi) * Math.cos(theta) * 0.5;
+      const y = Math.sin(phi) * Math.sin(theta) * 0.5;
+      const z = Math.cos(phi) * 0.5;
+      
+      items.push(new THREE.Vector3(x, y, z));
+    }
+    
+    return items;
+  }, [count]);
+  
+  if (count === 0) return null;
+  
+  // Dark void color
+  const voidColor = new THREE.Color('#0a0a0a');
+  
+  return (
+    <group>
+      {holesData.map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <sphereGeometry args={[size, 16, 16]} />
+          <meshBasicMaterial 
+            color={voidColor} 
+            transparent 
+            opacity={0.95}
+          />
+        </mesh>
+      ))}
+      {/* Rim lighting around holes */}
+      {holesData.map((pos, i) => (
+        <mesh key={`rim-${i}`} position={pos}>
+          <torusGeometry args={[size * 1.1, size * 0.15, 8, 24]} />
+          <meshPhysicalMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={0.5}
+            roughness={0.2}
+            transmission={0.3}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Wireframe overlay for Knowledge dimension
+function WireframeOverlay({ 
+  opacity, 
+  color 
+}: { 
+  opacity: number;
+  color: THREE.Color;
+}) {
+  const meshRef = useRef<THREE.LineSegments>(null);
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    meshRef.current.rotation.y = state.clock.elapsedTime * 0.1;
+    meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.1;
+  });
+  
+  if (opacity < 0.05) return null;
+  
+  return (
+    <lineSegments ref={meshRef}>
+      <edgesGeometry args={[new THREE.IcosahedronGeometry(0.75, 2)]} />
+      <lineBasicMaterial 
+        color={color} 
+        transparent 
+        opacity={opacity * 0.6}
+        linewidth={1}
+      />
+    </lineSegments>
+  );
+}
+
+// Outer Aura/Glow for Risk visualization
+function OuterAura({ 
+  intensity, 
+  color,
+  pulseSpeed 
+}: { 
+  intensity: number;
+  color: string;
+  pulseSpeed: number;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const threeColor = useMemo(() => new THREE.Color(color), [color]);
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const time = state.clock.elapsedTime;
+    
+    // Pulsing scale for dramatic effect
+    const pulse = 1 + Math.sin(time * pulseSpeed) * 0.1 * intensity;
+    meshRef.current.scale.setScalar(pulse);
+    
+    // Update opacity based on pulse
+    const material = meshRef.current.material as THREE.MeshBasicMaterial;
+    material.opacity = (0.15 + Math.sin(time * pulseSpeed * 1.5) * 0.1) * intensity;
+  });
+  
+  if (intensity < 0.2) return null;
+  
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[1.5, 32, 32]} />
+      <meshBasicMaterial
+        color={threeColor}
+        transparent
+        opacity={0.2 * intensity}
+        side={THREE.BackSide}
+      />
+    </mesh>
+  );
 }
 
 // Inner pattern component based on knowledge type
@@ -39,14 +241,12 @@ function InnerPattern({
   const groupRef = useRef<THREE.Group>(null);
   const pointsRef = useRef<THREE.Points>(null);
   
-  // Generate pattern geometry based on type
   const patternGeometry = useMemo(() => {
     const positions: number[] = [];
     const count = Math.floor(50 + intensity * 150);
     
     switch (pattern) {
       case 'grid':
-        // Regular grid pattern
         const gridSize = Math.ceil(Math.cbrt(count));
         for (let x = 0; x < gridSize; x++) {
           for (let y = 0; y < gridSize; y++) {
@@ -63,7 +263,6 @@ function InnerPattern({
         break;
         
       case 'waves':
-        // Concentric wave rings
         for (let i = 0; i < count; i++) {
           const ring = Math.floor(i / 20);
           const angle = (i % 20) / 20 * Math.PI * 2;
@@ -79,7 +278,6 @@ function InnerPattern({
         break;
         
       case 'particles':
-        // Random scattered particles
         for (let i = 0; i < count; i++) {
           const theta = Math.random() * Math.PI * 2;
           const phi = Math.acos(2 * Math.random() - 1);
@@ -93,7 +291,6 @@ function InnerPattern({
         break;
         
       case 'chaos':
-        // Chaotic interconnected lines
         for (let i = 0; i < count * 1.5; i++) {
           const t = i / count;
           const noise1 = Math.sin(t * 20 + Math.random() * 5) * 0.3;
@@ -113,13 +310,11 @@ function InnerPattern({
     if (!groupRef.current || !pointsRef.current) return;
     const time = state.clock.elapsedTime;
     
-    // Animate based on pattern type
     switch (pattern) {
       case 'waves':
         groupRef.current.rotation.y = time * 0.3;
         const positions = pointsRef.current.geometry.attributes.position;
         for (let i = 0; i < positions.count; i++) {
-          const y = positions.getY(i);
           positions.setY(i, Math.sin(time * 2 + i * 0.1) * 0.05);
         }
         positions.needsUpdate = true;
@@ -165,9 +360,8 @@ function ChallengeNoise({
   const pointsRef = useRef<THREE.Points>(null);
   
   const geometry = useMemo(() => {
-    const count = Math.floor(150 * intensity); // More particles
+    const count = Math.floor(150 * intensity);
     const positions = new Float32Array(count * 3);
-    const velocities = new Float32Array(count * 3);
     
     for (let i = 0; i < count; i++) {
       const theta = Math.random() * Math.PI * 2;
@@ -177,22 +371,16 @@ function ChallengeNoise({
       positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       positions[i * 3 + 2] = r * Math.cos(phi);
-      
-      velocities[i * 3] = (Math.random() - 0.5) * 0.02;
-      velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
-      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
     }
     
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
     return geo;
   }, [intensity]);
   
   useFrame((state) => {
     if (!pointsRef.current) return;
     const positions = pointsRef.current.geometry.attributes.position;
-    const velocities = pointsRef.current.geometry.attributes.velocity as THREE.BufferAttribute;
     const time = state.clock.elapsedTime;
     
     for (let i = 0; i < positions.count; i++) {
@@ -200,12 +388,10 @@ function ChallengeNoise({
       let y = positions.getY(i);
       let z = positions.getZ(i);
       
-      // Add velocity with noise
       x += Math.sin(time + i) * 0.005 * intensity;
       y += Math.cos(time * 1.1 + i) * 0.005 * intensity;
       z += Math.sin(time * 0.9 + i * 0.5) * 0.005 * intensity;
       
-      // Keep within bounds
       const dist = Math.sqrt(x*x + y*y + z*z);
       if (dist > 1.5 || dist < 0.7) {
         const theta = Math.random() * Math.PI * 2;
@@ -223,7 +409,6 @@ function ChallengeNoise({
   
   if (intensity < 0.15) return null;
   
-  // Use dark color for visibility on light backgrounds
   const darkColor = color.clone().multiplyScalar(0.3);
   
   return (
@@ -238,8 +423,6 @@ function ChallengeNoise({
     </points>
   );
 }
-
-// Risk is now visualized directly on the lobes via emissive glow - no separate ring
 
 // Single organic lobe/sphere with deformable surface
 function Lobe({ 
@@ -281,7 +464,6 @@ function Lobe({
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   const threeGlowColor = useMemo(() => new THREE.Color(glowColor), [glowColor]);
   
-  // Create deformed sphere geometry based on surfaceRoughness
   const geometry = useMemo(() => {
     const geo = new THREE.SphereGeometry(1, 64, 64);
     const positions = geo.attributes.position;
@@ -292,7 +474,6 @@ function Lobe({
         const y = positions.getY(i);
         const z = positions.getZ(i);
         
-        // Apply noise-based deformation
         const noise = 
           Math.sin(x * 5 + index) * 
           Math.cos(y * 5 + index) * 
@@ -315,11 +496,9 @@ function Lobe({
     const time = state.clock.elapsedTime;
     const phaseOffset = index * 0.5;
     
-    // Pulsing scale animation
     const pulse = 1 + Math.sin(time * pulseSpeed + phaseOffset) * 0.08;
     meshRef.current.scale.setScalar(size * pulse);
     
-    // Wobble position - affected by symmetry
     const asymmetryFactor = 1 - symmetry;
     const wobbleX = Math.sin(time * 1.2 + phaseOffset) * wobbleIntensity * 0.15 * (1 + asymmetryFactor);
     const wobbleY = Math.cos(time * 0.9 + phaseOffset) * wobbleIntensity * 0.12;
@@ -329,14 +508,10 @@ function Lobe({
     meshRef.current.position.y = position[1] + wobbleY;
     meshRef.current.position.z = position[2] + wobbleZ;
     
-    // Subtle rotation
     meshRef.current.rotation.x = Math.sin(time * 0.3 + phaseOffset) * 0.1;
     meshRef.current.rotation.y = time * 0.1;
     
-    // Update emissive for selection and risk glow
     if (materialRef.current) {
-      const time = state.clock.elapsedTime;
-      // Risk creates pulsing emissive glow on all lobes
       const riskPulse = glowIntensity > 0.5 
         ? 1 + Math.sin(time * 3 + index) * 0.3 * glowIntensity 
         : 1;
@@ -371,18 +546,20 @@ function Lobe({
   );
 }
 
-// Central core sphere with enhanced glow
+// Central core sphere with enhanced visibility control
 function CoreSphere({ 
   color, 
   transmission, 
   pulseSpeed,
   coreGlow,
+  coreVisibility,
   scale
 }: { 
   color: string; 
   transmission: number;
   pulseSpeed: number;
   coreGlow: number;
+  coreVisibility: number;
   scale: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -393,14 +570,19 @@ function CoreSphere({
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
     const pulse = 1 + Math.sin(time * pulseSpeed * 0.7) * 0.08;
-    meshRef.current.scale.setScalar(0.4 * scale * pulse);
+    
+    // Scale based on visibility
+    const visibleScale = 0.2 + coreVisibility * 0.3;
+    meshRef.current.scale.setScalar(visibleScale * scale * pulse);
     meshRef.current.rotation.y = time * 0.2;
     
-    // Update point light intensity
     if (lightRef.current) {
-      lightRef.current.intensity = coreGlow * 2 * pulse;
+      lightRef.current.intensity = coreGlow * coreVisibility * 3 * pulse;
     }
   });
+  
+  // Very low visibility = don't render
+  if (coreVisibility < 0.1) return null;
   
   return (
     <group>
@@ -409,23 +591,22 @@ function CoreSphere({
         <meshPhysicalMaterial
           color={threeColor}
           emissive={threeColor}
-          emissiveIntensity={coreGlow * 0.8 + 0.2}
+          emissiveIntensity={coreGlow * coreVisibility + 0.2}
           roughness={0.05}
-          transmission={transmission * 0.6}
+          transmission={transmission * (1 - coreVisibility * 0.3)}
           thickness={4}
           ior={2.0}
           clearcoat={1}
           clearcoatRoughness={0.02}
           envMapIntensity={2.5}
           transparent
-          opacity={0.85}
+          opacity={0.5 + coreVisibility * 0.4}
         />
       </mesh>
-      {/* Inner point light for core glow effect */}
       <pointLight
         ref={lightRef}
         color={threeColor}
-        intensity={coreGlow * 2}
+        intensity={coreGlow * coreVisibility * 3}
         distance={3}
         decay={2}
       />
@@ -436,26 +617,22 @@ function CoreSphere({
 export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps) {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Generate lobe positions with symmetry consideration
   const lobePositions = useMemo(() => {
     const positions: [number, number, number][] = [];
     const count = data.lobeCount;
     const spread = data.lobeSpread;
     const symmetry = data.symmetry;
     
-    // Golden angle distribution modified by symmetry
     const goldenAngle = Math.PI * (3 - Math.sqrt(5));
     
     for (let i = 0; i < count; i++) {
-      // Base y position (more symmetric = more even distribution)
-      const yBase = 1 - (i / (count - 1)) * 2; // -1 to 1
+      const yBase = 1 - (i / (count - 1)) * 2;
       const yVariation = symmetry < 0.5 ? (Math.random() - 0.5) * 0.3 * (1 - symmetry) : 0;
       const y = yBase + yVariation;
       
       const radius = Math.sqrt(1 - y * y) * spread;
       const theta = goldenAngle * i;
       
-      // Add asymmetry variation
       const asymmetryOffset = symmetry < 0.5 ? (Math.random() - 0.5) * 0.2 * (1 - symmetry) : 0;
       
       const x = Math.cos(theta) * radius + asymmetryOffset;
@@ -467,7 +644,6 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
     return positions;
   }, [data.lobeCount, data.lobeSpread, data.symmetry]);
   
-  // Assign colors to lobes based on colorCount
   const lobeColors = useMemo(() => {
     return lobePositions.map((_, i) => {
       const colorIndex = i % data.colors.length;
@@ -478,7 +654,6 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   const primaryThreeColor = useMemo(() => new THREE.Color(data.primaryColor), [data.primaryColor]);
   const challengeColor = useMemo(() => new THREE.Color(data.glowColor), [data.glowColor]);
   
-  // Rotate the entire blob group
   useFrame((state) => {
     if (!groupRef.current) return;
     groupRef.current.rotation.y = state.clock.elapsedTime * data.rotationSpeed * 0.3;
@@ -486,6 +661,35 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   
   return (
     <group ref={groupRef} scale={data.resourceScale}>
+      
+      {/* Outer Aura for Risk */}
+      <OuterAura 
+        intensity={data.outerAuraIntensity}
+        color={data.outerAuraColor}
+        pulseSpeed={data.pulseSpeed}
+      />
+      
+      {/* Spikes for Complexity + Challenge */}
+      <Spikes 
+        count={data.spikeCount}
+        length={data.spikeLength}
+        color={primaryThreeColor}
+        glowColor={challengeColor}
+        glowIntensity={data.glowIntensity}
+      />
+      
+      {/* Holes/Voids for Information */}
+      <Holes 
+        count={data.holeCount}
+        size={data.holeSize}
+        color={primaryThreeColor}
+      />
+      
+      {/* Wireframe overlay for Knowledge */}
+      <WireframeOverlay 
+        opacity={data.wireframeOpacity}
+        color={primaryThreeColor}
+      />
       
       {/* Challenge noise particles */}
       <ChallengeNoise 
@@ -500,16 +704,17 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
         color={primaryThreeColor}
       />
       
-      {/* Central core with enhanced glow */}
+      {/* Central glowing core - visibility controlled by development */}
       <CoreSphere 
         color={data.primaryColor}
         transmission={data.transmission}
         pulseSpeed={data.pulseSpeed}
         coreGlow={data.coreGlow}
+        coreVisibility={data.coreVisibility}
         scale={data.resourceScale}
       />
       
-      {/* Outer lobes with surface deformation and cultural colors */}
+      {/* Outer lobes/spheres */}
       {lobePositions.map((pos, i) => (
         <Lobe
           key={i}

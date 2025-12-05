@@ -17,19 +17,20 @@ interface DimensionInfo {
   lobeIndex: number;
 }
 
+// Updated effect keys to reflect new visual mappings
 const DIMENSION_MAP: DimensionInfo[] = [
-  { key: 'complexity', icon: '🌀', effectKey: 'surfaceRoughness', zone: 'mainShape', lobeIndex: 0 },
+  { key: 'complexity', icon: '🌀', effectKey: 'spikesRoughness', zone: 'mainShape', lobeIndex: 0 },
   { key: 'stakeholder', icon: '👥', effectKey: 'lobesSpread', zone: 'mainShape', lobeIndex: 1 },
-  { key: 'knowledge', icon: '🧠', effectKey: 'innerPatternWobble', zone: 'innerPattern', lobeIndex: 2 },
-  { key: 'cultural', icon: '🌍', effectKey: 'colorVariety', zone: 'culturalOverlay', lobeIndex: 3 },
+  { key: 'knowledge', icon: '🧠', effectKey: 'wireframePattern', zone: 'innerPattern', lobeIndex: 2 },
+  { key: 'cultural', icon: '🌍', effectKey: 'multiHueColors', zone: 'culturalOverlay', lobeIndex: 3 },
   { key: 'organizational', icon: '🏢', effectKey: 'primaryHue', zone: 'coreGlow', lobeIndex: 4 },
   { key: 'temporal', icon: '⏱️', effectKey: 'pulseSpeed', zone: 'outerGlow', lobeIndex: 5 },
-  { key: 'development', icon: '🌱', effectKey: 'coreGlowTransmission', zone: 'innerPattern', lobeIndex: 6 },
-  { key: 'risk', icon: '✨', effectKey: 'outerGlow', zone: 'outerGlow', lobeIndex: 7 },
-  { key: 'challenge', icon: '⚡', effectKey: 'noiseParticles', zone: 'mainShape', lobeIndex: 8 },
+  { key: 'development', icon: '🌱', effectKey: 'coreVisibility', zone: 'innerPattern', lobeIndex: 6 },
+  { key: 'risk', icon: '🔥', effectKey: 'backgroundAura', zone: 'outerGlow', lobeIndex: 7 },
+  { key: 'challenge', icon: '⚡', effectKey: 'spikesParticles', zone: 'mainShape', lobeIndex: 8 },
   { key: 'resources', icon: '💎', effectKey: 'scaleSize', zone: 'mainShape', lobeIndex: 9 },
   { key: 'change', icon: '🔄', effectKey: 'rotationSpeed', zone: 'outerGlow', lobeIndex: 10 },
-  { key: 'information', icon: '🔗', effectKey: 'symmetry', zone: 'mainShape', lobeIndex: 11 },
+  { key: 'information', icon: '🕳️', effectKey: 'holesVoids', zone: 'mainShape', lobeIndex: 11 },
 ];
 
 const ZONE_COLORS: Record<string, string> = {
@@ -144,18 +145,18 @@ export function EnhancedBlob3DLegend({
 
   const getEffectTranslation = (effectKey: string): string => {
     const effects: Record<string, { en: string; da: string }> = {
-      surfaceRoughness: { en: 'Surface roughness', da: 'Overflade-ruhed' },
+      spikesRoughness: { en: 'Spikes & surface', da: 'Pigge & overflade' },
       lobesSpread: { en: 'Lobes & spread', da: 'Arme & spredning' },
-      innerPatternWobble: { en: 'Inner pattern', da: 'Indre mønster' },
-      colorVariety: { en: 'Color variety', da: 'Farvevariation' },
+      wireframePattern: { en: 'Wireframe & pattern', da: 'Gitter & mønster' },
+      multiHueColors: { en: 'Multi-hue colors', da: 'Multi-farve nuancer' },
       primaryHue: { en: 'Primary hue', da: 'Primær farvetone' },
       pulseSpeed: { en: 'Pulse speed', da: 'Pulshastighed' },
-      coreGlowTransmission: { en: 'Core glow', da: 'Kerneglød' },
-      outerGlow: { en: 'Outer glow', da: 'Ydre glød' },
-      noiseParticles: { en: 'Noise particles', da: 'Støjpartikler' },
+      coreVisibility: { en: 'Core visibility', da: 'Kerne-synlighed' },
+      backgroundAura: { en: 'Background & aura', da: 'Baggrund & aura' },
+      spikesParticles: { en: 'Spikes & particles', da: 'Pigge & partikler' },
       scaleSize: { en: 'Scale & size', da: 'Skala & størrelse' },
       rotationSpeed: { en: 'Rotation speed', da: 'Rotationshastighed' },
-      symmetry: { en: 'Shape symmetry', da: 'Formsymmetri' },
+      holesVoids: { en: 'Holes & voids', da: 'Huller & hulrum' },
     };
     
     return effects[effectKey]?.[language] || effectKey;

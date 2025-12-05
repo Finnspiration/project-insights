@@ -42,6 +42,18 @@ export interface Blob3DData {
   
   // Emissive
   emissiveIntensity: number;
+  
+  // NEW: Enhanced visual properties
+  spikeCount: number;          // 0-20 spikes based on complexity + challenge
+  spikeLength: number;         // 0.1-0.5 spike length
+  holeCount: number;           // 0-8 holes based on information (distributed = many)
+  holeSize: number;            // 0.1-0.3 hole radius
+  wireframeOpacity: number;    // 0-1 wireframe visibility (knowledge)
+  coreVisibility: number;      // 0-1 how visible the core is (development)
+  backgroundStyle: 'neutral' | 'warm' | 'danger' | 'critical'; // Based on risk
+  outerAuraIntensity: number;  // 0-1 outer glow aura
+  outerAuraColor: string;      // Aura color
+  multiHueColors: string[];    // Distinct hue colors for cultural
 }
 
 // Convert HSL values to full HSL color string
@@ -49,13 +61,33 @@ function hslToString(hue: number, saturation: number, lightness: number): string
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-// Generate color array based on hue and colorCount
+// Generate multi-hue colors with VERY distinct hues for Cultural
+function generateMultiHueColors(baseHue: number, colorCount: number, saturation: number, lightness: number): string[] {
+  if (colorCount === 1) {
+    return [hslToString(baseHue, saturation, lightness)];
+  }
+  
+  // Use maximally different hues for each color count
+  const hueOffsets: Record<number, number[]> = {
+    2: [0, 180],           // Complementary
+    3: [0, 120, 240],      // Triadic
+    4: [0, 90, 180, 270],  // Tetradic
+  };
+  
+  const offsets = hueOffsets[colorCount] || [0];
+  return offsets.map(offset => {
+    const hue = (baseHue + offset) % 360;
+    return hslToString(hue, saturation, lightness);
+  });
+}
+
+// Generate color array based on hue and colorCount (legacy - less distinct)
 function generateColors(baseHue: number, colorCount: number, saturation: number, lightness: number): string[] {
   const colors: string[] = [];
   const hueStep = 360 / Math.max(colorCount, 1);
   
   for (let i = 0; i < colorCount; i++) {
-    const hue = (baseHue + i * hueStep * 0.3) % 360; // Spread colors by 30% of step
+    const hue = (baseHue + i * hueStep * 0.3) % 360;
     colors.push(hslToString(hue, saturation, lightness));
   }
   
@@ -64,19 +96,19 @@ function generateColors(baseHue: number, colorCount: number, saturation: number,
 
 // Get complementary color
 function getSecondaryColor(hue: number, saturation: number, lightness: number): string {
-  const secondaryHue = (hue + 40) % 360; // Analogous color
+  const secondaryHue = (hue + 40) % 360;
   return hslToString(secondaryHue, saturation * 0.9, lightness + 5);
 }
 
-// Complexity → Surface roughness/deformation
-function mapComplexityToRoughness(complexity?: string): number {
-  const map: Record<string, number> = {
-    simple: 0.1,
-    complicated: 0.35,
-    complex: 0.6,
-    chaotic: 0.9
+// Complexity → Surface roughness/deformation AND spikes
+function mapComplexityToEffects(complexity?: string): { roughness: number; spikeContribution: number } {
+  const map: Record<string, { roughness: number; spikeContribution: number }> = {
+    simple: { roughness: 0.1, spikeContribution: 0 },
+    complicated: { roughness: 0.35, spikeContribution: 0.3 },
+    complex: { roughness: 0.6, spikeContribution: 0.6 },
+    chaotic: { roughness: 0.9, spikeContribution: 1.0 }
   };
-  return map[complexity || 'simple'] || 0.3;
+  return map[complexity || 'simple'] || { roughness: 0.3, spikeContribution: 0.2 };
 }
 
 // Stakeholder → Lobe count (arms)
@@ -101,29 +133,22 @@ function mapStakeholderToSpread(stakeholder?: string): number {
   return map[stakeholder || 'unified'] || 0.8;
 }
 
-// Knowledge → Inner pattern type
-function mapKnowledgeToPattern(knowledge?: string): 'grid' | 'waves' | 'particles' | 'chaos' {
-  const map: Record<string, 'grid' | 'waves' | 'particles' | 'chaos'> = {
-    routine: 'grid',
-    adaptive: 'waves',
-    innovative: 'particles',
-    breakthrough: 'chaos'
+// Knowledge → Inner pattern type AND wireframe opacity
+function mapKnowledgeToVisuals(knowledge?: string): { 
+  pattern: 'grid' | 'waves' | 'particles' | 'chaos'; 
+  wireframeOpacity: number;
+  wobble: number;
+} {
+  const map: Record<string, { pattern: 'grid' | 'waves' | 'particles' | 'chaos'; wireframeOpacity: number; wobble: number }> = {
+    routine: { pattern: 'grid', wireframeOpacity: 0.8, wobble: 0.1 },
+    adaptive: { pattern: 'waves', wireframeOpacity: 0.4, wobble: 0.3 },
+    innovative: { pattern: 'particles', wireframeOpacity: 0.15, wobble: 0.5 },
+    breakthrough: { pattern: 'chaos', wireframeOpacity: 0, wobble: 0.8 }
   };
-  return map[knowledge || 'adaptive'] || 'waves';
+  return map[knowledge || 'adaptive'] || { pattern: 'waves', wireframeOpacity: 0.4, wobble: 0.3 };
 }
 
-// Knowledge → Wobble intensity
-function mapKnowledgeToWobble(knowledge?: string): number {
-  const map: Record<string, number> = {
-    routine: 0.1,
-    adaptive: 0.3,
-    innovative: 0.5,
-    breakthrough: 0.8
-  };
-  return map[knowledge || 'adaptive'] || 0.3;
-}
-
-// Cultural → Color count
+// Cultural → Color count (now with multi-hue)
 function mapCulturalToColorCount(cultural?: string): number {
   const map: Record<string, number> = {
     mono: 1,
@@ -157,40 +182,32 @@ function mapOrganizationalToHue(organizational?: string): number {
   return map[organizational || 'orange'] || 25;
 }
 
-// Challenge → Noise intensity
-function mapChallengeToNoise(challenge?: string): number {
-  const map: Record<string, number> = {
-    technical: 0.2,
-    social: 0.4,
-    political: 0.6,
-    cognitive: 0.7,
-    adaptive: 0.9
+// Challenge → Noise intensity AND spike contribution
+function mapChallengeToEffects(challenge?: string): { noise: number; spikeContribution: number } {
+  const map: Record<string, { noise: number; spikeContribution: number }> = {
+    technical: { noise: 0.2, spikeContribution: 0.1 },
+    social: { noise: 0.4, spikeContribution: 0.3 },
+    political: { noise: 0.6, spikeContribution: 0.5 },
+    cognitive: { noise: 0.7, spikeContribution: 0.7 },
+    adaptive: { noise: 0.9, spikeContribution: 1.0 }
   };
-  return map[challenge || 'technical'] || 0.4;
+  return map[challenge || 'technical'] || { noise: 0.4, spikeContribution: 0.3 };
 }
 
-// Development → Core glow intensity
-function mapDevelopmentToCoreGlow(development?: string): number {
-  const map: Record<string, number> = {
-    being: 1.0,
-    thinking: 0.8,
-    relating: 0.6,
-    collaborating: 0.6,
-    acting: 0.4
+// Development → Core glow intensity AND core visibility
+function mapDevelopmentToCore(development?: string): { 
+  glow: number; 
+  visibility: number; 
+  transmission: number;
+} {
+  const map: Record<string, { glow: number; visibility: number; transmission: number }> = {
+    being: { glow: 1.0, visibility: 1.0, transmission: 0.95 },      // Highly visible glowing core
+    thinking: { glow: 0.8, visibility: 0.8, transmission: 0.85 },
+    relating: { glow: 0.6, visibility: 0.6, transmission: 0.75 },
+    collaborating: { glow: 0.5, visibility: 0.5, transmission: 0.7 },
+    acting: { glow: 0.3, visibility: 0.2, transmission: 0.5 }       // Almost hidden core
   };
-  return map[development || 'relating'] || 0.6;
-}
-
-// Development → Transmission
-function mapDevelopmentToTransmission(development?: string): number {
-  const map: Record<string, number> = {
-    being: 0.95,
-    thinking: 0.85,
-    relating: 0.75,
-    collaborating: 0.7,
-    acting: 0.6
-  };
-  return map[development || 'relating'] || 0.75;
+  return map[development || 'relating'] || { glow: 0.6, visibility: 0.6, transmission: 0.75 };
 }
 
 // Resources → Size, saturation, brightness, scale
@@ -220,24 +237,64 @@ function mapChangeToRotation(change?: string): number {
   return map[change || 'incremental'] || 0.3;
 }
 
-// Information → Symmetry
-function mapInformationToSymmetry(information?: string): number {
-  const map: Record<string, number> = {
-    centralized: 1.0,
-    hierarchical: 0.7,
-    network: 0.5,
-    distributed: 0.3
+// Information → Symmetry AND holes
+function mapInformationToEffects(information?: string): { 
+  symmetry: number; 
+  holeCount: number;
+  holeSize: number;
+} {
+  const map: Record<string, { symmetry: number; holeCount: number; holeSize: number }> = {
+    centralized: { symmetry: 1.0, holeCount: 0, holeSize: 0 },        // No holes, perfect symmetry
+    hierarchical: { symmetry: 0.8, holeCount: 2, holeSize: 0.12 },
+    network: { symmetry: 0.6, holeCount: 4, holeSize: 0.18 },
+    distributed: { symmetry: 0.3, holeCount: 8, holeSize: 0.25 }      // Many holes, asymmetric
   };
-  return map[information || 'hierarchical'] || 0.7;
+  return map[information || 'hierarchical'] || { symmetry: 0.7, holeCount: 2, holeSize: 0.12 };
 }
 
-// Risk → Glow color and intensity
-function mapRiskToGlow(risk?: string): { color: string; intensity: number } {
-  const map: Record<string, { color: string; intensity: number }> = {
-    low: { color: '#10B981', intensity: 0.3 },
-    moderate: { color: '#F59E0B', intensity: 0.5 },
-    high: { color: '#F97316', intensity: 0.75 },
-    extreme: { color: '#EF4444', intensity: 1.0 }
+// Risk → Glow color, intensity, background style, and aura
+function mapRiskToEffects(risk?: string): { 
+  color: string; 
+  intensity: number;
+  backgroundStyle: 'neutral' | 'warm' | 'danger' | 'critical';
+  auraIntensity: number;
+  auraColor: string;
+} {
+  const map: Record<string, { 
+    color: string; 
+    intensity: number; 
+    backgroundStyle: 'neutral' | 'warm' | 'danger' | 'critical';
+    auraIntensity: number;
+    auraColor: string;
+  }> = {
+    low: { 
+      color: '#10B981', 
+      intensity: 0.3, 
+      backgroundStyle: 'neutral',
+      auraIntensity: 0.1,
+      auraColor: '#10B981'
+    },
+    moderate: { 
+      color: '#F59E0B', 
+      intensity: 0.5, 
+      backgroundStyle: 'warm',
+      auraIntensity: 0.4,
+      auraColor: '#F59E0B'
+    },
+    high: { 
+      color: '#F97316', 
+      intensity: 0.75, 
+      backgroundStyle: 'danger',
+      auraIntensity: 0.7,
+      auraColor: '#EF4444'
+    },
+    extreme: { 
+      color: '#EF4444', 
+      intensity: 1.0, 
+      backgroundStyle: 'critical',
+      auraIntensity: 1.0,
+      auraColor: '#DC2626'
+    }
   };
   return map[risk || 'low'] || map.low;
 }
@@ -266,30 +323,44 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
   const information = getValue(morphology, 'information');
   const challenge = getValue(morphology, 'challenge');
   
+  // Get derived values
   const hue = mapOrganizationalToHue(organizational);
-  const riskData = mapRiskToGlow(risk);
   const resourceData = mapResources(resources);
   const colorCount = mapCulturalToColorCount(cultural);
+  const complexityEffects = mapComplexityToEffects(complexity);
+  const challengeEffects = mapChallengeToEffects(challenge);
+  const developmentCore = mapDevelopmentToCore(development);
+  const knowledgeVisuals = mapKnowledgeToVisuals(knowledge);
+  const informationEffects = mapInformationToEffects(information);
+  const riskEffects = mapRiskToEffects(risk);
+  
+  // Generate colors
   const colors = generateColors(hue, colorCount, resourceData.saturation, resourceData.brightness);
+  const multiHueColors = generateMultiHueColors(hue, colorCount, resourceData.saturation, resourceData.brightness);
+  
+  // Calculate spike count from complexity + challenge
+  const totalSpikeIntensity = (complexityEffects.spikeContribution + challengeEffects.spikeContribution) / 2;
+  const spikeCount = Math.round(totalSpikeIntensity * 20);
+  const spikeLength = 0.1 + totalSpikeIntensity * 0.4;
   
   return {
     // Shape
     lobeCount: mapStakeholderToLobes(stakeholder),
     lobeSize: resourceData.size,
     lobeSpread: mapStakeholderToSpread(stakeholder),
-    surfaceRoughness: mapComplexityToRoughness(complexity),
-    symmetry: mapInformationToSymmetry(information),
+    surfaceRoughness: complexityEffects.roughness,
+    symmetry: informationEffects.symmetry,
     
-    // Color
+    // Color - now with multi-hue
     primaryColor: hslToString(hue, resourceData.saturation, resourceData.brightness),
     secondaryColor: getSecondaryColor(hue, resourceData.saturation, resourceData.brightness),
     colorCount,
-    colors,
+    colors: multiHueColors, // Use distinct multi-hue colors
     saturation: resourceData.saturation,
     brightness: resourceData.brightness,
     
     // Material
-    transmission: mapDevelopmentToTransmission(development),
+    transmission: developmentCore.transmission,
     roughness: 0.15,
     thickness: 2.5,
     ior: 1.5,
@@ -297,21 +368,33 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     // Animation
     pulseSpeed: mapTemporalToPulse(temporal),
     rotationSpeed: mapChangeToRotation(change),
-    wobbleIntensity: mapKnowledgeToWobble(knowledge),
+    wobbleIntensity: knowledgeVisuals.wobble,
     
     // Effects
-    glowColor: riskData.color,
-    glowIntensity: riskData.intensity,
-    noiseIntensity: mapChallengeToNoise(challenge),
-    coreGlow: mapDevelopmentToCoreGlow(development),
+    glowColor: riskEffects.color,
+    glowIntensity: riskEffects.intensity,
+    noiseIntensity: challengeEffects.noise,
+    coreGlow: developmentCore.glow,
     
     // Pattern
-    innerPattern: mapKnowledgeToPattern(knowledge),
+    innerPattern: knowledgeVisuals.pattern,
     
     // Scale
     resourceScale: resourceData.scale,
     
     // Emissive
-    emissiveIntensity: 0.3
+    emissiveIntensity: 0.3,
+    
+    // NEW enhanced properties
+    spikeCount,
+    spikeLength,
+    holeCount: informationEffects.holeCount,
+    holeSize: informationEffects.holeSize,
+    wireframeOpacity: knowledgeVisuals.wireframeOpacity,
+    coreVisibility: developmentCore.visibility,
+    backgroundStyle: riskEffects.backgroundStyle,
+    outerAuraIntensity: riskEffects.auraIntensity,
+    outerAuraColor: riskEffects.auraColor,
+    multiHueColors
   };
 }
