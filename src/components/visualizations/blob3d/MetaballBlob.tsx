@@ -1348,14 +1348,19 @@ function Lobe({
   );
 }
 
-// Central core sphere with enhanced visibility control
+// Central core sphere with IDG-based shape transformation
 function CoreSphere({ 
   color, 
   transmission, 
   pulseSpeed,
   coreGlow,
   coreVisibility,
-  scale
+  scale,
+  coreShape,
+  coreRings,
+  coreRotationAxes,
+  coreEmissivePattern,
+  coreScale
 }: { 
   color: string; 
   transmission: number;
@@ -1363,38 +1368,107 @@ function CoreSphere({
   coreGlow: number;
   coreVisibility: number;
   scale: number;
+  coreShape: 'sphere' | 'torus' | 'octahedron' | 'icosahedron' | 'starburst';
+  coreRings: number;
+  coreRotationAxes: number;
+  coreEmissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
+  coreScale: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const lightRef = useRef<THREE.PointLight>(null);
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   
+  // Create geometry based on IDG shape
+  const geometry = useMemo(() => {
+    switch (coreShape) {
+      case 'sphere':
+        return new THREE.SphereGeometry(1, 64, 64);
+      case 'torus':
+        return new THREE.TorusGeometry(0.8, 0.35, 32, 64);
+      case 'octahedron':
+        return new THREE.OctahedronGeometry(1, 0);
+      case 'icosahedron':
+        return new THREE.IcosahedronGeometry(0.9, 1);
+      case 'starburst':
+        // Use icosahedron as base for starburst
+        return new THREE.IcosahedronGeometry(0.6, 0);
+      default:
+        return new THREE.SphereGeometry(1, 64, 64);
+    }
+  }, [coreShape]);
+  
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !groupRef.current) return;
     const time = state.clock.elapsedTime;
-    const pulse = 1 + Math.sin(time * pulseSpeed * 0.7) * 0.08;
     
-    // Scale based on visibility
-    const visibleScale = 0.2 + coreVisibility * 0.3;
-    meshRef.current.scale.setScalar(visibleScale * scale * pulse);
-    meshRef.current.rotation.y = time * 0.2;
+    // Emissive pattern animation
+    let emissiveMultiplier = 1;
+    switch (coreEmissivePattern) {
+      case 'breathe':
+        emissiveMultiplier = 0.7 + Math.sin(time * 0.5) * 0.3;
+        break;
+      case 'pulse':
+        emissiveMultiplier = 0.5 + Math.abs(Math.sin(time * 2)) * 0.5;
+        break;
+      case 'radiate':
+        emissiveMultiplier = 0.6 + Math.sin(time * 1.5) * 0.2 + Math.sin(time * 3) * 0.2;
+        break;
+      case 'explode':
+        emissiveMultiplier = 0.4 + Math.abs(Math.sin(time * 4)) * 0.6;
+        break;
+      default:
+        emissiveMultiplier = 1;
+    }
+    
+    // Scale based on visibility and core scale
+    const visibleScale = (0.2 + coreVisibility * 0.3) * coreScale;
+    const scaleAnim = coreEmissivePattern === 'explode' 
+      ? 1 + Math.abs(Math.sin(time * 3)) * 0.15 
+      : 1 + Math.sin(time * pulseSpeed * 0.7) * 0.08;
+    meshRef.current.scale.setScalar(visibleScale * scale * scaleAnim);
+    
+    // Rotation based on axes
+    if (coreRotationAxes >= 1) groupRef.current.rotation.y = time * 0.3;
+    if (coreRotationAxes >= 2) groupRef.current.rotation.x = time * 0.2;
+    if (coreRotationAxes >= 3) groupRef.current.rotation.z = time * 0.15;
     
     if (lightRef.current) {
-      lightRef.current.intensity = coreGlow * coreVisibility * 3 * pulse;
+      lightRef.current.intensity = coreGlow * coreVisibility * 3 * emissiveMultiplier;
     }
   });
   
   // Very low visibility = don't render
   if (coreVisibility < 0.1) return null;
   
+  // Starburst rays
+  const starburstRays = useMemo(() => {
+    if (coreShape !== 'starburst') return null;
+    const rays = [];
+    for (let i = 0; i < coreRings; i++) {
+      const phi = Math.acos(-1 + (2 * i) / coreRings);
+      const theta = Math.sqrt(coreRings * Math.PI) * phi;
+      rays.push({
+        position: [
+          Math.cos(theta) * Math.sin(phi),
+          Math.sin(theta) * Math.sin(phi),
+          Math.cos(phi)
+        ] as [number, number, number],
+        rotation: [phi, theta, 0] as [number, number, number]
+      });
+    }
+    return rays;
+  }, [coreShape, coreRings]);
+  
   return (
-    <group>
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[1, 64, 64]} />
+    <group ref={groupRef}>
+      <mesh ref={meshRef} geometry={geometry}>
         <meshPhysicalMaterial
           color={threeColor}
           emissive={threeColor}
-          emissiveIntensity={coreGlow * coreVisibility + 0.2}
-          roughness={0.05}
+          emissiveIntensity={coreGlow * coreVisibility + 0.3}
+          roughness={coreShape === 'sphere' ? 0.02 : 0.1}
+          metalness={coreShape === 'octahedron' || coreShape === 'icosahedron' ? 0.3 : 0}
           transmission={transmission * (1 - coreVisibility * 0.3)}
           thickness={4}
           ior={2.0}
@@ -1402,14 +1476,45 @@ function CoreSphere({
           clearcoatRoughness={0.02}
           envMapIntensity={2.5}
           transparent
-          opacity={0.5 + coreVisibility * 0.4}
+          opacity={0.6 + coreVisibility * 0.3}
         />
       </mesh>
+      
+      {/* Starburst rays */}
+      {starburstRays && starburstRays.map((ray, i) => (
+        <mesh key={i} position={ray.position} rotation={ray.rotation}>
+          <coneGeometry args={[0.08, 0.6, 8]} />
+          <meshPhysicalMaterial
+            color={threeColor}
+            emissive={threeColor}
+            emissiveIntensity={coreGlow * 0.8}
+            roughness={0.1}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      ))}
+      
+      {/* Extra ring for torus */}
+      {coreShape === 'torus' && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.1, 0.08, 16, 48]} />
+          <meshPhysicalMaterial
+            color={threeColor}
+            emissive={threeColor}
+            emissiveIntensity={coreGlow * 0.5}
+            roughness={0.1}
+            transparent
+            opacity={0.5}
+          />
+        </mesh>
+      )}
+      
       <pointLight
         ref={lightRef}
         color={threeColor}
         intensity={coreGlow * coreVisibility * 3}
-        distance={3}
+        distance={4}
         decay={2}
       />
     </group>
@@ -1771,6 +1876,11 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
         coreGlow={data.coreGlow}
         coreVisibility={data.coreVisibility}
         scale={data.resourceScale}
+        coreShape={data.coreShape}
+        coreRings={data.coreRings}
+        coreRotationAxes={data.coreRotationAxes}
+        coreEmissivePattern={data.coreEmissivePattern}
+        coreScale={data.coreScale}
       />
       
       {/* Stakeholder Connections - tubes for cooperative mode */}
