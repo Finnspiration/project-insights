@@ -534,7 +534,17 @@
         "development": "Development",
         "coreGlow": "Core Glow",
         "risk": "Risk",
-        "glow": "Glow intensity"
+        "glow": "Glow intensity",
+        "challenge": "Primary Challenge",
+        "resources": "Resources",
+        "information": "Information Flow",
+        "effect": "Effect"
+      },
+      "effects": {
+        "noiseParticles": "Noise particles",
+        "scaleSize": "Scale and size",
+        "rotationSpeed": "Rotation speed",
+        "symmetry": "Shape symmetry"
       },
       "patterns": {
         "grid": "Grid",

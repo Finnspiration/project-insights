@@ -62,10 +62,10 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     temporal: getMorphologyValue('temporal'),
     development: getMorphologyValue('development'),
     risk: getMorphologyValue('risk'),
-    primary: getMorphologyValue('primary'),
+    challenge: getMorphologyValue('challenge') || getMorphologyValue('primary'),
     change: getMorphologyValue('change'),
     information: getMorphologyValue('information'),
-    resource: getMorphologyValue('resource')
+    resources: getMorphologyValue('resources') || getMorphologyValue('resource')
   };
   
   let blobData;
@@ -106,7 +106,12 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     cultural: 'culturalOverlay',
     organizational: 'coreGlow',
     temporal: 'outerGlow',
-    development: 'innerPattern'
+    development: 'innerPattern',
+    // 4 previously missing dimensions
+    challenge: 'mainShape',     // Challenge → noise particles on main shape
+    change: 'outerGlow',        // Change → rotation/animation effects
+    information: 'mainShape',   // Information → symmetry of shape
+    resources: 'mainShape'      // Resources → overall scale and size
   };
 
   // Calculate precise position for zone tooltip based on blob's layout
@@ -687,6 +692,95 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 onSave={handleSaveQuickEdit}
                 onCancel={handleCancelEdit}
                 onClick={() => handleDimensionClick('development')} 
+              />
+              
+              {/* 4 Previously Missing Dimensions */}
+              <StatusRow 
+                label={t('visualizations.blob.vars.challenge')} 
+                value={t(`morphology.dimensions.challenge.options.${normalizedMorphology.challenge}`)} 
+                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.noiseParticles')}`}
+                visualColor={getDimensionVisuals('challenge', blobData).color} 
+                visualIcon={getDimensionVisuals('challenge', blobData).icon} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'challenge'} 
+                dimensionKey="challenge"
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'challenge'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'challenge' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
+                isSaving={isSaving}
+                onEdit={handleDirectEdit}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('challenge')} 
+              />
+              
+              <StatusRow 
+                label={t('visualizations.blob.vars.resources')} 
+                value={t(`morphology.dimensions.resources.options.${normalizedMorphology.resources}`)} 
+                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.scaleSize')}`}
+                visualColor={getDimensionVisuals('resources', blobData).color} 
+                visualIcon={getDimensionVisuals('resources', blobData).icon} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'resources'} 
+                dimensionKey="resources"
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'resources'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'resources' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
+                isSaving={isSaving}
+                onEdit={handleDirectEdit}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('resources')} 
+              />
+              
+              <StatusRow 
+                label={t('visualizations.blob.vars.change')} 
+                value={t(`morphology.dimensions.change.options.${normalizedMorphology.change}`)} 
+                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.rotationSpeed')}`}
+                visualColor={getDimensionVisuals('change', blobData).color} 
+                visualIcon={getDimensionVisuals('change', blobData).icon} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'change'} 
+                dimensionKey="change"
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'change'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'change' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
+                isSaving={isSaving}
+                onEdit={handleDirectEdit}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('change')} 
+              />
+              
+              <StatusRow 
+                label={t('visualizations.blob.vars.information')} 
+                value={t(`morphology.dimensions.information.options.${normalizedMorphology.information}`)} 
+                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.symmetry')}`}
+                visualColor={getDimensionVisuals('information', blobData).color} 
+                visualIcon={getDimensionVisuals('information', blobData).icon} 
+                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'information'} 
+                dimensionKey="information"
+                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'information'}
+                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'information' ? viewMode.tempValue : ''}
+                onTempValueChange={(value) => {
+                  if (viewMode.type === 'editing') {
+                    setViewMode({ ...viewMode, tempValue: value });
+                  }
+                }}
+                isSaving={isSaving}
+                onEdit={handleDirectEdit}
+                onSave={handleSaveQuickEdit}
+                onCancel={handleCancelEdit}
+                onClick={() => handleDimensionClick('information')} 
               />
             </div>
           </div>

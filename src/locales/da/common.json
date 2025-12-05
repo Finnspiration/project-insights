@@ -533,7 +533,17 @@
         "development": "Udvikling",
         "coreGlow": "Kerneglød",
         "risk": "Risiko",
-        "glow": "Glødintensitet"
+        "glow": "Glødintensitet",
+        "challenge": "Primær Udfordring",
+        "resources": "Ressourcer",
+        "information": "Informationsflow",
+        "effect": "Effekt"
+      },
+      "effects": {
+        "noiseParticles": "Støjpartikler",
+        "scaleSize": "Skala og størrelse",
+        "rotationSpeed": "Rotationshastighed",
+        "symmetry": "Formens symmetri"
       },
       "patterns": {
         "grid": "Gitter",

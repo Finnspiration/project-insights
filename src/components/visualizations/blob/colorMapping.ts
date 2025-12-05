@@ -63,7 +63,11 @@ export function getDimensionVisuals(dimension: string, blobData: BlobVisualData)
     change: { color: `hsl(30, 70%, 60%)`, icon: '🔄' },
     risk: { color: blobData.outerGlowColor, icon: '✨' },
     cultural: { color: `hsl(${blobData.baseHue + 30}, 60%, 60%)`, icon: '🌍' },
-    development: { color: `hsl(150, 60%, 55%)`, icon: '🌱' }
+    development: { color: `hsl(150, 60%, 55%)`, icon: '🌱' },
+    // 4 previously missing dimensions
+    challenge: { color: `hsl(340, 65%, 55%)`, icon: '⚡' },      // Challenge → noise particles
+    resources: { color: `hsl(45, 70%, 55%)`, icon: '💎' },      // Resources → scale/size
+    information: { color: `hsl(180, 60%, 50%)`, icon: '🔗' }    // Information → symmetry
   };
   
   return dimensionMap[dimension] || { color: 'hsl(0, 0%, 50%)', icon: '○' };
