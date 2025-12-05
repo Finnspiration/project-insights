@@ -712,8 +712,8 @@ function Lobe({
         break;
         
       case 'regular_crystal':
-        // Regular crystal - clean platonic solid (icosahedron or dodecahedron)
-        geo = new THREE.IcosahedronGeometry(1, 0); // detail 0 = clean edges
+        // Regular crystal - cube shape for complicated
+        geo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
         break;
         
       case 'irregular_crystal':
