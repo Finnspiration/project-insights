@@ -237,49 +237,7 @@ function ChallengeNoise({
   );
 }
 
-// Outer glow ring for risk visualization
-function RiskGlowRing({ 
-  color, 
-  intensity,
-  scale
-}: { 
-  color: string; 
-  intensity: number;
-  scale: number;
-}) {
-  const ringRef = useRef<THREE.Mesh>(null);
-  const threeColor = useMemo(() => new THREE.Color(color), [color]);
-  
-  useFrame((state) => {
-    if (!ringRef.current) return;
-    const time = state.clock.elapsedTime;
-    
-    // Pulsing effect for high risk
-    const pulse = intensity > 0.6 
-      ? 1 + Math.sin(time * 3) * 0.1 * intensity 
-      : 1;
-    ringRef.current.scale.setScalar(scale * 1.6 * pulse);
-    ringRef.current.rotation.z = time * 0.2;
-    
-    // Update opacity based on intensity
-    const material = ringRef.current.material as THREE.MeshBasicMaterial;
-    material.opacity = intensity * 0.6;
-  });
-  
-  if (intensity < 0.2) return null;
-  
-  return (
-    <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[1, 0.03 + intensity * 0.04, 16, 100]} />
-      <meshBasicMaterial
-        color={threeColor}
-        transparent
-        opacity={intensity * 0.6}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
-  );
-}
+// Risk is now visualized directly on the lobes via emissive glow - no separate ring
 
 // Single organic lobe/sphere with deformable surface
 function Lobe({ 
@@ -373,9 +331,14 @@ function Lobe({
     meshRef.current.rotation.x = Math.sin(time * 0.3 + phaseOffset) * 0.1;
     meshRef.current.rotation.y = time * 0.1;
     
-    // Update emissive for selection
+    // Update emissive for selection and risk glow
     if (materialRef.current) {
-      const targetEmissive = isSelected ? 0.5 : glowIntensity * 0.2;
+      const time = state.clock.elapsedTime;
+      // Risk creates pulsing emissive glow on all lobes
+      const riskPulse = glowIntensity > 0.5 
+        ? 1 + Math.sin(time * 3 + index) * 0.3 * glowIntensity 
+        : 1;
+      const targetEmissive = isSelected ? 0.6 : glowIntensity * 0.5 * riskPulse;
       materialRef.current.emissiveIntensity = THREE.MathUtils.lerp(
         materialRef.current.emissiveIntensity,
         targetEmissive,
@@ -521,12 +484,6 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   
   return (
     <group ref={groupRef} scale={data.resourceScale}>
-      {/* Outer risk glow ring */}
-      <RiskGlowRing 
-        color={data.glowColor} 
-        intensity={data.glowIntensity}
-        scale={data.resourceScale}
-      />
       
       {/* Challenge noise particles */}
       <ChallengeNoise 
