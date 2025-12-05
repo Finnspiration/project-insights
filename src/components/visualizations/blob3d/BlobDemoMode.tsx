@@ -133,10 +133,7 @@ export function BlobDemoMode({
   // Toggle play/pause
   const togglePlay = useCallback(() => {
     setIsPlaying(prev => !prev);
-    if (!isPlaying) {
-      setIsExpanded(true);
-    }
-  }, [isPlaying]);
+  }, []);
   
   // Effect: Update morphology when option changes
   useEffect(() => {
