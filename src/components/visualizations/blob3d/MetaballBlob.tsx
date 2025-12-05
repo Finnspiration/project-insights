@@ -154,7 +154,7 @@ function InnerPattern({
   );
 }
 
-// Noise particles for challenge dimension
+// Noise particles for challenge dimension - visible on light backgrounds
 function ChallengeNoise({ 
   intensity, 
   color 
@@ -165,7 +165,7 @@ function ChallengeNoise({
   const pointsRef = useRef<THREE.Points>(null);
   
   const geometry = useMemo(() => {
-    const count = Math.floor(100 * intensity);
+    const count = Math.floor(150 * intensity); // More particles
     const positions = new Float32Array(count * 3);
     const velocities = new Float32Array(count * 3);
     
@@ -221,17 +221,19 @@ function ChallengeNoise({
     positions.needsUpdate = true;
   });
   
-  if (intensity < 0.2) return null;
+  if (intensity < 0.15) return null;
+  
+  // Use dark color for visibility on light backgrounds
+  const darkColor = color.clone().multiplyScalar(0.3);
   
   return (
     <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
-        size={0.02 + intensity * 0.02}
-        color={color}
+        size={0.04 + intensity * 0.04}
+        color={darkColor}
         transparent
-        opacity={0.4 * intensity}
+        opacity={0.7 + intensity * 0.3}
         sizeAttenuation
-        blending={THREE.AdditiveBlending}
       />
     </points>
   );

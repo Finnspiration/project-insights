@@ -103,9 +103,14 @@ export function EnhancedBlob3DLegend({
       const deltaX = e.clientX - dragStartPos.current.x;
       const deltaY = e.clientY - dragStartPos.current.y;
       
+      // Get parent container bounds for boundary checking
+      const parent = dragRef.current?.parentElement;
+      const maxX = parent ? parent.clientWidth - 320 : window.innerWidth - 320;
+      const maxY = parent ? parent.clientHeight - 200 : window.innerHeight - 200;
+      
       setPosition({
-        x: Math.max(0, initialPos.current.x + deltaX),
-        y: Math.max(0, initialPos.current.y + deltaY),
+        x: Math.min(Math.max(0, initialPos.current.x + deltaX), maxX),
+        y: Math.min(Math.max(0, initialPos.current.y + deltaY), maxY),
       });
     };
 
@@ -245,7 +250,7 @@ export function EnhancedBlob3DLegend({
       )}
       style={{
         top: `${position.y}px`,
-        right: `${position.x}px`,
+        left: `${position.x}px`,
       }}
     >
       {/* Draggable Header */}
