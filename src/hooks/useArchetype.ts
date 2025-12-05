@@ -11,6 +11,8 @@ export function useArchetype(morphology: any, language: 'en' | 'da') {
     },
     enabled: !!morphology,
     staleTime: 5 * 60 * 1000, // 5 minutes cache
-    retry: 2
+    retry: 2,
+    // Keep previous data while fetching new - prevents blank screen on updates
+    placeholderData: (previousData) => previousData,
   });
 }

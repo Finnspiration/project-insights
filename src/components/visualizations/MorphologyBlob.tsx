@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { mapMorphologyToBlob } from './blob/blobMapping';
 import { getZoneStyles, getDimensionVisuals } from './blob/colorMapping';
 import { useArchetype } from '@/hooks/useArchetype';
@@ -90,7 +90,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const blobContainerRef = useRef<HTMLDivElement>(null);
   
   // Use React Query for archetype loading - prevents race conditions
-  const { data: archetype, isLoading: isLoadingArchetype } = useArchetype(
+  const { data: archetype, isLoading: isLoadingArchetype, isFetching } = useArchetype(
     morphology,
     i18n.language as 'en' | 'da'
   );
@@ -201,7 +201,8 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
       </Card>;
   }
 
-  if (isLoadingArchetype) {
+  // Only show skeleton on initial load, not during updates
+  if (!archetype && isLoadingArchetype) {
     return <Card className="w-full">
         <CardHeader>
           <CardTitle>{t('visualizations.blob.title')}</CardTitle>
@@ -423,11 +424,21 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
           </div>
           
           {/* Archetype Badge */}
-          <div className="mt-4 text-center">
-            <Badge variant="outline" style={{
-              borderColor: archetype.color,
-              color: archetype.color
-            }}>
+          <div className="mt-4 text-center relative">
+            {isFetching && (
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 flex items-center gap-1 text-xs text-muted-foreground animate-in fade-in-0">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>{t('common.updating') || 'Updating...'}</span>
+              </div>
+            )}
+            <Badge 
+              variant="outline" 
+              className={isFetching ? 'opacity-70 transition-opacity' : 'transition-opacity'}
+              style={{
+                borderColor: archetype.color,
+                color: archetype.color
+              }}
+            >
               {archetype.icon} {archetype.description ? (typeof archetype.name === 'string' ? archetype.name : JSON.stringify(archetype.name)) : t(archetype.nameKey || '')}
             </Badge>
             <p className="text-sm text-muted-foreground mt-2">
