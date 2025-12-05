@@ -461,18 +461,28 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               <p className="text-sm font-semibold mb-3">{t('visualizations.blob.layerOrder.title')}</p>
               <div className="space-y-1.5 text-xs font-mono">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <span className="text-orange-600">5.</span>
-                  <span>{t('visualizations.blob.layerOrder.outerGlow')}</span>
+                  <span className="text-red-500">7.</span>
+                  <span>{i18n.language === 'da' ? 'Baggrund & Aura (Risk)' : 'Background & Aura (Risk)'}</span>
+                  <div className="flex-1 border-b border-red-500/30"></div>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span className="text-orange-600">6.</span>
+                  <span>{i18n.language === 'da' ? 'Pigge (Complexity + Challenge)' : 'Spikes (Complexity + Challenge)'}</span>
                   <div className="flex-1 border-b border-orange-600/30"></div>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <span className="text-primary">4.</span>
+                  <span className="text-primary">5.</span>
                   <span>{t('visualizations.blob.layerOrder.mainShape')}</span>
                   <div className="flex-1 border-b border-primary/30"></div>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
+                  <span className="text-purple-500">4.</span>
+                  <span>{i18n.language === 'da' ? 'Huller/Hulrum (Information)' : 'Holes/Voids (Information)'}</span>
+                  <div className="flex-1 border-b border-purple-500/30"></div>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <span className="text-secondary">3.</span>
-                  <span>{t('visualizations.blob.layerOrder.culturalOverlay')}</span>
+                  <span>{i18n.language === 'da' ? 'Gitter (Knowledge)' : 'Wireframe (Knowledge)'}</span>
                   <div className="flex-1 border-b border-secondary/30"></div>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -482,7 +492,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <span className="text-yellow-500">1.</span>
-                  <span>{t('visualizations.blob.layerOrder.coreGlow')}</span>
+                  <span>{i18n.language === 'da' ? 'Kerne (Development)' : 'Core (Development)'}</span>
                   <div className="flex-1 border-b border-yellow-500/30"></div>
                 </div>
               </div>
@@ -491,39 +501,39 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
             
             <ul className="space-y-3 text-sm">
               <li className="flex gap-3">
-                <span className="text-xl">🎨</span>
+                <span className="text-xl">🔺</span>
                 <div>
-                  <strong>{t('visualizations.blob.guide.color')}</strong>: {t('visualizations.blob.guide.colorDesc')}
+                  <strong>{i18n.language === 'da' ? 'Pigge' : 'Spikes'}</strong>: {i18n.language === 'da' ? 'Flere pigge = højere kompleksitet og udfordring' : 'More spikes = higher complexity and challenge'}
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="text-xl">🌊</span>
+                <span className="text-xl">🕳️</span>
                 <div>
-                  <strong>{t('visualizations.blob.guide.shape')}</strong>: {t('visualizations.blob.guide.shapeDesc')}
+                  <strong>{i18n.language === 'da' ? 'Huller' : 'Holes'}</strong>: {i18n.language === 'da' ? 'Flere huller = mere distribueret information flow' : 'More holes = more distributed information flow'}
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="text-xl">💓</span>
+                <span className="text-xl">🌈</span>
                 <div>
-                  <strong>{t('visualizations.blob.guide.pulse')}</strong>: {t('visualizations.blob.guide.pulseDesc')}
+                  <strong>{i18n.language === 'da' ? 'Flere farver' : 'Multi-colors'}</strong>: {i18n.language === 'da' ? 'Distinkte farvetoner viser kulturel diversitet' : 'Distinct color hues show cultural diversity'}
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="text-xl">🔄</span>
+                <span className="text-xl">🔥</span>
                 <div>
-                  <strong>{t('visualizations.blob.guide.rotation')}</strong>: {t('visualizations.blob.guide.rotationDesc')}
+                  <strong>{i18n.language === 'da' ? 'Rød baggrund' : 'Red background'}</strong>: {i18n.language === 'da' ? 'Mørkere/rødere baggrund = højere risiko' : 'Darker/redder background = higher risk'}
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="text-xl">✨</span>
+                <span className="text-xl">💡</span>
                 <div>
-                  <strong>{t('visualizations.blob.guide.glow')}</strong>: {t('visualizations.blob.guide.glowDesc')}
+                  <strong>{i18n.language === 'da' ? 'Synlig kerne' : 'Visible core'}</strong>: {i18n.language === 'da' ? 'Lysende kerne = fokus på "Being" i udvikling' : 'Glowing core = focus on "Being" in development'}
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="text-xl">🎨</span>
+                <span className="text-xl">⬛</span>
                 <div>
-                  <strong>{t('visualizations.blob.guide.layers')}</strong>: {t('visualizations.blob.guide.layersDesc')}
+                  <strong>{i18n.language === 'da' ? 'Gitter' : 'Wireframe'}</strong>: {i18n.language === 'da' ? 'Synligt gitter = rutinepræget/struktureret viden' : 'Visible wireframe = routine/structured knowledge'}
                 </div>
               </li>
             </ul>
