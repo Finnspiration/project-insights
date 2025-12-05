@@ -200,72 +200,115 @@ export function BlobDemoMode({
     
     // Minimized but active - show compact control bar
     return (
-      <div
-        className={cn(
-          "absolute top-4 left-4 z-10",
-          "bg-background/95 backdrop-blur-md",
-          "border border-border/50 rounded-lg shadow-lg",
-          "animate-in fade-in-0 duration-200",
-          "flex items-center gap-1 p-1.5",
-          className
-        )}
-      >
-        {/* Current dimension indicator */}
-        <div 
-          className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded cursor-pointer hover:bg-muted transition-colors"
-          onClick={() => setIsExpanded(true)}
-          title={language === 'da' ? 'Udvid' : 'Expand'}
-        >
-          <span className="text-sm">{DIMENSION_ICONS[currentDimensionKey]}</span>
-          {isPlaying && (
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+      <>
+        {/* Compact control bar - top left */}
+        <div
+          className={cn(
+            "absolute top-4 left-4 z-10",
+            "bg-background/95 backdrop-blur-md",
+            "border border-border/50 rounded-lg shadow-lg",
+            "animate-in fade-in-0 duration-200",
+            "flex items-center gap-1 p-1.5",
+            className
           )}
+        >
+          {/* Current dimension indicator */}
+          <div 
+            className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded cursor-pointer hover:bg-muted transition-colors"
+            onClick={() => setIsExpanded(true)}
+            title={language === 'da' ? 'Udvid' : 'Expand'}
+          >
+            <span className="text-sm">{DIMENSION_ICONS[currentDimensionKey]}</span>
+            {isPlaying && (
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            )}
+          </div>
+          
+          {/* Play/Pause */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={togglePlay}
+            className="h-7 w-7"
+            title={isPlaying ? (language === 'da' ? 'Pause' : 'Pause') : (language === 'da' ? 'Afspil' : 'Play')}
+          >
+            {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+          </Button>
+          
+          {/* Skip */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={skipDimension}
+            className="h-7 w-7"
+            title={language === 'da' ? 'Næste' : 'Next'}
+          >
+            <SkipForward className="h-3 w-3" />
+          </Button>
+          
+          {/* Reset/Stop */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={reset}
+            className="h-7 w-7"
+            title={language === 'da' ? 'Stop' : 'Stop'}
+          >
+            <RotateCcw className="h-3 w-3" />
+          </Button>
+          
+          {/* Expand */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsExpanded(true)}
+            className="h-7 w-7"
+            title={language === 'da' ? 'Udvid' : 'Expand'}
+          >
+            <ChevronDown className="h-3 w-3" />
+          </Button>
         </div>
         
-        {/* Play/Pause */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={togglePlay}
-          className="h-7 w-7"
-          title={isPlaying ? (language === 'da' ? 'Pause' : 'Pause') : (language === 'da' ? 'Afspil' : 'Play')}
+        {/* Current parameter info box - bottom left */}
+        <div
+          className={cn(
+            "absolute bottom-4 left-4 z-10",
+            "bg-background/95 backdrop-blur-md",
+            "border border-primary/30 rounded-lg shadow-lg",
+            "animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+            "p-3 min-w-[200px] max-w-[280px]"
+          )}
         >
-          {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-        </Button>
-        
-        {/* Skip */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={skipDimension}
-          className="h-7 w-7"
-          title={language === 'da' ? 'Næste' : 'Next'}
-        >
-          <SkipForward className="h-3 w-3" />
-        </Button>
-        
-        {/* Reset/Stop */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={reset}
-          className="h-7 w-7"
-          title={language === 'da' ? 'Stop' : 'Stop'}
-        >
-          <RotateCcw className="h-3 w-3" />
-        </Button>
-        
-        {/* Expand */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsExpanded(true)}
-          className="h-7 w-7"
-          title={language === 'da' ? 'Udvid' : 'Expand'}
-        >
-          <ChevronDown className="h-3 w-3" />
-        </Button>
-      </div>
+          <div className="flex items-start gap-2">
+            <span className="text-xl">{DIMENSION_ICONS[currentDimensionKey]}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {language === 'da' ? 'Viser nu' : 'Now showing'}
+              </p>
+              <p className="text-sm font-semibold text-primary truncate">
+                {t(`morphology.dimensions.${currentDimensionKey}.title`)}
+              </p>
+              {currentOption && (
+                <p className="text-xs text-foreground mt-0.5 truncate">
+                  {t(currentOption.translationKey)}
+                </p>
+              )}
+              {/* Mini progress */}
+              <div className="flex gap-0.5 mt-2">
+                {currentOptions.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "h-1 flex-1 rounded-full transition-colors",
+                      idx <= currentOptionIndex ? "bg-primary" : "bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
     );
   }
   
