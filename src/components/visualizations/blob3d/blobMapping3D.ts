@@ -66,6 +66,13 @@ export interface Blob3DData {
   // NEW: Cultural neon glow effect
   culturalGlowIntensity: number;  // 0-1 neon glow based on cultural diversity
   
+  // NEW: IDG Core shape transformation
+  coreShape: 'sphere' | 'torus' | 'octahedron' | 'icosahedron' | 'starburst';
+  coreRings: number;              // Number of rings for torus/starburst
+  coreRotationAxes: number;       // How many axes to rotate on
+  coreEmissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
+  coreScale: number;              // Size multiplier for core
+  
   // NEW: Knowledge-specific visual properties
   surfaceSmoothing: number;        // 0 = faceted/crystalline, 1 = smooth/organic
   outerParticleCount: number;      // 50-250 orbiting particles
@@ -509,20 +516,54 @@ function mapChallengeToEffects(challenge?: string): { noise: number; spikeContri
   return map[challenge || 'technical'] || { noise: 0.4, spikeContribution: 0.3 };
 }
 
-// Development → Core glow intensity AND core visibility
+// Development (IDG) → Core glow, visibility, transmission, AND SHAPE
 function mapDevelopmentToCore(development?: string): { 
   glow: number; 
-  visibility: number; 
+  visibility: number;
   transmission: number;
+  shape: 'sphere' | 'torus' | 'octahedron' | 'icosahedron' | 'starburst';
+  rings: number;
+  rotationAxes: number;
+  emissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
+  scale: number;
 } {
-  const map: Record<string, { glow: number; visibility: number; transmission: number }> = {
-    being: { glow: 1.0, visibility: 1.0, transmission: 0.95 },      // Highly visible glowing core
-    thinking: { glow: 0.8, visibility: 0.8, transmission: 0.85 },
-    relating: { glow: 0.6, visibility: 0.6, transmission: 0.75 },
-    collaborating: { glow: 0.5, visibility: 0.5, transmission: 0.7 },
-    acting: { glow: 0.3, visibility: 0.2, transmission: 0.5 }       // Almost hidden core
+  const map: Record<string, { 
+    glow: number; 
+    visibility: number; 
+    transmission: number;
+    shape: 'sphere' | 'torus' | 'octahedron' | 'icosahedron' | 'starburst';
+    rings: number;
+    rotationAxes: number;
+    emissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
+    scale: number;
+  }> = {
+    // BEING: Large, still, glowing sphere - meditative presence
+    being: { 
+      glow: 1.0, visibility: 1.0, transmission: 0.9,
+      shape: 'sphere', rings: 0, rotationAxes: 0, emissivePattern: 'breathe', scale: 1.5
+    },
+    // THINKING: Geometric octahedron - analytical, structured
+    thinking: { 
+      glow: 0.9, visibility: 0.9, transmission: 0.85,
+      shape: 'octahedron', rings: 0, rotationAxes: 1, emissivePattern: 'pulse', scale: 1.2
+    },
+    // RELATING: Torus/donut - connection, flow between
+    relating: { 
+      glow: 0.7, visibility: 0.7, transmission: 0.75,
+      shape: 'torus', rings: 2, rotationAxes: 2, emissivePattern: 'radiate', scale: 1.0
+    },
+    // COLLABORATING: Icosahedron - many facets, complexity
+    collaborating: { 
+      glow: 0.6, visibility: 0.6, transmission: 0.7,
+      shape: 'icosahedron', rings: 0, rotationAxes: 3, emissivePattern: 'pulse', scale: 0.9
+    },
+    // ACTING: Starburst - explosive, outward energy
+    acting: { 
+      glow: 0.5, visibility: 0.5, transmission: 0.5,
+      shape: 'starburst', rings: 12, rotationAxes: 1, emissivePattern: 'explode', scale: 0.8
+    }
   };
-  return map[development || 'relating'] || { glow: 0.6, visibility: 0.6, transmission: 0.75 };
+  return map[development || 'relating'] || map.relating;
 }
 
 // Resources → Size, saturation, brightness, scale
@@ -718,6 +759,11 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     holeSize: informationEffects.holeSize,
     wireframeOpacity: knowledgeVisuals.wireframeOpacity,
     coreVisibility: developmentCore.visibility,
+    coreShape: developmentCore.shape,
+    coreRings: developmentCore.rings,
+    coreRotationAxes: developmentCore.rotationAxes,
+    coreEmissivePattern: developmentCore.emissivePattern,
+    coreScale: developmentCore.scale,
     backgroundStyle: riskEffects.backgroundStyle,
     outerAuraIntensity: riskEffects.auraIntensity,
     outerAuraColor: riskEffects.auraColor,
