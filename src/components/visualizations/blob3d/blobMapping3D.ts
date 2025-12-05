@@ -62,6 +62,11 @@ export interface Blob3DData {
   knowledgeGlowIntensity: number;  // Separate glow for knowledge
   knowledgeGlowSharpness: number;  // 1 = sharp edge, 0 = diffuse aura
   knowledgeGlowColor: string;      // Edge glow color
+  
+  // NEW: Organizational-based background
+  backgroundColors: { top: string; bottom: string };
+  organizationalAmbientColor: string;
+  organizationalAmbientIntensity: number;
 }
 
 // Convert HSL values to full HSL color string
@@ -245,6 +250,53 @@ function mapOrganizationalToHue(organizational?: string): number {
   return map[organizational || 'orange'] || 25;
 }
 
+// NEW: Organizational → Background colors and ambient light (Laloux colors)
+function mapOrganizationalToBackground(organizational?: string): {
+  topColor: string;
+  bottomColor: string;
+  ambientColor: string;
+  ambientIntensity: number;
+} {
+  const map: Record<string, {
+    topColor: string;
+    bottomColor: string;
+    ambientColor: string;
+    ambientIntensity: number;
+  }> = {
+    red: {
+      topColor: '#2d1a1a',     // Dark maroon
+      bottomColor: '#1a1010',  // Deep red-black
+      ambientColor: '#ff4444', // Red ambient
+      ambientIntensity: 0.35
+    },
+    amber: {
+      topColor: '#2d2816',     // Warm amber
+      bottomColor: '#1a1810',  // Golden brown
+      ambientColor: '#ffaa44', // Amber ambient
+      ambientIntensity: 0.45
+    },
+    orange: {
+      topColor: '#2d2018',     // Orange-brown
+      bottomColor: '#1a1412',  // Warm orange
+      ambientColor: '#ff8844', // Orange ambient
+      ambientIntensity: 0.40
+    },
+    green: {
+      topColor: '#1a2d1a',     // Forest green
+      bottomColor: '#101a10',  // Deep green
+      ambientColor: '#44ff88', // Green ambient
+      ambientIntensity: 0.50
+    },
+    teal: {
+      topColor: '#1a2a2d',     // Cyan-teal
+      bottomColor: '#101820',  // Deep teal
+      ambientColor: '#44ddff', // Teal ambient
+      ambientIntensity: 0.55
+    }
+  };
+  return map[organizational || 'orange'] || map.orange;
+}
+
 // Challenge → Noise intensity AND spike contribution
 function mapChallengeToEffects(challenge?: string): { noise: number; spikeContribution: number } {
   const map: Record<string, { noise: number; spikeContribution: number }> = {
@@ -396,6 +448,7 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
   const knowledgeVisuals = mapKnowledgeToVisuals(knowledge);
   const informationEffects = mapInformationToEffects(information);
   const riskEffects = mapRiskToEffects(risk);
+  const backgroundEffects = mapOrganizationalToBackground(organizational);
   
   // Generate colors
   const colors = generateColors(hue, colorCount, resourceData.saturation, resourceData.brightness);
@@ -466,6 +519,14 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     outerParticleOrganization: knowledgeVisuals.outerParticleOrganization,
     knowledgeGlowIntensity: knowledgeVisuals.knowledgeGlowIntensity,
     knowledgeGlowSharpness: knowledgeVisuals.knowledgeGlowSharpness,
-    knowledgeGlowColor: hslToString(hue, resourceData.saturation, Math.min(85, resourceData.brightness + 20))
+    knowledgeGlowColor: hslToString(hue, resourceData.saturation, Math.min(85, resourceData.brightness + 20)),
+    
+    // NEW Organizational-based background
+    backgroundColors: {
+      top: backgroundEffects.topColor,
+      bottom: backgroundEffects.bottomColor
+    },
+    organizationalAmbientColor: backgroundEffects.ambientColor,
+    organizationalAmbientIntensity: backgroundEffects.ambientIntensity
   };
 }

@@ -12,26 +12,18 @@ interface Blob3DSceneProps {
   className?: string;
 }
 
-// Background gradient based on risk level
+// Background gradient based on organizational stage (Laloux colors)
 function BackgroundGradient({ 
-  style 
+  topColor,
+  bottomColor
 }: { 
-  style: 'neutral' | 'warm' | 'danger' | 'critical' 
+  topColor: string;
+  bottomColor: string;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   
-  const colors = useMemo(() => {
-    const styleColors: Record<string, { top: string; bottom: string }> = {
-      neutral: { top: '#1a1a2e', bottom: '#16213e' },
-      warm: { top: '#2d2416', bottom: '#1a1612' },
-      danger: { top: '#2e1a1a', bottom: '#1e1212' },
-      critical: { top: '#3d1a1a', bottom: '#2a0f0f' }
-    };
-    return styleColors[style] || styleColors.neutral;
-  }, [style]);
-  
-  const topColor = useMemo(() => new THREE.Color(colors.top), [colors.top]);
-  const bottomColor = useMemo(() => new THREE.Color(colors.bottom), [colors.bottom]);
+  const top = useMemo(() => new THREE.Color(topColor), [topColor]);
+  const bottom = useMemo(() => new THREE.Color(bottomColor), [bottomColor]);
   
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -46,8 +38,8 @@ function BackgroundGradient({
       <planeGeometry args={[20, 20]} />
       <shaderMaterial
         uniforms={{
-          topColor: { value: topColor },
-          bottomColor: { value: bottomColor },
+          topColor: { value: top },
+          bottomColor: { value: bottom },
         }}
         vertexShader={`
           varying vec2 vUv;
@@ -61,7 +53,11 @@ function BackgroundGradient({
           uniform vec3 bottomColor;
           varying vec2 vUv;
           void main() {
+            // Add vignette effect for better contrast
+            vec2 center = vUv - 0.5;
+            float vignette = 1.0 - dot(center, center) * 0.8;
             vec3 color = mix(bottomColor, topColor, vUv.y);
+            color *= vignette;
             gl_FragColor = vec4(color, 1.0);
           }
         `}
@@ -109,26 +105,30 @@ function Lights({
   glowColor, 
   glowIntensity,
   coreGlow,
-  backgroundStyle
+  organizationalAmbientColor,
+  organizationalAmbientIntensity
 }: { 
   glowColor: string; 
   glowIntensity: number;
   coreGlow: number;
-  backgroundStyle: string;
+  organizationalAmbientColor: string;
+  organizationalAmbientIntensity: number;
 }) {
-  // Increase light intensity for darker backgrounds
-  const isDark = backgroundStyle !== 'neutral';
-  const intensityMultiplier = isDark ? 1.3 : 1.0;
-  
   return (
     <>
-      {/* Main ambient light */}
-      <ambientLight intensity={0.5 * intensityMultiplier} />
+      {/* Organizational ambient light - sets the atmosphere color */}
+      <ambientLight 
+        intensity={organizationalAmbientIntensity} 
+        color={organizationalAmbientColor}
+      />
+      
+      {/* Base white ambient for visibility */}
+      <ambientLight intensity={0.35} />
       
       {/* Key light */}
       <directionalLight
         position={[5, 5, 5]}
-        intensity={1.4 * intensityMultiplier}
+        intensity={1.4}
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
@@ -136,25 +136,25 @@ function Lights({
       {/* Fill light */}
       <directionalLight
         position={[-3, 3, -3]}
-        intensity={0.7 * intensityMultiplier}
+        intensity={0.7}
         color="#e0e8ff"
       />
       
       {/* Rim light */}
       <directionalLight
         position={[0, -2, 5]}
-        intensity={0.5 * intensityMultiplier}
+        intensity={0.5}
         color="#ffffff"
       />
       
       {/* Back light */}
       <directionalLight
         position={[-2, 1, -5]}
-        intensity={0.4 * intensityMultiplier}
+        intensity={0.4}
         color="#8080ff"
       />
       
-      {/* Risk glow lights - much stronger now */}
+      {/* Risk glow lights */}
       <pointLight
         position={[0, 3, 0]}
         intensity={glowIntensity * 5}
@@ -192,7 +192,7 @@ function Lights({
       {/* Front fill */}
       <pointLight
         position={[0, 0, 4]}
-        intensity={0.3 * intensityMultiplier}
+        intensity={0.3}
         color="#ffffff"
         distance={8}
       />
@@ -225,21 +225,25 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
         }}
       >
         <Suspense fallback={<LoadingFallback />}>
-          {/* Dark gradient background based on risk */}
-          <BackgroundGradient style={data.backgroundStyle} />
+          {/* Gradient background based on organizational stage */}
+          <BackgroundGradient 
+            topColor={data.backgroundColors.top}
+            bottomColor={data.backgroundColors.bottom}
+          />
           
-          {/* Atmospheric haze for high risk */}
+          {/* Atmospheric haze for high risk (separate from background) */}
           <AtmosphericHaze 
             color={data.outerAuraColor} 
             intensity={data.outerAuraIntensity} 
           />
           
-          {/* Lighting setup */}
+          {/* Lighting setup with organizational ambient */}
           <Lights 
             glowColor={data.glowColor} 
             glowIntensity={data.glowIntensity}
             coreGlow={data.coreGlow}
-            backgroundStyle={data.backgroundStyle}
+            organizationalAmbientColor={data.organizationalAmbientColor}
+            organizationalAmbientIntensity={data.organizationalAmbientIntensity}
           />
           
           {/* Environment map for reflections */}
