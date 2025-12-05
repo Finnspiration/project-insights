@@ -1,6 +1,5 @@
-import { ReactP5Wrapper } from 'react-p5-wrapper';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Edit2 } from 'lucide-react';
 import { mapMorphologyToBlob } from './blob/blobMapping';
-import { blobSketch } from './blob/BlobGenerator';
 import { getZoneStyles, getDimensionVisuals, getPatternPreview } from './blob/colorMapping';
 import { useArchetype } from '@/hooks/useArchetype';
 import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Blob3DScene, mapMorphologyTo3DBlob } from './blob3d';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -345,8 +344,13 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
         <div className="grid md:grid-cols-2 gap-6">
           {/* Left: Blob Canvas */}
           <div className="relative flex flex-col items-center">
-            <div ref={blobContainerRef} className="w-full max-w-[500px] aspect-square bg-muted/30 rounded-lg overflow-hidden relative">
-              <ReactP5Wrapper sketch={blobSketch} blobData={blobData} selectedZone={selectedZone} selectedDimension={selectedDimension} onZoneHover={handleHover} />
+            <div ref={blobContainerRef} className="w-full max-w-[500px] aspect-square bg-gradient-to-br from-background via-muted/20 to-background rounded-lg overflow-hidden relative border border-border/30">
+              <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
+                <Blob3DScene 
+                  data={mapMorphologyTo3DBlob(normalizedMorphology)} 
+                  selectedLobe={selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null}
+                />
+              </Suspense>
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
               {showZoneTooltip && selectedZone && (() => {
