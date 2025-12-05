@@ -110,6 +110,17 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     }
   }, []);
   
+  // Handler for banner parameter changes - updates morphology via parent callback
+  const handleBannerMorphologyChange = useCallback((key: string, value: string) => {
+    if (onMorphologyUpdate) {
+      const updatedMorphology = {
+        ...normalizedMorphology,
+        [key]: value
+      };
+      onMorphologyUpdate(updatedMorphology);
+    }
+  }, [normalizedMorphology, onMorphologyUpdate]);
+  
   // Active morphology - use demo morphology when demo is active
   const activeMorphology = isDemoActive ? demoMorphology : normalizedMorphology;
   
@@ -353,6 +364,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
             <ParameterBanner 
               morphology={activeMorphology}
               activeDimension={demoDimension}
+              onMorphologyChange={projectId ? handleBannerMorphologyChange : undefined}
             />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}

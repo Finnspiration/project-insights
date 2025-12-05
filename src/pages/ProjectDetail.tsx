@@ -121,6 +121,33 @@ export default function ProjectDetail() {
       ...project,
       morphology: newMorphology
     });
+    
+    // Generate new DNA code from morphology
+    const dimensionKeys = Object.keys(newMorphology);
+    const newDnaCode = dimensionKeys
+      .map(key => {
+        const val = newMorphology[key];
+        return typeof val === 'object' ? val?.selectedValue : val;
+      })
+      .filter(Boolean)
+      .join('-');
+    
+    // Save to database
+    const { error } = await supabase
+      .from('projects')
+      .update({
+        morphology: newMorphology,
+        dna_code: newDnaCode,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', project.id);
+    
+    if (error) {
+      console.error('Failed to save morphology:', error);
+    } else {
+      // Update local DNA code
+      setProject(prev => prev ? { ...prev, dna_code: newDnaCode } : prev);
+    }
   };
 
   const handleSaveChanges = async () => {
