@@ -302,10 +302,12 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
         <div className="relative">
           <div ref={blobContainerRef} className="w-full aspect-[16/10] min-h-[400px] max-h-[600px] bg-gradient-to-br from-background via-muted/20 to-background rounded-lg overflow-hidden relative border border-border/30">
             <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
-              <Blob3DScene 
-                data={mapMorphologyTo3DBlob(normalizedMorphology)} 
-                selectedLobe={legendHoveredLobe ?? (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null)}
-              />
+              <div className={`w-full h-full transition-opacity duration-500 ${isFetching ? 'opacity-80' : 'opacity-100'}`}>
+                <Blob3DScene 
+                  data={mapMorphologyTo3DBlob(normalizedMorphology)} 
+                  selectedLobe={legendHoveredLobe ?? (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null)}
+                />
+              </div>
             </Suspense>
             
             {/* Enhanced Draggable Legend with Editing */}
