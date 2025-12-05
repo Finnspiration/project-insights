@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Pause, Square, SkipForward, RotateCcw, Sparkles } from 'lucide-react';
+import { Play, Pause, Square, SkipForward, RotateCcw, Sparkles, ChevronDown, ChevronUp, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -173,26 +173,99 @@ export function BlobDemoMode({
     }
   }, [isExpanded, isPlaying, baseMorphology, onDemoMorphologyChange, onDemoStateChange]);
   
-  // Collapsed state - just show demo button
+  // Collapsed/minimized state - show compact controls
   if (!isExpanded) {
+    // If demo is not active at all, just show start button
+    if (!isPlaying && currentDimensionIndex === 0 && currentOptionIndex === 0) {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsExpanded(true)}
+          className={cn(
+            "absolute top-4 left-4 z-10 gap-2",
+            "bg-background/80 backdrop-blur-sm border-border/50",
+            "hover:bg-primary/10 hover:border-primary/50",
+            "transition-all duration-200",
+            className
+          )}
+        >
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-xs font-medium">
+            {language === 'da' ? 'Demo' : 'Demo'}
+          </span>
+        </Button>
+      );
+    }
+    
+    // Minimized but active - show compact control bar
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsExpanded(true)}
+      <div
         className={cn(
-          "absolute top-4 left-4 z-10 gap-2",
-          "bg-background/80 backdrop-blur-sm border-border/50",
-          "hover:bg-primary/10 hover:border-primary/50",
-          "transition-all duration-200",
+          "absolute top-4 left-4 z-10",
+          "bg-background/95 backdrop-blur-md",
+          "border border-border/50 rounded-lg shadow-lg",
+          "animate-in fade-in-0 duration-200",
+          "flex items-center gap-1 p-1.5",
           className
         )}
       >
-        <Sparkles className="h-4 w-4 text-primary" />
-        <span className="text-xs font-medium">
-          {language === 'da' ? 'Demo' : 'Demo'}
-        </span>
-      </Button>
+        {/* Current dimension indicator */}
+        <div 
+          className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded cursor-pointer hover:bg-muted transition-colors"
+          onClick={() => setIsExpanded(true)}
+          title={language === 'da' ? 'Udvid' : 'Expand'}
+        >
+          <span className="text-sm">{DIMENSION_ICONS[currentDimensionKey]}</span>
+          {isPlaying && (
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          )}
+        </div>
+        
+        {/* Play/Pause */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={togglePlay}
+          className="h-7 w-7"
+          title={isPlaying ? (language === 'da' ? 'Pause' : 'Pause') : (language === 'da' ? 'Afspil' : 'Play')}
+        >
+          {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+        </Button>
+        
+        {/* Skip */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={skipDimension}
+          className="h-7 w-7"
+          title={language === 'da' ? 'Næste' : 'Next'}
+        >
+          <SkipForward className="h-3 w-3" />
+        </Button>
+        
+        {/* Reset/Stop */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={reset}
+          className="h-7 w-7"
+          title={language === 'da' ? 'Stop' : 'Stop'}
+        >
+          <RotateCcw className="h-3 w-3" />
+        </Button>
+        
+        {/* Expand */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsExpanded(true)}
+          className="h-7 w-7"
+          title={language === 'da' ? 'Udvid' : 'Expand'}
+        >
+          <ChevronDown className="h-3 w-3" />
+        </Button>
+      </div>
     );
   }
   
@@ -223,13 +296,11 @@ export function BlobDemoMode({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => {
-            setIsExpanded(false);
-            setIsPlaying(false);
-          }}
-          className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => setIsExpanded(false)}
+          className="h-7 w-7"
+          title={language === 'da' ? 'Minimer' : 'Minimize'}
         >
-          <Square className="h-3 w-3" />
+          <Minimize2 className="h-3 w-3" />
         </Button>
       </div>
       
@@ -341,6 +412,19 @@ export function BlobDemoMode({
             title={language === 'da' ? 'Nulstil' : 'Reset'}
           >
             <RotateCcw className="h-3 w-3" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              reset();
+              setIsExpanded(false);
+            }}
+            className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+            title={language === 'da' ? 'Luk demo' : 'Close demo'}
+          >
+            <Square className="h-3 w-3" />
           </Button>
         </div>
       </div>
