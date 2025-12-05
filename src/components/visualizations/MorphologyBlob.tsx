@@ -1,19 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Edit2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import { mapMorphologyToBlob } from './blob/blobMapping';
-import { getZoneStyles, getDimensionVisuals, getPatternPreview } from './blob/colorMapping';
+import { getZoneStyles, getDimensionVisuals } from './blob/colorMapping';
 import { useArchetype } from '@/hooks/useArchetype';
-import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { Blob3DScene, mapMorphologyTo3DBlob } from './blob3d';
-import { Blob3DLegend } from './blob3d/Blob3DLegend';
+import { EnhancedBlob3DLegend } from './blob3d/EnhancedBlob3DLegend';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -90,7 +86,6 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [viewMode, setViewMode] = useState<ViewMode>({ type: 'idle' });
   const [zoneTooltipPosition, setZoneTooltipPosition] = useState({ x: 250, y: 250 });
-  const [isSaving, setIsSaving] = useState(false);
   const [legendHoveredLobe, setLegendHoveredLobe] = useState<number | null>(null);
   const blobContainerRef = useRef<HTMLDivElement>(null);
   
@@ -228,52 +223,6 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     });
   };
   
-  const handleSaveQuickEdit = async () => {
-    if (!projectId || viewMode.type !== 'editing') return;
-    
-    setIsSaving(true);
-    
-    const updatedMorphology = {
-      ...morphology,
-      [viewMode.dimensionKey]: viewMode.tempValue
-    };
-    
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .update({ morphology: updatedMorphology })
-        .eq('id', projectId);
-      
-      if (error) throw error;
-      
-      toast.success(t('morphology.updateSuccess') || 'Morphology updated!');
-      setViewMode({ type: 'idle' });
-      
-      // Update parent with new morphology
-      if (onMorphologyUpdate) {
-        onMorphologyUpdate(updatedMorphology);
-      }
-    } catch (error) {
-      console.error('Error updating morphology:', error);
-      toast.error(t('morphology.updateError') || 'Failed to update morphology');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setViewMode({ type: 'idle' });
-  };
-
-  // Direct edit handler for inline edit icon
-  const handleDirectEdit = (dimensionKey: string, currentValue: string) => {
-    setViewMode({ 
-      type: 'editing', 
-      dimensionKey, 
-      tempValue: getMorphologyValue(dimensionKey) || currentValue 
-    });
-  };
-  
   // State machine-based dimension click handler - eliminates race conditions
   const handleDimensionClick = (dimensionKey: string) => {
     // If already editing this dimension, cancel
@@ -348,22 +297,23 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
       </CardHeader>
       
       <CardContent>
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Left: Blob Canvas */}
-          <div className="relative flex flex-col items-center">
-            <div ref={blobContainerRef} className="w-full max-w-[500px] aspect-square bg-gradient-to-br from-background via-muted/20 to-background rounded-lg overflow-hidden relative border border-border/30">
-              <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
-                <Blob3DScene 
-                  data={mapMorphologyTo3DBlob(normalizedMorphology)} 
-                  selectedLobe={legendHoveredLobe ?? (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null)}
-                />
-              </Suspense>
-              
-              {/* Toggleable Legend for 3D Blob */}
-              <Blob3DLegend 
-                morphology={normalizedMorphology} 
-                onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
+        {/* Full-width Blob Canvas */}
+        <div className="relative">
+          <div ref={blobContainerRef} className="w-full aspect-[16/10] min-h-[400px] max-h-[600px] bg-gradient-to-br from-background via-muted/20 to-background rounded-lg overflow-hidden relative border border-border/30">
+            <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
+              <Blob3DScene 
+                data={mapMorphologyTo3DBlob(normalizedMorphology)} 
+                selectedLobe={legendHoveredLobe ?? (selectedDimension ? Object.keys(dimensionToZone).indexOf(selectedDimension) : null)}
               />
+            </Suspense>
+            
+            {/* Enhanced Draggable Legend with Editing */}
+            <EnhancedBlob3DLegend 
+              morphology={normalizedMorphology}
+              projectId={projectId}
+              onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
+              onMorphologyUpdate={onMorphologyUpdate}
+            />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
               {showZoneTooltip && selectedZone && (() => {
@@ -430,42 +380,10 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                         {zoneInfo.description}
                       </p>
                       
-                      <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tooltipBorderColor }} />
                         <span className="text-xs font-medium">{zoneInfo.dimension}</span>
                       </div>
-                      
-                      {/* Edit Button if project is editable */}
-                      {projectId && selectedDimension && (
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="default"
-                            className="flex-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewMode({ 
-                                type: 'editing', 
-                                dimensionKey: selectedDimension, 
-                                tempValue: getMorphologyValue(selectedDimension) || '' 
-                              });
-                            }}
-                          >
-                            <Edit2 className="w-3 h-3 mr-1" />
-                            {t('common.edit')}
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewMode({ type: 'idle' });
-                            }}
-                          >
-                            {t('common.close')}
-                          </Button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
@@ -502,298 +420,22 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                     </div>
                   </div>
                 </div>}
-            </div>
-            
-            {/* Archetype Badge */}
-            <div className="mt-4 text-center">
-              <Badge variant="outline" style={{
+          </div>
+          
+          {/* Archetype Badge */}
+          <div className="mt-4 text-center">
+            <Badge variant="outline" style={{
               borderColor: archetype.color,
               color: archetype.color
             }}>
-                {archetype.icon} {archetype.description ? (typeof archetype.name === 'string' ? archetype.name : JSON.stringify(archetype.name)) : t(archetype.nameKey || '')}
-              </Badge>
-              <p className="text-sm text-muted-foreground mt-2">
-                {typeof archetype.description === 'string' ? archetype.description : (archetype.descriptionKey ? t(archetype.descriptionKey) : '')}
-              </p>
-            </div>
-          </div>
-          
-          {/* Right: Visual Variable Indicators */}
-          <div className="space-y-3">
-            
-            
-            <div className="space-y-2">
-              <StatusRow 
-                label={t('visualizations.blob.vars.risk')} 
-                value={t(`morphology.dimensions.risk.options.${normalizedMorphology.risk}`)}
-                detail={`${t('visualizations.blob.vars.glow')}: ${(blobData.outerGlowIntensity * 100).toFixed(0)}%`} 
-                visualColor={getDimensionVisuals('risk', blobData).color} 
-                visualIcon={getDimensionVisuals('risk', blobData).icon} 
-                glowIntensity={blobData.outerGlowIntensity} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'risk'} 
-                dimensionKey="risk"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'risk'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'risk' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('risk')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.complexity')} 
-                value={t(`morphology.dimensions.complexity.options.${normalizedMorphology.complexity}`)} 
-                detail={`${t('visualizations.blob.vars.roughness')}: ${(blobData.roughness * 100).toFixed(0)}%`}
-                visualColor={getDimensionVisuals('complexity', blobData).color} 
-                visualIcon={getDimensionVisuals('complexity', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'complexity'} 
-                dimensionKey="complexity"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'complexity'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'complexity' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('complexity')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.stakeholder')} 
-                value={t(`morphology.dimensions.stakeholder.options.${normalizedMorphology.stakeholder}`)} 
-                detail={`${t('visualizations.blob.vars.arms')}: ${blobData.arms}`}
-                visualColor={getDimensionVisuals('stakeholder', blobData).color} 
-                visualIcon={getDimensionVisuals('stakeholder', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'stakeholder'} 
-                dimensionKey="stakeholder"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'stakeholder'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'stakeholder' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('stakeholder')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.knowledge')} 
-                value={t(`morphology.dimensions.knowledge.options.${normalizedMorphology.knowledge}`)} 
-                detail={`${t('visualizations.blob.vars.pattern')}: ${t(`visualizations.blob.patterns.${blobData.innerPattern}`)}`}
-                visualColor={getDimensionVisuals('knowledge', blobData).color} 
-                visualIcon={getDimensionVisuals('knowledge', blobData).icon} 
-                visualPattern={blobData.innerPattern} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'knowledge'} 
-                dimensionKey="knowledge"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'knowledge'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'knowledge' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('knowledge')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.cultural')} 
-                value={t(`morphology.dimensions.cultural.options.${normalizedMorphology.cultural}`)} 
-                detail={`${t('visualizations.blob.vars.colors')}: ${blobData.colorSpread}`}
-                visualColor={getDimensionVisuals('cultural', blobData).color} 
-                visualIcon={getDimensionVisuals('cultural', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'cultural'} 
-                dimensionKey="cultural"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'cultural'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'cultural' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('cultural')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.organizational')} 
-                value={t(`morphology.dimensions.organizational.options.${normalizedMorphology.organizational}`)} 
-                detail={`${t('visualizations.blob.vars.baseColor')}: ${blobData.baseHue}°`}
-                visualColor={getDimensionVisuals('organizational', blobData).color} 
-                visualIcon={getDimensionVisuals('organizational', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'organizational'} 
-                dimensionKey="organizational"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'organizational'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'organizational' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('organizational')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.temporal')} 
-                value={t(`morphology.dimensions.temporal.options.${normalizedMorphology.temporal}`)} 
-                detail={`${t('visualizations.blob.vars.pulse')}: ${blobData.pulseSpeed.toFixed(1)}s`}
-                visualColor={getDimensionVisuals('temporal', blobData).color} 
-                visualIcon={getDimensionVisuals('temporal', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'temporal'} 
-                dimensionKey="temporal"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'temporal'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'temporal' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('temporal')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.development')} 
-                value={t(`morphology.dimensions.development.options.${normalizedMorphology.development}`)} 
-                detail={`${t('visualizations.blob.vars.coreGlow')}: ${(blobData.coreGlow * 100).toFixed(0)}%`}
-                visualColor={getDimensionVisuals('development', blobData).color} 
-                visualIcon={getDimensionVisuals('development', blobData).icon} 
-                glowIntensity={blobData.coreGlow} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'development'} 
-                dimensionKey="development"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'development'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'development' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('development')} 
-              />
-              
-              {/* 4 Previously Missing Dimensions */}
-              <StatusRow 
-                label={t('visualizations.blob.vars.challenge')} 
-                value={t(`morphology.dimensions.challenge.options.${normalizedMorphology.challenge}`)} 
-                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.noiseParticles')}`}
-                visualColor={getDimensionVisuals('challenge', blobData).color} 
-                visualIcon={getDimensionVisuals('challenge', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'challenge'} 
-                dimensionKey="challenge"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'challenge'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'challenge' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('challenge')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.resources')} 
-                value={t(`morphology.dimensions.resources.options.${normalizedMorphology.resources}`)} 
-                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.scaleSize')}`}
-                visualColor={getDimensionVisuals('resources', blobData).color} 
-                visualIcon={getDimensionVisuals('resources', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'resources'} 
-                dimensionKey="resources"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'resources'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'resources' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('resources')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.change')} 
-                value={t(`morphology.dimensions.change.options.${normalizedMorphology.change}`)} 
-                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.rotationSpeed')}`}
-                visualColor={getDimensionVisuals('change', blobData).color} 
-                visualIcon={getDimensionVisuals('change', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'change'} 
-                dimensionKey="change"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'change'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'change' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('change')} 
-              />
-              
-              <StatusRow 
-                label={t('visualizations.blob.vars.information')} 
-                value={t(`morphology.dimensions.information.options.${normalizedMorphology.information}`)} 
-                detail={`${t('visualizations.blob.vars.effect')}: ${t('visualizations.blob.effects.symmetry')}`}
-                visualColor={getDimensionVisuals('information', blobData).color} 
-                visualIcon={getDimensionVisuals('information', blobData).icon} 
-                isSelected={viewMode.type !== 'idle' && viewMode.dimensionKey === 'information'} 
-                dimensionKey="information"
-                isEditing={viewMode.type === 'editing' && viewMode.dimensionKey === 'information'}
-                tempValue={viewMode.type === 'editing' && viewMode.dimensionKey === 'information' ? viewMode.tempValue : ''}
-                onTempValueChange={(value) => {
-                  if (viewMode.type === 'editing') {
-                    setViewMode({ ...viewMode, tempValue: value });
-                  }
-                }}
-                isSaving={isSaving}
-                onEdit={handleDirectEdit}
-                onSave={handleSaveQuickEdit}
-                onCancel={handleCancelEdit}
-                onClick={() => handleDimensionClick('information')} 
-              />
-            </div>
+              {archetype.icon} {archetype.description ? (typeof archetype.name === 'string' ? archetype.name : JSON.stringify(archetype.name)) : t(archetype.nameKey || '')}
+            </Badge>
+            <p className="text-sm text-muted-foreground mt-2">
+              {typeof archetype.description === 'string' ? archetype.description : (archetype.descriptionKey ? t(archetype.descriptionKey) : '')}
+            </p>
           </div>
         </div>
-        
+
         {/* How to Read Guide */}
         <Card className="mt-6">
           <CardHeader>
@@ -876,171 +518,4 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
         </Card>
       </CardContent>
     </Card>;
-}
-interface StatusRowProps {
-  label: string;
-  value: string;
-  detail: string;
-  visualColor?: string;
-  visualIcon?: string;
-  visualPattern?: string;
-  glowIntensity?: number;
-  isSelected?: boolean;
-  onClick?: () => void;
-  dimensionKey?: string;
-  isEditing?: boolean;
-  onEdit?: (dimensionKey: string, currentValue: string) => void;
-  onSave?: () => void;
-  onCancel?: () => void;
-  tempValue?: string;
-  onTempValueChange?: (value: string) => void;
-  isSaving?: boolean;
-}
-function StatusRow(props: StatusRowProps) {
-  const { t } = useTranslation();
-  
-  // Get dimension options for editing
-  const dimensionConfig = props.dimensionKey 
-    ? MORPHOLOGY_DIMENSIONS.find(d => d.key === props.dimensionKey)
-    : null;
-  
-  return (
-    <div className={`
-      group transition-all rounded-lg p-3 border 
-      ${props.isSelected ? 'bg-accent border-accent-foreground shadow-lg scale-105' : 'hover:bg-muted/30 border-transparent hover:border-border cursor-pointer'}
-    `}>
-      <div onClick={props.onClick}>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            {/* Visual Indicator */}
-            {props.visualColor && (
-              <div className="relative">
-                <div 
-                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center" 
-                  style={{
-                    backgroundColor: `${props.visualColor}30`,
-                    borderColor: props.visualColor
-                  }}
-                >
-                  {props.visualIcon && <span className="text-xs">{props.visualIcon}</span>}
-                </div>
-                
-                {/* Glow effect hvis relevant */}
-                {props.glowIntensity !== undefined && props.glowIntensity > 0 && (
-                  <div 
-                    className="absolute inset-0 rounded-full blur-sm -z-10 animate-glow-pulse" 
-                    style={{
-                      backgroundColor: props.visualColor,
-                      opacity: props.glowIntensity * 0.4
-                    }} 
-                  />
-                )}
-              </div>
-            )}
-            
-            <span className="text-sm font-medium">{props.label}</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Badge 
-              variant="outline" 
-              className="capitalize" 
-              style={props.visualColor ? { borderColor: `${props.visualColor}60` } : {}}
-            >
-              {typeof props.value === 'string' ? props.value : JSON.stringify(props.value)}
-            </Badge>
-            
-            {/* Inline Edit Icon - appears on hover */}
-            {props.dimensionKey && !props.isEditing && props.onEdit && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  props.onEdit?.(props.dimensionKey!, props.value);
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-            )}
-          </div>
-        </div>
-        
-        {/* Progress/Intensity Bar */}
-        {props.glowIntensity !== undefined && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full rounded-full transition-all duration-500" 
-                style={{
-                  width: `${props.glowIntensity * 100}%`,
-                  backgroundColor: props.visualColor
-                }} 
-              />
-            </div>
-            <span>{(props.glowIntensity * 100).toFixed(0)}%</span>
-          </div>
-        )}
-        
-        {/* Detail med pattern preview */}
-        <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2">
-          {props.visualPattern && (
-            <span style={{ color: props.visualColor || 'currentColor' }}>
-              {getPatternPreview(props.visualPattern)}
-            </span>
-          )}
-          <span>{props.detail}</span>
-        </div>
-      </div>
-      
-      {/* Quick Edit Dropdown */}
-      {props.isEditing && dimensionConfig && (
-        <div className="mt-3 space-y-2 animate-in fade-in-0 slide-in-from-top-2 border-t border-border pt-3">
-          <Select 
-            value={props.tempValue} 
-            onValueChange={props.onTempValueChange}
-            disabled={props.isSaving}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t('morphology.selectOption')} />
-            </SelectTrigger>
-            <SelectContent className="z-[100] bg-background">
-              {dimensionConfig.options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {t(option.translationKey)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              onClick={(e) => {
-                e.stopPropagation();
-                props.onSave?.();
-              }}
-              disabled={props.isSaving || !props.tempValue}
-              className="flex-1"
-            >
-              {props.isSaving ? t('common.saving') : t('common.save')}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={(e) => {
-                e.stopPropagation();
-                props.onCancel?.();
-              }}
-              disabled={props.isSaving}
-              className="flex-1"
-            >
-              {t('common.cancel')}
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
 }
