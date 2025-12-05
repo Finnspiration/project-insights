@@ -427,15 +427,15 @@ function mapCulturalToEffects(cultural?: string): { colorCount: number; glowInte
   return map[cultural || 'mono'] || map.mono;
 }
 
-// Temporal → Pulse speed
+// Temporal → Pulse speed - DRAMATICALLY different speeds
 function mapTemporalToPulse(temporal?: string): number {
   const map: Record<string, number> = {
-    sprint: 3.0,
-    project: 2.0,
-    program: 1.2,
-    transformation: 0.6
+    sprint: 8.0,          // Very fast, frantic pulsing
+    project: 3.0,         // Moderate speed
+    program: 1.0,         // Slow, deliberate
+    transformation: 0.25  // Very slow, almost meditative
   };
-  return map[temporal || 'project'] || 2.0;
+  return map[temporal || 'project'] || 3.0;
 }
 
 // Organizational → Base hue (more distinct colors)
