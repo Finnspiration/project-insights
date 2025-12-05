@@ -11,6 +11,7 @@ import { useArchetype } from '@/hooks/useArchetype';
 import { Blob3DScene, mapMorphologyTo3DBlob } from './blob3d';
 import { EnhancedBlob3DLegend } from './blob3d/EnhancedBlob3DLegend';
 import { BlobDemoMode } from './blob3d/BlobDemoMode';
+import { ParameterBanner } from './blob3d/ParameterBanner';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -346,6 +347,12 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               projectId={projectId}
               onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
               onMorphologyUpdate={onMorphologyUpdate}
+            />
+            
+            {/* Parameter Banner at bottom */}
+            <ParameterBanner 
+              morphology={activeMorphology}
+              activeDimension={demoDimension}
             />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}

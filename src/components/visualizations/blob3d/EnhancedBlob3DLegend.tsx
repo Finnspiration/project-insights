@@ -8,38 +8,7 @@ import { cn } from '@/lib/utils';
 import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-interface DimensionInfo {
-  key: string;
-  icon: string;
-  effectKey: string;
-  zone: string;
-  lobeIndex: number;
-}
-
-// Updated effect keys to reflect new visual mappings
-const DIMENSION_MAP: DimensionInfo[] = [
-  { key: 'complexity', icon: '🌀', effectKey: 'spikesRoughness', zone: 'mainShape', lobeIndex: 0 },
-  { key: 'stakeholder', icon: '👥', effectKey: 'lobesSpread', zone: 'mainShape', lobeIndex: 1 },
-  { key: 'knowledge', icon: '🧠', effectKey: 'wireframePattern', zone: 'innerPattern', lobeIndex: 2 },
-  { key: 'cultural', icon: '🌍', effectKey: 'multiHueColors', zone: 'culturalOverlay', lobeIndex: 3 },
-  { key: 'organizational', icon: '🏢', effectKey: 'backgroundAtmosphere', zone: 'coreGlow', lobeIndex: 4 },
-  { key: 'temporal', icon: '⏱️', effectKey: 'pulseSpeed', zone: 'outerGlow', lobeIndex: 5 },
-  { key: 'development', icon: '🌱', effectKey: 'coreVisibility', zone: 'innerPattern', lobeIndex: 6 },
-  { key: 'risk', icon: '🔥', effectKey: 'glowWarningAura', zone: 'outerGlow', lobeIndex: 7 },
-  { key: 'challenge', icon: '⚡', effectKey: 'spikesParticles', zone: 'mainShape', lobeIndex: 8 },
-  { key: 'resources', icon: '💎', effectKey: 'scaleSize', zone: 'mainShape', lobeIndex: 9 },
-  { key: 'change', icon: '🔄', effectKey: 'rotationSpeed', zone: 'outerGlow', lobeIndex: 10 },
-  { key: 'information', icon: '🕳️', effectKey: 'holesVoids', zone: 'mainShape', lobeIndex: 11 },
-];
-
-const ZONE_COLORS: Record<string, string> = {
-  mainShape: 'hsl(220, 70%, 50%)',
-  innerPattern: 'hsl(280, 65%, 60%)',
-  outerGlow: 'hsl(30, 90%, 50%)',
-  coreGlow: 'hsl(45, 80%, 55%)',
-  culturalOverlay: 'hsl(340, 75%, 55%)',
-};
+import { DIMENSION_ORDER, ZONE_COLORS, DimensionInfo } from './dimensionConfig';
 
 interface EnhancedBlob3DLegendProps {
   morphology: Record<string, string>;
@@ -303,7 +272,7 @@ export function EnhancedBlob3DLegend({
           onMouseLeave={() => handleDimensionHover(null)}
         >
           <div className="p-2 space-y-1">
-            {DIMENSION_MAP.map((dim) => {
+            {DIMENSION_ORDER.map((dim) => {
               const value = getMorphologyValue(dim.key);
               const translatedName = t(`morphology.dimensions.${dim.key}.title`);
               const translatedValue = value 
