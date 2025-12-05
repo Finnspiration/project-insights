@@ -11,16 +11,24 @@ interface Blob3DSceneProps {
   className?: string;
 }
 
-function Lights({ glowColor, glowIntensity }: { glowColor: string; glowIntensity: number }) {
+function Lights({ 
+  glowColor, 
+  glowIntensity,
+  coreGlow 
+}: { 
+  glowColor: string; 
+  glowIntensity: number;
+  coreGlow: number;
+}) {
   return (
     <>
-      {/* Main ambient light */}
-      <ambientLight intensity={0.4} />
+      {/* Main ambient light - slightly brighter for better visibility */}
+      <ambientLight intensity={0.5} />
       
       {/* Key light - main illumination */}
       <directionalLight
         position={[5, 5, 5]}
-        intensity={1.2}
+        intensity={1.4}
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
@@ -28,30 +36,59 @@ function Lights({ glowColor, glowIntensity }: { glowColor: string; glowIntensity
       {/* Fill light - softer shadows */}
       <directionalLight
         position={[-3, 3, -3]}
-        intensity={0.6}
+        intensity={0.7}
         color="#e0e8ff"
       />
       
       {/* Rim light - edge highlights */}
       <directionalLight
         position={[0, -2, 5]}
-        intensity={0.4}
+        intensity={0.5}
         color="#ffffff"
       />
       
-      {/* Colored accent light based on risk */}
+      {/* Back light for depth */}
+      <directionalLight
+        position={[-2, 1, -5]}
+        intensity={0.4}
+        color="#8080ff"
+      />
+      
+      {/* Colored accent light based on risk - more prominent */}
       <pointLight
         position={[0, 3, 0]}
-        intensity={glowIntensity * 2}
+        intensity={glowIntensity * 3}
         color={glowColor}
+        distance={12}
+      />
+      
+      {/* Side accent lights for risk glow visibility */}
+      <pointLight
+        position={[3, 0, 0]}
+        intensity={glowIntensity * 1.5}
+        color={glowColor}
+        distance={8}
+      />
+      <pointLight
+        position={[-3, 0, 0]}
+        intensity={glowIntensity * 1.5}
+        color={glowColor}
+        distance={8}
+      />
+      
+      {/* Bottom glow - enhanced based on core glow */}
+      <pointLight
+        position={[0, -3, 0]}
+        intensity={0.4 + coreGlow * 0.6}
+        color="#4080ff"
         distance={10}
       />
       
-      {/* Bottom glow */}
+      {/* Front fill for inner pattern visibility */}
       <pointLight
-        position={[0, -3, 0]}
-        intensity={0.5}
-        color="#4080ff"
+        position={[0, 0, 4]}
+        intensity={0.3}
+        color="#ffffff"
         distance={8}
       />
     </>
@@ -74,7 +111,7 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
     <div className={`w-full h-full min-h-[400px] ${className || ''}`}>
       <Canvas
         ref={canvasRef}
-        camera={{ position: [0, 0, 4], fov: 45 }}
+        camera={{ position: [0, 0, 4.5], fov: 45 }}
         dpr={[1, 2]}
         gl={{ 
           antialias: true,
@@ -84,13 +121,17 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
         style={{ background: 'transparent' }}
       >
         <Suspense fallback={<LoadingFallback />}>
-          {/* Lighting setup */}
-          <Lights glowColor={data.glowColor} glowIntensity={data.glowIntensity} />
+          {/* Lighting setup - now includes coreGlow */}
+          <Lights 
+            glowColor={data.glowColor} 
+            glowIntensity={data.glowIntensity}
+            coreGlow={data.coreGlow}
+          />
           
           {/* Environment map for realistic reflections */}
           <Environment preset="city" />
           
-          {/* The main blob */}
+          {/* The main blob with all features */}
           <MetaballBlob 
             data={data} 
             onHover={onHover}
@@ -99,11 +140,11 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
           
           {/* Contact shadow on floor */}
           <ContactShadows
-            position={[0, -1.5, 0]}
-            opacity={0.4}
-            scale={5}
-            blur={2}
-            far={4}
+            position={[0, -1.8, 0]}
+            opacity={0.5}
+            scale={6}
+            blur={2.5}
+            far={5}
             color="#000"
           />
           
