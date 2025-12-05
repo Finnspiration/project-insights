@@ -54,6 +54,14 @@ export interface Blob3DData {
   outerAuraIntensity: number;  // 0-1 outer glow aura
   outerAuraColor: string;      // Aura color
   multiHueColors: string[];    // Distinct hue colors for cultural
+  
+  // NEW: Knowledge-specific visual properties
+  surfaceSmoothing: number;        // 0 = faceted/crystalline, 1 = smooth/organic
+  outerParticleCount: number;      // 50-250 orbiting particles
+  outerParticleOrganization: number; // 1 = organized ring, 0 = chaotic cloud
+  knowledgeGlowIntensity: number;  // Separate glow for knowledge
+  knowledgeGlowSharpness: number;  // 1 = sharp edge, 0 = diffuse aura
+  knowledgeGlowColor: string;      // Edge glow color
 }
 
 // Convert HSL values to full HSL color string
@@ -133,19 +141,74 @@ function mapStakeholderToSpread(stakeholder?: string): number {
   return map[stakeholder || 'unified'] || 0.8;
 }
 
-// Knowledge → Inner pattern type AND wireframe opacity
+// Knowledge → ENHANCED visual properties with dramatic differences
 function mapKnowledgeToVisuals(knowledge?: string): { 
   pattern: 'grid' | 'waves' | 'particles' | 'chaos'; 
   wireframeOpacity: number;
   wobble: number;
+  // NEW enhanced properties
+  surfaceSmoothing: number;        // 0 = faceted/crystalline, 1 = smooth/organic
+  outerParticleCount: number;      // Visible outer particles
+  outerParticleOrganization: number; // 1 = ring, 0 = chaotic cloud
+  knowledgeGlowIntensity: number;  // Edge glow strength
+  knowledgeGlowSharpness: number;  // 1 = sharp, 0 = diffuse
 } {
-  const map: Record<string, { pattern: 'grid' | 'waves' | 'particles' | 'chaos'; wireframeOpacity: number; wobble: number }> = {
-    routine: { pattern: 'grid', wireframeOpacity: 0.8, wobble: 0.1 },
-    adaptive: { pattern: 'waves', wireframeOpacity: 0.4, wobble: 0.3 },
-    innovative: { pattern: 'particles', wireframeOpacity: 0.15, wobble: 0.5 },
-    breakthrough: { pattern: 'chaos', wireframeOpacity: 0, wobble: 0.8 }
+  const map: Record<string, { 
+    pattern: 'grid' | 'waves' | 'particles' | 'chaos'; 
+    wireframeOpacity: number; 
+    wobble: number;
+    surfaceSmoothing: number;
+    outerParticleCount: number;
+    outerParticleOrganization: number;
+    knowledgeGlowIntensity: number;
+    knowledgeGlowSharpness: number;
+  }> = {
+    // Routine: Crystalline/faceted, organized ring, sharp edge glow
+    routine: { 
+      pattern: 'grid', 
+      wireframeOpacity: 0.6, 
+      wobble: 0.1,
+      surfaceSmoothing: 0,          // Faceted surface
+      outerParticleCount: 120,      // Many particles in organized ring
+      outerParticleOrganization: 1.0,
+      knowledgeGlowIntensity: 0.9,  // Strong edge glow
+      knowledgeGlowSharpness: 1.0   // Sharp, concentrated
+    },
+    // Adaptive: Partially faceted, undulating ring, medium glow
+    adaptive: { 
+      pattern: 'waves', 
+      wireframeOpacity: 0.3, 
+      wobble: 0.3,
+      surfaceSmoothing: 0.35,
+      outerParticleCount: 90,
+      outerParticleOrganization: 0.7,
+      knowledgeGlowIntensity: 0.6,
+      knowledgeGlowSharpness: 0.7
+    },
+    // Innovative: Smooth surface, scattered particles, diffuse glow
+    innovative: { 
+      pattern: 'particles', 
+      wireframeOpacity: 0.1, 
+      wobble: 0.5,
+      surfaceSmoothing: 0.75,
+      outerParticleCount: 70,
+      outerParticleOrganization: 0.3,
+      knowledgeGlowIntensity: 0.4,
+      knowledgeGlowSharpness: 0.4
+    },
+    // Breakthrough: Organic with distortion, chaotic cloud, pulsing diffuse aura
+    breakthrough: { 
+      pattern: 'chaos', 
+      wireframeOpacity: 0, 
+      wobble: 0.8,
+      surfaceSmoothing: 1.0,        // Completely smooth/organic
+      outerParticleCount: 180,      // Many particles in chaotic cloud
+      outerParticleOrganization: 0, // Fully chaotic
+      knowledgeGlowIntensity: 0.7,  // Strong but diffuse
+      knowledgeGlowSharpness: 0.1   // Very diffuse aura
+    }
   };
-  return map[knowledge || 'adaptive'] || { pattern: 'waves', wireframeOpacity: 0.4, wobble: 0.3 };
+  return map[knowledge || 'adaptive'] || map.adaptive;
 }
 
 // Cultural → Color count (now with multi-hue)
@@ -395,6 +458,14 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     backgroundStyle: riskEffects.backgroundStyle,
     outerAuraIntensity: riskEffects.auraIntensity,
     outerAuraColor: riskEffects.auraColor,
-    multiHueColors
+    multiHueColors,
+    
+    // NEW Knowledge-specific properties
+    surfaceSmoothing: knowledgeVisuals.surfaceSmoothing,
+    outerParticleCount: knowledgeVisuals.outerParticleCount,
+    outerParticleOrganization: knowledgeVisuals.outerParticleOrganization,
+    knowledgeGlowIntensity: knowledgeVisuals.knowledgeGlowIntensity,
+    knowledgeGlowSharpness: knowledgeVisuals.knowledgeGlowSharpness,
+    knowledgeGlowColor: hslToString(hue, resourceData.saturation, Math.min(85, resourceData.brightness + 20))
   };
 }

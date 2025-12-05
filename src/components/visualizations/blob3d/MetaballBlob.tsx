@@ -187,6 +187,194 @@ function WireframeOverlay({
   );
 }
 
+// NEW: Knowledge Orbit - visible particles orbiting OUTSIDE the blob
+function KnowledgeOrbit({
+  particleCount,
+  organization,
+  color,
+  pulseSpeed
+}: {
+  particleCount: number;
+  organization: number; // 1 = ring, 0 = chaotic cloud
+  color: THREE.Color;
+  pulseSpeed: number;
+}) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const initialPositions = useRef<Float32Array | null>(null);
+  
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(particleCount * 3);
+    
+    for (let i = 0; i < particleCount; i++) {
+      const progress = i / particleCount;
+      
+      // Ring-based positioning (high organization) vs chaotic cloud (low)
+      if (organization > 0.5) {
+        // Organized ring(s)
+        const ringIndex = Math.floor(progress * 3); // 3 rings
+        const ringProgress = (progress * 3) % 1;
+        const angle = ringProgress * Math.PI * 2;
+        const radius = 1.0 + ringIndex * 0.15;
+        const tilt = (ringIndex - 1) * 0.3;
+        
+        // Add some variation based on organization
+        const variation = (1 - organization) * 0.3;
+        
+        positions[i * 3] = Math.cos(angle) * radius + (Math.random() - 0.5) * variation;
+        positions[i * 3 + 1] = Math.sin(tilt) * Math.sin(angle) * 0.2 + (Math.random() - 0.5) * variation;
+        positions[i * 3 + 2] = Math.sin(angle) * radius + (Math.random() - 0.5) * variation;
+      } else {
+        // Chaotic cloud
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = 0.9 + Math.random() * 0.6;
+        
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+      }
+    }
+    
+    initialPositions.current = positions.slice();
+    
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [particleCount, organization]);
+  
+  useFrame((state) => {
+    if (!pointsRef.current || !initialPositions.current) return;
+    const time = state.clock.elapsedTime;
+    const positions = pointsRef.current.geometry.attributes.position;
+    
+    for (let i = 0; i < positions.count; i++) {
+      const initX = initialPositions.current[i * 3];
+      const initY = initialPositions.current[i * 3 + 1];
+      const initZ = initialPositions.current[i * 3 + 2];
+      
+      if (organization > 0.5) {
+        // Organized rotation
+        const rotSpeed = pulseSpeed * 0.3 * (1 + (1 - organization) * 2);
+        const angle = Math.atan2(initZ, initX) + time * rotSpeed;
+        const radius = Math.sqrt(initX * initX + initZ * initZ);
+        
+        positions.setX(i, Math.cos(angle) * radius);
+        positions.setY(i, initY + Math.sin(time * 2 + i * 0.1) * 0.05);
+        positions.setZ(i, Math.sin(angle) * radius);
+      } else {
+        // Chaotic movement
+        const chaos = 1 - organization;
+        positions.setX(i, initX + Math.sin(time * 1.5 + i) * 0.15 * chaos);
+        positions.setY(i, initY + Math.cos(time * 1.2 + i * 0.7) * 0.15 * chaos);
+        positions.setZ(i, initZ + Math.sin(time * 0.9 + i * 1.3) * 0.15 * chaos);
+      }
+    }
+    positions.needsUpdate = true;
+  });
+  
+  if (particleCount < 20) return null;
+  
+  // Size based on organization: organized = smaller/uniform, chaotic = varied/larger
+  const baseSize = organization > 0.5 ? 0.025 : 0.04;
+  
+  return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        size={baseSize}
+        color={color}
+        transparent
+        opacity={0.85}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+// NEW: Knowledge Glow - Fresnel edge glow that varies in sharpness
+function KnowledgeGlow({
+  intensity,
+  sharpness,
+  color
+}: {
+  intensity: number;
+  sharpness: number; // 1 = sharp edge, 0 = diffuse aura
+  color: THREE.Color;
+  pulseSpeed?: number;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  // Create shader material for fresnel effect
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        glowColor: { value: color },
+        intensity: { value: intensity },
+        sharpness: { value: sharpness },
+        time: { value: 0 }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vPosition = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 glowColor;
+        uniform float intensity;
+        uniform float sharpness;
+        uniform float time;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - vPosition);
+          float fresnel = 1.0 - dot(viewDir, vNormal);
+          
+          // Sharpness controls the power of the fresnel
+          float power = mix(1.0, 4.0, sharpness);
+          fresnel = pow(fresnel, power);
+          
+          // Wider spread for lower sharpness
+          float spread = mix(1.5, 1.0, sharpness);
+          fresnel = fresnel * spread;
+          
+          // Subtle pulse for diffuse glow
+          float pulse = 1.0 + sin(time * 2.0) * 0.1 * (1.0 - sharpness);
+          
+          float alpha = fresnel * intensity * pulse;
+          gl_FragColor = vec4(glowColor, alpha * 0.6);
+        }
+      `,
+      transparent: true,
+      side: THREE.FrontSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+  }, [color, intensity, sharpness]);
+  
+  useFrame((state) => {
+    if (material.uniforms) {
+      material.uniforms.time.value = state.clock.elapsedTime;
+    }
+  });
+  
+  if (intensity < 0.1) return null;
+  
+  // Scale based on sharpness: sharp = tighter to blob, diffuse = larger
+  const scale = sharpness > 0.5 ? 0.85 : 0.95 + (1 - sharpness) * 0.2;
+  
+  return (
+    <mesh ref={meshRef} scale={scale}>
+      <sphereGeometry args={[1, 32, 32]} />
+      <primitive object={material} />
+    </mesh>
+  );
+}
+
 // Outer Aura/Glow for Risk visualization
 function OuterAura({ 
   intensity, 
@@ -432,6 +620,7 @@ function Lobe({
   transmission,
   roughness,
   surfaceRoughness,
+  surfaceSmoothing,
   thickness,
   ior,
   pulseSpeed,
@@ -448,6 +637,7 @@ function Lobe({
   transmission: number;
   roughness: number;
   surfaceRoughness: number;
+  surfaceSmoothing: number; // NEW: 0 = faceted/crystalline, 1 = smooth/organic
   thickness: number;
   ior: number;
   pulseSpeed: number;
@@ -465,10 +655,25 @@ function Lobe({
   const threeGlowColor = useMemo(() => new THREE.Color(glowColor), [glowColor]);
   
   const geometry = useMemo(() => {
-    const geo = new THREE.SphereGeometry(1, 64, 64);
+    // Segments based on surfaceSmoothing: low = faceted (8-16), high = smooth (48-64)
+    const segments = Math.floor(8 + surfaceSmoothing * 56);
+    
+    // Use IcosahedronGeometry for low smoothing (crystalline), SphereGeometry for high (organic)
+    let geo: THREE.BufferGeometry;
+    if (surfaceSmoothing < 0.3) {
+      // Faceted/crystalline look
+      const detail = Math.floor(1 + surfaceSmoothing * 3);
+      geo = new THREE.IcosahedronGeometry(1, detail);
+    } else {
+      // Smooth organic look
+      geo = new THREE.SphereGeometry(1, segments, segments);
+    }
+    
     const positions = geo.attributes.position;
     
-    if (surfaceRoughness > 0.1) {
+    // Apply surface roughness deformation (reduced for smooth surfaces)
+    const deformationAmount = surfaceRoughness * (1 - surfaceSmoothing * 0.5);
+    if (deformationAmount > 0.1) {
       for (let i = 0; i < positions.count; i++) {
         const x = positions.getX(i);
         const y = positions.getY(i);
@@ -479,7 +684,7 @@ function Lobe({
           Math.cos(y * 5 + index) * 
           Math.sin(z * 5 + index);
         
-        const deformation = 1 + noise * surfaceRoughness * 0.3;
+        const deformation = 1 + noise * deformationAmount * 0.3;
         
         positions.setXYZ(i, x * deformation, y * deformation, z * deformation);
       }
@@ -488,7 +693,7 @@ function Lobe({
     }
     
     return geo;
-  }, [surfaceRoughness, index]);
+  }, [surfaceRoughness, surfaceSmoothing, index]);
   
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -653,6 +858,7 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   
   const primaryThreeColor = useMemo(() => new THREE.Color(data.primaryColor), [data.primaryColor]);
   const challengeColor = useMemo(() => new THREE.Color(data.glowColor), [data.glowColor]);
+  const knowledgeGlowColor = useMemo(() => new THREE.Color(data.knowledgeGlowColor || data.primaryColor), [data.knowledgeGlowColor, data.primaryColor]);
   
   useFrame((state) => {
     if (!groupRef.current) return;
@@ -691,6 +897,21 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
         color={primaryThreeColor}
       />
       
+      {/* NEW: Knowledge Orbit - visible outer particles */}
+      <KnowledgeOrbit
+        particleCount={data.outerParticleCount}
+        organization={data.outerParticleOrganization}
+        color={knowledgeGlowColor}
+        pulseSpeed={data.pulseSpeed}
+      />
+      
+      {/* NEW: Knowledge Glow - Fresnel edge glow */}
+      <KnowledgeGlow
+        intensity={data.knowledgeGlowIntensity}
+        sharpness={data.knowledgeGlowSharpness}
+        color={knowledgeGlowColor}
+      />
+      
       {/* Challenge noise particles */}
       <ChallengeNoise 
         intensity={data.noiseIntensity} 
@@ -724,6 +945,7 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
           transmission={data.transmission}
           roughness={data.roughness}
           surfaceRoughness={data.surfaceRoughness}
+          surfaceSmoothing={data.surfaceSmoothing}
           thickness={data.thickness}
           ior={data.ior}
           pulseSpeed={data.pulseSpeed}
