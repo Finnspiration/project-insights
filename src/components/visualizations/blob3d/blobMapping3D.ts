@@ -461,8 +461,8 @@ function mapOrganizationalToHue(organizational?: string): number {
   return 210; // Neutral blue-ish hue that works with all backgrounds
 }
 
-// Organizational → Background colors ONLY (Laloux colors) - MORE PROMINENT
-// Ambient light is now neutral - organizational stage is ONLY shown via background
+// Organizational → Background colors ONLY (Laloux colors) - FULL VIEWPORT FILL
+// Uses a single color for entire Canvas background (scene.background)
 function mapOrganizationalToBackground(organizational?: string): {
   topColor: string;
   bottomColor: string;
@@ -475,39 +475,39 @@ function mapOrganizationalToBackground(organizational?: string): {
     ambientColor: string;
     ambientIntensity: number;
   }> = {
-    // RØD STADIUM: Dyb, dramatisk rød baggrund
+    // RØD STADIUM: Tydelig mørkerød baggrund - synlig!
     red: {
-      topColor: '#4a1a1a',     // Dybere rød (mere synlig)
-      bottomColor: '#250808',  // Mørk rød-sort
-      ambientColor: '#ffffff', // NEUTRAL hvid ambient
-      ambientIntensity: 0.4    // Neutral intensitet
+      topColor: '#5c2828',     // Klar rød
+      bottomColor: '#3d1a1a',  // Mørkere rød
+      ambientColor: '#ffffff',
+      ambientIntensity: 0.4
     },
-    // RAV STADIUM: Varm gylden baggrund
+    // RAV STADIUM: Tydelig amber/gylden baggrund
     amber: {
-      topColor: '#4a3a18',     // Varmere gylden (mere synlig)
-      bottomColor: '#251c08',  // Dyb gylden-brun
-      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      topColor: '#5c4a20',     // Klar amber
+      bottomColor: '#3d3018',  // Mørkere amber
+      ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
-    // ORANGE STADIUM: Varm orange baggrund
+    // ORANGE STADIUM: Tydelig varm orange baggrund
     orange: {
-      topColor: '#4a2a15',     // Stærkere orange-brun
-      bottomColor: '#251508',  // Dyb varm orange
-      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      topColor: '#5c3820',     // Klar orange
+      bottomColor: '#3d2515',  // Mørkere orange
+      ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
-    // GRØN STADIUM: Skovgrøn baggrund
+    // GRØN STADIUM: Tydelig skovgrøn baggrund
     green: {
-      topColor: '#1a4a1a',     // Dybere skovgrøn (mere synlig)
-      bottomColor: '#082508',  // Mørk grøn
-      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      topColor: '#285c28',     // Klar grøn
+      bottomColor: '#1a3d1a',  // Mørkere grøn
+      ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
-    // TURKIS STADIUM: Stærk teal/cyan baggrund
+    // TURKIS STADIUM: Tydelig teal/cyan baggrund
     teal: {
-      topColor: '#1a3a4a',     // Stærkere teal (mere synlig)
-      bottomColor: '#081825',  // Dyb cyan-blå
-      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      topColor: '#205c5c',     // Klar teal
+      bottomColor: '#153d3d',  // Mørkere teal
+      ambientColor: '#ffffff',
       ambientIntensity: 0.4
     }
   };

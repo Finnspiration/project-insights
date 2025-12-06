@@ -1,5 +1,5 @@
-import { Suspense, useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Suspense, useRef, useMemo, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { MetaballBlob } from './MetaballBlob';
@@ -12,58 +12,16 @@ interface Blob3DSceneProps {
   className?: string;
 }
 
-// Background gradient based on organizational stage (Laloux colors)
-function BackgroundGradient({ 
-  topColor,
-  bottomColor
-}: { 
-  topColor: string;
-  bottomColor: string;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Component that sets scene.background color - fills ENTIRE viewport
+function SceneBackground({ topColor }: { topColor: string }) {
+  const { scene } = useThree();
+  const color = useMemo(() => new THREE.Color(topColor), [topColor]);
   
-  const top = useMemo(() => new THREE.Color(topColor), [topColor]);
-  const bottom = useMemo(() => new THREE.Color(bottomColor), [bottomColor]);
+  useEffect(() => {
+    scene.background = color;
+  }, [scene, color]);
   
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    // Subtle breathing animation for background
-    const time = state.clock.elapsedTime;
-    const scale = 1 + Math.sin(time * 0.3) * 0.02;
-    meshRef.current.scale.setScalar(scale);
-  });
-  
-  return (
-    <mesh ref={meshRef} position={[0, 0, -5]}>
-      <planeGeometry args={[20, 20]} />
-      <shaderMaterial
-        uniforms={{
-          topColor: { value: top },
-          bottomColor: { value: bottom },
-        }}
-        vertexShader={`
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `}
-        fragmentShader={`
-          uniform vec3 topColor;
-          uniform vec3 bottomColor;
-          varying vec2 vUv;
-          void main() {
-            // Add vignette effect for better contrast
-            vec2 center = vUv - 0.5;
-            float vignette = 1.0 - dot(center, center) * 0.8;
-            vec3 color = mix(bottomColor, topColor, vUv.y);
-            color *= vignette;
-            gl_FragColor = vec4(color, 1.0);
-          }
-        `}
-      />
-    </mesh>
-  );
+  return null;
 }
 
 // Atmospheric fog/haze effect - ENHANCED for risk visibility
@@ -240,16 +198,13 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
         dpr={[1, 2]}
         gl={{ 
           antialias: true,
-          alpha: false, // No alpha for dark backgrounds
+          alpha: false,
           powerPreference: 'high-performance'
         }}
       >
         <Suspense fallback={<LoadingFallback />}>
-          {/* Gradient background based on organizational stage */}
-          <BackgroundGradient 
-            topColor={data.backgroundColors.top}
-            bottomColor={data.backgroundColors.bottom}
-          />
+          {/* Full viewport background - organizational stage color */}
+          <SceneBackground topColor={data.backgroundColors.top} />
           
           {/* Atmospheric haze for high risk (separate from background) */}
           <AtmosphericHaze 
