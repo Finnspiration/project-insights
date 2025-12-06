@@ -976,41 +976,41 @@ function IDGOuterManifestation({
   };
   
   // Pulsating ripples that breathe in and out from center for "Thinking" (Tænkning)
-  // Now with THICK rings, color nuances, spherical spread on 3 axes, and strong central glow
+  // Subtle, elegant version with 4 rings on a single plane + soft glow
   const ThinkingRipples = () => {
     const groupRef = useRef<THREE.Group>(null);
     const rippleRefs = useRef<THREE.Mesh[]>([]);
     const glowRefs = useRef<THREE.Mesh[]>([]);
     const centerGlowRef = useRef<THREE.Mesh>(null);
     
-    // 8 rings per axis, 3 axes = 24 total rings for full spherical coverage
-    const rippleCount = 8;
+    // Only 4 rings for a subtle effect
+    const rippleCount = 4;
     
-    // Color nuances for each ring - gradient from white-blue to cyan to light purple
+    // Color nuances for each ring - gradient from cyan-blue to light purple
     const ringColors = useMemo(() => {
       return Array.from({ length: rippleCount }).map((_, i) => {
         const t = i / (rippleCount - 1);
-        // Hue goes from 0.55 (cyan-blue) to 0.70 (purple) 
-        const hue = 0.55 + t * 0.15;
-        // Saturation varies for visual interest
-        const sat = 0.85 + Math.sin(t * Math.PI) * 0.1;
-        // Lightness stays high for visibility
-        const light = 0.85 + (1 - t) * 0.1;
+        // Hue goes from 0.55 (cyan-blue) to 0.68 (purple) 
+        const hue = 0.55 + t * 0.13;
+        // Lower saturation for subtlety
+        const sat = 0.65 + Math.sin(t * Math.PI) * 0.1;
+        // Moderate lightness
+        const light = 0.75 + (1 - t) * 0.1;
         return new THREE.Color().setHSL(hue, sat, light);
       });
     }, []);
     
-    const glowColor = new THREE.Color().setHSL(0.60, 0.95, 0.95);
+    const glowColor = new THREE.Color().setHSL(0.60, 0.7, 0.85);
     
     useFrame((state) => {
       if (!groupRef.current) return;
       const time = state.clock.elapsedTime;
       
-      // Central glow pulsing - MUCH larger and brighter
+      // Central glow pulsing - small and subtle
       if (centerGlowRef.current) {
-        const glowPulse = 0.6 + Math.sin(time * animationSpeed * 2.5) * 0.4;
-        centerGlowRef.current.scale.setScalar(0.8 + glowPulse * 0.6);
-        (centerGlowRef.current.material as THREE.MeshBasicMaterial).opacity = glowPulse * intensity;
+        const glowPulse = 0.5 + Math.sin(time * animationSpeed * 2.0) * 0.3;
+        centerGlowRef.current.scale.setScalar(0.3 + glowPulse * 0.15);
+        (centerGlowRef.current.material as THREE.MeshBasicMaterial).opacity = glowPulse * 0.4 * intensity;
       }
       
       // Update each ring
@@ -1018,109 +1018,93 @@ function IDGOuterManifestation({
         if (!ripple) return;
         
         // Each ring has a staggered phase offset
-        const phaseOffset = (i % rippleCount) / rippleCount * Math.PI * 2;
+        const phaseOffset = i / rippleCount * Math.PI * 2;
         
-        // PULSATING: Use sine wave to breathe in and out - FASTER
-        const breathe = Math.sin(time * animationSpeed * 2.5 + phaseOffset);
+        // PULSATING: Use sine wave to breathe in and out
+        const breathe = Math.sin(time * animationSpeed * 2.0 + phaseOffset);
         
-        // Center radius + breathing movement (in AND out) - LARGER range
-        const centerRadius = radius * 0.8;
-        const pulseAmount = radius * 0.7;
+        // Center radius + breathing movement - reduced range
+        const centerRadius = radius * 0.7;
+        const pulseAmount = radius * 0.4;
         const currentRadius = centerRadius + breathe * pulseAmount;
         
-        // Opacity based on position - HIGH opacity for visibility
+        // Lower opacity for subtlety
         const normalizedPos = (breathe + 1) / 2;
-        const opacity = (0.6 + normalizedPos * 0.35) * intensity;
+        const opacity = (0.25 + normalizedPos * 0.15) * intensity;
         
         // Update scale and opacity
         ripple.scale.set(currentRadius, currentRadius, 1);
-        (ripple.material as THREE.MeshBasicMaterial).opacity = Math.max(0.3, opacity);
+        (ripple.material as THREE.MeshBasicMaterial).opacity = Math.max(0.15, opacity);
       });
       
       // Update glow rings (softer, larger versions behind each sharp ring)
       glowRefs.current.forEach((glow, i) => {
         if (!glow) return;
         
-        const phaseOffset = (i % rippleCount) / rippleCount * Math.PI * 2;
-        const breathe = Math.sin(time * animationSpeed * 2.5 + phaseOffset);
-        const centerRadius = radius * 0.8;
-        const pulseAmount = radius * 0.7;
-        const currentRadius = (centerRadius + breathe * pulseAmount) * 1.15; // Slightly larger
+        const phaseOffset = i / rippleCount * Math.PI * 2;
+        const breathe = Math.sin(time * animationSpeed * 2.0 + phaseOffset);
+        const centerRadius = radius * 0.7;
+        const pulseAmount = radius * 0.4;
+        const currentRadius = (centerRadius + breathe * pulseAmount) * 1.1; // Slightly larger
         
         glow.scale.set(currentRadius, currentRadius, 1);
         const normalizedPos = (breathe + 1) / 2;
-        (glow.material as THREE.MeshBasicMaterial).opacity = (0.2 + normalizedPos * 0.2) * intensity;
+        (glow.material as THREE.MeshBasicMaterial).opacity = (0.08 + normalizedPos * 0.06) * intensity;
       });
     });
     
-    // Three orientations for spherical spread
-    const orientations: [number, number, number][] = [
-      [Math.PI / 2, 0, 0],      // XY plane (horizontal)
-      [0, 0, 0],                 // XZ plane (vertical front)
-      [0, Math.PI / 2, 0],      // YZ plane (vertical side)
-    ];
-    
     return (
       <group ref={groupRef}>
-        {/* Large central pulsing glow - the "source" of the ripples */}
+        {/* Small central pulsing glow - the "source" of the ripples */}
         <mesh ref={centerGlowRef}>
-          <sphereGeometry args={[1.0, 32, 32]} />
+          <sphereGeometry args={[0.3, 24, 24]} />
           <meshBasicMaterial
             color={glowColor}
             transparent
-            opacity={0.8}
+            opacity={0.4}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
         
-        {/* Rings on all three axes for spherical coverage */}
-        {orientations.map((rotation, axisIndex) => (
-          <group key={axisIndex} rotation={rotation}>
-            {/* Sharp pulsating rings with color nuances */}
-            {Array.from({ length: rippleCount }).map((_, i) => {
-              const ringIndex = axisIndex * rippleCount + i;
-              return (
-                <mesh 
-                  key={`ring-${ringIndex}`}
-                  ref={(el) => { if (el) rippleRefs.current[ringIndex] = el; }}
-                  scale={[0.5, 0.5, 1]}
-                >
-                  {/* THICK ring geometry: inner 0.7, outer 1.0 = 30% thickness */}
-                  <ringGeometry args={[0.7, 1.0, 64]} />
-                  <meshBasicMaterial
-                    color={ringColors[i]}
-                    transparent
-                    opacity={0.7}
-                    side={THREE.DoubleSide}
-                    blending={THREE.AdditiveBlending}
-                  />
-                </mesh>
-              );
-            })}
-            
-            {/* Glow rings behind each sharp ring */}
-            {Array.from({ length: rippleCount }).map((_, i) => {
-              const glowIndex = axisIndex * rippleCount + i;
-              return (
-                <mesh 
-                  key={`glow-${glowIndex}`}
-                  ref={(el) => { if (el) glowRefs.current[glowIndex] = el; }}
-                  scale={[0.5, 0.5, 1]}
-                >
-                  {/* Even thicker glow ring for soft effect */}
-                  <ringGeometry args={[0.5, 1.0, 64]} />
-                  <meshBasicMaterial
-                    color={ringColors[i]}
-                    transparent
-                    opacity={0.25}
-                    side={THREE.DoubleSide}
-                    blending={THREE.AdditiveBlending}
-                  />
-                </mesh>
-              );
-            })}
-          </group>
-        ))}
+        {/* Rings on single XY plane (horizontal) */}
+        <group rotation={[Math.PI / 2, 0, 0]}>
+          {/* Thin pulsating rings with color nuances */}
+          {Array.from({ length: rippleCount }).map((_, i) => (
+            <mesh 
+              key={`ring-${i}`}
+              ref={(el) => { if (el) rippleRefs.current[i] = el; }}
+              scale={[0.5, 0.5, 1]}
+            >
+              {/* Thin ring geometry: inner 0.92, outer 1.0 = 8% thickness */}
+              <ringGeometry args={[0.92, 1.0, 64]} />
+              <meshBasicMaterial
+                color={ringColors[i]}
+                transparent
+                opacity={0.35}
+                side={THREE.DoubleSide}
+                blending={THREE.AdditiveBlending}
+              />
+            </mesh>
+          ))}
+          
+          {/* Soft glow rings behind each sharp ring */}
+          {Array.from({ length: rippleCount }).map((_, i) => (
+            <mesh 
+              key={`glow-${i}`}
+              ref={(el) => { if (el) glowRefs.current[i] = el; }}
+              scale={[0.5, 0.5, 1]}
+            >
+              {/* Slightly thicker glow ring */}
+              <ringGeometry args={[0.85, 1.0, 64]} />
+              <meshBasicMaterial
+                color={ringColors[i]}
+                transparent
+                opacity={0.12}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+          ))}
+        </group>
       </group>
     );
   };
