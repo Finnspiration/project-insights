@@ -453,19 +453,16 @@ function mapTemporalToPulse(temporal?: string): number {
   return map[temporal || 'project'] || 3.0;
 }
 
-// Organizational → Base hue (more distinct colors)
+// Organizational → Base hue - NOW NEUTRAL (organizational only affects background)
+// Returns a neutral/consistent hue so blob colors are determined by Cultural dimension
 function mapOrganizationalToHue(organizational?: string): number {
-  const map: Record<string, number> = {
-    red: 0,      // Pure red
-    amber: 40,   // Orange-yellow
-    orange: 25,  // Orange
-    green: 140,  // Green
-    teal: 185    // Cyan-teal
-  };
-  return map[organizational || 'orange'] || 25;
+  // Fixed neutral hue - blob color is now independent of organizational stage
+  // Cultural dimension controls blob colors, Organizational controls only background
+  return 210; // Neutral blue-ish hue that works with all backgrounds
 }
 
-// NEW: Organizational → Background colors and ambient light (Laloux colors)
+// Organizational → Background colors ONLY (Laloux colors) - MORE PROMINENT
+// Ambient light is now neutral - organizational stage is ONLY shown via background
 function mapOrganizationalToBackground(organizational?: string): {
   topColor: string;
   bottomColor: string;
@@ -478,35 +475,40 @@ function mapOrganizationalToBackground(organizational?: string): {
     ambientColor: string;
     ambientIntensity: number;
   }> = {
+    // RØD STADIUM: Dyb, dramatisk rød baggrund
     red: {
-      topColor: '#2d1a1a',     // Dark maroon
-      bottomColor: '#1a1010',  // Deep red-black
-      ambientColor: '#ff4444', // Red ambient
-      ambientIntensity: 0.35
+      topColor: '#4a1a1a',     // Dybere rød (mere synlig)
+      bottomColor: '#250808',  // Mørk rød-sort
+      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      ambientIntensity: 0.4    // Neutral intensitet
     },
+    // RAV STADIUM: Varm gylden baggrund
     amber: {
-      topColor: '#2d2816',     // Warm amber
-      bottomColor: '#1a1810',  // Golden brown
-      ambientColor: '#ffaa44', // Amber ambient
-      ambientIntensity: 0.45
+      topColor: '#4a3a18',     // Varmere gylden (mere synlig)
+      bottomColor: '#251c08',  // Dyb gylden-brun
+      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      ambientIntensity: 0.4
     },
+    // ORANGE STADIUM: Varm orange baggrund
     orange: {
-      topColor: '#2d2018',     // Orange-brown
-      bottomColor: '#1a1412',  // Warm orange
-      ambientColor: '#ff8844', // Orange ambient
-      ambientIntensity: 0.40
+      topColor: '#4a2a15',     // Stærkere orange-brun
+      bottomColor: '#251508',  // Dyb varm orange
+      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      ambientIntensity: 0.4
     },
+    // GRØN STADIUM: Skovgrøn baggrund
     green: {
-      topColor: '#1a2d1a',     // Forest green
-      bottomColor: '#101a10',  // Deep green
-      ambientColor: '#44ff88', // Green ambient
-      ambientIntensity: 0.50
+      topColor: '#1a4a1a',     // Dybere skovgrøn (mere synlig)
+      bottomColor: '#082508',  // Mørk grøn
+      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      ambientIntensity: 0.4
     },
+    // TURKIS STADIUM: Stærk teal/cyan baggrund
     teal: {
-      topColor: '#1a2a2d',     // Cyan-teal
-      bottomColor: '#101820',  // Deep teal
-      ambientColor: '#44ddff', // Teal ambient
-      ambientIntensity: 0.55
+      topColor: '#1a3a4a',     // Stærkere teal (mere synlig)
+      bottomColor: '#081825',  // Dyb cyan-blå
+      ambientColor: '#ffffff', // NEUTRAL hvid ambient
+      ambientIntensity: 0.4
     }
   };
   return map[organizational || 'orange'] || map.orange;
