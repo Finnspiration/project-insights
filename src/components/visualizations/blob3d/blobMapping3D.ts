@@ -475,38 +475,38 @@ function mapOrganizationalToBackground(organizational?: string): {
     ambientColor: string;
     ambientIntensity: number;
   }> = {
-    // RØD STADIUM: Tydelig mørkerød baggrund - synlig!
+    // RØD STADIUM: Tydelig mørkerød baggrund - MEGET synlig!
     red: {
-      topColor: '#5c2828',     // Klar rød
-      bottomColor: '#3d1a1a',  // Mørkere rød
+      topColor: '#8b3535',     // Markant rød - tydeligt synlig
+      bottomColor: '#5c2222',
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
     // RAV STADIUM: Tydelig amber/gylden baggrund
     amber: {
-      topColor: '#5c4a20',     // Klar amber
-      bottomColor: '#3d3018',  // Mørkere amber
+      topColor: '#8b6b28',     // Markant amber - tydeligt synlig
+      bottomColor: '#5c4818',
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
     // ORANGE STADIUM: Tydelig varm orange baggrund
     orange: {
-      topColor: '#5c3820',     // Klar orange
-      bottomColor: '#3d2515',  // Mørkere orange
+      topColor: '#8b5530',     // Markant orange - tydeligt synlig
+      bottomColor: '#5c3820',
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
     // GRØN STADIUM: Tydelig skovgrøn baggrund
     green: {
-      topColor: '#285c28',     // Klar grøn
-      bottomColor: '#1a3d1a',  // Mørkere grøn
+      topColor: '#358b35',     // Markant grøn - tydeligt synlig
+      bottomColor: '#225c22',
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
     // TURKIS STADIUM: Tydelig teal/cyan baggrund
     teal: {
-      topColor: '#205c5c',     // Klar teal
-      bottomColor: '#153d3d',  // Mørkere teal
+      topColor: '#288b8b',     // Markant teal - tydeligt synlig
+      bottomColor: '#185c5c',
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     }
