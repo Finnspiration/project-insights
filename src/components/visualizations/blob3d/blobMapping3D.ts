@@ -59,6 +59,7 @@ export interface Blob3DData {
   wireframeOpacity: number;    // 0-1 wireframe visibility (knowledge)
   coreVisibility: number;      // 0-1 how visible the core is (development)
   backgroundStyle: 'neutral' | 'warm' | 'danger' | 'critical'; // Based on risk
+  riskLevel: 'low' | 'moderate' | 'high' | 'extreme'; // Risk level for ring visualization
   outerAuraIntensity: number;  // 0-1 outer glow aura
   outerAuraColor: string;      // Aura color
   multiHueColors: string[];    // Distinct hue colors for cultural
@@ -791,6 +792,7 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     coreEmissivePattern: developmentCore.emissivePattern,
     coreScale: developmentCore.scale,
     backgroundStyle: riskEffects.backgroundStyle,
+    riskLevel: (risk || 'low') as 'low' | 'moderate' | 'high' | 'extreme',
     outerAuraIntensity: riskEffects.auraIntensity,
     outerAuraColor: riskEffects.auraColor,
     multiHueColors,
