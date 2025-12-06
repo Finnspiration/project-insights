@@ -975,57 +975,81 @@ function IDGOuterManifestation({
     );
   };
   
-  // Gentle pulsing ripples from center for "Thinking" (Tænkning)
+  // Pulsating ripples that breathe in and out from center for "Thinking" (Tænkning)
   const ThinkingRipples = () => {
     const groupRef = useRef<THREE.Group>(null);
     const rippleRefs = useRef<THREE.Mesh[]>([]);
+    const centerGlowRef = useRef<THREE.Mesh>(null);
     
-    // Create 5 ripple rings at staggered phases
-    const rippleCount = 5;
+    // 8 rings for smooth visual effect
+    const rippleCount = 8;
+    
+    // Bright white-blue color for visibility
+    const rippleColor = new THREE.Color().setHSL(0.58, 0.9, 0.85);
+    const glowColor = new THREE.Color().setHSL(0.58, 0.8, 0.9);
     
     useFrame((state) => {
       if (!groupRef.current) return;
       const time = state.clock.elapsedTime;
       
+      // Central glow pulsing
+      if (centerGlowRef.current) {
+        const glowPulse = 0.5 + Math.sin(time * animationSpeed * 2) * 0.3;
+        centerGlowRef.current.scale.setScalar(0.4 + glowPulse * 0.3);
+        (centerGlowRef.current.material as THREE.MeshBasicMaterial).opacity = glowPulse * intensity * 0.8;
+      }
+      
       rippleRefs.current.forEach((ripple, i) => {
         if (!ripple) return;
         
-        // Staggered phases so rings spread out evenly
-        const phase = (time * animationSpeed * 0.4 + i / rippleCount) % 1;
+        // Each ring has a staggered phase offset
+        const phaseOffset = (i / rippleCount) * Math.PI * 2;
         
-        // Start from very small (center) and expand outward
-        const minRadius = 0.1;
-        const maxRadius = radius * 0.9;
-        const currentRadius = minRadius + phase * (maxRadius - minRadius);
+        // PULSATING: Use sine wave to breathe in and out
+        const breathe = Math.sin(time * animationSpeed * 1.5 + phaseOffset);
         
-        // Opacity peaks in middle of expansion, fades at start and end
-        const fadeIn = Math.min(phase * 4, 1);
-        const fadeOut = 1 - phase;
-        const opacity = fadeIn * fadeOut * 0.6 * intensity;
+        // Center radius + breathing movement (in AND out)
+        const centerRadius = radius * 0.6;
+        const pulseAmount = radius * 0.5;
+        const currentRadius = centerRadius + breathe * pulseAmount;
+        
+        // Opacity based on how far from center (brighter when expanded)
+        const normalizedPos = (currentRadius - (centerRadius - pulseAmount)) / (pulseAmount * 2);
+        const opacity = (0.4 + normalizedPos * 0.5) * intensity * 0.9;
         
         // Update scale and opacity
         ripple.scale.set(currentRadius, currentRadius, 1);
-        (ripple.material as THREE.MeshBasicMaterial).opacity = opacity;
+        (ripple.material as THREE.MeshBasicMaterial).opacity = Math.max(0.1, opacity);
       });
     });
     
-    // Use a light, glowing color similar to other IDG effects
-    const rippleColor = new THREE.Color().setHSL(0.55, 0.7, 0.7);
-    
     return (
       <group ref={groupRef}>
+        {/* Central pulsing glow - the "source" of the ripples */}
+        <mesh ref={centerGlowRef} rotation={[Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.5, 32]} />
+          <meshBasicMaterial
+            color={glowColor}
+            transparent
+            opacity={0.6}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+        
+        {/* Pulsating rings */}
         {Array.from({ length: rippleCount }).map((_, i) => (
           <mesh 
             key={i}
             ref={(el) => { if (el) rippleRefs.current[i] = el; }}
             rotation={[Math.PI / 2, 0, 0]}
-            scale={[0.1, 0.1, 1]}
+            scale={[0.5, 0.5, 1]}
           >
-            <ringGeometry args={[0.9, 1.0, 64]} />
+            <ringGeometry args={[0.95, 1.0, 64]} />
             <meshBasicMaterial
               color={rippleColor}
               transparent
-              opacity={0.3}
+              opacity={0.5}
               side={THREE.DoubleSide}
               blending={THREE.AdditiveBlending}
             />
