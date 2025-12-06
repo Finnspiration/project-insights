@@ -375,81 +375,162 @@ function KnowledgeGlow({
   );
 }
 
-// Outer Aura/Glow for Risk visualization - ENHANCED
-function OuterAura({ 
-  intensity, 
-  color,
-  pulseSpeed 
+// Risk Ring - distinct visual for each risk level
+function RiskRing({ 
+  riskLevel 
 }: { 
-  intensity: number;
-  color: string;
-  pulseSpeed: number;
+  riskLevel: 'low' | 'moderate' | 'high' | 'extreme';
 }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const innerMeshRef = useRef<THREE.Mesh>(null);
-  const threeColor = useMemo(() => new THREE.Color(color), [color]);
+  const ringRef = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+  const ring3Ref = useRef<THREE.Mesh>(null);
+  
+  // Risk level configuration
+  const config = useMemo(() => {
+    switch (riskLevel) {
+      case 'low':
+        return {
+          color: new THREE.Color('#22c55e'), // Green
+          thickness: 0.015,
+          radius: 1.2,
+          pulseSpeed: 0.8,
+          opacity: 0.7,
+          rings: 1
+        };
+      case 'moderate':
+        return {
+          color: new THREE.Color('#eab308'), // Yellow
+          thickness: 0.025,
+          radius: 1.25,
+          pulseSpeed: 1.5,
+          opacity: 0.8,
+          rings: 1
+        };
+      case 'high':
+        return {
+          color: new THREE.Color('#f97316'), // Orange-red
+          thickness: 0.035,
+          radius: 1.3,
+          pulseSpeed: 3.0,
+          opacity: 0.85,
+          rings: 2
+        };
+      case 'extreme':
+        return {
+          color: new THREE.Color('#dc2626'), // Deep red
+          thickness: 0.05,
+          radius: 1.35,
+          pulseSpeed: 5.0,
+          opacity: 0.95,
+          rings: 3
+        };
+    }
+  }, [riskLevel]);
   
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (!ringRef.current) return;
     const time = state.clock.elapsedTime;
     
-    // Pulsing scale for dramatic effect - more intense pulsing at high risk
-    const pulseAmount = intensity > 0.7 ? 0.2 : 0.1;
-    const pulse = 1 + Math.sin(time * pulseSpeed * 1.5) * pulseAmount * intensity;
-    meshRef.current.scale.setScalar(pulse);
-    
-    // Update opacity based on pulse
-    const material = meshRef.current.material as THREE.MeshBasicMaterial;
-    material.opacity = (0.25 + Math.sin(time * pulseSpeed * 2) * 0.15) * intensity;
-    
-    // Inner glow layer
-    if (innerMeshRef.current) {
-      const innerMat = innerMeshRef.current.material as THREE.MeshBasicMaterial;
-      innerMat.opacity = (0.35 + Math.sin(time * pulseSpeed * 2.5) * 0.2) * intensity;
-      innerMeshRef.current.scale.setScalar(1 + Math.sin(time * pulseSpeed * 2) * 0.05);
+    if (riskLevel === 'extreme') {
+      // Unpredictable, erratic movement for extreme risk
+      const chaos1 = Math.sin(time * 7.3) * 0.03;
+      const chaos2 = Math.cos(time * 5.7) * 0.03;
+      const chaos3 = Math.sin(time * 11.1) * 0.02;
+      
+      // Irregular scale pulsing
+      const irregularPulse = 1 + 
+        Math.sin(time * config.pulseSpeed) * 0.08 +
+        Math.sin(time * config.pulseSpeed * 1.7) * 0.05 +
+        Math.random() * 0.02;
+      
+      ringRef.current.scale.setScalar(irregularPulse);
+      ringRef.current.rotation.x = Math.PI / 2 + chaos1;
+      ringRef.current.rotation.y = chaos2;
+      ringRef.current.rotation.z = chaos3;
+      
+      // Update opacity with flicker
+      const mat = ringRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = config.opacity * (0.7 + Math.random() * 0.3);
+      
+      // Secondary rings with offset chaos
+      if (ring2Ref.current) {
+        ring2Ref.current.scale.setScalar(1 + Math.sin(time * config.pulseSpeed * 1.3 + 1) * 0.1);
+        ring2Ref.current.rotation.x = Math.PI / 2 + Math.sin(time * 4.5) * 0.05;
+        ring2Ref.current.rotation.y = Math.cos(time * 3.2) * 0.04;
+      }
+      if (ring3Ref.current) {
+        ring3Ref.current.scale.setScalar(1 + Math.sin(time * config.pulseSpeed * 0.8 + 2) * 0.12);
+        ring3Ref.current.rotation.x = Math.PI / 2 + Math.cos(time * 6.1) * 0.04;
+        ring3Ref.current.rotation.z = Math.sin(time * 4.8) * 0.03;
+      }
+    } else {
+      // Regular pulsing for other levels
+      const pulse = 1 + Math.sin(time * config.pulseSpeed) * 0.05;
+      ringRef.current.scale.setScalar(pulse);
+      
+      // Smooth opacity pulse
+      const mat = ringRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = config.opacity * (0.7 + Math.sin(time * config.pulseSpeed) * 0.3);
+      
+      // High risk: secondary ring with offset
+      if (ring2Ref.current && riskLevel === 'high') {
+        ring2Ref.current.scale.setScalar(1 + Math.sin(time * config.pulseSpeed + 0.5) * 0.06);
+        const mat2 = ring2Ref.current.material as THREE.MeshBasicMaterial;
+        mat2.opacity = config.opacity * 0.6 * (0.7 + Math.sin(time * config.pulseSpeed + 0.5) * 0.3);
+      }
     }
   });
   
-  // Show even at low risk levels
-  if (intensity < 0.1) return null;
-  
   return (
     <group>
-      {/* Inner glow - closer to blob */}
-      <mesh ref={innerMeshRef}>
-        <sphereGeometry args={[1.15, 32, 32]} />
+      {/* Main risk ring */}
+      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[config.radius, config.thickness, 16, 64]} />
         <meshBasicMaterial
-          color={threeColor}
+          color={config.color}
           transparent
-          opacity={0.4 * intensity}
-          side={THREE.BackSide}
+          opacity={config.opacity}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
       
-      {/* Outer aura */}
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[1.6, 32, 32]} />
-        <meshBasicMaterial
-          color={threeColor}
-          transparent
-          opacity={0.25 * intensity}
-          side={THREE.BackSide}
-        />
-      </mesh>
-      
-      {/* Critical risk: additional danger ring */}
-      {intensity > 0.8 && (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.4, 0.02, 16, 64]} />
+      {/* Secondary ring for high/extreme */}
+      {config.rings >= 2 && (
+        <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[config.radius + 0.1, config.thickness * 0.7, 16, 64]} />
           <meshBasicMaterial
-            color={threeColor}
+            color={config.color}
             transparent
-            opacity={0.8}
+            opacity={config.opacity * 0.5}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
       )}
+      
+      {/* Tertiary ring for extreme */}
+      {config.rings >= 3 && (
+        <mesh ref={ring3Ref} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[config.radius + 0.2, config.thickness * 0.5, 16, 64]} />
+          <meshBasicMaterial
+            color={config.color}
+            transparent
+            opacity={config.opacity * 0.3}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      )}
+      
+      {/* Glow aura matching risk color */}
+      <mesh>
+        <sphereGeometry args={[config.radius - 0.1, 32, 32]} />
+        <meshBasicMaterial
+          color={config.color}
+          transparent
+          opacity={riskLevel === 'low' ? 0.05 : riskLevel === 'moderate' ? 0.1 : riskLevel === 'high' ? 0.15 : 0.2}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
     </group>
   );
 }
@@ -2351,11 +2432,9 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   return (
     <group ref={groupRef} scale={data.resourceScale}>
       
-      {/* Outer Aura for Risk */}
-      <OuterAura 
-        intensity={data.outerAuraIntensity}
-        color={data.outerAuraColor}
-        pulseSpeed={data.pulseSpeed}
+      {/* Risk Ring indicator */}
+      <RiskRing 
+        riskLevel={data.riskLevel}
       />
       
       {/* NEW: IDG Outer Manifestation - energy extending beyond the blob */}
