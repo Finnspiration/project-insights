@@ -97,31 +97,27 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const [demoDimension, setDemoDimension] = useState<string | null>(null);
   const isDemoActive = demoMorphology !== null;
   
-  // Original morphology state for reset functionality
-  const [originalMorphology, setOriginalMorphology] = useState<Record<string, string> | null>(null);
+  // LOCAL morphology state for experimentation (NOT persisted to database)
+  // This allows users to explore parameter changes without affecting the morphological box
+  const [localMorphology, setLocalMorphology] = useState<Record<string, string>>(() => ({ ...normalizedMorphology }));
   
-  // Store original morphology on first render
+  // Sync local morphology when the actual morphology (from morphological box) changes
   useEffect(() => {
-    if (!originalMorphology && normalizedMorphology) {
-      setOriginalMorphology({ ...normalizedMorphology });
-    }
-  }, []); // Empty deps = only on mount
+    setLocalMorphology({ ...normalizedMorphology });
+  }, [JSON.stringify(normalizedMorphology)]);
   
-  // Detect if user has made changes from original
+  // Detect if user has made LOCAL changes from the saved morphology
   const hasChanges = useMemo(() => {
-    if (!originalMorphology) return false;
-    return Object.keys(normalizedMorphology).some(
-      key => normalizedMorphology[key] !== originalMorphology[key]
+    return Object.keys(localMorphology).some(
+      key => localMorphology[key] !== normalizedMorphology[key]
     );
-  }, [normalizedMorphology, originalMorphology]);
+  }, [localMorphology, normalizedMorphology]);
   
-  // Reset to original morphology
+  // Reset local morphology to saved values (from morphological box)
   const handleResetToOriginal = useCallback(() => {
-    if (originalMorphology && onMorphologyUpdate) {
-      onMorphologyUpdate(originalMorphology);
-      toast.success(i18n.language === 'da' ? 'Nulstillet til gemte værdier' : 'Reset to saved values');
-    }
-  }, [originalMorphology, onMorphologyUpdate, i18n.language]);
+    setLocalMorphology({ ...normalizedMorphology });
+    toast.success(i18n.language === 'da' ? 'Nulstillet til gemte værdier' : 'Reset to saved values');
+  }, [normalizedMorphology, i18n.language]);
   
   // Demo mode handlers
   const handleDemoMorphologyChange = useCallback((newMorphology: Record<string, string>) => {
@@ -137,19 +133,16 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     }
   }, []);
   
-  // Handler for banner parameter changes - updates morphology via parent callback
-  const handleBannerMorphologyChange = useCallback((key: string, value: string) => {
-    if (onMorphologyUpdate) {
-      const updatedMorphology = {
-        ...normalizedMorphology,
-        [key]: value
-      };
-      onMorphologyUpdate(updatedMorphology);
-    }
-  }, [normalizedMorphology, onMorphologyUpdate]);
+  // Handler for banner/legend parameter changes - updates LOCAL state only (NOT database)
+  const handleLocalMorphologyChange = useCallback((key: string, value: string) => {
+    setLocalMorphology(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  }, []);
   
-  // Active morphology - use demo morphology when demo is active
-  const activeMorphology = isDemoActive ? demoMorphology : normalizedMorphology;
+  // Active morphology - prioritize: demo > local > normalized
+  const activeMorphology = isDemoActive ? demoMorphology : localMorphology;
   
   // Use React Query for archetype loading - prevents race conditions
   const { data: archetype, isLoading: isLoadingArchetype, isFetching } = useArchetype(
@@ -384,7 +377,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               morphology={activeMorphology}
               projectId={projectId}
               onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
-              onMorphologyUpdate={onMorphologyUpdate}
+              onMorphologyChange={handleLocalMorphologyChange}
             />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
@@ -498,7 +491,7 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
           <ParameterBanner 
             morphology={activeMorphology}
             activeDimension={demoDimension}
-            onMorphologyChange={projectId ? handleBannerMorphologyChange : undefined}
+            onMorphologyChange={projectId ? handleLocalMorphologyChange : undefined}
             className="border border-border/30 border-t-0"
           />
           
