@@ -1052,11 +1052,11 @@ function IDGOuterManifestation({
           >
             {/* torusGeometry: radius, tube thickness (0.01 = 1/4 of 0.04), radial segments, tubular segments */}
             <torusGeometry args={[1.0, 0.01, 16, 64]} />
-            <meshBasicMaterial
-              color={ringColors[i]}
-              transparent
-              opacity={0.7}
-              blending={THREE.AdditiveBlending}
+            <meshStandardMaterial
+              color={new THREE.Color().setHSL(0.55, 0.9, 0.65)}
+              emissive={new THREE.Color().setHSL(0.55, 1.0, 0.5)}
+              emissiveIntensity={0.8}
+              opacity={1.0}
             />
           </mesh>
         ))}
