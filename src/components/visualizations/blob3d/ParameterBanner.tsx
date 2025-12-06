@@ -73,23 +73,24 @@ export function ParameterBanner({ morphology, activeDimension, onMorphologyChang
   // Toggle button when banner is hidden
   if (!isVisible) {
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsVisible(true)}
-        className={cn(
-          "absolute bottom-4 left-1/2 -translate-x-1/2 z-10 gap-2",
-          "bg-background/80 backdrop-blur-sm border-border/50",
-          "hover:bg-primary/10 hover:border-primary/50",
-          "transition-all duration-200",
-          className
-        )}
-      >
-        <Eye className="h-4 w-4" />
-        <span className="text-xs">
-          {language === 'da' ? 'Vis parametre' : 'Show parameters'}
-        </span>
-      </Button>
+      <div className={cn("flex justify-center py-2", className)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsVisible(true)}
+          className={cn(
+            "gap-2",
+            "bg-background/80 backdrop-blur-sm border-border/50",
+            "hover:bg-primary/10 hover:border-primary/50",
+            "transition-all duration-200"
+          )}
+        >
+          <Eye className="h-4 w-4" />
+          <span className="text-xs">
+            {language === 'da' ? 'Vis parametre' : 'Show parameters'}
+          </span>
+        </Button>
+      </div>
     );
   }
 
@@ -150,9 +151,8 @@ export function ParameterBanner({ morphology, activeDimension, onMorphologyChang
   return (
     <div
       className={cn(
-        "absolute bottom-0 left-0 right-0 z-10",
         "bg-background/95 backdrop-blur-md",
-        "border-t border-border/50",
+        "border-t border-border/50 rounded-b-lg",
         "animate-in slide-in-from-bottom-2 duration-300",
         className
       )}

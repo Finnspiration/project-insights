@@ -332,10 +332,10 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="space-y-0">
         {/* Full-width Blob Canvas */}
         <div className="relative">
-          <div ref={blobContainerRef} className="w-full aspect-[16/10] min-h-[400px] max-h-[600px] bg-gradient-to-br from-background via-muted/20 to-background rounded-lg overflow-hidden relative border border-border/30">
+          <div ref={blobContainerRef} className="w-full aspect-[16/10] min-h-[400px] max-h-[600px] bg-gradient-to-br from-background via-muted/20 to-background rounded-t-lg overflow-hidden relative border border-border/30 border-b-0">
             <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
               <div className={`w-full h-full transition-opacity duration-500 ${isFetching ? 'opacity-80' : 'opacity-100'}`}>
                 <Blob3DScene 
@@ -358,13 +358,6 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
               projectId={projectId}
               onHoverDimension={(_, lobeIndex) => setLegendHoveredLobe(lobeIndex)}
               onMorphologyUpdate={onMorphologyUpdate}
-            />
-            
-            {/* Parameter Banner at bottom */}
-            <ParameterBanner 
-              morphology={activeMorphology}
-              activeDimension={demoDimension}
-              onMorphologyChange={projectId ? handleBannerMorphologyChange : undefined}
             />
               
               {/* Persistent Zone Tooltip - shows on dimension click */}
@@ -473,6 +466,14 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
                   </div>
                 </div>}
           </div>
+          
+          {/* Parameter Banner - placed below visualization */}
+          <ParameterBanner 
+            morphology={activeMorphology}
+            activeDimension={demoDimension}
+            onMorphologyChange={projectId ? handleBannerMorphologyChange : undefined}
+            className="border border-border/30 border-t-0"
+          />
           
           {/* Archetype Badge */}
           <div className="mt-4 text-center relative">
