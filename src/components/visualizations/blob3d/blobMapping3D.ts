@@ -73,6 +73,14 @@ export interface Blob3DData {
   coreEmissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
   coreScale: number;              // Size multiplier for core
   
+  // NEW: IDG Outer Manifestation - energy extending beyond the blob
+  idgOuterManifestation: 'aura' | 'geometric_rays' | 'connection_bands' | 'energy_fields' | 'explosive_rays';
+  idgOuterRadius: number;          // How far the outer effect extends (1.5-4.0)
+  idgOuterIntensity: number;       // 0-1 strength of outer effect
+  idgOuterParticleCount: number;   // Particles for energy/rays
+  idgOuterColor: string;           // Color for outer manifestation
+  idgOuterAnimationSpeed: number;  // Animation speed for outer effect
+  
   // NEW: Knowledge-specific visual properties
   surfaceSmoothing: number;        // 0 = faceted/crystalline, 1 = smooth/organic
   outerParticleCount: number;      // 50-250 orbiting particles
@@ -516,7 +524,7 @@ function mapChallengeToEffects(challenge?: string): { noise: number; spikeContri
   return map[challenge || 'technical'] || { noise: 0.4, spikeContribution: 0.3 };
 }
 
-// Development (IDG) → Core glow, visibility, transmission, AND SHAPE
+// Development (IDG) → Core glow, visibility, transmission, SHAPE, AND OUTER MANIFESTATION
 function mapDevelopmentToCore(development?: string): { 
   glow: number; 
   visibility: number;
@@ -526,6 +534,12 @@ function mapDevelopmentToCore(development?: string): {
   rotationAxes: number;
   emissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
   scale: number;
+  // NEW: Outer manifestation properties
+  outerManifestation: 'aura' | 'geometric_rays' | 'connection_bands' | 'energy_fields' | 'explosive_rays';
+  outerRadius: number;
+  outerIntensity: number;
+  outerParticleCount: number;
+  outerAnimationSpeed: number;
 } {
   const map: Record<string, { 
     glow: number; 
@@ -536,31 +550,41 @@ function mapDevelopmentToCore(development?: string): {
     rotationAxes: number;
     emissivePattern: 'solid' | 'pulse' | 'breathe' | 'radiate' | 'explode';
     scale: number;
+    outerManifestation: 'aura' | 'geometric_rays' | 'connection_bands' | 'energy_fields' | 'explosive_rays';
+    outerRadius: number;
+    outerIntensity: number;
+    outerParticleCount: number;
+    outerAnimationSpeed: number;
   }> = {
-    // BEING: Large, still, glowing sphere - meditative presence
+    // BEING (Væren): Large, still aura surrounding entire scene - stillness
     being: { 
       glow: 1.0, visibility: 1.0, transmission: 0.9,
-      shape: 'sphere', rings: 0, rotationAxes: 0, emissivePattern: 'breathe', scale: 1.5
+      shape: 'sphere', rings: 0, rotationAxes: 0, emissivePattern: 'breathe', scale: 1.5,
+      outerManifestation: 'aura', outerRadius: 4.0, outerIntensity: 0.8, outerParticleCount: 0, outerAnimationSpeed: 0.2
     },
-    // THINKING: Geometric octahedron - analytical, structured
+    // THINKING (Tænkning): Geometric lines/grid radiating from blob
     thinking: { 
       glow: 0.9, visibility: 0.9, transmission: 0.85,
-      shape: 'octahedron', rings: 0, rotationAxes: 1, emissivePattern: 'pulse', scale: 1.2
+      shape: 'octahedron', rings: 0, rotationAxes: 1, emissivePattern: 'pulse', scale: 1.2,
+      outerManifestation: 'geometric_rays', outerRadius: 3.0, outerIntensity: 0.7, outerParticleCount: 12, outerAnimationSpeed: 0.5
     },
-    // RELATING: Torus/donut - connection, flow between
+    // RELATING (Relationsdannelse): Connection lines/bands circling around
     relating: { 
       glow: 0.7, visibility: 0.7, transmission: 0.75,
-      shape: 'torus', rings: 2, rotationAxes: 2, emissivePattern: 'radiate', scale: 1.0
+      shape: 'torus', rings: 2, rotationAxes: 2, emissivePattern: 'radiate', scale: 1.0,
+      outerManifestation: 'connection_bands', outerRadius: 2.5, outerIntensity: 0.6, outerParticleCount: 24, outerAnimationSpeed: 0.8
     },
-    // COLLABORATING: Icosahedron - many facets, complexity
+    // COLLABORATING (Samarbejde): Multiple overlapping energy fields
     collaborating: { 
       glow: 0.6, visibility: 0.6, transmission: 0.7,
-      shape: 'icosahedron', rings: 0, rotationAxes: 3, emissivePattern: 'pulse', scale: 0.9
+      shape: 'icosahedron', rings: 0, rotationAxes: 3, emissivePattern: 'pulse', scale: 0.9,
+      outerManifestation: 'energy_fields', outerRadius: 3.2, outerIntensity: 0.75, outerParticleCount: 60, outerAnimationSpeed: 1.0
     },
-    // ACTING: Starburst - explosive, outward energy
+    // ACTING (Handling): Explosive energy rays extending to edges
     acting: { 
       glow: 0.5, visibility: 0.5, transmission: 0.5,
-      shape: 'starburst', rings: 12, rotationAxes: 1, emissivePattern: 'explode', scale: 0.8
+      shape: 'starburst', rings: 12, rotationAxes: 1, emissivePattern: 'explode', scale: 0.8,
+      outerManifestation: 'explosive_rays', outerRadius: 3.8, outerIntensity: 0.9, outerParticleCount: 36, outerAnimationSpeed: 2.0
     }
   };
   return map[development || 'relating'] || map.relating;
@@ -801,6 +825,14 @@ export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
     lobesTouching: stakeholderDynamics.lobesTouching,
     lobeMovementPattern: stakeholderDynamics.lobeMovementPattern,
     collisionIntensity: stakeholderDynamics.collisionIntensity,
-    fragmentationChance: stakeholderDynamics.fragmentationChance
+    fragmentationChance: stakeholderDynamics.fragmentationChance,
+    
+    // NEW IDG Outer Manifestation
+    idgOuterManifestation: developmentCore.outerManifestation,
+    idgOuterRadius: developmentCore.outerRadius,
+    idgOuterIntensity: developmentCore.outerIntensity,
+    idgOuterParticleCount: developmentCore.outerParticleCount,
+    idgOuterColor: hslToString(hue, Math.min(100, resourceData.saturation + 15), 65),
+    idgOuterAnimationSpeed: developmentCore.outerAnimationSpeed
   };
 }

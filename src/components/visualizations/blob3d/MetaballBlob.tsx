@@ -454,8 +454,498 @@ function OuterAura({
   );
 }
 
+// NEW: IDG Outer Manifestation - energy extending beyond the blob
+function IDGOuterManifestation({
+  manifestationType,
+  radius,
+  intensity,
+  particleCount,
+  color,
+  animationSpeed,
+  primaryColor
+}: {
+  manifestationType: 'aura' | 'geometric_rays' | 'connection_bands' | 'energy_fields' | 'explosive_rays';
+  radius: number;
+  intensity: number;
+  particleCount: number;
+  color: string;
+  animationSpeed: number;
+  primaryColor: THREE.Color;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const threeColor = useMemo(() => new THREE.Color(color), [color]);
+  
+  // Aura component - large, still aura for "Being" (Væren)
+  const BeingAura = () => {
+    const meshRef = useRef<THREE.Mesh>(null);
+    const innerMeshRef = useRef<THREE.Mesh>(null);
+    
+    useFrame((state) => {
+      if (!meshRef.current) return;
+      const time = state.clock.elapsedTime;
+      
+      // Very slow, gentle breathing
+      const breathe = 1 + Math.sin(time * animationSpeed) * 0.05;
+      meshRef.current.scale.setScalar(breathe);
+      
+      const mat = meshRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.15 + Math.sin(time * animationSpeed * 0.5) * 0.05;
+      
+      if (innerMeshRef.current) {
+        innerMeshRef.current.scale.setScalar(1 + Math.sin(time * animationSpeed * 0.7) * 0.03);
+      }
+    });
+    
+    return (
+      <group>
+        {/* Inner soft glow */}
+        <mesh ref={innerMeshRef}>
+          <sphereGeometry args={[radius * 0.6, 48, 48]} />
+          <meshBasicMaterial
+            color={threeColor}
+            transparent
+            opacity={0.12 * intensity}
+            side={THREE.BackSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+        {/* Large outer aura */}
+        <mesh ref={meshRef}>
+          <sphereGeometry args={[radius, 48, 48]} />
+          <meshBasicMaterial
+            color={threeColor}
+            transparent
+            opacity={0.08 * intensity}
+            side={THREE.BackSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+        {/* Subtle pulsing ring */}
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[radius * 0.8, 0.02, 8, 64]} />
+          <meshBasicMaterial
+            color={threeColor}
+            transparent
+            opacity={0.3 * intensity}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      </group>
+    );
+  };
+  
+  // Geometric rays for "Thinking" (Tænkning)
+  const ThinkingRays = () => {
+    const groupRef = useRef<THREE.Group>(null);
+    
+    const rays = useMemo(() => {
+      const items: { direction: THREE.Vector3; length: number }[] = [];
+      // Create rays pointing in geometric directions (like axes)
+      const directions = [
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, -1, 0),
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1),
+        // Diagonals
+        new THREE.Vector3(1, 1, 0).normalize(),
+        new THREE.Vector3(-1, 1, 0).normalize(),
+        new THREE.Vector3(1, -1, 0).normalize(),
+        new THREE.Vector3(-1, -1, 0).normalize(),
+        new THREE.Vector3(0, 1, 1).normalize(),
+        new THREE.Vector3(0, -1, 1).normalize(),
+      ];
+      
+      for (let i = 0; i < Math.min(particleCount, directions.length); i++) {
+        items.push({
+          direction: directions[i],
+          length: radius * (0.8 + Math.random() * 0.4)
+        });
+      }
+      return items;
+    }, [radius, particleCount]);
+    
+    useFrame((state) => {
+      if (!groupRef.current) return;
+      const time = state.clock.elapsedTime;
+      
+      // Slow rotation
+      groupRef.current.rotation.y = time * animationSpeed * 0.2;
+      groupRef.current.rotation.x = Math.sin(time * animationSpeed * 0.15) * 0.1;
+    });
+    
+    return (
+      <group ref={groupRef}>
+        {rays.map((ray, i) => {
+          const midpoint = ray.direction.clone().multiplyScalar(ray.length * 0.5 + 0.4);
+          const rotation = new THREE.Euler(
+            Math.atan2(ray.direction.y, Math.sqrt(ray.direction.x ** 2 + ray.direction.z ** 2)),
+            Math.atan2(ray.direction.x, ray.direction.z),
+            0
+          );
+          
+          return (
+            <group key={i}>
+              {/* Line ray */}
+              <mesh position={midpoint} rotation={rotation}>
+                <cylinderGeometry args={[0.015, 0.015, ray.length, 8]} />
+                <meshBasicMaterial
+                  color={threeColor}
+                  transparent
+                  opacity={0.6 * intensity}
+                  blending={THREE.AdditiveBlending}
+                />
+              </mesh>
+              {/* Endpoint node */}
+              <mesh position={ray.direction.clone().multiplyScalar(ray.length + 0.4)}>
+                <sphereGeometry args={[0.04, 8, 8]} />
+                <meshBasicMaterial
+                  color={threeColor}
+                  transparent
+                  opacity={0.8 * intensity}
+                  blending={THREE.AdditiveBlending}
+                />
+              </mesh>
+            </group>
+          );
+        })}
+        {/* Central grid cube wireframe */}
+        <lineSegments>
+          <edgesGeometry args={[new THREE.BoxGeometry(radius * 0.5, radius * 0.5, radius * 0.5)]} />
+          <lineBasicMaterial color={threeColor} transparent opacity={0.4 * intensity} />
+        </lineSegments>
+      </group>
+    );
+  };
+  
+  // Connection bands for "Relating" (Relationsdannelse)
+  const RelatingBands = () => {
+    const groupRef = useRef<THREE.Group>(null);
+    const bandRefs = useRef<THREE.Mesh[]>([]);
+    
+    const bands = useMemo(() => {
+      const items: { radius: number; tilt: number; rotationOffset: number }[] = [];
+      for (let i = 0; i < 3; i++) {
+        items.push({
+          radius: radius * 0.7 + i * 0.3,
+          tilt: (i - 1) * 0.4,
+          rotationOffset: i * Math.PI / 3
+        });
+      }
+      return items;
+    }, [radius]);
+    
+    useFrame((state) => {
+      if (!groupRef.current) return;
+      const time = state.clock.elapsedTime;
+      
+      bandRefs.current.forEach((band, i) => {
+        if (band) {
+          band.rotation.z = time * animationSpeed * (i % 2 === 0 ? 0.5 : -0.3) + bands[i]?.rotationOffset;
+        }
+      });
+    });
+    
+    return (
+      <group ref={groupRef}>
+        {bands.map((band, i) => (
+          <mesh 
+            key={i} 
+            ref={(el) => { if (el) bandRefs.current[i] = el; }}
+            rotation={[Math.PI / 2 + band.tilt, 0, band.rotationOffset]}
+          >
+            <torusGeometry args={[band.radius, 0.025, 8, 64]} />
+            <meshBasicMaterial
+              color={threeColor}
+              transparent
+              opacity={0.5 * intensity}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
+        {/* Flowing particles on bands */}
+        {Array.from({ length: Math.min(particleCount, 24) }).map((_, i) => {
+          const bandIndex = i % 3;
+          const angle = (i / 8) * Math.PI * 2;
+          const bandRadius = radius * 0.7 + bandIndex * 0.3;
+          
+          return (
+            <FlowingParticle 
+              key={i} 
+              bandRadius={bandRadius} 
+              startAngle={angle}
+              speed={animationSpeed * (0.5 + bandIndex * 0.2)}
+              color={threeColor}
+              intensity={intensity}
+            />
+          );
+        })}
+      </group>
+    );
+  };
+  
+  // Energy fields for "Collaborating" (Samarbejde)
+  const CollaboratingFields = () => {
+    const groupRef = useRef<THREE.Group>(null);
+    
+    const fields = useMemo(() => {
+      return [
+        { radius: radius * 0.8, axis: new THREE.Vector3(1, 0, 0), opacity: 0.15 },
+        { radius: radius * 0.75, axis: new THREE.Vector3(0, 1, 0), opacity: 0.12 },
+        { radius: radius * 0.85, axis: new THREE.Vector3(0, 0, 1), opacity: 0.1 },
+        { radius: radius * 0.7, axis: new THREE.Vector3(1, 1, 0).normalize(), opacity: 0.08 },
+      ];
+    }, [radius]);
+    
+    useFrame((state) => {
+      if (!groupRef.current) return;
+      const time = state.clock.elapsedTime;
+      
+      groupRef.current.children.forEach((child, i) => {
+        child.rotation.x = time * animationSpeed * 0.3 * (i % 2 === 0 ? 1 : -1);
+        child.rotation.y = time * animationSpeed * 0.2 * (i % 3 === 0 ? 1 : -0.5);
+      });
+    });
+    
+    return (
+      <group ref={groupRef}>
+        {fields.map((field, i) => (
+          <mesh key={i} rotation={[field.axis.x, field.axis.y, field.axis.z]}>
+            <sphereGeometry args={[field.radius, 24, 24]} />
+            <meshBasicMaterial
+              color={threeColor}
+              transparent
+              opacity={field.opacity * intensity}
+              side={THREE.DoubleSide}
+              blending={THREE.AdditiveBlending}
+              wireframe
+            />
+          </mesh>
+        ))}
+        {/* Floating collaboration particles */}
+        {Array.from({ length: Math.min(particleCount, 60) }).map((_, i) => (
+          <CollaborationParticle
+            key={i}
+            index={i}
+            radius={radius}
+            speed={animationSpeed}
+            color={threeColor}
+            intensity={intensity}
+          />
+        ))}
+      </group>
+    );
+  };
+  
+  // Explosive rays for "Acting" (Handling)
+  const ActingRays = () => {
+    const groupRef = useRef<THREE.Group>(null);
+    const raysRef = useRef<THREE.Group>(null);
+    
+    const rays = useMemo(() => {
+      const items: { direction: THREE.Vector3; baseLength: number }[] = [];
+      for (let i = 0; i < particleCount; i++) {
+        // Random directions for explosive effect
+        const phi = Math.acos(2 * Math.random() - 1);
+        const theta = Math.random() * Math.PI * 2;
+        
+        items.push({
+          direction: new THREE.Vector3(
+            Math.sin(phi) * Math.cos(theta),
+            Math.sin(phi) * Math.sin(theta),
+            Math.cos(phi)
+          ),
+          baseLength: radius * (0.5 + Math.random() * 0.5)
+        });
+      }
+      return items;
+    }, [particleCount, radius]);
+    
+    useFrame((state) => {
+      if (!raysRef.current) return;
+      const time = state.clock.elapsedTime;
+      
+      raysRef.current.children.forEach((rayGroup, i) => {
+        const ray = rays[i];
+        if (!ray) return;
+        
+        // Pulsing extension - rays shoot out and retract
+        const pulse = (Math.sin(time * animationSpeed + i * 0.3) + 1) * 0.5;
+        const currentLength = ray.baseLength * (0.3 + pulse * 0.7);
+        
+        const cylinder = rayGroup.children[0] as THREE.Mesh;
+        const tip = rayGroup.children[1] as THREE.Mesh;
+        
+        if (cylinder && tip) {
+          cylinder.scale.y = currentLength / ray.baseLength;
+          cylinder.position.copy(ray.direction.clone().multiplyScalar(currentLength * 0.5 + 0.3));
+          tip.position.copy(ray.direction.clone().multiplyScalar(currentLength + 0.3));
+          
+          // Tip glow intensity
+          const tipMat = tip.material as THREE.MeshBasicMaterial;
+          tipMat.opacity = (0.5 + pulse * 0.5) * intensity;
+        }
+      });
+      
+      // Slow rotation
+      if (groupRef.current) {
+        groupRef.current.rotation.y = time * animationSpeed * 0.1;
+      }
+    });
+    
+    return (
+      <group ref={groupRef}>
+        <group ref={raysRef}>
+          {rays.map((ray, i) => {
+            const rotation = new THREE.Euler(
+              Math.atan2(ray.direction.y, Math.sqrt(ray.direction.x ** 2 + ray.direction.z ** 2)),
+              Math.atan2(ray.direction.x, ray.direction.z),
+              0
+            );
+            
+            return (
+              <group key={i}>
+                {/* Ray line */}
+                <mesh rotation={rotation}>
+                  <cylinderGeometry args={[0.02, 0.005, ray.baseLength, 6]} />
+                  <meshBasicMaterial
+                    color={threeColor}
+                    transparent
+                    opacity={0.7 * intensity}
+                    blending={THREE.AdditiveBlending}
+                  />
+                </mesh>
+                {/* Glowing tip */}
+                <mesh>
+                  <sphereGeometry args={[0.05, 8, 8]} />
+                  <meshBasicMaterial
+                    color={threeColor}
+                    transparent
+                    opacity={0.9 * intensity}
+                    blending={THREE.AdditiveBlending}
+                  />
+                </mesh>
+              </group>
+            );
+          })}
+        </group>
+        {/* Central explosion core */}
+        <mesh>
+          <sphereGeometry args={[0.3, 16, 16]} />
+          <meshBasicMaterial
+            color={threeColor}
+            transparent
+            opacity={0.4 * intensity}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      </group>
+    );
+  };
+  
+  if (intensity < 0.1) return null;
+  
+  return (
+    <group ref={groupRef}>
+      {manifestationType === 'aura' && <BeingAura />}
+      {manifestationType === 'geometric_rays' && <ThinkingRays />}
+      {manifestationType === 'connection_bands' && <RelatingBands />}
+      {manifestationType === 'energy_fields' && <CollaboratingFields />}
+      {manifestationType === 'explosive_rays' && <ActingRays />}
+    </group>
+  );
+}
+
+// Helper: Flowing particle for Relating bands
+function FlowingParticle({
+  bandRadius,
+  startAngle,
+  speed,
+  color,
+  intensity
+}: {
+  bandRadius: number;
+  startAngle: number;
+  speed: number;
+  color: THREE.Color;
+  intensity: number;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const time = state.clock.elapsedTime;
+    const angle = startAngle + time * speed;
+    
+    meshRef.current.position.x = Math.cos(angle) * bandRadius;
+    meshRef.current.position.z = Math.sin(angle) * bandRadius;
+    meshRef.current.position.y = Math.sin(angle * 2) * 0.1;
+  });
+  
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[0.03, 6, 6]} />
+      <meshBasicMaterial
+        color={color}
+        transparent
+        opacity={0.7 * intensity}
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
+}
+
+// Helper: Collaboration particle for Collaborating fields
+function CollaborationParticle({
+  index,
+  radius,
+  speed,
+  color,
+  intensity
+}: {
+  index: number;
+  radius: number;
+  speed: number;
+  color: THREE.Color;
+  intensity: number;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const offset = useMemo(() => ({
+    theta: Math.random() * Math.PI * 2,
+    phi: Math.random() * Math.PI,
+    radiusOffset: 0.5 + Math.random() * 0.5,
+    speedOffset: 0.5 + Math.random()
+  }), []);
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const time = state.clock.elapsedTime;
+    
+    const r = radius * offset.radiusOffset;
+    const theta = offset.theta + time * speed * 0.3 * offset.speedOffset;
+    const phi = offset.phi + Math.sin(time * speed * 0.2) * 0.3;
+    
+    meshRef.current.position.x = r * Math.sin(phi) * Math.cos(theta);
+    meshRef.current.position.y = r * Math.sin(phi) * Math.sin(theta);
+    meshRef.current.position.z = r * Math.cos(phi);
+  });
+  
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[0.02, 6, 6]} />
+      <meshBasicMaterial
+        color={color}
+        transparent
+        opacity={0.5 * intensity}
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
+}
+
 // Inner pattern component based on knowledge type
-function InnerPattern({ 
+function InnerPattern({
   pattern, 
   intensity, 
   color 
@@ -1805,6 +2295,17 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
         intensity={data.outerAuraIntensity}
         color={data.outerAuraColor}
         pulseSpeed={data.pulseSpeed}
+      />
+      
+      {/* NEW: IDG Outer Manifestation - energy extending beyond the blob */}
+      <IDGOuterManifestation
+        manifestationType={data.idgOuterManifestation}
+        radius={data.idgOuterRadius}
+        intensity={data.idgOuterIntensity}
+        particleCount={data.idgOuterParticleCount}
+        color={data.idgOuterColor}
+        animationSpeed={data.idgOuterAnimationSpeed}
+        primaryColor={primaryThreeColor}
       />
       
       {/* Spikes for Complexity + Challenge */}
