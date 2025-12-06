@@ -217,10 +217,10 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
             glowColor={data.glowColor} 
             glowIntensity={data.glowIntensity}
             coreGlow={data.coreGlow}
-          />
+        />
           
-          {/* Environment map for reflections */}
-          <Environment preset="city" />
+          {/* Environment for reflections - background disabled to show organizational color */}
+          <Environment preset="city" background={false} />
           
           {/* The main blob */}
           <MetaballBlob 
