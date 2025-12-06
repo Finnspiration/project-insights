@@ -502,14 +502,15 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
             className="border border-border/30 border-t-0"
           />
           
-          {/* Reset Button - only visible when there are unsaved changes */}
-          {hasChanges && !isDemoActive && (
+          {/* Reset Button - always visible, disabled when no changes */}
+          {!isDemoActive && (
             <div className="flex justify-center py-3 border border-border/30 border-t-0 rounded-b-lg bg-muted/20">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleResetToOriginal}
-                className="gap-2 text-muted-foreground hover:text-foreground"
+                disabled={!hasChanges}
+                className={`gap-2 ${hasChanges ? 'text-muted-foreground hover:text-foreground' : 'opacity-50'}`}
               >
                 <RotateCcw className="h-4 w-4" />
                 {i18n.language === 'da' ? 'Nulstil til gemte værdier' : 'Reset to saved values'}
