@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
+import { useState, useEffect, useRef, Suspense, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 import { mapMorphologyToBlob } from './blob/blobMapping';
 import { getZoneStyles, getDimensionVisuals } from './blob/colorMapping';
 import { useArchetype } from '@/hooks/useArchetype';
@@ -95,6 +96,32 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
   const [demoMorphology, setDemoMorphology] = useState<Record<string, string> | null>(null);
   const [demoDimension, setDemoDimension] = useState<string | null>(null);
   const isDemoActive = demoMorphology !== null;
+  
+  // Original morphology state for reset functionality
+  const [originalMorphology, setOriginalMorphology] = useState<Record<string, string> | null>(null);
+  
+  // Store original morphology on first render
+  useEffect(() => {
+    if (!originalMorphology && normalizedMorphology) {
+      setOriginalMorphology({ ...normalizedMorphology });
+    }
+  }, []); // Empty deps = only on mount
+  
+  // Detect if user has made changes from original
+  const hasChanges = useMemo(() => {
+    if (!originalMorphology) return false;
+    return Object.keys(normalizedMorphology).some(
+      key => normalizedMorphology[key] !== originalMorphology[key]
+    );
+  }, [normalizedMorphology, originalMorphology]);
+  
+  // Reset to original morphology
+  const handleResetToOriginal = useCallback(() => {
+    if (originalMorphology && onMorphologyUpdate) {
+      onMorphologyUpdate(originalMorphology);
+      toast.success(i18n.language === 'da' ? 'Nulstillet til gemte værdier' : 'Reset to saved values');
+    }
+  }, [originalMorphology, onMorphologyUpdate, i18n.language]);
   
   // Demo mode handlers
   const handleDemoMorphologyChange = useCallback((newMorphology: Record<string, string>) => {
@@ -474,6 +501,21 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
             onMorphologyChange={projectId ? handleBannerMorphologyChange : undefined}
             className="border border-border/30 border-t-0"
           />
+          
+          {/* Reset Button - only visible when there are unsaved changes */}
+          {hasChanges && !isDemoActive && (
+            <div className="flex justify-center py-3 border border-border/30 border-t-0 rounded-b-lg bg-muted/20">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetToOriginal}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="h-4 w-4" />
+                {i18n.language === 'da' ? 'Nulstil til gemte værdier' : 'Reset to saved values'}
+              </Button>
+            </div>
+          )}
           
           {/* Archetype Badge */}
           <div className="mt-4 text-center relative">
