@@ -990,14 +990,12 @@ function IDGOuterManifestation({
       { rotation: [Math.PI / 4, Math.PI / 4, 0] as [number, number, number], phaseOffset: Math.PI * 1.5 }, // Diagonal
     ], []);
     
-    // Color gradient from cyan to light purple
-    const ringColors = useMemo(() => rings.map((_, i) => {
-      const t = i / (rings.length - 1);
-      const hue = 0.55 + t * 0.15;
-      return new THREE.Color().setHSL(hue, 0.7, 0.85);
+    // Light blue color for all rings
+    const ringColors = useMemo(() => rings.map(() => {
+      return new THREE.Color().setHSL(0.55, 0.7, 0.75); // Light cyan-blue
     }), [rings.length]);
     
-    const glowColor = new THREE.Color().setHSL(0.60, 0.6, 0.9);
+    const glowColor = new THREE.Color().setHSL(0.55, 0.6, 0.85);
     
     useFrame((state) => {
       if (!groupRef.current) return;
@@ -1052,8 +1050,8 @@ function IDGOuterManifestation({
             ref={(el) => { if (el) ringRefs.current[i] = el; }}
             rotation={ring.rotation}
           >
-            {/* torusGeometry: radius, tube thickness, radial segments, tubular segments */}
-            <torusGeometry args={[1.0, 0.04, 16, 64]} />
+            {/* torusGeometry: radius, tube thickness (0.01 = 1/4 of 0.04), radial segments, tubular segments */}
+            <torusGeometry args={[1.0, 0.01, 16, 64]} />
             <meshBasicMaterial
               color={ringColors[i]}
               transparent
