@@ -132,23 +132,15 @@ function AtmosphericHaze({
 function Lights({ 
   glowColor, 
   glowIntensity,
-  coreGlow,
-  organizationalAmbientColor,
-  organizationalAmbientIntensity
+  coreGlow
 }: { 
   glowColor: string; 
   glowIntensity: number;
   coreGlow: number;
-  organizationalAmbientColor: string;
-  organizationalAmbientIntensity: number;
 }) {
   return (
     <>
-      {/* Organizational ambient light - sets the atmosphere color */}
-      <ambientLight 
-        intensity={organizationalAmbientIntensity} 
-        color={organizationalAmbientColor}
-      />
+      {/* NEUTRAL ambient light - organizational stage only affects background now */}
       
       {/* Base white ambient for visibility */}
       <ambientLight intensity={0.35} />
@@ -265,13 +257,11 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
             intensity={data.outerAuraIntensity} 
           />
           
-          {/* Lighting setup with organizational ambient */}
+          {/* Lighting setup - neutral (organizational only affects background) */}
           <Lights 
             glowColor={data.glowColor} 
             glowIntensity={data.glowIntensity}
             coreGlow={data.coreGlow}
-            organizationalAmbientColor={data.organizationalAmbientColor}
-            organizationalAmbientIntensity={data.organizationalAmbientIntensity}
           />
           
           {/* Environment map for reflections */}
