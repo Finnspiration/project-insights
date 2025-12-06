@@ -738,29 +738,56 @@ function IDGOuterManifestation({
     );
   };
   
-  // Explosive rays for "Acting" (Handling)
+  // Explosive rays for "Acting" (Handling) - SHARP, ORGANIZED, DIRECTIONAL
   const ActingRays = () => {
     const groupRef = useRef<THREE.Group>(null);
     const raysRef = useRef<THREE.Group>(null);
     
+    // Create organized, symmetrical rays - fewer but more impactful
     const rays = useMemo(() => {
-      const items: { direction: THREE.Vector3; baseLength: number }[] = [];
-      for (let i = 0; i < particleCount; i++) {
-        // Random directions for explosive effect
-        const phi = Math.acos(2 * Math.random() - 1);
-        const theta = Math.random() * Math.PI * 2;
-        
+      const items: { direction: THREE.Vector3; baseLength: number; delay: number }[] = [];
+      
+      // 6 main axis rays (up, down, left, right, front, back)
+      const mainDirections = [
+        new THREE.Vector3(0, 1, 0),    // Up
+        new THREE.Vector3(0, -1, 0),   // Down
+        new THREE.Vector3(1, 0, 0),    // Right
+        new THREE.Vector3(-1, 0, 0),   // Left
+        new THREE.Vector3(0, 0, 1),    // Front
+        new THREE.Vector3(0, 0, -1),   // Back
+      ];
+      
+      // Main cardinal rays - longest
+      mainDirections.forEach((dir, i) => {
         items.push({
-          direction: new THREE.Vector3(
-            Math.sin(phi) * Math.cos(theta),
-            Math.sin(phi) * Math.sin(theta),
-            Math.cos(phi)
-          ),
-          baseLength: radius * (0.5 + Math.random() * 0.5)
+          direction: dir,
+          baseLength: radius * 1.2,
+          delay: i * 0.1
         });
-      }
+      });
+      
+      // 8 diagonal rays - medium length
+      const diagonals = [
+        new THREE.Vector3(1, 1, 0).normalize(),
+        new THREE.Vector3(-1, 1, 0).normalize(),
+        new THREE.Vector3(1, -1, 0).normalize(),
+        new THREE.Vector3(-1, -1, 0).normalize(),
+        new THREE.Vector3(0, 1, 1).normalize(),
+        new THREE.Vector3(0, 1, -1).normalize(),
+        new THREE.Vector3(0, -1, 1).normalize(),
+        new THREE.Vector3(0, -1, -1).normalize(),
+      ];
+      
+      diagonals.forEach((dir, i) => {
+        items.push({
+          direction: dir,
+          baseLength: radius * 0.9,
+          delay: 0.3 + i * 0.05
+        });
+      });
+      
       return items;
-    }, [particleCount, radius]);
+    }, [radius]);
     
     useFrame((state) => {
       if (!raysRef.current) return;
@@ -770,55 +797,59 @@ function IDGOuterManifestation({
         const ray = rays[i];
         if (!ray) return;
         
-        // Pulsing extension - rays shoot out and retract
-        const pulse = (Math.sin(time * animationSpeed + i * 0.3) + 1) * 0.5;
-        const currentLength = ray.baseLength * (0.3 + pulse * 0.7);
+        // Sharp, rhythmic pulse - rays shoot out decisively
+        const phase = (time * animationSpeed * 2 + ray.delay * Math.PI * 2) % (Math.PI * 2);
+        const pulse = Math.pow(Math.max(0, Math.sin(phase)), 0.5); // Sharp attack, gradual decay
+        const currentLength = ray.baseLength * (0.2 + pulse * 0.8);
         
-        const cylinder = rayGroup.children[0] as THREE.Mesh;
+        const rayLine = rayGroup.children[0] as THREE.Mesh;
         const tip = rayGroup.children[1] as THREE.Mesh;
+        const trail = rayGroup.children[2] as THREE.Mesh;
         
-        if (cylinder && tip) {
-          cylinder.scale.y = currentLength / ray.baseLength;
-          cylinder.position.copy(ray.direction.clone().multiplyScalar(currentLength * 0.5 + 0.3));
-          tip.position.copy(ray.direction.clone().multiplyScalar(currentLength + 0.3));
+        if (rayLine && tip) {
+          // Scale ray
+          rayLine.scale.y = currentLength / ray.baseLength;
+          rayLine.position.copy(ray.direction.clone().multiplyScalar(currentLength * 0.5 + 0.15));
           
-          // Tip glow intensity
+          // Move tip to end of ray
+          tip.position.copy(ray.direction.clone().multiplyScalar(currentLength + 0.15));
+          tip.scale.setScalar(0.5 + pulse * 0.5);
+          
+          // Tip brightness follows pulse
           const tipMat = tip.material as THREE.MeshBasicMaterial;
-          tipMat.opacity = (0.5 + pulse * 0.5) * intensity;
+          tipMat.opacity = (0.3 + pulse * 0.7) * intensity;
+        }
+        
+        if (trail) {
+          // Trail follows behind
+          trail.position.copy(ray.direction.clone().multiplyScalar(0.2));
+          trail.scale.y = (currentLength * 0.3) / ray.baseLength;
+          const trailMat = trail.material as THREE.MeshBasicMaterial;
+          trailMat.opacity = pulse * 0.4 * intensity;
         }
       });
       
-      // Slow rotation
-      if (groupRef.current) {
-        groupRef.current.rotation.y = time * animationSpeed * 0.1;
-      }
+      // No rotation - stable, directional
     });
     
     return (
       <group ref={groupRef}>
         <group ref={raysRef}>
           {rays.map((ray, i) => {
-            const rotation = new THREE.Euler(
-              Math.atan2(ray.direction.y, Math.sqrt(ray.direction.x ** 2 + ray.direction.z ** 2)),
-              Math.atan2(ray.direction.x, ray.direction.z),
-              0
-            );
+            // Calculate rotation to point along ray direction
+            const up = new THREE.Vector3(0, 1, 0);
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, ray.direction);
+            const euler = new THREE.Euler().setFromQuaternion(quaternion);
+            
+            const isMainRay = i < 6;
+            const rayWidth = isMainRay ? 0.035 : 0.025;
+            const tipSize = isMainRay ? 0.08 : 0.05;
             
             return (
               <group key={i}>
-                {/* Ray line */}
-                <mesh rotation={rotation}>
-                  <cylinderGeometry args={[0.02, 0.005, ray.baseLength, 6]} />
-                  <meshBasicMaterial
-                    color={threeColor}
-                    transparent
-                    opacity={0.7 * intensity}
-                    blending={THREE.AdditiveBlending}
-                  />
-                </mesh>
-                {/* Glowing tip */}
-                <mesh>
-                  <sphereGeometry args={[0.05, 8, 8]} />
+                {/* Sharp ray line */}
+                <mesh rotation={euler}>
+                  <cylinderGeometry args={[rayWidth * 0.3, rayWidth, ray.baseLength, 8]} />
                   <meshBasicMaterial
                     color={threeColor}
                     transparent
@@ -826,17 +857,47 @@ function IDGOuterManifestation({
                     blending={THREE.AdditiveBlending}
                   />
                 </mesh>
+                {/* Arrow tip - diamond shape */}
+                <mesh rotation={euler}>
+                  <octahedronGeometry args={[tipSize, 0]} />
+                  <meshBasicMaterial
+                    color={threeColor}
+                    transparent
+                    opacity={intensity}
+                    blending={THREE.AdditiveBlending}
+                  />
+                </mesh>
+                {/* Inner glow trail */}
+                <mesh rotation={euler}>
+                  <cylinderGeometry args={[rayWidth * 0.15, rayWidth * 0.5, ray.baseLength * 0.5, 6]} />
+                  <meshBasicMaterial
+                    color={primaryColor}
+                    transparent
+                    opacity={0.5 * intensity}
+                    blending={THREE.AdditiveBlending}
+                  />
+                </mesh>
               </group>
             );
           })}
         </group>
-        {/* Central explosion core */}
+        {/* Central action core - pulsing */}
         <mesh>
-          <sphereGeometry args={[0.3, 16, 16]} />
+          <octahedronGeometry args={[0.2, 0]} />
           <meshBasicMaterial
             color={threeColor}
             transparent
-            opacity={0.4 * intensity}
+            opacity={0.6 * intensity}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+        {/* Inner core glow */}
+        <mesh>
+          <sphereGeometry args={[0.15, 12, 12]} />
+          <meshBasicMaterial
+            color={primaryColor}
+            transparent
+            opacity={0.8 * intensity}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
