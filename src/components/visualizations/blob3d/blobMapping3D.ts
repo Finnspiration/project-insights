@@ -489,10 +489,10 @@ function mapOrganizationalToBackground(organizational?: string): {
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
-    // ORANGE STADIUM: Tydelig varm orange baggrund
+    // ORANGE STADIUM: Tydeligt orange baggrund
     orange: {
-      topColor: '#8b5530',     // Markant orange - tydeligt synlig
-      bottomColor: '#5c3820',
+      topColor: '#b85c20',     // Ægte orange - tydeligt synlig
+      bottomColor: '#8b4515',
       ambientColor: '#ffffff',
       ambientIntensity: 0.4
     },
