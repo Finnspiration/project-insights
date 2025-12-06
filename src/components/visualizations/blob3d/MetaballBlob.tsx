@@ -975,87 +975,56 @@ function IDGOuterManifestation({
     );
   };
   
-  // Geometric rays for "Thinking" (Tænkning)
-  const ThinkingRays = () => {
+  // Gentle water ripples for "Thinking" (Tænkning)
+  const ThinkingRipples = () => {
     const groupRef = useRef<THREE.Group>(null);
+    const rippleRefs = useRef<THREE.Mesh[]>([]);
     
-    const rays = useMemo(() => {
-      const items: { direction: THREE.Vector3; length: number }[] = [];
-      // Create rays pointing in geometric directions (like axes)
-      const directions = [
-        new THREE.Vector3(1, 0, 0),
-        new THREE.Vector3(-1, 0, 0),
-        new THREE.Vector3(0, 1, 0),
-        new THREE.Vector3(0, -1, 0),
-        new THREE.Vector3(0, 0, 1),
-        new THREE.Vector3(0, 0, -1),
-        // Diagonals
-        new THREE.Vector3(1, 1, 0).normalize(),
-        new THREE.Vector3(-1, 1, 0).normalize(),
-        new THREE.Vector3(1, -1, 0).normalize(),
-        new THREE.Vector3(-1, -1, 0).normalize(),
-        new THREE.Vector3(0, 1, 1).normalize(),
-        new THREE.Vector3(0, -1, 1).normalize(),
-      ];
-      
-      for (let i = 0; i < Math.min(particleCount, directions.length); i++) {
-        items.push({
-          direction: directions[i],
-          length: radius * (0.8 + Math.random() * 0.4)
-        });
-      }
-      return items;
-    }, [radius, particleCount]);
+    // Create 4 ripple rings at different phases
+    const rippleCount = 4;
     
     useFrame((state) => {
       if (!groupRef.current) return;
       const time = state.clock.elapsedTime;
       
-      // Slow rotation
-      groupRef.current.rotation.y = time * animationSpeed * 0.2;
-      groupRef.current.rotation.x = Math.sin(time * animationSpeed * 0.15) * 0.1;
+      rippleRefs.current.forEach((ripple, i) => {
+        if (!ripple) return;
+        
+        // Each ripple has an offset phase
+        const phase = (time * animationSpeed * 0.5 + i * 0.25) % 1;
+        
+        // Ripple expands from center outward
+        const minRadius = 0.5;
+        const maxRadius = radius * 1.2;
+        const currentRadius = minRadius + phase * (maxRadius - minRadius);
+        
+        // Opacity fades as ripple expands
+        const opacity = (1 - phase) * 0.5 * intensity;
+        
+        // Update scale and opacity
+        ripple.scale.set(currentRadius, currentRadius, 1);
+        (ripple.material as THREE.MeshBasicMaterial).opacity = opacity;
+      });
     });
     
     return (
       <group ref={groupRef}>
-        {rays.map((ray, i) => {
-          const midpoint = ray.direction.clone().multiplyScalar(ray.length * 0.5 + 0.4);
-          const rotation = new THREE.Euler(
-            Math.atan2(ray.direction.y, Math.sqrt(ray.direction.x ** 2 + ray.direction.z ** 2)),
-            Math.atan2(ray.direction.x, ray.direction.z),
-            0
-          );
-          
-          return (
-            <group key={i}>
-              {/* Line ray */}
-              <mesh position={midpoint} rotation={rotation}>
-                <cylinderGeometry args={[0.015, 0.015, ray.length, 8]} />
-                <meshBasicMaterial
-                  color={threeColor}
-                  transparent
-                  opacity={0.6 * intensity}
-                  blending={THREE.AdditiveBlending}
-                />
-              </mesh>
-              {/* Endpoint node */}
-              <mesh position={ray.direction.clone().multiplyScalar(ray.length + 0.4)}>
-                <sphereGeometry args={[0.04, 8, 8]} />
-                <meshBasicMaterial
-                  color={threeColor}
-                  transparent
-                  opacity={0.8 * intensity}
-                  blending={THREE.AdditiveBlending}
-                />
-              </mesh>
-            </group>
-          );
-        })}
-        {/* Central grid cube wireframe */}
-        <lineSegments>
-          <edgesGeometry args={[new THREE.BoxGeometry(radius * 0.5, radius * 0.5, radius * 0.5)]} />
-          <lineBasicMaterial color={threeColor} transparent opacity={0.4 * intensity} />
-        </lineSegments>
+        {Array.from({ length: rippleCount }).map((_, i) => (
+          <mesh 
+            key={i}
+            ref={(el) => { if (el) rippleRefs.current[i] = el; }}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <ringGeometry args={[0.95, 1.0, 64]} />
+            <meshBasicMaterial
+              color={threeColor}
+              transparent
+              opacity={0.4}
+              side={THREE.DoubleSide}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
       </group>
     );
   };
@@ -1351,7 +1320,7 @@ function IDGOuterManifestation({
   return (
     <group ref={groupRef}>
       {manifestationType === 'aura' && <BeingAura />}
-      {manifestationType === 'geometric_rays' && <ThinkingRays />}
+      {manifestationType === 'geometric_rays' && <ThinkingRipples />}
       {manifestationType === 'connection_bands' && <RelatingBands />}
       {manifestationType === 'energy_fields' && <CollaboratingFields />}
       {manifestationType === 'explosive_rays' && <ActingRays />}
