@@ -976,135 +976,92 @@ function IDGOuterManifestation({
   };
   
   // Pulsating ripples that breathe in and out from center for "Thinking" (Tænkning)
-  // Subtle, elegant version with 4 rings on a single plane + soft glow
+  // Uses 3D torusGeometry on multiple planes for visibility from all angles
   const ThinkingRipples = () => {
     const groupRef = useRef<THREE.Group>(null);
-    const rippleRefs = useRef<THREE.Mesh[]>([]);
-    const glowRefs = useRef<THREE.Mesh[]>([]);
+    const ringRefs = useRef<THREE.Mesh[]>([]);
     const centerGlowRef = useRef<THREE.Mesh>(null);
     
-    // Only 4 rings for a subtle effect
-    const rippleCount = 4;
+    // Ring configurations: 4 rings on different planes for visibility from all angles
+    const rings = useMemo(() => [
+      { rotation: [Math.PI / 2, 0, 0] as [number, number, number], phaseOffset: 0 },           // XY plane (horizontal)
+      { rotation: [0, 0, 0] as [number, number, number], phaseOffset: Math.PI * 0.5 },         // XZ plane (vertical front)
+      { rotation: [0, Math.PI / 2, 0] as [number, number, number], phaseOffset: Math.PI },     // YZ plane (vertical side)
+      { rotation: [Math.PI / 4, Math.PI / 4, 0] as [number, number, number], phaseOffset: Math.PI * 1.5 }, // Diagonal
+    ], []);
     
-    // Color nuances for each ring - gradient from cyan-blue to light purple
-    const ringColors = useMemo(() => {
-      return Array.from({ length: rippleCount }).map((_, i) => {
-        const t = i / (rippleCount - 1);
-        // Hue goes from 0.55 (cyan-blue) to 0.68 (purple) 
-        const hue = 0.55 + t * 0.13;
-        // Lower saturation for subtlety
-        const sat = 0.65 + Math.sin(t * Math.PI) * 0.1;
-        // Moderate lightness
-        const light = 0.75 + (1 - t) * 0.1;
-        return new THREE.Color().setHSL(hue, sat, light);
-      });
-    }, []);
+    // Color gradient from cyan to light purple
+    const ringColors = useMemo(() => rings.map((_, i) => {
+      const t = i / (rings.length - 1);
+      const hue = 0.55 + t * 0.15;
+      return new THREE.Color().setHSL(hue, 0.7, 0.85);
+    }), [rings.length]);
     
-    const glowColor = new THREE.Color().setHSL(0.60, 0.7, 0.85);
+    const glowColor = new THREE.Color().setHSL(0.60, 0.6, 0.9);
     
     useFrame((state) => {
       if (!groupRef.current) return;
       const time = state.clock.elapsedTime;
       
-      // Central glow pulsing - small and subtle
+      // Central glow pulsing
       if (centerGlowRef.current) {
-        const glowPulse = 0.5 + Math.sin(time * animationSpeed * 2.0) * 0.3;
-        centerGlowRef.current.scale.setScalar(0.3 + glowPulse * 0.15);
-        (centerGlowRef.current.material as THREE.MeshBasicMaterial).opacity = glowPulse * 0.4 * intensity;
+        const glowPulse = 0.6 + Math.sin(time * animationSpeed * 1.5) * 0.4;
+        centerGlowRef.current.scale.setScalar(glowPulse);
+        (centerGlowRef.current.material as THREE.MeshBasicMaterial).opacity = 
+          Math.max(0.4, 0.6 * intensity * glowPulse);
       }
       
-      // Update each ring
-      rippleRefs.current.forEach((ripple, i) => {
-        if (!ripple) return;
+      // Update each ring - pulsating in and out
+      ringRefs.current.forEach((ring, i) => {
+        if (!ring) return;
         
-        // Each ring has a staggered phase offset
-        const phaseOffset = i / rippleCount * Math.PI * 2;
+        const phaseOffset = rings[i]?.phaseOffset || 0;
+        const breathe = Math.sin(time * animationSpeed * 1.5 + phaseOffset);
         
-        // PULSATING: Use sine wave to breathe in and out
-        const breathe = Math.sin(time * animationSpeed * 2.0 + phaseOffset);
+        // Pulse between 1.0 and 1.8 radius
+        const baseRadius = 1.3;
+        const pulseAmount = 0.5;
+        const currentScale = baseRadius + breathe * pulseAmount;
         
-        // Center radius + breathing movement - reduced range
-        const centerRadius = radius * 0.7;
-        const pulseAmount = radius * 0.4;
-        const currentRadius = centerRadius + breathe * pulseAmount;
+        ring.scale.setScalar(currentScale);
         
-        // Lower opacity for subtlety
+        // Opacity varies with position
         const normalizedPos = (breathe + 1) / 2;
-        const opacity = (0.25 + normalizedPos * 0.15) * intensity;
-        
-        // Update scale and opacity
-        ripple.scale.set(currentRadius, currentRadius, 1);
-        (ripple.material as THREE.MeshBasicMaterial).opacity = Math.max(0.15, opacity);
-      });
-      
-      // Update glow rings (softer, larger versions behind each sharp ring)
-      glowRefs.current.forEach((glow, i) => {
-        if (!glow) return;
-        
-        const phaseOffset = i / rippleCount * Math.PI * 2;
-        const breathe = Math.sin(time * animationSpeed * 2.0 + phaseOffset);
-        const centerRadius = radius * 0.7;
-        const pulseAmount = radius * 0.4;
-        const currentRadius = (centerRadius + breathe * pulseAmount) * 1.1; // Slightly larger
-        
-        glow.scale.set(currentRadius, currentRadius, 1);
-        const normalizedPos = (breathe + 1) / 2;
-        (glow.material as THREE.MeshBasicMaterial).opacity = (0.08 + normalizedPos * 0.06) * intensity;
+        const opacity = Math.max(0.5, (0.5 + normalizedPos * 0.3) * intensity);
+        (ring.material as THREE.MeshBasicMaterial).opacity = opacity;
       });
     });
     
     return (
       <group ref={groupRef}>
-        {/* Small central pulsing glow - the "source" of the ripples */}
+        {/* Central pulsing glow sphere */}
         <mesh ref={centerGlowRef}>
-          <sphereGeometry args={[0.3, 24, 24]} />
+          <sphereGeometry args={[0.5, 24, 24]} />
           <meshBasicMaterial
             color={glowColor}
             transparent
-            opacity={0.4}
+            opacity={0.6}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
         
-        {/* Rings on single XY plane (horizontal) */}
-        <group rotation={[Math.PI / 2, 0, 0]}>
-          {/* Thin pulsating rings with color nuances */}
-          {Array.from({ length: rippleCount }).map((_, i) => (
-            <mesh 
-              key={`ring-${i}`}
-              ref={(el) => { if (el) rippleRefs.current[i] = el; }}
-              scale={[0.5, 0.5, 1]}
-            >
-              {/* Thin ring geometry: inner 0.92, outer 1.0 = 8% thickness */}
-              <ringGeometry args={[0.92, 1.0, 64]} />
-              <meshBasicMaterial
-                color={ringColors[i]}
-                transparent
-                opacity={0.35}
-                side={THREE.DoubleSide}
-                blending={THREE.AdditiveBlending}
-              />
-            </mesh>
-          ))}
-          
-          {/* Soft glow rings behind each sharp ring */}
-          {Array.from({ length: rippleCount }).map((_, i) => (
-            <mesh 
-              key={`glow-${i}`}
-              ref={(el) => { if (el) glowRefs.current[i] = el; }}
-              scale={[0.5, 0.5, 1]}
-            >
-              {/* Slightly thicker glow ring */}
-              <ringGeometry args={[0.85, 1.0, 64]} />
-              <meshBasicMaterial
-                color={ringColors[i]}
-                transparent
-                opacity={0.12}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
-          ))}
-        </group>
+        {/* 3D Torus rings on multiple planes */}
+        {rings.map((ring, i) => (
+          <mesh 
+            key={`thinking-ring-${i}`}
+            ref={(el) => { if (el) ringRefs.current[i] = el; }}
+            rotation={ring.rotation}
+          >
+            {/* torusGeometry: radius, tube thickness, radial segments, tubular segments */}
+            <torusGeometry args={[1.0, 0.04, 16, 64]} />
+            <meshBasicMaterial
+              color={ringColors[i]}
+              transparent
+              opacity={0.7}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
       </group>
     );
   };
