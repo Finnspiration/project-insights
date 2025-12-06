@@ -1,20 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Info, X, ChevronDown, ChevronUp, Edit2, Check, Loader2, GripVertical } from 'lucide-react';
+import { Info, X, ChevronDown, ChevronUp, Edit2, Check, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { DIMENSION_ORDER, ZONE_COLORS, DimensionInfo } from './dimensionConfig';
 
 interface EnhancedBlob3DLegendProps {
   morphology: Record<string, string>;
   projectId?: string;
   onHoverDimension?: (dimensionKey: string | null, lobeIndex: number | null) => void;
-  onMorphologyUpdate?: (newMorphology: any) => void;
+  // Callback for local morphology changes (key, value) - does NOT persist to database
+  onMorphologyChange?: (key: string, value: string) => void;
   className?: string;
 }
 
@@ -22,7 +21,7 @@ export function EnhancedBlob3DLegend({
   morphology, 
   projectId,
   onHoverDimension, 
-  onMorphologyUpdate,
+  onMorphologyChange,
   className 
 }: EnhancedBlob3DLegendProps) {
   const { t, i18n } = useTranslation('common');
@@ -37,7 +36,6 @@ export function EnhancedBlob3DLegend({
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
   const [editingDimension, setEditingDimension] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
   
   // Draggable state
   const [position, setPosition] = useState({ x: 16, y: 16 });
@@ -144,36 +142,17 @@ export function EnhancedBlob3DLegend({
     setTempValue(getMorphologyValue(dimensionKey));
   };
 
-  const handleSaveEdit = async () => {
-    if (!projectId || !editingDimension) return;
+  // Handle save - only updates local state via callback, does NOT persist to database
+  // The morphological box is the source of truth and handles database persistence
+  const handleSaveEdit = () => {
+    if (!editingDimension) return;
     
-    setIsSaving(true);
-    
-    const updatedMorphology = {
-      ...morphology,
-      [editingDimension]: tempValue
-    };
-    
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .update({ morphology: updatedMorphology })
-        .eq('id', projectId);
-      
-      if (error) throw error;
-      
-      toast.success(t('morphology.updateSuccess') || 'Morphology updated!');
-      setEditingDimension(null);
-      
-      if (onMorphologyUpdate) {
-        onMorphologyUpdate(updatedMorphology);
-      }
-    } catch (error) {
-      console.error('Error updating morphology:', error);
-      toast.error(t('morphology.updateError') || 'Failed to update morphology');
-    } finally {
-      setIsSaving(false);
+    if (onMorphologyChange) {
+      onMorphologyChange(editingDimension, tempValue);
     }
+    
+    setEditingDimension(null);
+    setTempValue('');
   };
 
   const handleCancelEdit = () => {
@@ -354,23 +333,15 @@ export function EnhancedBlob3DLegend({
                               variant="default"
                               className="h-6 text-xs flex-1"
                               onClick={handleSaveEdit}
-                              disabled={isSaving}
                             >
-                              {isSaving ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <>
-                                  <Check className="h-3 w-3 mr-1" />
-                                  {language === 'da' ? 'Gem' : 'Save'}
-                                </>
-                              )}
+                              <Check className="h-3 w-3 mr-1" />
+                              {language === 'da' ? 'Anvend' : 'Apply'}
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               className="h-6 text-xs"
                               onClick={handleCancelEdit}
-                              disabled={isSaving}
                             >
                               <X className="h-3 w-3" />
                             </Button>
