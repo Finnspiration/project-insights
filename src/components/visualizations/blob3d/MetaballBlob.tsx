@@ -975,13 +975,13 @@ function IDGOuterManifestation({
     );
   };
   
-  // Gentle water ripples for "Thinking" (Tænkning)
+  // Gentle pulsing ripples from center for "Thinking" (Tænkning)
   const ThinkingRipples = () => {
     const groupRef = useRef<THREE.Group>(null);
     const rippleRefs = useRef<THREE.Mesh[]>([]);
     
-    // Create 4 ripple rings at different phases
-    const rippleCount = 4;
+    // Create 5 ripple rings at staggered phases
+    const rippleCount = 5;
     
     useFrame((state) => {
       if (!groupRef.current) return;
@@ -990,22 +990,27 @@ function IDGOuterManifestation({
       rippleRefs.current.forEach((ripple, i) => {
         if (!ripple) return;
         
-        // Each ripple has an offset phase
-        const phase = (time * animationSpeed * 0.5 + i * 0.25) % 1;
+        // Staggered phases so rings spread out evenly
+        const phase = (time * animationSpeed * 0.4 + i / rippleCount) % 1;
         
-        // Ripple expands from center outward
-        const minRadius = 0.5;
-        const maxRadius = radius * 1.2;
+        // Start from very small (center) and expand outward
+        const minRadius = 0.1;
+        const maxRadius = radius * 0.9;
         const currentRadius = minRadius + phase * (maxRadius - minRadius);
         
-        // Opacity fades as ripple expands
-        const opacity = (1 - phase) * 0.5 * intensity;
+        // Opacity peaks in middle of expansion, fades at start and end
+        const fadeIn = Math.min(phase * 4, 1);
+        const fadeOut = 1 - phase;
+        const opacity = fadeIn * fadeOut * 0.6 * intensity;
         
         // Update scale and opacity
         ripple.scale.set(currentRadius, currentRadius, 1);
         (ripple.material as THREE.MeshBasicMaterial).opacity = opacity;
       });
     });
+    
+    // Use a light, glowing color similar to other IDG effects
+    const rippleColor = new THREE.Color().setHSL(0.55, 0.7, 0.7);
     
     return (
       <group ref={groupRef}>
@@ -1014,12 +1019,13 @@ function IDGOuterManifestation({
             key={i}
             ref={(el) => { if (el) rippleRefs.current[i] = el; }}
             rotation={[Math.PI / 2, 0, 0]}
+            scale={[0.1, 0.1, 1]}
           >
-            <ringGeometry args={[0.95, 1.0, 64]} />
+            <ringGeometry args={[0.9, 1.0, 64]} />
             <meshBasicMaterial
-              color={threeColor}
+              color={rippleColor}
               transparent
-              opacity={0.4}
+              opacity={0.3}
               side={THREE.DoubleSide}
               blending={THREE.AdditiveBlending}
             />
