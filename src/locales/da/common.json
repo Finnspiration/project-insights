@@ -716,7 +716,7 @@
         "spine": "Rygrad",
         "legs": "Ben"
       },
-      "parts": {
+      "partLabels": {
         "head": "Strategi & Klarhed",
         "face": "Kommunikation & Konflikt",
         "shoulders": "Kapacitet & Ressourcer",

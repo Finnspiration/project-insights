@@ -47,6 +47,24 @@ export interface BodyData {
   }>;
 }
 
+function getMorphologyValue(value: any, defaultValue: string = ''): string {
+  if (!value) return defaultValue;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value.selectedValue) return value.selectedValue;
+  return defaultValue;
+}
+
+function normalizeMorphology(morphology: any): Record<string, string> {
+  if (!morphology) return {};
+  const normalized: Record<string, string> = {};
+  const keys = ['complexity', 'stakeholder', 'knowledge', 'cultural', 'temporal',
+    'organizational', 'challenge', 'development', 'resources', 'change', 'information', 'risk'];
+  for (const key of keys) {
+    normalized[key] = getMorphologyValue(morphology[key], '');
+  }
+  return normalized;
+}
+
 const HEALTH_COLORS = {
   healthy: '#10B981',    // Green (success)
   attention: '#F59E0B',  // Yellow/Orange (warning)
@@ -337,7 +355,10 @@ function getAverageIDGScores(documents?: any[]) {
   };
 }
 
-export function calculateBodyData(morphology: any, documents?: any[], patterns?: any): BodyData {
+export function calculateBodyData(rawMorphology: any, documents?: any[], patterns?: any): BodyData {
+  // Normalize all morphology values from objects to strings
+  const morphology = normalizeMorphology(rawMorphology);
+  
   const idgScores = getAverageIDGScores(documents);
   // HEAD - Enhanced with IDG Thinking
   let headClarity = getKnowledgeClarity(morphology?.knowledge);
