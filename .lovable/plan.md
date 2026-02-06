@@ -1,91 +1,129 @@
 
 
-## Plan: Redesign "Sådan Læses Visualiseringen" sektionen
+# Fix: Projekt Kropsscanning Vitale Tegn Fejl
 
-### Problem
-Guiden er svær at forstå fordi den bruger teknisk jargon, ligner kode, og mangler visuel forbindelse til den faktiske 3D blob. Den tager også meget plads og bruger hardcoded sprog i stedet for i18n.
+## Problem-analyse
 
-### Løsning: Visuelt lag-diagram med farvestrip og collapsible layout
-
-#### Ændring 1: Ny visuelt intuitiv guide-komponent
-
-**Fil:** `src/components/visualizations/blob3d/BlobReadingGuide.tsx` (NY)
-
-Opretter en dedikeret komponent der erstatter den nuværende inline-guide med:
-
-1. **Collapsible sektion** - starter lukket, kan åbnes med et klik
-2. **Visuelle lag-strips** - hver lag vises som en farvet strip der matcher blobbens faktiske farver:
-   - Lag 7 (yderst): Rød/orange strip for "Baggrund og atmosfære" med forklaring "Farven afspejler risikoniveau"
-   - Lag 6: Orange strip for "Overfladestruktur" med "Pigge og ujævnheder viser kompleksitet"
-   - Lag 5: Blå strip for "Hovedform" med "Formen afspejler projektets DNA"
-   - Lag 4: Lilla strip for "Åbninger" med "Huller viser informationsflow"
-   - Lag 3: Grøn strip for "Indre gitter" med "Gitterstruktur viser vidensniveau"
-   - Lag 2: Cyan strip for "Orbiter og partikler" med "Kredsende elementer viser temporal dynamik"
-   - Lag 1 (inderst): Gul strip for "Kerne" med "Kernens form viser udviklingsstadie"
-
-3. **"Hvad skal du kigge efter"** sektion med 3-4 korte, actionable tips:
-   - "Er formen glat eller takket? → Glat = simpelt projekt, takket = komplekst"
-   - "Hvilken farve dominerer baggrunden? → Grøn = lav risiko, rød = høj risiko"
-   - "Kan du se en lysende kerne? → Stærk kerne = fokus på indre udvikling"
-
-4. **Interaktiv kobling** - hover over et lag-item highlighter den tilsvarende dimension i ParameterBanner
-
-#### Ændring 2: i18n nøgler
-
-**Filer:** `src/locales/en/common.json` og `src/locales/da/common.json`
-
-Tilføjer nye oversættelsesnøgler under `visualizations.blob.readingGuide`:
-
-```text
-readingGuide:
-  toggle: "Vis guide" / "Show guide"
-  subtitle: "Forstå hvad du ser" / "Understand what you see"
-  layers:
-    7: title: "Baggrund & Atmosfære" / "Background & Atmosphere"
-       what: "Farven afspejler risikoniveau" / "Color reflects risk level"
-       dimension: "Risiko" / "Risk"
-    6: title: "Overfladestruktur" / "Surface Structure"  
-       what: "Pigge og ujævnheder" / "Spikes and roughness"
-       dimension: "Kompleksitet + Udfordring" / "Complexity + Challenge"
-    ... (alle 7 lag)
-  lookFor:
-    title: "Hvad skal du kigge efter?" / "What to look for?"
-    items: [3-4 actionable observation tips]
+Screenshottet viser at items 2-6 i "Vitale Tegn" viser raa oversaettelsesnoegler som:
+```
+visualizations.bodyScan.descriptions.face.[object Object]
+visualizations.bodyScan.descriptions.shoulders.[object Object]
 ```
 
-#### Ændring 3: Erstat inline-guide i MorphologyBlob
+Der er **tre separate fejl** der tilsammen skaber dette problem:
 
-**Fil:** `src/components/visualizations/MorphologyBlob.tsx`
+---
 
-- Fjern hele den nuværende "How to Read Guide" Card (linje 529-618)
-- Erstat med `<BlobReadingGuide />` komponent
-- Fjern alle `i18n.language === 'da'` ternaries (erstattet af i18n nøgler)
+## Fejl 1: Morfologi-vaerdier er objekter, ikke strenge
 
-### Tekniske detaljer
-
-**Visuelt design:**
-- Bruger en `Collapsible` komponent fra shadcn/ui
-- Hvert lag-item er en lille horisontalt Card med:
-  - Farvet venstre-border (4px) der matcher lagfarven
-  - Lag-nummer badge
-  - Titel + kort forklaring
-  - Dimension-badge (subtilt)
-- Layout er kompakt og visuelt skanbart
-- Starter som lukket med en "Vis guide" knap der matcher visuelt
-
-**Komponent-struktur:**
-```text
-BlobReadingGuide
-  ├── CollapsibleTrigger ("Vis guide" / "Show guide")
-  └── CollapsibleContent
-      ├── LayerStrips (7 lag, yderst til inderst)
-      │   └── LayerItem (farvet border, titel, forklaring)
-      └── LookForSection (3-4 observationstips)
+Database-data viser at morfologi-dimensioner er gemt som objekter:
+```json
+{
+  "stakeholder": {"selectedIndex": 0, "selectedValue": "unified"},
+  "resources": {"selectedIndex": 0, "selectedValue": "rich"},
+  ...
+}
 ```
 
-### Filer der ændres:
-1. `src/components/visualizations/blob3d/BlobReadingGuide.tsx` - NY komponent
-2. `src/components/visualizations/MorphologyBlob.tsx` - Erstat gammel guide
-3. `src/locales/en/common.json` - Nye i18n nøgler
-4. `src/locales/da/common.json` - Nye i18n nøgler
+Men baade `BodyPartExplanation.tsx` og `bodyDataCalculator.ts` bruger vaerdierne direkte som strenge:
+```tsx
+// BodyPartExplanation linje 127:
+t(`visualizations.bodyScan.descriptions.face.${morphology?.stakeholder || 'unified'}`)
+// Resultat: "...face.[object Object]"
+
+// bodyDataCalculator linje 268-269:
+{ rich: 1, ... }[morphology.resources || 'balanced']
+// Resultat: undefined (lookup med objekt som noegle)
+```
+
+Andre visualiseringer (MorphologyBlob, WeatherMap) har allerede en `getMorphologyValue()` helper til dette - men body scan mangler den.
+
+---
+
+## Fejl 2: Duplikerede `parts` noegler i JSON
+
+Baade `en/common.json` og `da/common.json` har **to** `parts` objekter under `bodyScan`:
+
+```json
+"parts": {
+  "head": "Hoved",        // <-- Anatomiske navne (OVERSKREVET)
+  "face": "Ansigt",
+  ...
+},
+"parts": {                 // <-- Beskrivende navne (VINDER)
+  "head": "Strategi & Klarhed",
+  "face": "Kommunikation & Konflikt",
+  ...
+}
+```
+
+I JSON overskriver den sidste duplicate noegle den foerste. De anatomiske navne er tabt. Loesningen er at omdoebe den anden til `partLabels`.
+
+---
+
+## Fejl 3: bodyDataCalculator returnerer objekter i stedet for strenge
+
+`calculateBodyData()` passer raa morfologi-objekter videre til alle lookup-funktioner. Fordi objekter aldrig matcher string-noeglen, returneres altid default-vaerdier. Det betyder at farverne og status-beregningerne er forkerte - projektet viser sandsynligvis forkerte farver paa badge-numrene.
+
+---
+
+## Loesning
+
+### AEndring 1: `bodyDataCalculator.ts` - Normaliser morfologi ved indgang
+
+Tilfoej en `getMorphologyValue` helper i toppen af filen og normaliser **alle** morfologi-vaerdier i starten af `calculateBodyData()`:
+
+```typescript
+function getMorphologyValue(value: any, defaultValue: string = ''): string {
+  if (!value) return defaultValue;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value.selectedValue) return value.selectedValue;
+  return defaultValue;
+}
+```
+
+I `calculateBodyData()`: normaliser morfologien foerst, saa alle downstream funktioner modtager rene strenge. Tilsvarende fix i `calculateStability()`, `calculateMomentum()`, `getLegStance()` og `generateWarnings()` der ogsaa laesser raa morfologi.
+
+### AEndring 2: `BodyPartExplanation.tsx` - Normaliser morfologi-vaerdier
+
+Tilfoej samme `getMorphologyValue` helper og brug den i:
+- `getDescription()` (linje 122-146) - alle `morphology?.dimension` lookups
+- `getStatus()` (linje 56-111) - `morphology?.resources` og `morphology?.risk` lookups
+
+### AEndring 3: `da/common.json` og `en/common.json` - Fix duplikerede parts
+
+Omdoeb den anden `parts` til `partLabels`:
+
+```json
+"parts": {
+  "head": "Hoved",
+  "face": "Ansigt",
+  ...
+},
+"partLabels": {
+  "head": "Strategi & Klarhed",
+  "face": "Kommunikation & Konflikt",
+  ...
+}
+```
+
+Opdater `BodyPartExplanation.tsx` til at bruge `partLabels` for de beskrivende navne (som vises i listen).
+
+---
+
+## Filer der aendres
+
+| Fil | AEndring |
+|-----|----------|
+| `src/components/visualizations/body-scan/bodyDataCalculator.ts` | Tilfoej `getMorphologyValue` helper, normaliser alle morfologi-inputs |
+| `src/components/visualizations/body-scan/BodyPartExplanation.tsx` | Normaliser morfologi-vaerdier i `getDescription()` og `getStatus()` |
+| `src/locales/da/common.json` | Omdoeb duplikeret `parts` til `partLabels` |
+| `src/locales/en/common.json` | Omdoeb duplikeret `parts` til `partLabels` |
+
+## Forventet resultat
+
+- Alle 7 vitale tegn viser korrekte danske/engelske beskrivelser
+- Farvekoderne paa badge-numrene matcher de faktiske morfologi-vaerdier
+- Statusetiketter ("Sund", "Farezonen" osv.) er korrekte
+- Ingen `[object Object]` i UI'et
 
