@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
-import { DNAEvidenceVisualization } from './theory-u/DNAEvidenceVisualization';
+
 import { EvidenceBreakdownPanel } from './theory-u/EvidenceBreakdownPanel';
 interface UJourneyTimelineProps {
   morphology: any;
