@@ -66,11 +66,11 @@ export function EvidenceBreakdownPanel({ morphologyEvidence, dominantPhase }: Ev
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant="outline" className="text-xs font-medium">
-                            {t(`morphology.dimensions.${evidence.dimension}`, evidence.dimension)}
+                            {t(`morphology.dimensions.${evidence.dimension}.title`, evidence.dimension)}
                           </Badge>
                           <span className="text-xs text-muted-foreground">→</span>
                           <span className="text-sm font-medium text-foreground">
-                            {t(`morphology.options.${evidence.dimension}.${evidence.value}`, evidence.value)}
+                            {t(`morphology.dimensions.${evidence.dimension}.options.${evidence.value}`, evidence.value)}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
