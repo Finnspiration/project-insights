@@ -137,36 +137,31 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     const mapPhaseToUI = (phase: string): string => {
       const phaseMap: Record<string, string> = {
         'downloading': 'seeing',
-        // Downloading mappes til Observere
         'seeing': 'seeing',
         'sensing': 'sensing',
         'presencing': 'presencing',
         'crystallizing': 'crystallizing',
         'prototyping': 'prototyping',
-        'performing': 'prototyping' // Performing mappes til Prototyping
+        'performing': 'prototyping'
       };
-      return phaseMap[phase.toLowerCase()] || 'seeing'; // Fallback til seeing
+      return phaseMap[phase.toLowerCase()] || 'seeing';
     };
 
     // Transform from AI response format to component format
-    // Read currentPhase directly (it's stored as a string like "crystallizing")
     const rawPhase = data.currentPhase || data.whyHere?.morphologyScoring?.phase || data.position || 'downloading';
 
     // Transform documentEvidence from old format (string[]) to new format (object[])
     let documentEvidence = data.whyHere?.documentEvidence;
     console.log('📝 Raw documentEvidence type:', typeof documentEvidence, Array.isArray(documentEvidence));
     if (documentEvidence && Array.isArray(documentEvidence)) {
-      // Check if it's the old format (strings) or new format (objects)
       if (documentEvidence.length > 0) {
         const firstItem = documentEvidence[0];
         console.log('🔎 First item type:', typeof firstItem, 'value:', firstItem);
         if (typeof firstItem === 'string') {
-          // Old format - convert to new format
           console.log('⚠️ Converting OLD format (strings) to NEW format (objects)');
           documentEvidence = documentEvidence.map((text: string) => ({
             text,
             relevance: 50,
-            // Default relevance for old data
             source: undefined
           }));
         } else {
@@ -175,6 +170,65 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
       }
     }
     console.log('✨ Final transformed documentEvidence:', documentEvidence);
+
+    // Normalize aiNuance - can be at top level OR nested under whyHere
+    const aiNuance = data.aiNuance || data.whyHere?.aiNuance || 
+      (typeof data.whyHere === 'string' ? data.whyHere : undefined);
+
+    // Normalize nextActions - API may return strings or objects
+    let nextActions: TheoryUAnalysis['nextActions'] = [];
+    if (Array.isArray(data.nextActions)) {
+      nextActions = data.nextActions.map((item: any, idx: number) => {
+        if (typeof item === 'string') {
+          return { priority: idx < 2 ? 1 : idx < 4 ? 2 : 3, action: item, rationale: '', theoryUPrinciple: '', timeframe: '', expectedImpact: '' };
+        }
+        return item;
+      });
+    }
+
+    // Normalize readinessIndicators - API may return string[] or structured object
+    let readinessIndicators: TheoryUAnalysis['readinessIndicators'] = undefined;
+    if (data.readinessIndicators) {
+      if (Array.isArray(data.readinessIndicators)) {
+        // Convert string array to structured object: first 2 → descend, next 2 → presence, rest → ascend
+        const items = data.readinessIndicators as string[];
+        readinessIndicators = {
+          readyToDescend: items.length > 0 ? {
+            status: 'partially',
+            reason: items.slice(0, 2).join(' '),
+            nextSteps: items.slice(0, 2)
+          } : undefined,
+          readyToPresence: items.length > 2 ? {
+            status: 'partially',
+            reason: items.slice(2, 4).join(' '),
+            nextSteps: items.slice(2, 4)
+          } : undefined,
+          readyToAscend: items.length > 4 ? {
+            status: 'partially',
+            reason: items.slice(4, 6).join(' '),
+            nextSteps: items.slice(4, 6)
+          } : undefined,
+        };
+      } else if (typeof data.readinessIndicators === 'object') {
+        readinessIndicators = data.readinessIndicators;
+      }
+    }
+
+    // Normalize theoryUResources - API may return strings or objects
+    let theoryUResources: TheoryUAnalysis['theoryUResources'] = [];
+    if (Array.isArray(data.theoryUResources)) {
+      theoryUResources = data.theoryUResources.map((item: any) => {
+        if (typeof item === 'string') {
+          // Extract a title from the string (first part before colon or first 60 chars)
+          const colonIdx = item.indexOf(':');
+          const title = colonIdx > 0 && colonIdx < 60 ? item.substring(0, colonIdx).trim() : item.substring(0, 60).trim();
+          const relevance = colonIdx > 0 ? item.substring(colonIdx + 1).trim() : item;
+          return { type: 'tool', title, link: '', relevance };
+        }
+        return item;
+      });
+    }
+
     return {
       position: mapPhaseToUI(rawPhase),
       confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
@@ -186,12 +240,13 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
         will: data.diagnostics?.openWill?.score || data.openMHW?.will || 0
       },
       whyHere: {
-        ...data.whyHere,
+        ...(typeof data.whyHere === 'object' && data.whyHere !== null && !Array.isArray(data.whyHere) ? data.whyHere : {}),
+        aiNuance,
         documentEvidence
       },
-      nextActions: Array.isArray(data.nextActions) ? data.nextActions : [],
-      readinessIndicators: data.readinessIndicators,
-      theoryUResources: data.theoryUResources || []
+      nextActions,
+      readinessIndicators,
+      theoryUResources
     };
   };
 
@@ -1117,21 +1172,21 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
             <div className="grid md:grid-cols-3 gap-4">
               {resources.map((resource, idx) => {
                 const ResourceIcon = resource.type === 'book' ? BookOpen : resource.type === 'video' ? Video : GraduationCap;
+                const Wrapper = resource.link ? 'a' : 'div';
+                const linkProps = resource.link ? { href: resource.link, target: '_blank', rel: 'noopener noreferrer' } : {};
                 return (
-                  <a
+                  <Wrapper
                     key={idx}
-                    href={resource.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    {...linkProps as any}
                     className="group p-4 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all space-y-2"
                   >
                     <div className="flex items-center gap-2">
                       <ResourceIcon className="w-4 h-4 text-primary" />
                       <span className="font-semibold text-sm group-hover:text-primary transition-colors">{resource.title}</span>
-                      <ExternalLink className="w-3 h-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {resource.link && <ExternalLink className="w-3 h-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />}
                     </div>
                     <p className="text-xs text-muted-foreground">{resource.relevance}</p>
-                  </a>
+                  </Wrapper>
                 );
               })}
             </div>
