@@ -86,6 +86,25 @@ export default function ProjectDetail() {
         .single();
 
       if (error) throw error;
+      
+      // Fix corrupted dna_code containing [object Object]
+      if (data.dna_code && data.dna_code.includes('[object Object]') && data.morphology) {
+        const fixedDnaCode = Object.entries(data.morphology as Record<string, any>)
+          .map(([_, value]) => {
+            if (value !== null && typeof value === 'object' && 'selectedValue' in value) {
+              return value.selectedValue;
+            }
+            return typeof value === 'string' ? value : '';
+          })
+          .filter(Boolean)
+          .join('-');
+        data.dna_code = fixedDnaCode;
+        // Also fix in database
+        supabase.from('projects').update({ dna_code: fixedDnaCode }).eq('id', id!).then(() => {
+          console.log('🔧 Fixed corrupted dna_code');
+        });
+      }
+      
       setProject(data);
       
       // Calculate IDG scores from morphology immediately
@@ -394,8 +413,13 @@ export default function ProjectDetail() {
                 language={i18n.language as 'en' | 'da'}
                 onMorphologyChange={async (updatedMorphology) => {
                   // Generate new DNA code
-                  const dnaSegments = Object.entries(updatedMorphology).map(([_, value]) => value);
-                  const newDnaCode = dnaSegments.join('-');
+                  const dnaSegments = Object.entries(updatedMorphology).map(([_, value]: [string, any]) => {
+                    if (value && typeof value === 'object' && 'selectedValue' in value) {
+                      return value.selectedValue;
+                    }
+                    return value;
+                  });
+                  const newDnaCode = dnaSegments.filter(Boolean).join('-');
                   
                   // Update database
                   const { error } = await supabase
