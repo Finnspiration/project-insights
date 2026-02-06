@@ -172,8 +172,33 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     console.log('✨ Final transformed documentEvidence:', documentEvidence);
 
     // Normalize aiNuance - can be at top level OR nested under whyHere
-    const aiNuance = data.aiNuance || data.whyHere?.aiNuance || 
+    // It may be a string, or an array of {insight, support} objects
+    const rawAiNuance = data.aiNuance || data.whyHere?.aiNuance || 
       (typeof data.whyHere === 'string' ? data.whyHere : undefined);
+    
+    let aiNuance: string | undefined;
+    if (typeof rawAiNuance === 'string') {
+      aiNuance = rawAiNuance;
+    } else if (Array.isArray(rawAiNuance)) {
+      // Convert array of {insight, support} objects to readable text
+      aiNuance = rawAiNuance
+        .map((item: any) => {
+          if (typeof item === 'string') return item;
+          if (typeof item === 'object' && item !== null && item.insight) {
+            return item.support ? `${item.insight}\n\n📄 ${item.support}` : item.insight;
+          }
+          return '';
+        })
+        .filter(Boolean)
+        .join('\n\n---\n\n');
+    } else if (typeof rawAiNuance === 'object' && rawAiNuance !== null) {
+      // Single {insight, support} object
+      if (rawAiNuance.insight) {
+        aiNuance = rawAiNuance.support 
+          ? `${rawAiNuance.insight}\n\n📄 ${rawAiNuance.support}` 
+          : rawAiNuance.insight;
+      }
+    }
 
     // Normalize nextActions - API may return strings or objects
     let nextActions: TheoryUAnalysis['nextActions'] = [];

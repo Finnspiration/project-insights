@@ -22,7 +22,7 @@ interface MorphologyScoringProps {
       }>;
     }>;
   };
-  aiNuance?: string;
+  aiNuance?: string | any[] | any;
 }
 
 export function MorphologyScoringTable({ morphologyScoring, aiNuance }: MorphologyScoringProps) {
@@ -203,7 +203,33 @@ export function MorphologyScoringTable({ morphologyScoring, aiNuance }: Morpholo
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm leading-relaxed">{aiNuance}</p>
+            {typeof aiNuance === 'string' ? (
+              <p className="text-sm leading-relaxed">{aiNuance}</p>
+            ) : Array.isArray(aiNuance) ? (
+              <div className="space-y-3">
+                {aiNuance.map((item: any, idx: number) => (
+                  <div key={idx} className="text-sm leading-relaxed">
+                    {typeof item === 'string' ? (
+                      <p>{item}</p>
+                    ) : item?.insight ? (
+                      <div className="space-y-1">
+                        <p>{item.insight}</p>
+                        {item.support && (
+                          <p className="text-xs text-muted-foreground italic pl-3 border-l-2 border-border">{item.support}</p>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : aiNuance?.insight ? (
+              <div className="text-sm leading-relaxed space-y-1">
+                <p>{aiNuance.insight}</p>
+                {aiNuance.support && (
+                  <p className="text-xs text-muted-foreground italic pl-3 border-l-2 border-border">{aiNuance.support}</p>
+                )}
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       )}
