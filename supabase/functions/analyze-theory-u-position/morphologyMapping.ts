@@ -608,3 +608,59 @@ export function getDominantPhase(morphology: Record<string, string>): {
     evidence,
   };
 }
+
+/**
+ * DETERMINISTISK BEREGNING: Open Mind / Heart / Will
+ * 
+ * Mapper morfologiske dimensioner til Theory U's tre åbninger:
+ * - Open Mind: Evnen til at suspendere dom (knowledge, complexity, challenge, development=thinking)
+ * - Open Heart: Evnen til empati (stakeholder, cultural, development=being/relating, organizational=green/teal)
+ * - Open Will: Evnen til at slippe kontrollen (change, risk, temporal, information)
+ */
+export interface OpenMHWScores {
+  mind: number;
+  heart: number;
+  will: number;
+}
+
+const OPEN_MIND_WEIGHTS: Record<string, Record<string, number>> = {
+  knowledge: { routine: 2, adaptive: 4, innovative: 7, breakthrough: 10 },
+  complexity: { simple: 2, complicated: 4, complex: 7, chaotic: 9 },
+  challenge: { technical: 3, social: 5, political: 6, cognitive: 8, adaptive: 10 },
+  development: { being: 5, thinking: 8, relating: 4, collaborating: 5, acting: 3 },
+};
+
+const OPEN_HEART_WEIGHTS: Record<string, Record<string, number>> = {
+  stakeholder: { unified: 3, cooperative: 5, competitive: 7, adversarial: 10 },
+  cultural: { mono: 2, crossfunctional: 5, crossorg: 7, crosscultural: 10 },
+  development: { being: 9, thinking: 4, relating: 10, collaborating: 7, acting: 3 },
+  organizational: { red: 1, amber: 3, orange: 4, green: 8, teal: 10 },
+};
+
+const OPEN_WILL_WEIGHTS: Record<string, Record<string, number>> = {
+  change: { incremental: 2, transitional: 4, transformational: 8, disruptive: 10 },
+  risk: { low: 2, moderate: 4, high: 7, extreme: 10 },
+  temporal: { sprint: 2, project: 4, program: 7, transformation: 10 },
+  information: { centralized: 2, hierarchical: 4, network: 7, distributed: 10 },
+};
+
+export function calculateOpenMHW(morphology: Record<string, string>): OpenMHWScores {
+  const calcScore = (weights: Record<string, Record<string, number>>): number => {
+    let total = 0;
+    let count = 0;
+    for (const [dim, valueMap] of Object.entries(weights)) {
+      const value = morphology[dim]?.toLowerCase();
+      if (value && valueMap[value] !== undefined) {
+        total += valueMap[value];
+        count++;
+      }
+    }
+    return count > 0 ? Math.round(total / count) : 0;
+  };
+
+  return {
+    mind: calcScore(OPEN_MIND_WEIGHTS),
+    heart: calcScore(OPEN_HEART_WEIGHTS),
+    will: calcScore(OPEN_WILL_WEIGHTS),
+  };
+}
