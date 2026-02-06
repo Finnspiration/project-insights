@@ -12,8 +12,26 @@ interface BodyPartExplanationProps {
   onLeave: () => void;
 }
 
-export function BodyPartExplanation({ part, data, morphology, documents, isHovered, onHover, onLeave }: BodyPartExplanationProps) {
+function getMorphologyValue(value: any, defaultValue: string = ''): string {
+  if (!value) return defaultValue;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value.selectedValue) return value.selectedValue;
+  return defaultValue;
+}
+
+export function BodyPartExplanation({ part, data, morphology: rawMorphology, documents, isHovered, onHover, onLeave }: BodyPartExplanationProps) {
   const { t } = useTranslation('common');
+  
+  // Normalize morphology values from objects to strings
+  const morphology = {
+    complexity: getMorphologyValue(rawMorphology?.complexity, 'simple'),
+    stakeholder: getMorphologyValue(rawMorphology?.stakeholder, 'unified'),
+    resources: getMorphologyValue(rawMorphology?.resources, 'balanced'),
+    organizational: getMorphologyValue(rawMorphology?.organizational, 'orange'),
+    risk: getMorphologyValue(rawMorphology?.risk, 'moderate'),
+    information: getMorphologyValue(rawMorphology?.information, 'hierarchical'),
+    knowledge: getMorphologyValue(rawMorphology?.knowledge, 'routine'),
+  };
   
   // Get relevant quote from documents
   const getRelevantQuote = (): string | null => {
@@ -70,7 +88,7 @@ export function BodyPartExplanation({ part, data, morphology, documents, isHover
     }
     
     if (part === 'shoulders') {
-      const resources = morphology?.resources;
+      const resources = morphology.resources;
       if (resources === 'rich') return 'healthy';
       if (resources === 'balanced') return 'attention';
       if (resources === 'constrained') return 'critical';
@@ -85,7 +103,7 @@ export function BodyPartExplanation({ part, data, morphology, documents, isHover
     }
     
     if (part === 'belly') {
-      const risk = morphology?.risk;
+      const risk = morphology.risk;
       if (risk === 'low') return 'healthy';
       if (risk === 'moderate') return 'attention';
       if (risk === 'high') return 'critical';
@@ -121,22 +139,22 @@ export function BodyPartExplanation({ part, data, morphology, documents, isHover
   
   const getDescription = (): string => {
     if (part === 'head') {
-      return t(`visualizations.bodyScan.descriptions.head.${morphology?.complexity || 'simple'}`);
+      return t(`visualizations.bodyScan.descriptions.head.${morphology.complexity}`);
     }
     if (part === 'face') {
-      return t(`visualizations.bodyScan.descriptions.face.${morphology?.stakeholder || 'unified'}`);
+      return t(`visualizations.bodyScan.descriptions.face.${morphology.stakeholder}`);
     }
     if (part === 'shoulders') {
-      return t(`visualizations.bodyScan.descriptions.shoulders.${morphology?.resources || 'balanced'}`);
+      return t(`visualizations.bodyScan.descriptions.shoulders.${morphology.resources}`);
     }
     if (part === 'torso') {
-      return t(`visualizations.bodyScan.descriptions.torso.${morphology?.organizational || 'orange'}`);
+      return t(`visualizations.bodyScan.descriptions.torso.${morphology.organizational}`);
     }
     if (part === 'belly') {
-      return t(`visualizations.bodyScan.descriptions.belly.${morphology?.risk || 'moderate'}`);
+      return t(`visualizations.bodyScan.descriptions.belly.${morphology.risk}`);
     }
     if (part === 'spine') {
-      return t(`visualizations.bodyScan.descriptions.spine.${morphology?.information || 'hierarchical'}`);
+      return t(`visualizations.bodyScan.descriptions.spine.${morphology.information}`);
     }
     if (part === 'legs') {
       const stance = data.stance;

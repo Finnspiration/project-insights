@@ -717,7 +717,7 @@
         "spine": "Spine",
         "legs": "Legs"
       },
-      "parts": {
+      "partLabels": {
         "head": "Strategy & Clarity",
         "face": "Communication & Conflict",
         "shoulders": "Capacity & Resources",
