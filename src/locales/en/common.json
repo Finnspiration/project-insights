@@ -830,6 +830,13 @@
         "crystallizing": "vision and intention",
         "prototyping": "living microcosms"
       },
+      "phaseDescriptions": {
+        "seeing": "You are in the observation phase – focus on seeing the situation with fresh eyes, without prejudice",
+        "sensing": "You are in the sensing phase – try to feel into the system with empathy and open-heartedness",
+        "presencing": "You are in the presencing phase – let go of control and allow the new to emerge",
+        "crystallizing": "You are in the crystallizing phase – the vision is beginning to take form",
+        "prototyping": "You are in the prototyping phase – test ideas in living microcosms"
+      },
       "socialField": "Social Field",
       "depth": "Depth",
       "depths": {
@@ -839,7 +846,30 @@
         "profound": "Profound"
       },
       "openMHW": "Open M/H/W",
+      "openMindLabel": "Open Mind",
+      "openHeartLabel": "Open Heart",
+      "openWillLabel": "Open Will",
+      "openMHWDescription": "Theory U's three openings that enable deeper learning",
       "confident": "Confident",
+      "confidenceExplanation": "Indicates how certain the analysis is about the positioning",
+      "confidenceLow": "Low – add more morphological data or documents",
+      "confidenceMedium": "Moderate – data points in the same direction",
+      "confidenceHigh": "High – strong evidence for this placement",
+      "socialFieldDescriptions": {
+        "downloading": "Polite conversation – repetition of known patterns",
+        "debating": "Debate and perspective shifts – active challenging of assumptions",
+        "dialogue": "Reflective dialogue – deeper connection and empathy",
+        "collective_creativity": "Collective creativity – flow and co-creation"
+      },
+      "depthDescriptions": {
+        "surface": "Surface level – the project operates at the upper layer",
+        "shallow": "Shallow depth – beginning movement downward",
+        "deep": "Deep – real transformation is underway",
+        "profound": "Profound – fundamental shifts are occurring"
+      },
+      "aiNarrativeTitle": "AI Analysis",
+      "expectedImpact": "Expected Impact",
+      "readinessStatus": "Status",
       "whyThisPhase": "Why This Phase?",
       "morphologyEvidence": "Morphology Evidence",
       "noMorphologyEvidence": "Morphology evidence will appear here once analysis is complete. Click refresh to regenerate.",
@@ -866,6 +896,7 @@
       "favoriteFailed": "Failed to save favorite. Please try again.",
       "relevance": "Relevance",
       "nextActions": "Your Next 3 Actions",
+      "rationale": "Rationale",
       "principle": "Principle",
       "timeframe": "Timeframe",
       "readinessIndicators": "Readiness Indicators",
