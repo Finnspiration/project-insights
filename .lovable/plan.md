@@ -1,37 +1,91 @@
 
 
-# PRISM - Komplet Analyse: Fejl, Mangler og Muligheder
+## Plan: Redesign "Sådan Læses Visualiseringen" sektionen
 
-## STATUS: Høj og Medium prioritet er FIXET ✅
+### Problem
+Guiden er svær at forstå fordi den bruger teknisk jargon, ligner kode, og mangler visuel forbindelse til den faktiske 3D blob. Den tager også meget plads og bruger hardcoded sprog i stedet for i18n.
 
-### Fixede issues:
-- ✅ 1.1 InsightsPanel: useState → useEffect (KRITISK bug fixet)
-- ✅ 1.2 Dashboard: Tilføjet `.eq('user_id', user.id)` filter
-- ✅ 1.3 MorphologyBlob: Fjernet redundant null-check
-- ✅ 1.4 Footer: Dynamisk copyright årstal
-- ✅ 1.5 ErrorBoundary: Multilingual support (en/da)
-- ✅ 1.6 MorphologyBlob: Fjernet ubrugt `onMorphologyUpdate` prop
-- ✅ 1.7 Auth: Alle hardcoded tekster erstattet med i18n
-- ✅ 1.8 Settings: Bruger nu DashboardLayout med sidebar
-- ✅ 2.1 RLS: Strammet morphology_archetypes policies til `authenticated` only
-- ✅ 3.3/3.4 Hero CTAs: "Start Free" navigerer til /auth, "Watch Demo" scroller til features
-- ✅ 4.2 Centraliseret Project interface i `src/types/project.ts`
-- ✅ 4.4 date-fns dansk locale tilføjet i Dashboard og ProjectDetail
+### Løsning: Visuelt lag-diagram med farvestrip og collapsible layout
 
-### Resterende sikkerhedsadvarsler (lav risiko):
-- ⚠️ 2.2 Leaked Password Protection: Bør aktiveres i auth-konfiguration
-- ⚠️ 2.3 Function Search Path Mutable: Database-funktioner mangler search_path
+#### Ændring 1: Ny visuelt intuitiv guide-komponent
 
----
+**Fil:** `src/components/visualizations/blob3d/BlobReadingGuide.tsx` (NY)
 
-## Lav prioritet (fremtidige features):
-1. Pricing-side og Stripe integration
-2. Password reset flow
-3. Chat-besked persistering i database
-4. AI message counter reset (cron job)
-5. Export funktionalitet (PNG, samtaler)
-6. Dark mode toggle
-7. Mobil-optimering af AI Chat
-8. About-sektion på landing page
-9. Onboarding flow for nye brugere
-10. Team collaboration funktionalitet
+Opretter en dedikeret komponent der erstatter den nuværende inline-guide med:
+
+1. **Collapsible sektion** - starter lukket, kan åbnes med et klik
+2. **Visuelle lag-strips** - hver lag vises som en farvet strip der matcher blobbens faktiske farver:
+   - Lag 7 (yderst): Rød/orange strip for "Baggrund og atmosfære" med forklaring "Farven afspejler risikoniveau"
+   - Lag 6: Orange strip for "Overfladestruktur" med "Pigge og ujævnheder viser kompleksitet"
+   - Lag 5: Blå strip for "Hovedform" med "Formen afspejler projektets DNA"
+   - Lag 4: Lilla strip for "Åbninger" med "Huller viser informationsflow"
+   - Lag 3: Grøn strip for "Indre gitter" med "Gitterstruktur viser vidensniveau"
+   - Lag 2: Cyan strip for "Orbiter og partikler" med "Kredsende elementer viser temporal dynamik"
+   - Lag 1 (inderst): Gul strip for "Kerne" med "Kernens form viser udviklingsstadie"
+
+3. **"Hvad skal du kigge efter"** sektion med 3-4 korte, actionable tips:
+   - "Er formen glat eller takket? → Glat = simpelt projekt, takket = komplekst"
+   - "Hvilken farve dominerer baggrunden? → Grøn = lav risiko, rød = høj risiko"
+   - "Kan du se en lysende kerne? → Stærk kerne = fokus på indre udvikling"
+
+4. **Interaktiv kobling** - hover over et lag-item highlighter den tilsvarende dimension i ParameterBanner
+
+#### Ændring 2: i18n nøgler
+
+**Filer:** `src/locales/en/common.json` og `src/locales/da/common.json`
+
+Tilføjer nye oversættelsesnøgler under `visualizations.blob.readingGuide`:
+
+```text
+readingGuide:
+  toggle: "Vis guide" / "Show guide"
+  subtitle: "Forstå hvad du ser" / "Understand what you see"
+  layers:
+    7: title: "Baggrund & Atmosfære" / "Background & Atmosphere"
+       what: "Farven afspejler risikoniveau" / "Color reflects risk level"
+       dimension: "Risiko" / "Risk"
+    6: title: "Overfladestruktur" / "Surface Structure"  
+       what: "Pigge og ujævnheder" / "Spikes and roughness"
+       dimension: "Kompleksitet + Udfordring" / "Complexity + Challenge"
+    ... (alle 7 lag)
+  lookFor:
+    title: "Hvad skal du kigge efter?" / "What to look for?"
+    items: [3-4 actionable observation tips]
+```
+
+#### Ændring 3: Erstat inline-guide i MorphologyBlob
+
+**Fil:** `src/components/visualizations/MorphologyBlob.tsx`
+
+- Fjern hele den nuværende "How to Read Guide" Card (linje 529-618)
+- Erstat med `<BlobReadingGuide />` komponent
+- Fjern alle `i18n.language === 'da'` ternaries (erstattet af i18n nøgler)
+
+### Tekniske detaljer
+
+**Visuelt design:**
+- Bruger en `Collapsible` komponent fra shadcn/ui
+- Hvert lag-item er en lille horisontalt Card med:
+  - Farvet venstre-border (4px) der matcher lagfarven
+  - Lag-nummer badge
+  - Titel + kort forklaring
+  - Dimension-badge (subtilt)
+- Layout er kompakt og visuelt skanbart
+- Starter som lukket med en "Vis guide" knap der matcher visuelt
+
+**Komponent-struktur:**
+```text
+BlobReadingGuide
+  ├── CollapsibleTrigger ("Vis guide" / "Show guide")
+  └── CollapsibleContent
+      ├── LayerStrips (7 lag, yderst til inderst)
+      │   └── LayerItem (farvet border, titel, forklaring)
+      └── LookForSection (3-4 observationstips)
+```
+
+### Filer der ændres:
+1. `src/components/visualizations/blob3d/BlobReadingGuide.tsx` - NY komponent
+2. `src/components/visualizations/MorphologyBlob.tsx` - Erstat gammel guide
+3. `src/locales/en/common.json` - Nye i18n nøgler
+4. `src/locales/da/common.json` - Nye i18n nøgler
+
