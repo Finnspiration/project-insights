@@ -231,7 +231,11 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
 
     return {
       position: mapPhaseToUI(rawPhase),
-      confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
+      confidence: (() => {
+        const raw = data.confidence || data.whyHere?.morphologyScoring?.confidence || 0;
+        const normalized = raw <= 1 ? raw * 100 : raw;
+        return Math.round(normalized);
+      })(),
       socialField: data.currentPhase?.socialField || data.socialField || 'downloading',
       depth: data.currentPhase?.depthLevel || data.depth || 'surface',
       openMHW: {
@@ -755,7 +759,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
                       'text-red-600 dark:text-red-400'
                     }`}>{analysis.confidence || 0}%</span>
                   </div>
-                  <Progress value={analysis.confidence || 0} className={`h-2 ${
+                  <Progress value={analysis.confidence || 0} className={`h-2 bg-muted/50 ${
                     (analysis.confidence || 0) >= 70 ? '[&>div]:bg-green-500' :
                     (analysis.confidence || 0) >= 30 ? '[&>div]:bg-amber-500' :
                     '[&>div]:bg-red-500'
