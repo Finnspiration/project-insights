@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
 
 export default function Hero() {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
 
   return (
     <section className="relative min-h-[90vh] flex items-center gradient-hero overflow-hidden">
@@ -82,6 +84,7 @@ export default function Hero() {
             <Button
               size="lg"
               className="gradient-primary text-white font-semibold px-8 py-6 text-lg hover:shadow-lg hover:scale-105 transition-all"
+              onClick={() => navigate('/auth')}
             >
               {t('hero.ctaPrimary')}
             </Button>
@@ -89,6 +92,7 @@ export default function Hero() {
               size="lg"
               variant="outline"
               className="font-semibold px-8 py-6 text-lg hover:bg-muted transition-all"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
               <Play className="h-5 w-5 mr-2" />
               {t('hero.ctaSecondary')}

@@ -60,7 +60,8 @@
     "features": "Features",
     "pricing": "Pricing",
     "contact": "Contact",
-    "copyright": "© 2025 PRISM. All rights reserved."
+    "copyright": "© 2025 PRISM. All rights reserved.",
+    "allRightsReserved": "PRISM. All rights reserved."
   },
   "auth": {
     "signIn": "Sign In",
@@ -89,8 +90,10 @@
       "userExists": "An account with this email already exists"
     },
     "success": {
-      "signUp": "Account created successfully! Signing you in..."
-    }
+      "signUp": "Account created successfully! Signing you in...",
+      "welcome": "Welcome to PRISM!"
+    },
+    "accessPlatform": "Access your project intelligence platform"
   },
   "dashboard": {
     "title": "Dashboard",

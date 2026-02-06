@@ -26,18 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Users, Edit, Trash2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-interface Project {
-  id: string;
-  name: { en: string; da: string };
-  description?: { en: string; da: string };
-  timeline_start?: string;
-  timeline_end?: string;
-  team_size?: number;
-  status: string;
-  dna_code?: string;
-  morphology?: any;
-}
+import type { Project } from '@/types/project';
 
 interface ProjectCardProps {
   project: Project;

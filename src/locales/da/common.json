@@ -60,7 +60,8 @@
     "features": "Funktioner",
     "pricing": "Priser",
     "contact": "Kontakt",
-    "copyright": "© 2025 PRISM. Alle rettigheder forbeholdes."
+    "copyright": "© 2025 PRISM. Alle rettigheder forbeholdes.",
+    "allRightsReserved": "PRISM. Alle rettigheder forbeholdes."
   },
   "auth": {
     "signIn": "Log Ind",
@@ -89,8 +90,10 @@
       "userExists": "En konto med denne e-mail eksisterer allerede"
     },
     "success": {
-      "signUp": "Konto oprettet! Logger dig ind..."
-    }
+      "signUp": "Konto oprettet! Logger dig ind...",
+      "welcome": "Velkommen til PRISM!"
+    },
+    "accessPlatform": "Få adgang til din projektintelligensplatform"
   },
   "dashboard": {
     "title": "Dashboard",

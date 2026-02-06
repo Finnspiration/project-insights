@@ -9,18 +9,8 @@ import { ProjectCard } from '@/components/projects/ProjectCard';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
+import type { Project } from '@/types/project';
 
-interface Project {
-  id: string;
-  name: { en: string; da: string };
-  description?: { en: string; da: string };
-  timeline_start?: string;
-  timeline_end?: string;
-  team_size?: number;
-  status: string;
-  dna_code?: string;
-  morphology?: any;
-}
 
 export default function Projects() {
   const { t } = useTranslation('common');
