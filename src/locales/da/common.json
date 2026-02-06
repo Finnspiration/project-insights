@@ -635,6 +635,55 @@
           "name": "Ukendt Form",
           "description": "Unik konfiguration"
         }
+      },
+      "readingGuide": {
+        "toggle": "Vis guide",
+        "subtitle": "Forstå hvad du ser",
+        "layersTitle": "Lag (yderst → inderst)",
+        "layers": {
+          "background": {
+            "title": "Baggrund & Atmosfære",
+            "what": "Farven afspejler risikoniveau",
+            "dimension": "Risiko"
+          },
+          "surface": {
+            "title": "Overfladestruktur",
+            "what": "Pigge og ujævnheder viser kompleksitet",
+            "dimension": "Kompleksitet"
+          },
+          "mainShape": {
+            "title": "Hovedform",
+            "what": "Formen afspejler projektets DNA",
+            "dimension": "Interessenter"
+          },
+          "openings": {
+            "title": "Åbninger",
+            "what": "Huller viser informationsflow",
+            "dimension": "Information"
+          },
+          "innerGrid": {
+            "title": "Indre gitter",
+            "what": "Gitterstruktur viser vidensniveau",
+            "dimension": "Viden"
+          },
+          "orbiters": {
+            "title": "Orbiter & partikler",
+            "what": "Kredsende elementer viser temporal dynamik",
+            "dimension": "Tempo"
+          },
+          "core": {
+            "title": "Kerne",
+            "what": "Kernens form viser udviklingsstadie",
+            "dimension": "Udvikling"
+          }
+        },
+        "lookFor": {
+          "title": "Hvad skal du kigge efter?",
+          "item1": "Er formen glat eller takket? → Glat = simpelt projekt, takket = komplekst",
+          "item2": "Hvilken farve dominerer baggrunden? → Grøn = lav risiko, rød = høj risiko",
+          "item3": "Kan du se en lysende kerne? → Stærk kerne = fokus på indre udvikling",
+          "item4": "Hvor mange farver har formen? → Flere farver = større kulturel diversitet"
+        }
       }
     },
     "bodyScan": {
