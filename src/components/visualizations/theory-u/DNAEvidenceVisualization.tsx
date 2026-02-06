@@ -150,11 +150,11 @@ export function DNAEvidenceVisualization({
 
   return (
     <>
-      <div className="w-full overflow-x-auto">
+      <div className="w-full max-h-[200px]">
         <svg 
-          viewBox="0 0 1600 300" 
-          className="w-full h-auto min-h-[300px]"
-          style={{ minWidth: '1400px' }}
+          viewBox="0 0 1600 200" 
+          className="w-full h-auto"
+          preserveAspectRatio="xMidYMid meet"
         >
 ...
         </svg>

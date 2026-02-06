@@ -235,9 +235,9 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
       socialField: data.currentPhase?.socialField || data.socialField || 'downloading',
       depth: data.currentPhase?.depthLevel || data.depth || 'surface',
       openMHW: {
-        mind: data.diagnostics?.openMind?.score || data.openMHW?.mind || 0,
-        heart: data.diagnostics?.openHeart?.score || data.openMHW?.heart || 0,
-        will: data.diagnostics?.openWill?.score || data.openMHW?.will || 0
+        mind: data.openMHW?.mind || data.diagnostics?.openMind?.score || 0,
+        heart: data.openMHW?.heart || data.diagnostics?.openHeart?.score || 0,
+        will: data.openMHW?.will || data.diagnostics?.openWill?.score || 0
       },
       whyHere: {
         ...(typeof data.whyHere === 'object' && data.whyHere !== null && !Array.isArray(data.whyHere) ? data.whyHere : {}),
@@ -794,50 +794,72 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
                 </div>
               </div>
 
-              {/* Open Mind / Heart / Will Card - Full width */}
+              {/* The Three Openings Card - Full width */}
               <div className="md:col-span-2 space-y-4 p-5 rounded-xl bg-muted/30 border border-border/50">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.openMHW')}</p>
-                  <p className="text-xs text-muted-foreground">{t('visualizations.theoryU.openMHWDescription')}</p>
+                <div>
+                  <p className="text-lg font-semibold">{t('visualizations.theoryU.threeOpenings')}</p>
+                  <p className="text-xs text-muted-foreground">{t('visualizations.theoryU.threeOpeningsDescription')}</p>
                 </div>
-                <div className="grid grid-cols-3 gap-6">
-                  {/* Open Mind */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t('visualizations.theoryU.openMindLabel')}</span>
-                      <span className="text-sm font-bold">{analysis.openMHW?.mind || 0}/10</span>
-                    </div>
-                    <Progress value={(analysis.openMHW?.mind || 0) * 10} className={`h-3 ${
-                      (analysis.openMHW?.mind || 0) >= 7 ? '[&>div]:bg-green-500' :
-                      (analysis.openMHW?.mind || 0) >= 4 ? '[&>div]:bg-amber-500' :
-                      '[&>div]:bg-red-500'
-                    }`} />
+                {(analysis.openMHW?.mind === 0 && analysis.openMHW?.heart === 0 && analysis.openMHW?.will === 0) ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground italic p-3 bg-muted/50 rounded-lg">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t('visualizations.theoryU.openMHWCalculating')}
                   </div>
-                  {/* Open Heart */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t('visualizations.theoryU.openHeartLabel')}</span>
-                      <span className="text-sm font-bold">{analysis.openMHW?.heart || 0}/10</span>
+                ) : (
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Open Mind */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Lightbulb className={`w-4 h-4 ${
+                          (analysis.openMHW?.mind || 0) >= 7 ? 'text-green-500' :
+                          (analysis.openMHW?.mind || 0) >= 4 ? 'text-amber-500' : 'text-red-500'
+                        }`} />
+                        <span className="text-sm font-medium">{t('visualizations.theoryU.openMindLabel')}</span>
+                        <span className="text-sm font-bold ml-auto">{analysis.openMHW?.mind || 0}/10</span>
+                      </div>
+                      <Progress value={(analysis.openMHW?.mind || 0) * 10} className={`h-2.5 bg-muted ${
+                        (analysis.openMHW?.mind || 0) >= 7 ? '[&>div]:bg-green-500' :
+                        (analysis.openMHW?.mind || 0) >= 4 ? '[&>div]:bg-amber-500' :
+                        '[&>div]:bg-red-500'
+                      }`} />
+                      <p className="text-xs text-muted-foreground">{t('visualizations.theoryU.openMindDesc')}</p>
                     </div>
-                    <Progress value={(analysis.openMHW?.heart || 0) * 10} className={`h-3 ${
-                      (analysis.openMHW?.heart || 0) >= 7 ? '[&>div]:bg-green-500' :
-                      (analysis.openMHW?.heart || 0) >= 4 ? '[&>div]:bg-amber-500' :
-                      '[&>div]:bg-red-500'
-                    }`} />
-                  </div>
-                  {/* Open Will */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t('visualizations.theoryU.openWillLabel')}</span>
-                      <span className="text-sm font-bold">{analysis.openMHW?.will || 0}/10</span>
+                    {/* Open Heart */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Heart className={`w-4 h-4 ${
+                          (analysis.openMHW?.heart || 0) >= 7 ? 'text-green-500' :
+                          (analysis.openMHW?.heart || 0) >= 4 ? 'text-amber-500' : 'text-red-500'
+                        }`} />
+                        <span className="text-sm font-medium">{t('visualizations.theoryU.openHeartLabel')}</span>
+                        <span className="text-sm font-bold ml-auto">{analysis.openMHW?.heart || 0}/10</span>
+                      </div>
+                      <Progress value={(analysis.openMHW?.heart || 0) * 10} className={`h-2.5 bg-muted ${
+                        (analysis.openMHW?.heart || 0) >= 7 ? '[&>div]:bg-green-500' :
+                        (analysis.openMHW?.heart || 0) >= 4 ? '[&>div]:bg-amber-500' :
+                        '[&>div]:bg-red-500'
+                      }`} />
+                      <p className="text-xs text-muted-foreground">{t('visualizations.theoryU.openHeartDesc')}</p>
                     </div>
-                    <Progress value={(analysis.openMHW?.will || 0) * 10} className={`h-3 ${
-                      (analysis.openMHW?.will || 0) >= 7 ? '[&>div]:bg-green-500' :
-                      (analysis.openMHW?.will || 0) >= 4 ? '[&>div]:bg-amber-500' :
-                      '[&>div]:bg-red-500'
-                    }`} />
+                    {/* Open Will */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className={`w-4 h-4 ${
+                          (analysis.openMHW?.will || 0) >= 7 ? 'text-green-500' :
+                          (analysis.openMHW?.will || 0) >= 4 ? 'text-amber-500' : 'text-red-500'
+                        }`} />
+                        <span className="text-sm font-medium">{t('visualizations.theoryU.openWillLabel')}</span>
+                        <span className="text-sm font-bold ml-auto">{analysis.openMHW?.will || 0}/10</span>
+                      </div>
+                      <Progress value={(analysis.openMHW?.will || 0) * 10} className={`h-2.5 bg-muted ${
+                        (analysis.openMHW?.will || 0) >= 7 ? '[&>div]:bg-green-500' :
+                        (analysis.openMHW?.will || 0) >= 4 ? '[&>div]:bg-amber-500' :
+                        '[&>div]:bg-red-500'
+                      }`} />
+                      <p className="text-xs text-muted-foreground">{t('visualizations.theoryU.openWillDesc')}</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -898,28 +920,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
                     <span className="ml-auto italic">{t('visualizations.theoryU.clickToExplore')}</span>
                   </div>
                   
-                  {/* Collapsible detailed list */}
-                  <Collapsible>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="w-full">
-                        <ChevronDown className="w-4 h-4 mr-2" />
-                        {t('visualizations.theoryU.showDetails')}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="grid gap-3 mt-4">
-                        {analysis.whyHere.morphologyEvidence.map((evidence: any, idx: number) => <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border">
-                            <Badge variant="secondary" className="mt-0.5 shrink-0">
-                              {evidence.dimension}
-                            </Badge>
-                            <div className="flex-1 space-y-1">
-                              <p className="font-medium text-sm">{evidence.value}</p>
-                              <p className="text-sm text-muted-foreground">{evidence.reasoning}</p>
-                            </div>
-                          </div>)}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                
                 </div>}
             </div>
 

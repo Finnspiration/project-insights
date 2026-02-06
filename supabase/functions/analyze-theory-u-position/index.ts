@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
-import { calculateTheoryUPosition, getDominantPhase } from "./morphologyMapping.ts";
+import { calculateTheoryUPosition, getDominantPhase, calculateOpenMHW } from "./morphologyMapping.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -134,11 +134,16 @@ serve(async (req) => {
       LOVABLE_API_KEY
     ) : [];
 
-    // STEP 5: Kombiner
+    // STEP 5: Beregn Open Mind/Heart/Will deterministisk
+    const openMHW = morphology ? calculateOpenMHW(morphology) : { mind: 0, heart: 0, will: 0 };
+    console.log('Open MHW scores:', openMHW);
+
+    // STEP 6: Kombiner
     const finalAnalysis = {
       ...aiAnalysis,
       currentPhase: morphologyAnalysis?.phase || aiAnalysis.currentPhase,
       confidence: morphologyAnalysis?.confidence || aiAnalysis.confidence,
+      openMHW,
       whyHere: {
         ...aiAnalysis.whyHere,
         morphologyScoring: morphologyAnalysis ? {
