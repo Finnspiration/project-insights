@@ -1,79 +1,53 @@
 
-# Fix: Kryptisk Tillid-grafik (0.525% og misvisende bar)
+
+# Fix: Stort hvidt felt under Morfologi Bevis
 
 ## Problem
 
-Screenshottet viser to sammenkoblede fejl:
+Screenshottet viser et stort hvidt felt mellem "Morfologi Bevis" overskriften og legenden. Aarsagen er overraskende simpel:
 
-1. **Confidence-vaerdien er paa forkert skala**: Edge funktionen (`morphologyMapping.ts` linje 596) returnerer confidence som et decimaltal mellem 0 og 1 (f.eks. `0.525`). UI'et forventer 0-100 og viser det direkte som `0.525%` -- fuldstaendig meningloest for brugeren.
+**SVG'en i `DNAEvidenceVisualization.tsx` er TOM.** Den beregner helix-punkter (linjer 83-112) og connections (linjer 114-118), men renderer **ingen SVG-elementer** overhovedet. Soegning efter `circle`, `rect`, `path`, `line`, `text` i filen finder KUN matches i "no data" early return. SVG-tagget `<svg viewBox="0 0 1600 200">` indeholder ingenting - det er en blank hvid firkant der fylder ~150-200px.
 
-2. **Progress-baren er misvisende**: Baren viser en lille roed/orange stump til venstre (den faktiske 0.525% vaerdi) og resten er udfyldt med lilla (`bg-secondary` track-farven). Det ligner en FULD bar, men vaerdien er naesten nul. Brugeren ser "fuld bar" + "0.525%" = forvirring.
-
-## Aarsag (teknisk)
+Sektionen i `UJourneyTimeline.tsx` (linjer 906-925) renderer tre ting under EvidenceBreakdownPanel:
 
 ```text
-morphologyMapping.ts: getDominantPhase()
-  -> confidence = Math.min(0.95, 0.5 + (scoreDiff / maxPossibleScore) * 0.5)
-  -> Returnerer 0.525 (decimal, 0-1 skala)
-
-index.ts (edge function):
-  -> confidence: morphologyAnalysis.confidence   // stadig 0.525
-
-UJourneyTimeline.tsx: transformTheoryUData()
-  -> confidence: data.confidence || 0            // stadig 0.525
-
-UJourneyTimeline.tsx: render
-  -> {analysis.confidence || 0}%                 // viser "0.525%"
-  -> <Progress value={0.525} />                  // 0.525% fyldt, resten er track
+1. Heading: "Morfologi Bevis" (med Sparkles ikon)     <-- overfloedigt
+2. DNAEvidenceVisualization (tom SVG = hvidt felt)     <-- TOM, intet indhold
+3. Legend (Understoettende/Andre dimensioner)          <-- legend for ingenting
 ```
 
-Progress-komponentens track har `bg-secondary` (lilla), og indikatoren bruger `translateX(-99.475%)` -- saa 99.5% af baren er lilla track, og den lille synlige stump er indikatoren. Det ser ud som en fuld bar.
+Alle tre er overflodige fordi `EvidenceBreakdownPanel` (linje 901-904) allerede viser den samme evidens-data i et laeseligt format.
 
 ## Loesning
 
-### AEndring 1: Normaliser confidence til 0-100 i `transformTheoryUData`
-
-**Fil:** `src/components/visualizations/UJourneyTimeline.tsx` (linje 234)
-
-Tilfoej normalisering: Hvis confidence er under 1, gange med 100. Afrund til heltal for ren visning.
-
-```typescript
-// FoER:
-confidence: data.confidence || data.whyHere?.morphologyScoring?.confidence || 0,
-
-// EFTER:
-confidence: (() => {
-  const raw = data.confidence || data.whyHere?.morphologyScoring?.confidence || 0;
-  const normalized = raw <= 1 ? raw * 100 : raw;
-  return Math.round(normalized);
-})(),
-```
-
-### AEndring 2: Fix Progress-barens track-farve
-
-**Fil:** `src/components/visualizations/UJourneyTimeline.tsx` (linje 758)
-
-Tilfoej eksplicit graa track-farve saa den tomme del IKKE ligner en udfyldt bar:
-
-```tsx
-// FoER:
-<Progress value={analysis.confidence || 0} className={`h-2 ${...}`} />
-
-// EFTER:
-<Progress value={analysis.confidence || 0} className={`h-2 bg-muted/50 ${...}`} />
-```
-
-`bg-muted/50` giver en lys graa track i stedet for den maettede lilla `bg-secondary`, saa det tydeligt fremgaar hvad der er fyldt vs tomt.
+Fjern den tomme DNA-visualiseringssektion fuldstaendigt: overskriften, den tomme `DNAEvidenceVisualization` komponent, og legenden. EvidenceBreakdownPanel forbliver som den primaere visning af morfologisk evidens.
 
 ## Filer der aendres
 
 | Fil | AEndring |
 |-----|----------|
-| `src/components/visualizations/UJourneyTimeline.tsx` | Normaliser confidence 0-1 til 0-100 (linje 234); fix track-farve paa Progress-bar (linje 758) |
+| `src/components/visualizations/UJourneyTimeline.tsx` | Fjern linjer 906-925: heading, DNAEvidenceVisualization og legend |
+
+Koden der fjernes (linjer 906-925):
+```tsx
+// ALT DETTE FJERNES:
+<h4 className="font-semibold text-sm flex items-center gap-2 mt-6">
+  <Sparkles className="w-4 h-4 text-primary" />
+  {t('visualizations.theoryU.morphologyEvidence')}
+</h4>
+
+<DNAEvidenceVisualization morphology={morphology} 
+  evidence={analysis.whyHere.morphologyEvidence} 
+  language={i18n.language as 'en' | 'da' || 'en'} />
+
+<div className="flex items-center gap-4 text-xs text-muted-foreground px-2">
+  ... (legend)
+</div>
+```
 
 ## Forventet resultat
 
-- Confidence vises som f.eks. **53%** i stedet for "0.525%"
-- Progress-baren viser ~53% groen/gul/roed fyld med graa baggrund
-- Farvekodningen matcher: groen >= 70%, gul 30-70%, roed < 30%
-- Ingen kryptiske decimaltal eller misvisende farver
+- Intet hvidt felt -- sektionen gaar direkte fra EvidenceBreakdownPanel til Dokument Bevis
+- Morfologisk evidens vises stadig klart i EvidenceBreakdownPanel (som kan foldes ud)
+- Ingen tom SVG der fylder plads uden at vise noget
+
