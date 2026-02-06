@@ -17,7 +17,6 @@ import { ParameterBanner } from './blob3d/ParameterBanner';
 interface MorphologyBlobProps {
   morphology: any;
   projectId?: string;
-  onMorphologyUpdate?: (newMorphology: any) => void;
 }
 
 // State machine for view modes - eliminates race conditions
@@ -26,7 +25,7 @@ type ViewMode =
   | { type: 'viewing_tooltip', dimensionKey: string, zone: string }
   | { type: 'editing', dimensionKey: string, tempValue: string };
 
-export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: MorphologyBlobProps) {
+export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
   const { t, i18n } = useTranslation('common');
   
   // Defensive check for morphology
@@ -247,14 +246,6 @@ export function MorphologyBlob({ morphology, projectId, onMorphologyUpdate }: Mo
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [viewMode]);
-  if (!morphology) {
-    return <Card>
-        <CardHeader>
-          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
-          <CardDescription>{t('visualizations.blob.noData')}</CardDescription>
-        </CardHeader>
-      </Card>;
-  }
 
   // Only show skeleton on initial load, not during updates
   if (!archetype && isLoadingArchetype) {

@@ -11,6 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
+import { da } from 'date-fns/locale';
+import type { Project } from '@/types/project';
 
 interface ProjectStats {
   total: number;
@@ -19,14 +21,6 @@ interface ProjectStats {
   documents: number;
 }
 
-interface Project {
-  id: string;
-  name: any;
-  description: any;
-  dna_code: string | null;
-  status: string;
-  created_at: string;
-}
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation('common');
@@ -53,6 +47,7 @@ export default function Dashboard() {
       const { data: projects } = await supabase
         .from('projects')
         .select('id, name, description, dna_code, status, created_at')
+        .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
 
       // Fetch documents count
@@ -286,7 +281,7 @@ export default function Dashboard() {
                           </Badge>
                         </div>
                         <CardDescription>
-                          {formatDistanceToNow(new Date(project.created_at), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(project.created_at!), { addSuffix: true, locale: i18n.language === 'da' ? da : undefined })}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>

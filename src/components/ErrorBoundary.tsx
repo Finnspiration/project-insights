@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import i18n from '@/lib/i18n';
 
 interface Props {
   children: ReactNode;
@@ -36,15 +37,17 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      const isDa = i18n.language === 'da';
+
       return (
         <Alert variant="destructive" className="my-4">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Der opstod en fejl</AlertTitle>
+          <AlertTitle>{isDa ? 'Der opstod en fejl' : 'An error occurred'}</AlertTitle>
           <AlertDescription className="mt-2 space-y-2">
-            <p>Noget gik galt ved visning af denne komponent.</p>
+            <p>{isDa ? 'Noget gik galt ved visning af denne komponent.' : 'Something went wrong while displaying this component.'}</p>
             {this.state.error && (
               <p className="text-xs opacity-75">
-                Fejl: {this.state.error.message}
+                {isDa ? 'Fejl' : 'Error'}: {this.state.error.message}
               </p>
             )}
             <Button 
@@ -53,7 +56,7 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={this.handleReset}
               className="mt-2"
             >
-              Prøv igen
+              {isDa ? 'Prøv igen' : 'Try again'}
             </Button>
           </AlertDescription>
         </Alert>

@@ -116,7 +116,7 @@ export default function Auth() {
 
       toast({
         title: t('auth.success.signUp'),
-        description: 'Welcome to PRISM!',
+        description: t('auth.success.welcome'),
       });
       
       navigate('/dashboard');
@@ -143,14 +143,14 @@ export default function Auth() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
             PRISM
           </h1>
-          <p className="text-muted-foreground">See What You Cannot See</p>
+          <p className="text-muted-foreground">{t('hero.headline')}</p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>{t('auth.signIn')}</CardTitle>
             <CardDescription>
-              Access your project intelligence platform
+              {t('auth.accessPlatform')}
             </CardDescription>
           </CardHeader>
           <CardContent>

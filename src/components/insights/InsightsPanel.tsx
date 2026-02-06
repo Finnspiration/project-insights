@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -78,9 +78,9 @@ export function InsightsPanel({ projectId, projectName, morphology }: InsightsPa
   };
 
   // Load existing insights on mount
-  useState(() => {
+  useEffect(() => {
     fetchExistingInsights();
-  });
+  }, [projectId]);
 
   const generateInsights = async () => {
     setLoading(true);

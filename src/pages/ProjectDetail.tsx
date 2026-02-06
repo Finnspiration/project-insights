@@ -19,25 +19,13 @@ import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { BlindSpotsPanel } from '@/components/insights/BlindSpotsPanel';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
 import { format } from 'date-fns';
+import { da } from 'date-fns/locale';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { calculateIDGScoresFromMorphology, IDGScoresCalculation } from '@/lib/idgScoring';
-
-interface Project {
-  id: string;
-  name: { en: string; da: string };
-  description?: { en: string; da: string };
-  timeline_start?: string;
-  timeline_end?: string;
-  team_size?: number;
-  status: string;
-  dna_code?: string;
-  morphology?: any;
-  patterns?: any;
-  theory_u_analysis?: any;
-}
+import type { Project } from '@/types/project';
 
 interface Document {
   id: string;
@@ -354,8 +342,8 @@ export default function ProjectDetail() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    {format(new Date(project.timeline_start), 'MMM dd, yyyy')} -{' '}
-                    {format(new Date(project.timeline_end), 'MMM dd, yyyy')}
+                    {format(new Date(project.timeline_start), 'MMM dd, yyyy', { locale: userLanguage === 'da' ? da : undefined })} -{' '}
+                    {format(new Date(project.timeline_end), 'MMM dd, yyyy', { locale: userLanguage === 'da' ? da : undefined })}
                   </span>
                 </div>
               )}
@@ -533,7 +521,6 @@ export default function ProjectDetail() {
                       <MorphologyBlob 
                         morphology={project.morphology} 
                         projectId={project.id}
-                        onMorphologyUpdate={updateProjectMorphology}
                       />
                     </ErrorBoundary>
                   )}

@@ -80,7 +80,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-8">
           <p className="text-center text-gray-400 text-sm">
-            {t('footer.copyright')}
+            © {new Date().getFullYear()} PRISM. {t('footer.allRightsReserved')}
           </p>
         </div>
       </div>
