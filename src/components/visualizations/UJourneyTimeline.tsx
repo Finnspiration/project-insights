@@ -903,27 +903,6 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
                     dominantPhase={analysis.position}
                   />
                   
-                  <h4 className="font-semibold text-sm flex items-center gap-2 mt-6">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    {t('visualizations.theoryU.morphologyEvidence')}
-                  </h4>
-                  
-                  {/* DNA Helix Visualization */}
-                  <DNAEvidenceVisualization morphology={morphology} evidence={analysis.whyHere.morphologyEvidence} language={i18n.language as 'en' | 'da' || 'en'} />
-                  
-                  {/* Legend */}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground px-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
-                      <span>{t('visualizations.theoryU.evidenceDimensions')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-muted" />
-                      <span>{t('visualizations.theoryU.otherDimensions')}</span>
-                    </div>
-                    <span className="ml-auto italic">{t('visualizations.theoryU.clickToExplore')}</span>
-                  </div>
-                  
                 
                 </div>}
             </div>
