@@ -636,6 +636,55 @@
           "name": "Unknown Form",
           "description": "Unique configuration"
         }
+      },
+      "readingGuide": {
+        "toggle": "Show guide",
+        "subtitle": "Understand what you see",
+        "layersTitle": "Layers (outermost → innermost)",
+        "layers": {
+          "background": {
+            "title": "Background & Atmosphere",
+            "what": "Color reflects risk level",
+            "dimension": "Risk"
+          },
+          "surface": {
+            "title": "Surface Structure",
+            "what": "Spikes and roughness show complexity",
+            "dimension": "Complexity"
+          },
+          "mainShape": {
+            "title": "Main Shape",
+            "what": "Shape reflects the project's DNA",
+            "dimension": "Stakeholders"
+          },
+          "openings": {
+            "title": "Openings",
+            "what": "Holes show information flow",
+            "dimension": "Information"
+          },
+          "innerGrid": {
+            "title": "Inner Grid",
+            "what": "Grid structure shows knowledge level",
+            "dimension": "Knowledge"
+          },
+          "orbiters": {
+            "title": "Orbiters & Particles",
+            "what": "Orbiting elements show temporal dynamics",
+            "dimension": "Tempo"
+          },
+          "core": {
+            "title": "Core",
+            "what": "Core shape shows development stage",
+            "dimension": "Development"
+          }
+        },
+        "lookFor": {
+          "title": "What to look for?",
+          "item1": "Is the shape smooth or jagged? → Smooth = simple project, jagged = complex",
+          "item2": "What color dominates the background? → Green = low risk, red = high risk",
+          "item3": "Can you see a glowing core? → Strong core = focus on inner development",
+          "item4": "How many colors does the shape have? → More colors = greater cultural diversity"
+        }
       }
     },
     "bodyScan": {
