@@ -829,6 +829,13 @@
         "crystallizing": "vision og intention",
         "prototyping": "levende mikrokosmos"
       },
+      "phaseDescriptions": {
+        "seeing": "Du er i observationsfasen – fokus på at se situationen med friske øjne, uden fordomme",
+        "sensing": "Du er i sansefasen – forsøg at føle ind i systemet med empati og åben hjertelighed",
+        "presencing": "Du er i nærværets fase – slip kontrollen og lad det nye vise sig",
+        "crystallizing": "Du er i krystalliseringsfasen – visionen begynder at tage form",
+        "prototyping": "Du er i prototype-fasen – test ideerne i levende mikrokosmos"
+      },
       "socialField": "Socialt Felt",
       "depth": "Dybde",
       "depths": {
@@ -838,7 +845,30 @@
         "profound": "Dybtgående"
       },
       "openMHW": "Open M/H/W",
+      "openMindLabel": "Open Mind",
+      "openHeartLabel": "Open Heart",
+      "openWillLabel": "Open Will",
+      "openMHWDescription": "Theory U's tre åbninger der muliggør dybere læring",
       "confident": "Tillid",
+      "confidenceExplanation": "Angiver hvor sikker analysen er på placeringen",
+      "confidenceLow": "Lav – tilføj flere morfologiske data eller dokumenter",
+      "confidenceMedium": "Moderat – data peger i samme retning",
+      "confidenceHigh": "Høj – stærk evidens for denne placering",
+      "socialFieldDescriptions": {
+        "downloading": "Høflig samtale – gentagelse af kendte mønstre",
+        "debating": "Debat og perspektivskift – aktiv udfordring af antagelser",
+        "dialogue": "Reflekterende dialog – dybere forbindelse og empati",
+        "collective_creativity": "Kollektiv kreativitet – flow og samskabelse"
+      },
+      "depthDescriptions": {
+        "surface": "Overfladisk – projektet opererer på det øvre niveau",
+        "shallow": "Lav dybde – begyndende bevægethed nedad",
+        "deep": "Dyb – reel transformation er i gang",
+        "profound": "Dybtgående – fundamentale skift sker"
+      },
+      "aiNarrativeTitle": "AI Analyse",
+      "expectedImpact": "Forventet effekt",
+      "readinessStatus": "Status",
       "whyThisPhase": "Hvorfor Denne Fase?",
       "morphologyEvidence": "Morfologi Bevis",
       "noMorphologyEvidence": "Morfologi bevis vil vises her når analysen er færdig. Klik genindlæs for at regenerere.",
@@ -865,6 +895,7 @@
       "favoriteFailed": "Kunne ikke gemme favorit. Prøv igen.",
       "relevance": "Relevans",
       "nextActions": "Jeres Næste 3 Handlinger",
+      "rationale": "Begrundelse",
       "principle": "Princip",
       "timeframe": "Tidsramme",
       "readinessIndicators": "Parathedsindikatorer",

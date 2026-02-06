@@ -33,6 +33,7 @@ interface TheoryUAnalysis {
   };
   whyHere?: {
     morphologySynthesis?: string;
+    aiNuance?: string;
     morphologyEvidence?: Array<{
       dimension: string;
       value: string;
@@ -115,20 +116,6 @@ const getDefaultTheoryUResources = (language: string) => [{
 }];
 
 export function UJourneyTimeline({ morphology, projectId, projectName }: UJourneyTimelineProps) {
-  // Defensive check for morphology
-  if (!morphology) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Theory U Rejse Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-  
   const { t, i18n } = useTranslation('common');
   const { toast } = useToast();
   const [analysis, setAnalysis] = useState<TheoryUAnalysis | null>(null);
@@ -137,6 +124,9 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
   const [showAllQuotes, setShowAllQuotes] = useState(false);
   const [favoriteQuotes, setFavoriteQuotes] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
+
+
+
 
   // Helper function to transform Theory U data structure
   const transformTheoryUData = (data: any): TheoryUAnalysis | null => {
@@ -610,6 +600,19 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
     if (priority === 2) return <Badge variant="secondary" className="text-xs">{t('visualizations.theoryU.priority.medium')}</Badge>;
     return <Badge variant="outline" className="text-xs">{t('visualizations.theoryU.priority.low')}</Badge>;
   };
+  // Defensive check for morphology (after all hooks)
+  if (!morphology) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.theoryU.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{t('visualizations.theoryU.noAnalysis')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
   if (loading) {
     return (
       <Card>
@@ -677,38 +680,108 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
               {renderUCurve()}
             </div>
 
-            {/* Current Phase Info Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.phase')}</p>
+            {/* Enhanced Info Grid */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Phase + Confidence Card */}
+              <div className="space-y-4 p-5 rounded-xl bg-muted/30 border border-border/50">
                 <div className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.phase')}</p>
                   <span className="text-2xl font-bold block">{t(`visualizations.theoryU.phases.${analysis.position}`)}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {analysis.confidence}% {t('visualizations.theoryU.confident')}
-                  </Badge>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t(`visualizations.theoryU.phaseDescriptions.${analysis.position}`, { defaultValue: '' })}
+                  </p>
+                </div>
+                <div className="space-y-2 pt-2 border-t border-border/50">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.confident')}</p>
+                    <span className={`text-sm font-bold ${
+                      (analysis.confidence || 0) >= 70 ? 'text-green-600 dark:text-green-400' :
+                      (analysis.confidence || 0) >= 30 ? 'text-amber-600 dark:text-amber-400' :
+                      'text-red-600 dark:text-red-400'
+                    }`}>{analysis.confidence || 0}%</span>
+                  </div>
+                  <Progress value={analysis.confidence || 0} className={`h-2 ${
+                    (analysis.confidence || 0) >= 70 ? '[&>div]:bg-green-500' :
+                    (analysis.confidence || 0) >= 30 ? '[&>div]:bg-amber-500' :
+                    '[&>div]:bg-red-500'
+                  }`} />
+                  <p className="text-xs text-muted-foreground">
+                    {t('visualizations.theoryU.confidenceExplanation')} — {
+                      (analysis.confidence || 0) >= 70 ? t('visualizations.theoryU.confidenceHigh') :
+                      (analysis.confidence || 0) >= 30 ? t('visualizations.theoryU.confidenceMedium') :
+                      t('visualizations.theoryU.confidenceLow')
+                    }
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.socialField')}</p>
-                <p className="text-xl font-semibold">
-                  {t(`visualizations.theoryU.socialFields.${mappedSocialField}`)}
-                </p>
+              {/* Social Field + Depth Card */}
+              <div className="space-y-4 p-5 rounded-xl bg-muted/30 border border-border/50">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.socialField')}</p>
+                  <p className="text-xl font-semibold">
+                    {t(`visualizations.theoryU.socialFields.${mappedSocialField}`)}
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t(`visualizations.theoryU.socialFieldDescriptions.${mappedSocialField}`, { defaultValue: '' })}
+                  </p>
+                </div>
+                <div className="space-y-1 pt-2 border-t border-border/50">
+                  <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.depth')}</p>
+                  <p className="text-lg font-semibold">
+                    {analysis.depth ? t(`visualizations.theoryU.depths.${analysis.depth.toLowerCase()}`) : '-'}
+                  </p>
+                  {analysis.depth && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {t(`visualizations.theoryU.depthDescriptions.${analysis.depth.toLowerCase()}`, { defaultValue: '' })}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.depth')}</p>
-                <p className="text-xl font-semibold">
-                  {analysis.depth ? t(`visualizations.theoryU.depths.${analysis.depth.toLowerCase()}`) : '-'}
-                </p>
-              </div>
-
-              <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.openMHW')}</p>
-                <div className="flex gap-4 text-base font-semibold">
-                  <span><strong className="text-primary">M:</strong> {analysis.openMHW?.mind || 0}</span>
-                  <span><strong className="text-primary">H:</strong> {analysis.openMHW?.heart || 0}</span>
-                  <span><strong className="text-primary">W:</strong> {analysis.openMHW?.will || 0}</span>
+              {/* Open Mind / Heart / Will Card - Full width */}
+              <div className="md:col-span-2 space-y-4 p-5 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">{t('visualizations.theoryU.openMHW')}</p>
+                  <p className="text-xs text-muted-foreground">{t('visualizations.theoryU.openMHWDescription')}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-6">
+                  {/* Open Mind */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{t('visualizations.theoryU.openMindLabel')}</span>
+                      <span className="text-sm font-bold">{analysis.openMHW?.mind || 0}/10</span>
+                    </div>
+                    <Progress value={(analysis.openMHW?.mind || 0) * 10} className={`h-3 ${
+                      (analysis.openMHW?.mind || 0) >= 7 ? '[&>div]:bg-green-500' :
+                      (analysis.openMHW?.mind || 0) >= 4 ? '[&>div]:bg-amber-500' :
+                      '[&>div]:bg-red-500'
+                    }`} />
+                  </div>
+                  {/* Open Heart */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{t('visualizations.theoryU.openHeartLabel')}</span>
+                      <span className="text-sm font-bold">{analysis.openMHW?.heart || 0}/10</span>
+                    </div>
+                    <Progress value={(analysis.openMHW?.heart || 0) * 10} className={`h-3 ${
+                      (analysis.openMHW?.heart || 0) >= 7 ? '[&>div]:bg-green-500' :
+                      (analysis.openMHW?.heart || 0) >= 4 ? '[&>div]:bg-amber-500' :
+                      '[&>div]:bg-red-500'
+                    }`} />
+                  </div>
+                  {/* Open Will */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{t('visualizations.theoryU.openWillLabel')}</span>
+                      <span className="text-sm font-bold">{analysis.openMHW?.will || 0}/10</span>
+                    </div>
+                    <Progress value={(analysis.openMHW?.will || 0) * 10} className={`h-3 ${
+                      (analysis.openMHW?.will || 0) >= 7 ? '[&>div]:bg-green-500' :
+                      (analysis.openMHW?.will || 0) >= 4 ? '[&>div]:bg-amber-500' :
+                      '[&>div]:bg-red-500'
+                    }`} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -874,6 +947,196 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
           </CardContent>
         </Card>
 
+        {/* AI Narrative Synthesis */}
+        {analysis.whyHere?.aiNuance && (
+          <Card className="overflow-hidden border-primary/20">
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 p-6">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-primary mt-1 shrink-0" />
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg">{t('visualizations.theoryU.aiNarrativeTitle')}</h3>
+                    <p className="text-sm leading-relaxed text-foreground/90">{analysis.whyHere.aiNuance}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Next Actions */}
+        {analysis.nextActions && analysis.nextActions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                {t('visualizations.theoryU.nextActions')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {analysis.nextActions.map((action, idx) => (
+                  <div key={idx} className="flex gap-4 p-4 rounded-lg bg-muted/30 border border-border/50">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm">
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {getPriorityBadge(action.priority)}
+                        <span className="font-semibold text-sm">{action.action}</span>
+                      </div>
+                      {action.rationale && (
+                        <p className="text-sm text-muted-foreground">{action.rationale}</p>
+                      )}
+                      <div className="flex flex-wrap gap-3 text-xs">
+                        {action.theoryUPrinciple && (
+                          <span className="flex items-center gap-1 text-primary">
+                            <Lightbulb className="w-3 h-3" />
+                            {t('visualizations.theoryU.principle')}: {action.theoryUPrinciple}
+                          </span>
+                        )}
+                        {action.timeframe && (
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <Clock className="w-3 h-3" />
+                            {t('visualizations.theoryU.timeframe')}: {action.timeframe}
+                          </span>
+                        )}
+                      </div>
+                      {action.expectedImpact && (
+                        <p className="text-xs text-muted-foreground border-t border-border/50 pt-2 mt-2">
+                          <strong>{t('visualizations.theoryU.expectedImpact')}:</strong> {action.expectedImpact}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Readiness Indicators */}
+        {analysis.readinessIndicators && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-primary" />
+                {t('visualizations.theoryU.readinessIndicators')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* Ready to Descend */}
+                {analysis.readinessIndicators.readyToDescend && (
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getReadinessIcon(analysis.readinessIndicators.readyToDescend.status)}</span>
+                      <h4 className="font-semibold text-sm">{t('visualizations.theoryU.readyToDescend')}</h4>
+                    </div>
+                    {analysis.readinessIndicators.readyToDescend.reason && (
+                      <p className="text-xs text-muted-foreground">{analysis.readinessIndicators.readyToDescend.reason}</p>
+                    )}
+                    {analysis.readinessIndicators.readyToDescend.nextSteps && analysis.readinessIndicators.readyToDescend.nextSteps.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium">{t('visualizations.theoryU.readinessNextSteps')}:</p>
+                        <ul className="text-xs text-muted-foreground space-y-0.5">
+                          {analysis.readinessIndicators.readyToDescend.nextSteps.map((step, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-primary mt-0.5">→</span> {step}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Ready to Presence */}
+                {analysis.readinessIndicators.readyToPresence && (
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getReadinessIcon(analysis.readinessIndicators.readyToPresence.status)}</span>
+                      <h4 className="font-semibold text-sm">{t('visualizations.theoryU.readyToPresence')}</h4>
+                    </div>
+                    {analysis.readinessIndicators.readyToPresence.reason && (
+                      <p className="text-xs text-muted-foreground">{analysis.readinessIndicators.readyToPresence.reason}</p>
+                    )}
+                    {analysis.readinessIndicators.readyToPresence.nextSteps && analysis.readinessIndicators.readyToPresence.nextSteps.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium">{t('visualizations.theoryU.readinessNextSteps')}:</p>
+                        <ul className="text-xs text-muted-foreground space-y-0.5">
+                          {analysis.readinessIndicators.readyToPresence.nextSteps.map((step, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-primary mt-0.5">→</span> {step}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Ready to Ascend */}
+                {analysis.readinessIndicators.readyToAscend && (
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getReadinessIcon(analysis.readinessIndicators.readyToAscend.status)}</span>
+                      <h4 className="font-semibold text-sm">{t('visualizations.theoryU.readyToAscend')}</h4>
+                    </div>
+                    {analysis.readinessIndicators.readyToAscend.reason && (
+                      <p className="text-xs text-muted-foreground">{analysis.readinessIndicators.readyToAscend.reason}</p>
+                    )}
+                    {analysis.readinessIndicators.readyToAscend.nextSteps && analysis.readinessIndicators.readyToAscend.nextSteps.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium">{t('visualizations.theoryU.readinessNextSteps')}:</p>
+                        <ul className="text-xs text-muted-foreground space-y-0.5">
+                          {analysis.readinessIndicators.readyToAscend.nextSteps.map((step, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-primary mt-0.5">→</span> {step}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Theory U Resources */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" />
+              {t('visualizations.theoryU.resources')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              {resources.map((resource, idx) => {
+                const ResourceIcon = resource.type === 'book' ? BookOpen : resource.type === 'video' ? Video : GraduationCap;
+                return (
+                  <a
+                    key={idx}
+                    href={resource.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group p-4 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all space-y-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ResourceIcon className="w-4 h-4 text-primary" />
+                      <span className="font-semibold text-sm group-hover:text-primary transition-colors">{resource.title}</span>
+                      <ExternalLink className="w-3 h-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{resource.relevance}</p>
+                  </a>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
       </div>
     </div>
