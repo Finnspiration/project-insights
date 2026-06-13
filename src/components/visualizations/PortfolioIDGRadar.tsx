@@ -61,7 +61,7 @@ export function PortfolioIDGRadar() {
     return { strongest: sorted[0], weakest: sorted[sorted.length - 1] };
   }, [selected, portfolioScores, t]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>
