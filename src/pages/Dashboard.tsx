@@ -14,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { da } from 'date-fns/locale';
 import type { Project } from '@/types/project';
 import { ProjectConstellation } from '@/components/visualizations/ProjectConstellation';
+import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar';
 
 interface ProjectStats {
   total: number;
@@ -269,6 +270,9 @@ export default function Dashboard() {
 
             {/* Portfolio Constellation */}
             <ProjectConstellation />
+
+            {/* Portfolio IDG Radar */}
+            <PortfolioIDGRadar />
 
             {/* Recent Projects */}
             {recentProjects.length > 0 && (
