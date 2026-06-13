@@ -271,14 +271,14 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                 <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg max-w-xs">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-sm">
-                      {front.type === 'cold' ? '❄️ Kold Front' : '🌡️ Varm Front'}
+                      {front.type === 'cold' ? t('visualizations.pressureSystems.coldFront') : t('visualizations.pressureSystems.warmFront')}
                     </h4>
                     <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                      Intensitet: {front.intensity}/10
+                      {t('visualizations.pressureSystems.intensity', { value: front.intensity })}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {front.metadata?.description || 'Stakeholder dynamik'}
+                    {front.metadata?.description || t('visualizations.pressureSystems.stakeholderDynamics')}
                   </p>
                 </div>
               </motion.div>
