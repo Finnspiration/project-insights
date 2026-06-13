@@ -14,8 +14,10 @@ import {
 } from 'recharts';
 import { Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePortfolio } from '@/hooks/usePortfolio';
+import { askAIChat } from '@/lib/aiChat';
 import { calculateIDGScoresFromMorphology } from '@/lib/idgScoring';
 
 const COMPLEXITY = ['simple', 'complicated', 'complex', 'chaotic'] as const;
