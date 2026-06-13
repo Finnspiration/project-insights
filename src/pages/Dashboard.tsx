@@ -274,6 +274,9 @@ export default function Dashboard() {
             {/* Portfolio IDG Radar */}
             <PortfolioIDGRadar />
 
+            {/* Blind Spot Risk Matrix */}
+            <BlindSpotRiskMatrix />
+
             {/* Recent Projects */}
             {recentProjects.length > 0 && (
               <div>
