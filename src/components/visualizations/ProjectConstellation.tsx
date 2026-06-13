@@ -115,11 +115,23 @@ export function ProjectConstellation() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          {t('visualizations.constellation.title')}
-        </CardTitle>
-        <CardDescription>{t('visualizations.constellation.description')}</CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              {t('visualizations.constellation.title')}
+            </CardTitle>
+            <CardDescription>{t('visualizations.constellation.description')}</CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => askAIChat(t('visualizations.constellation.aiPrompt'))}
+          >
+            <Sparkles className="h-4 w-4 mr-1.5" />
+            {t('visualizations.askAi')}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
