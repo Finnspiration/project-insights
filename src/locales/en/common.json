@@ -1149,6 +1149,8 @@
     "rateLimit": "Rate limit exceeded. Please try again later.",
     "noCredits": "AI credits exhausted. Please add credits.",
     "noData": "No insights generated yet. Click 'Generate Insights' to analyze your project.",
+    "citations": "Citations",
+    "success": "Insights generated and saved successfully!",
     "recommendations": {
       "title": "Strategic Recommendations",
       "description": "Actionable recommendations to improve project success",
