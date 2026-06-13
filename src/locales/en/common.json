@@ -1047,7 +1047,59 @@
       },
       "legend": {
         "actNow": "Act-now zone"
+    },
+    "weatherLegend": {
+      "title": "Temperature, pressure & fronts",
+      "temperatureZones": "Temperature zones",
+      "idgAreas": "Large blobs = IDG areas",
+      "colorStrength": "Colour indicates strength (red=low, yellow=medium, green=high)",
+      "pressureSystems": "Pressure systems",
+      "highPressureRisk": "High pressure (risk)",
+      "highPressureBlindSpot": "High pressure (blind spot)",
+      "lowPressure": "Low pressure",
+      "fronts": "Fronts",
+      "coldFront": "Cold front",
+      "warmFront": "Warm front",
+      "intensityNote": "Darker colours = higher intensity"
+    },
+    "pressureSystems": {
+      "highPressure": "High-pressure system",
+      "lowPressure": "Low-pressure system",
+      "intensity": "Intensity: {{value}}/10",
+      "criticalBlindSpot": "⚠️ Critical blind spot",
+      "coldFront": "❄️ Cold front",
+      "warmFront": "🌡️ Warm front",
+      "stakeholderDynamics": "Stakeholder dynamics"
+    },
+    "precipitationEvents": {
+      "unknownEvent": "Unknown event",
+      "noDescription": "No description",
+      "sourceLabel": "Source:",
+      "sourceBlindSpot": "Blind spot",
+      "sourceRecommendation": "Recommendation",
+      "sourceIntervention": "Intervention",
+      "priorityLabel": "Priority:",
+      "priorityHigh": "High",
+      "priorityMedium": "Medium",
+      "priorityLow": "Low"
+    },
+    "miniSlider": {
+      "affects": "Affects:",
+      "impact": {
+        "complexity": { "description": "Number of clouds in the sky", "elements": ["☁️ Cloud density"] },
+        "organizational": { "description": "Background colour gradient", "elements": ["🎨 Background", "☁️ Cloud colour"] },
+        "cultural": { "description": "Temperature shades", "elements": ["🌡️ Heat zones"] },
+        "information": { "description": "Wind direction and pattern", "elements": ["🌬️ Wind lines", "↗️ Direction"] },
+        "temporal": { "description": "Wind speed animation", "elements": ["💨 Speed", "⚡ Animation"] },
+        "risk": { "description": "Number of high-pressure areas (H)", "elements": ["🔴 H zones", "⭕ Isobars"] },
+        "stakeholder": { "description": "Number of fronts and tensions", "elements": ["〰️ Fronts", "❄️ Cold/warm"] },
+        "knowledge": { "description": "Cloud density and type", "elements": ["☁️ Clouds", "🌥️ Cover"] },
+        "challenge": { "description": "Precipitation intensity", "elements": ["🌧️ Rain", "⛈️ Thunder"] },
+        "change": { "description": "Precipitation type and intensity", "elements": ["💧 Precipitation", "❄️ Snow"] },
+        "resources": { "description": "Pressure differences", "elements": ["📊 Pressure gradients"] },
+        "development": { "description": "IDG competencies", "elements": ["🧠 Radar", "📈 Scores"] }
       }
+    }
     },
     "theoryUMap": {
       "title": "Theory-U portfolio map",
