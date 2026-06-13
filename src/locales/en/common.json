@@ -960,9 +960,11 @@
         "documentEvidence": "Evidence from Documents"
       }
     },
+    "askAi": "Ask AI",
     "constellation": {
       "title": "Portfolio constellation",
       "description": "Every assessed project mapped by complexity and organizational stage. Bubble size is team size, colour is the primary IDG focus, and a red ring marks open blind spots. Click a project to open it.",
+      "aiPrompt": "Analyse my project portfolio constellation: which clusters of projects share a profile, and which ones need attention based on complexity, organizational stage and open blind spots?",
       "stats": {
         "projects": "Projects",
         "openBlindSpots": "Open blind spots",
@@ -981,6 +983,7 @@
     "portfolioIdg": {
       "title": "Portfolio IDG radar",
       "description": "The dashed pentagon is your portfolio average inner-development capacity across all assessed projects. Overlay any project to see where it leads or lags the collective norm.",
+      "aiPrompt": "Across my whole portfolio, which Inner Development Goal dimension is collectively weakest, and what facilitation or development focus would lift it?",
       "overlayLabel": "Overlay project",
       "stats": { "portfolioAvg": "Portfolio avg", "projectAvg": "This project avg", "strongest": "Strongest vs avg", "biggestGap": "Biggest gap vs avg" },
       "legend": { "portfolio": "Portfolio average", "project": "Selected project" }
@@ -988,6 +991,7 @@
     "riskMatrix": {
       "title": "Blind spot risk matrix",
       "description": "Every detected blind spot across your portfolio, plotted by detection confidence and priority. The shaded top-right is the act-now zone: high priority, high confidence, still unaddressed. Click a point to open its project.",
+      "aiPrompt": "Which blind spots across my portfolio should I act on first (high priority and high confidence, still unaddressed), and what is the first step for each?",
       "stats": {
         "open": "Open blind spots",
         "actNow": "Act now",
@@ -1001,6 +1005,22 @@
       "legend": {
         "actNow": "Act-now zone"
       }
+    },
+    "theoryUMap": {
+      "title": "Theory-U portfolio map",
+      "description": "Where each assessed project sits on Scharmer's U by its current phase. Projects high on the left have not yet gone deep; the bottom is presencing; the right side is moving into action.",
+      "aiPrompt": "Looking at my portfolio on Theory U, which projects are stuck early (downloading/seeing) and what would help them move toward presencing and action?",
+      "stats": { "onTheU": "On the U", "early": "Early (not yet deep)", "action": "Moving to action", "avgConfidence": "Avg confidence" },
+      "axis": { "depth": "Depth of the U" },
+      "depth": { "deep": "Deep", "surface": "Surface" },
+      "zones": { "early": "Early (downloading–sensing)", "pivot": "Presencing", "action": "Action (crystallizing–performing)" },
+      "phases": { "downloading": "Downloading", "seeing": "Seeing", "sensing": "Sensing", "presencing": "Presencing", "crystallizing": "Crystallizing", "prototyping": "Prototyping", "performing": "Performing" }
+    },
+    "dnaBarcode": {
+      "title": "Project DNA barcodes",
+      "description": "Each project's morphology DNA as a 12-band barcode, one band per dimension. Similar genomes produce similar patterns — scan for clusters and outliers. Click a project to open it.",
+      "aiPrompt": "Compare the morphology DNA of my projects: which projects are most similar, which is the biggest outlier, and what does that suggest?",
+      "legend": "Each band is a morphology dimension; colour intensity reflects the chosen option along that dimension's scale."
     }
   },
   "insights": {
