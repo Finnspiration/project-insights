@@ -13,6 +13,7 @@ interface PressureSystemsProps {
 }
 
 export function PressureSystems({ systems }: PressureSystemsProps) {
+  const { t } = useTranslation('common');
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [hoveredFront, setHoveredFront] = useState<string | null>(null);
 
