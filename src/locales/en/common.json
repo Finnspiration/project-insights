@@ -4,7 +4,13 @@
     "close": "Close",
     "save": "Save",
     "cancel": "Cancel",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "untitled": "Untitled",
+    "continue": "Continue",
+    "updating": "Updating...",
+    "error": "Error",
+    "success": "Success",
+    "notAvailable": "N/A"
   },
   "nav": {
     "features": "Features",
