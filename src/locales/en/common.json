@@ -947,6 +947,12 @@
         "debating": "Debating",
         "dialogue": "Dialogue",
         "collective_creativity": "Collective Creativity"
+      },
+      "evidenceBreakdown": {
+        "title": "Evidence Breakdown",
+        "dimensions": "dimensions",
+        "description": "These morphological dimensions contributed to the placement in",
+        "hint": "Change morphological choices in the Morphological Box to see how it affects the Theory U position"
       }
     },
     "idgRadar": {
