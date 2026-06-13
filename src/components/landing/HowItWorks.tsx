@@ -30,7 +30,10 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary mb-3">
+            Process
+          </p>
+          <h2 className="font-display text-4xl md:text-5xl font-semibold mb-4 tracking-tight">
             {t('howItWorks.title')}
           </h2>
         </motion.div>
@@ -50,7 +53,7 @@ export default function HowItWorks() {
                 <div className="text-center relative z-10">
                   {/* Number Circle */}
                   <div className="mb-6 flex justify-center">
-                    <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                    <div className="w-20 h-20 rounded-full border-2 border-primary bg-background flex items-center justify-center text-secondary font-display font-bold text-2xl">
                       {index + 1}
                     </div>
                   </div>
@@ -63,7 +66,7 @@ export default function HowItWorks() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-bold mb-3">
+                  <h3 className="font-display text-xl font-semibold mb-3 tracking-tight">
                     {t(`howItWorks.${step.key}.title`)}
                   </h3>
 

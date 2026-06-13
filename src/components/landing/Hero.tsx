@@ -58,7 +58,7 @@ export default function Hero() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <motion.h1
-            className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+            className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold mb-6 leading-[0.95] tracking-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -67,7 +67,7 @@ export default function Hero() {
           </motion.h1>
 
           <motion.p
-            className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto"
+            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -83,7 +83,7 @@ export default function Hero() {
           >
             <Button
               size="lg"
-              className="gradient-primary text-white font-semibold px-8 py-6 text-lg hover:shadow-lg hover:scale-105 transition-all"
+              className="bg-primary text-primary-foreground font-semibold px-8 py-6 text-lg hover:bg-primary/90 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-0.5 transition-all"
               onClick={() => navigate('/auth')}
             >
               {t('hero.ctaPrimary')}
