@@ -535,6 +535,7 @@
   },
   "visualizations": {
     "title": "Visualizations",
+    "noMorphologyData": "No morphology data available yet.",
     "blob": {
       "title": "Morphology Blob",
       "description": "A living, generative form that visualizes your project's 'energy'. Color, shape, movement, and patterns reflect the 12 morphological dimensions. See how the project 'breathes' and evolves.",
