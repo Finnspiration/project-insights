@@ -984,6 +984,23 @@
       "overlayLabel": "Læg projekt over",
       "stats": { "portfolioAvg": "Portefølje gns.", "projectAvg": "Dette projekt gns.", "strongest": "Stærkeste vs gns.", "biggestGap": "Største gap vs gns." },
       "legend": { "portfolio": "Portefølje gennemsnit", "project": "Valgt projekt" }
+    },
+    "riskMatrix": {
+      "title": "Risikomatrix for blinde vinkler",
+      "description": "Alle opdagede blinde vinkler på tværs af din portefølje, placeret efter detektionssikkerhed og prioritet. Det markerede øverste højre felt er handl-nu-zonen: høj prioritet, høj sikkerhed, stadig ikke adresseret. Klik på et punkt for at åbne projektet.",
+      "stats": {
+        "open": "Åbne blinde vinkler",
+        "actNow": "Handl nu",
+        "acknowledged": "Anerkendt",
+        "avgConfidence": "Gns. sikkerhed"
+      },
+      "axis": {
+        "confidence": "Detektionssikkerhed",
+        "priority": "Prioritet"
+      },
+      "legend": {
+        "actNow": "Handl-nu-zone"
+      }
     }
   },
   "insights": {

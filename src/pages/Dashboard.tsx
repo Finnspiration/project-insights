@@ -15,6 +15,7 @@ import { da } from 'date-fns/locale';
 import type { Project } from '@/types/project';
 import { ProjectConstellation } from '@/components/visualizations/ProjectConstellation';
 import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar';
+import { BlindSpotRiskMatrix } from '@/components/visualizations/BlindSpotRiskMatrix';
 
 interface ProjectStats {
   total: number;
@@ -273,6 +274,9 @@ export default function Dashboard() {
 
             {/* Portfolio IDG Radar */}
             <PortfolioIDGRadar />
+
+            {/* Blind Spot Risk Matrix */}
+            <BlindSpotRiskMatrix />
 
             {/* Recent Projects */}
             {recentProjects.length > 0 && (

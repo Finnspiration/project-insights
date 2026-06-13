@@ -984,6 +984,23 @@
       "overlayLabel": "Overlay project",
       "stats": { "portfolioAvg": "Portfolio avg", "projectAvg": "This project avg", "strongest": "Strongest vs avg", "biggestGap": "Biggest gap vs avg" },
       "legend": { "portfolio": "Portfolio average", "project": "Selected project" }
+    },
+    "riskMatrix": {
+      "title": "Blind spot risk matrix",
+      "description": "Every detected blind spot across your portfolio, plotted by detection confidence and priority. The shaded top-right is the act-now zone: high priority, high confidence, still unaddressed. Click a point to open its project.",
+      "stats": {
+        "open": "Open blind spots",
+        "actNow": "Act now",
+        "acknowledged": "Acknowledged",
+        "avgConfidence": "Avg confidence"
+      },
+      "axis": {
+        "confidence": "Detection confidence",
+        "priority": "Priority"
+      },
+      "legend": {
+        "actNow": "Act-now zone"
+      }
     }
   },
   "insights": {
