@@ -29,7 +29,7 @@ export function BlobDemoMode({
   const [currentOptionIndex, setCurrentOptionIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const CYCLE_INTERVAL = 1500; // ms between option changes
   
   // Get current dimension config
