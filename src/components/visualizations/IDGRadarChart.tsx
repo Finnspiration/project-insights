@@ -199,15 +199,15 @@ export function IDGRadarChart({ morphology, documents = [], precalculatedScores 
           {/* Context Info */}
           <div className="grid grid-cols-2 gap-4 text-center text-sm">
             <div className="p-3 bg-muted rounded-lg">
-              <p className="text-muted-foreground mb-1">Primary Focus</p>
+              <p className="text-muted-foreground mb-1">{t('visualizations.idgRadar.primaryFocus')}</p>
               <p className="font-medium capitalize">
-                {morphology?.development?.selectedValue || morphology?.development || 'N/A'}
+                {morphology?.development?.selectedValue || morphology?.development || t('common.notAvailable')}
               </p>
             </div>
             <div className="p-3 bg-muted rounded-lg">
-              <p className="text-muted-foreground mb-1">Org Stage</p>
+              <p className="text-muted-foreground mb-1">{t('visualizations.idgRadar.orgStage')}</p>
               <p className="font-medium capitalize">
-                {morphology?.organizational?.selectedValue || morphology?.organizational || 'N/A'}
+                {morphology?.organizational?.selectedValue || morphology?.organizational || t('common.notAvailable')}
               </p>
             </div>
           </div>
