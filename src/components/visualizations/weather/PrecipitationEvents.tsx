@@ -29,6 +29,7 @@ interface PrecipitationEventsProps {
 }
 
 export function PrecipitationEvents({ events }: PrecipitationEventsProps) {
+  const { t } = useTranslation('common');
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
 
   const getEventIcon = (type: PrecipitationEvent['type']) => {
