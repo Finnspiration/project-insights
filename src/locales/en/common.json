@@ -366,7 +366,6 @@
     "regenerateSkipped": "All DNA codes are already correct",
     "regenerateNoProjects": "No projects found to regenerate",
     "refreshScoring": "Refresh Scoring",
-    "confidence": "Confidence",
     "scoring": {
       "title": "Morphology-Based Theory U Scoring",
       "description": "Deterministic mapping from your 12 morphological dimensions to Theory U phases",
@@ -959,6 +958,24 @@
           "documentBoost": "{{dimension}} adjustment based on document analysis"
         },
         "documentEvidence": "Evidence from Documents"
+      }
+    },
+    "constellation": {
+      "title": "Portfolio constellation",
+      "description": "Every assessed project mapped by complexity and organizational stage. Bubble size is team size, colour is the primary IDG focus, and a red ring marks open blind spots. Click a project to open it.",
+      "stats": {
+        "projects": "Projects",
+        "openBlindSpots": "Open blind spots",
+        "atRisk": "At-risk projects",
+        "avgIdg": "Avg IDG"
+      },
+      "tooltip": {
+        "team": "team of {{count}}",
+        "blindSpots": "{{count}} open blind spot",
+        "blindSpots_other": "{{count}} open blind spots"
+      },
+      "legend": {
+        "blindSpots": "Open blind spots"
       }
     }
   },

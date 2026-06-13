@@ -959,6 +959,24 @@
         },
         "documentEvidence": "Evidens fra Dokumenter"
       }
+    },
+    "constellation": {
+      "title": "Portefølje-konstellation",
+      "description": "Hvert vurderet projekt kortlagt efter kompleksitet og organisatorisk fase. Boblestørrelse er teamstørrelse, farve er det primære IDG-fokus, og en rød ring markerer åbne blinde vinkler. Klik på et projekt for at åbne det.",
+      "stats": {
+        "projects": "Projekter",
+        "openBlindSpots": "Åbne blinde vinkler",
+        "atRisk": "Projekter i risiko",
+        "avgIdg": "Gns. IDG"
+      },
+      "tooltip": {
+        "team": "team på {{count}}",
+        "blindSpots": "{{count}} åben blind vinkel",
+        "blindSpots_other": "{{count}} åbne blinde vinkler"
+      },
+      "legend": {
+        "blindSpots": "Åbne blinde vinkler"
+      }
     }
   },
   "insights": {
