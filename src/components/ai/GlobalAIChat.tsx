@@ -142,7 +142,21 @@ export function GlobalAIChat() {
     sendMessage(question);
   };
 
+  // Allow any component to open the chat with a pre-filled question via askAIChat().
+  const sendMessageRef = useRef(sendMessage);
+  sendMessageRef.current = sendMessage;
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const question = (e as CustomEvent<{ question?: string }>).detail?.question;
+      setIsOpen(true);
+      if (question) sendMessageRef.current(question);
+    };
+    window.addEventListener(AI_CHAT_ASK_EVENT, handler);
+    return () => window.removeEventListener(AI_CHAT_ASK_EVENT, handler);
+  }, []);
+
   if (!user) return null;
+
 
   return (
     <>
