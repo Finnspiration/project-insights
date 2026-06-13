@@ -212,6 +212,7 @@ export type Database = {
           description: Json | null
           dna_code: string | null
           id: string
+          is_demo: boolean
           morphology: Json | null
           name: Json
           patterns: Json | null
@@ -229,6 +230,7 @@ export type Database = {
           description?: Json | null
           dna_code?: string | null
           id?: string
+          is_demo?: boolean
           morphology?: Json | null
           name: Json
           patterns?: Json | null
@@ -246,6 +248,7 @@ export type Database = {
           description?: Json | null
           dna_code?: string | null
           id?: string
+          is_demo?: boolean
           morphology?: Json | null
           name?: Json
           patterns?: Json | null
@@ -265,6 +268,8 @@ export type Database = {
           ai_messages_used_this_month: number
           created_at: string
           id: string
+          onboarded_at: string | null
+          onboarding_step: string | null
           preferred_language: string
           subscription_status: string
           subscription_tier: string
@@ -274,6 +279,8 @@ export type Database = {
           ai_messages_used_this_month?: number
           created_at?: string
           id: string
+          onboarded_at?: string | null
+          onboarding_step?: string | null
           preferred_language?: string
           subscription_status?: string
           subscription_tier?: string
@@ -283,6 +290,8 @@ export type Database = {
           ai_messages_used_this_month?: number
           created_at?: string
           id?: string
+          onboarded_at?: string | null
+          onboarding_step?: string | null
           preferred_language?: string
           subscription_status?: string
           subscription_tier?: string

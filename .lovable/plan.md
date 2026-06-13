@@ -1,93 +1,118 @@
 
-# Global Design Refresh — Emerald Prestige + Architectural
+# Onboarding-pakke #1: "Forstå PRISM på 60 sekunder"
 
-Replace the default Inter + blue/purple stack with a cohesive Emerald Prestige palette and Urbanist/Epilogue typography. Light mode primary; dark mode kept consistent. Existing component code keeps working because we change only tokens — then we layer in a focused restyle of the landing page and dashboard for impact.
+Fire sammenhængende tiltag der løfter første-gangs-oplevelsen. Brugeren skal opleve værdi før de uploader noget, og altid vide hvad næste skridt er.
 
-## 1. Typography — load Urbanist + Epilogue
+## 1. Database — onboarding-felter + demo-flag
 
-**`index.html`** — replace the Inter `<link>` with:
-- Urbanist (weights 500/600/700/800) — headings & display
-- Epilogue (weights 400/500/600) — body & UI
+Ét migrations-trin tilføjer:
 
-**`tailwind.config.ts`** — extend `fontFamily`:
-- `sans` → `['Epilogue', 'system-ui', 'sans-serif']` (body default)
-- `display` → `['Urbanist', 'system-ui', 'sans-serif']` (headings)
+**`user_profiles`**
+- `onboarded_at TIMESTAMPTZ NULL` — sættes når welcome modal lukkes
+- `onboarding_step TEXT NULL` — valgfri, så vi kan fortsætte hvor brugeren slap (`welcome`, `demo_seen`, `done`)
 
-**`src/index.css`** — under `@layer base`, add `h1,h2,h3,h4,h5 { @apply font-display tracking-tight; }` so existing headings adopt Urbanist with zero component edits.
+**`projects`**
+- `is_demo BOOLEAN NOT NULL DEFAULT false` — markerer auto-genererede demo-projekter, så de kan filtreres/slettes nemt
 
-## 2. Palette — Emerald Prestige tokens (HSL)
+Ingen RLS-ændringer kræves — eksisterende `user_id`-policies dækker.
 
-Rewrite `:root` and `.dark` in `src/index.css`. Anchors:
-- Emerald deep `#064e3b` → `158 85% 13%`
-- Emerald mid `#0d7a5f` → `162 80% 26%`
-- Gold `#c9a84c` → `44 56% 54%`
-- Cream `#f5f0e0` → `45 56% 92%`
+## 2. Welcome modal (forslag #1)
 
-**Light (`:root`):**
-- `--background: 45 40% 97%` (warm cream-tinted off-white)
-- `--foreground: 158 50% 10%` (deep emerald-black)
-- `--card: 0 0% 100%`, `--card-foreground: 158 50% 10%`
-- `--primary: 162 80% 22%` (emerald mid-deep), `--primary-foreground: 45 56% 95%`
-- `--secondary: 44 56% 54%` (gold), `--secondary-foreground: 158 60% 10%`
-- `--accent: 44 70% 65%` (lighter gold), `--accent-foreground: 158 60% 10%`
-- `--muted: 45 25% 93%`, `--muted-foreground: 158 15% 35%`
-- `--success: 162 70% 32%` (in-palette green, replaces teal)
-- `--warning: 38 85% 48%` (warmer amber that harmonizes with gold)
-- `--destructive: 0 70% 45%` (slightly desaturated to sit beside emerald)
-- `--border: 45 20% 86%`, `--input: 45 20% 86%`, `--ring: 162 80% 30%`
-- Sidebar tokens shifted to cream/emerald family (background `45 30% 96%`, accent `45 25% 90%`, primary `158 85% 15%`)
+**Ny komponent:** `src/components/onboarding/WelcomeModal.tsx`
 
-**Dark (`.dark`):**
-- `--background: 158 50% 7%`, `--foreground: 45 40% 94%`
-- `--card: 158 45% 11%`, `--primary: 44 56% 58%` (gold leads in dark for contrast), `--secondary: 162 70% 30%`
-- `--border / --input: 158 30% 18%`, `--ring: 44 56% 58%`
-- Sidebar mirrors with emerald-charcoal surfaces
+- Vises automatisk på første dashboard-besøg når `profile.onboarded_at` er `NULL`
+- Brandet PRISM-design: emerald header, gold-accent rule, Urbanist display-tekst
+- Indhold (i18n):
+  - Hilsen: "Velkommen til PRISM, [fornavn]"
+  - Subtekst: "Lad os vise dig hvordan du afdækker det usynlige i dine projekter"
+  - 3 punkter med ikon: opret projekt → udforsk morfologi → få indsigt fra AI
+  - To CTA'er: **"Udforsk demo-projekt"** (primary, emerald) og **"Spring over og opret mit eget"** (ghost)
+- Begge handlinger sætter `onboarded_at = now()` så modalen ikke kommer igen
+- "Udforsk demo" kalder en edge function der seeder demo-projektet (#3) og navigerer dertil
+- "Spring over" lukker bare og åbner CreateProjectDialog
 
-**Custom tokens (rewritten):**
-- `--gradient-primary: linear-gradient(135deg, hsl(162 80% 22%), hsl(44 56% 54%))` — emerald → gold
-- `--gradient-hero: linear-gradient(180deg, hsl(45 40% 97%), hsl(162 30% 92%))`
-- `--shadow-elegant: 0 20px 50px -20px hsl(162 80% 15% / 0.25)`
-- `--shadow-gold: 0 0 40px hsl(44 56% 54% / 0.25)`
-- Keep `--transition-smooth` as-is
+i18n-nøgler tilføjes til `common.json` (en + da).
 
-The `.gradient-primary`, `.gradient-hero`, `.text-gradient` utilities already read these tokens — every existing `from-primary to-secondary`, `gradient-primary`, `text-gradient` usage updates automatically.
+## 3. Demo-projekt (forslag #3)
 
-## 3. Hardcoded color sweep
+**Ny edge function:** `supabase/functions/seed-demo-project/index.ts`
 
-Audit shows minimal hardcoded values; clean the few that exist:
-- `selected-row` keyframe in `index.css` uses raw `rgba(59,130,246,...)` (blue) → swap to `hsl(var(--primary) / ...)`.
-- Dashboard stat-card icons currently use `text-green-500`, `text-orange-500`, `text-blue-500`, `text-purple-500` → re-token to `text-success`, `text-warning`, `text-accent`, `text-primary` for a unified palette.
+- Modtager: ingen body (bruger auth-context)
+- Logik: indsætter ét færdigt projekt med:
+  - Navn: "Demo: Bæredygtig byomstilling" / "Demo: Sustainable Urban Transition" (JSONB)
+  - Realistisk beskrivelse
+  - Komplet `morphology` for alle 12 dimensioner (et "Complex-Cooperative-Innovative-CrossOrg-Transformation-Green-Adaptive-Relating-Balanced-Transformational-Network-Moderate" eksempel)
+  - Genereret `dna_code`
+  - 3-4 prækalkulerede `blind_spots` rows med titel/beskrivelse/recommendations på begge sprog
+  - `is_demo = true`
+- Returnerer det nye projekts ID, frontend navigerer til `/projects/<id>`
+- Idempotent: hvis brugeren allerede har et `is_demo = true` projekt, returneres dets ID i stedet for at lave et nyt
 
-## 4. Landing page restyle
+**Slet-knap:** I `ProjectCard.tsx` vises et lille "Demo"-badge (gold) når `is_demo`, og menupunktet "Fjern demo-projekt" er tilgængeligt — almindelig delete-flow.
 
-Goal: editorial, architectural feel — generous whitespace, big Urbanist display type, gold as the precise accent (never the dominant color).
+## 4. Tom-tilstand-coaching (forslag #4)
 
-- **`Hero.tsx`**: switch CTA from `gradient-primary text-white` to solid `bg-primary text-primary-foreground` with `shadow-elegant`; add a `font-display` class on the headline with tighter `leading-[0.95] tracking-tight`; reduce gradient orb opacity, swap blur color to emerald.
-- **`Navbar.tsx`**: drop `text-gradient` on the wordmark in favor of solid `font-display font-bold tracking-tight text-foreground` with a small gold dot/accent — feels more premium than gradient text. Primary CTA → `bg-primary text-primary-foreground`.
-- **`Features.tsx`**: card icons go from `gradient-primary` round squares to outlined cards with a gold underline on hover; card padding up.
-- **`HowItWorks.tsx`**: numbered circles become outlined emerald rings with gold numerals (`border-2 border-primary text-secondary font-display`).
-- **`CallToAction.tsx`**: keep `gradient-primary` band (emerald→gold reads beautifully here); ensure interior text uses `text-primary-foreground`.
-- **`Footer.tsx`**: replace `text-gradient` wordmark with the same Navbar treatment for consistency.
+**Ny genbrugskomponent:** `src/components/empty/EmptyState.tsx`
 
-## 5. Dashboard restyle
+Props: `icon`, `title`, `description`, `primaryAction?`, `secondaryAction?`, `illustration?`.
 
-- **`DashboardLayout.tsx`**: replace the gradient page-title with `font-display font-semibold text-foreground` plus a thin gold rule beneath.
-- **`Dashboard.tsx`**:
-  - Empty-state heading: drop gradient text → `font-display` with a single gold accent word.
-  - Stat cards: switch flat `Card` to a tighter variant — increase header padding, use `font-display` for the big number, replace bespoke icon colors with semantic tokens (step 3).
-  - Section headers (`Overview`, `Recent Projects`, `Recommended Actions`): `font-display font-semibold` with a small uppercase eyebrow label above in `text-secondary tracking-widest text-xs`.
-  - Recommendation card icon backgrounds: `bg-secondary/10 text-secondary` (gold accent) instead of `bg-primary/10`.
-- **`AppSidebar.tsx`** (light touch): active item uses `bg-primary/10 text-primary border-l-2 border-secondary` for an editorial accent rail.
+Konsistent stil: stort cirkulært emerald-tonet ikon, Urbanist-overskrift, gold-rule, kort forklaring, 1-2 CTA-knapper. Erstatter ad-hoc tom-tilstande i:
 
-## 6. Verification
+- **`Dashboard.tsx`** — den nuværende empty-state får retfit (allerede god, men bringes ind i komponenten for konsistens)
+- **`Projects.tsx`** — i stedet for blank liste når der ingen projekter er
+- **`BlindSpotsPanel.tsx`** — når et projekt ikke har blind spots endnu, vis "Upload dokumenter eller bed AI'en analysere" med CTA
+- **`InsightsPanel.tsx`** — tilsvarende coaching når ingen indsigter
+- **Visualiserings-kort på Dashboard** — guard'es allerede på `stats.assessed`; tilføj fælles "Vurder dit første projekt for at åbne dette"-mini-empty-state i de tilfælde hvor man har ét projekt men 0 vurderede
 
-- Build passes with no TS errors.
-- Visit `/` (landing), `/dashboard`, `/projects`, `/auth` — palette reads emerald + gold, headings are Urbanist, body is Epilogue, no leftover blue/purple.
-- Dark mode toggle (if exposed) renders without contrast regressions on cards, buttons, sidebar.
-- Existing visualizations (ProjectConstellation, IDG radar, etc.) keep working — they already read from `--primary`, `--success`, `--warning`.
+i18n-nøgler under `emptyStates.*`.
 
-## Technical notes
+## 5. Progress-indikator pr. projekt (forslag #11)
 
-- All changes are token-level + a handful of presentation classes; no business logic, no i18n keys, no data flow touched.
-- Files edited: `index.html`, `tailwind.config.ts`, `src/index.css`, `src/pages/Dashboard.tsx`, `src/pages/Auth.tsx` (gradient text only), `src/components/landing/{Hero,Features,HowItWorks,CallToAction}.tsx`, `src/components/layout/{Navbar,Footer,DashboardLayout,AppSidebar}.tsx`.
-- A `mem://design/global-tokens` memory file will be added recording the palette + type system so future work stays consistent.
+**Ny komponent:** `src/components/projects/ProjectProgress.tsx`
+
+5 trin med tjek-logik baseret på eksisterende felter:
+
+| Trin | Færdig når |
+|------|-----------|
+| 1. Projekt oprettet | altid (når kortet vises) |
+| 2. Morfologi udfyldt | `morphology` har alle 12 dimensioner |
+| 3. Dokumenter uploadet | `documents.count > 0` for projektet |
+| 4. AI-indsigt genereret | `dna_code !== null` |
+| 5. Handlinger reviewet | mindst én `blind_spots.status = 'acknowledged'` eller `'addressed'` |
+
+**Vises to steder:**
+- **`ProjectCard.tsx`** — kompakt: en 5-prikket linje med tooltip på hver, plus tekst "3 af 5 trin" og en tynd gold progress-bar
+- **`ProjectDetail.tsx`** øverst — fuld variant med klikbare trin der scroller/navigerer til den relevante sektion, og en "Næste skridt"-CTA der peger på første ufærdige trin
+
+Tællingen sker via et nyt hook `usePortfolio`-udvidelse: vi henter `documents` count per projekt og blind-spot statusser i samme query (én ekstra `select` med `count`).
+
+## 6. Project knowledge — husk hele forslagslisten
+
+Tilføj `mem://product/ux-improvement-roadmap.md` (type: feature) der opsummerer alle 18 forslag fra forrige tur, grupperet under: Onboarding, Hjælp i konteksten, Navigation, Mikrointeraktioner, Tilgængelighed. Marker #1, #3, #4, #11 som "leveret" og resten som "afventer". Tilføj reference i `mem://index.md`.
+
+## Verifikation
+
+- Ny bruger: signup → dashboard → welcome modal pops op → "Udforsk demo" → lander på demo-projekt med fuld data → kan se progress (5/5) og DNA-kode
+- Eksisterende bruger med `onboarded_at`: ingen modal
+- Tomme tilstande viser ny coaching-komponent på Dashboard, Projects, Blind Spots, Insights
+- ProjectCard viser progress-prikker; ProjectDetail viser fuld progress-stripe øverst
+- Demo-projekt har gold "Demo"-badge og kan slettes
+- Mem-fil opdateret og synlig i index
+
+## Tekniske noter
+
+- Edge function til demo bruger service-role klient internt; godkender brugeren via `Authorization` header som de andre PRISM-edge functions
+- Ingen ændringer i `morphologyConfig.ts`-strukturen; demo-data lægges ind med samme `{selectedIndex, selectedValue}`-format
+- Filer der ændres/oprettes:
+  - Migration (én)
+  - `src/components/onboarding/WelcomeModal.tsx` (ny)
+  - `src/components/empty/EmptyState.tsx` (ny)
+  - `src/components/projects/ProjectProgress.tsx` (ny)
+  - `supabase/functions/seed-demo-project/index.ts` (ny) + tilføjelse i `supabase/config.toml`
+  - `src/hooks/usePortfolio.ts` (udvidelse med doc count + blind spot status)
+  - `src/pages/Dashboard.tsx` (mount WelcomeModal + brug EmptyState)
+  - `src/pages/Projects.tsx`, `src/pages/ProjectDetail.tsx`
+  - `src/components/projects/ProjectCard.tsx` (badge + progress)
+  - `src/components/insights/BlindSpotsPanel.tsx`, `InsightsPanel.tsx`
+  - `src/locales/en/common.json` + `src/locales/da/common.json`
+  - `mem://product/ux-improvement-roadmap.md` + `mem://index.md`
