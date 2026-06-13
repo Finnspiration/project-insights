@@ -535,6 +535,7 @@
   },
   "visualizations": {
     "title": "Visualiseringer",
+    "noMorphologyData": "Ingen morfologidata tilgængelig endnu.",
     "blob": {
       "title": "Morfologi Blob",
       "description": "En levende, generativ form der visualiserer dit projekts 'energi'. Farve, form, bevægelse og mønstre afspejler de 12 morfologiske dimensioner. Se hvordan projektet 'ånder' og udvikler sig.",
