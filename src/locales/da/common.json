@@ -4,7 +4,13 @@
     "close": "Luk",
     "save": "Gem",
     "cancel": "Annuller",
-    "saving": "Gemmer..."
+    "saving": "Gemmer...",
+    "untitled": "Uden titel",
+    "continue": "Fortsæt",
+    "updating": "Opdaterer...",
+    "error": "Fejl",
+    "success": "Succes",
+    "notAvailable": "Ikke angivet"
   },
   "nav": {
     "features": "Funktioner",
