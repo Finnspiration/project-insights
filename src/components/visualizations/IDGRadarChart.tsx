@@ -143,7 +143,7 @@ export function IDGRadarChart({ morphology, documents = [], precalculatedScores 
           <div className="flex items-center justify-center">
             <div className="text-center">
               <div className="text-4xl font-bold text-primary">{avgScore}</div>
-              <p className="text-sm text-muted-foreground">Average Score</p>
+              <p className="text-sm text-muted-foreground">{t('visualizations.idgRadar.averageScore')}</p>
             </div>
           </div>
 
