@@ -1047,6 +1047,7 @@
       },
       "legend": {
         "actNow": "Act-now zone"
+      }
     },
     "weatherLegend": {
       "title": "Temperature, pressure & fronts",
