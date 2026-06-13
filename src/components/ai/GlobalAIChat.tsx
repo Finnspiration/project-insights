@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { AI_CHAT_ASK_EVENT } from '@/lib/aiChat';
 
 interface Message {
   role: 'user' | 'assistant';
