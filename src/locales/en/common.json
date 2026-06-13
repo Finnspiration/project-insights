@@ -1181,6 +1181,7 @@
     "description": "Potential blind spots and overlooked dimensions detected in your project",
     "loading": "Loading blind spots...",
     "noData": "No blind spots detected yet. Generate insights to discover potential blind spots.",
+    "untitled": "Blind spot",
     "unaddressed": "Unaddressed",
     "acknowledged": "Acknowledged",
     "addressed": "Addressed",
