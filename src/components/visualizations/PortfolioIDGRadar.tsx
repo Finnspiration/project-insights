@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend,
 } from 'recharts';
-import { Target } from 'lucide-react';
+import { Target, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePortfolio } from '@/hooks/usePortfolio';
+import { askAIChat } from '@/lib/aiChat';
 import { calculateIDGScoresFromMorphology } from '@/lib/idgScoring';
 
 const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'] as const;
