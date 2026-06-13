@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,8 +15,7 @@ import {
 import { Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { usePortfolio } from '@/hooks/usePortfolio';
 import { calculateIDGScoresFromMorphology } from '@/lib/idgScoring';
 
 const COMPLEXITY = ['simple', 'complicated', 'complex', 'chaotic'] as const;
@@ -60,73 +59,45 @@ function jitter(id: string): number {
 export function ProjectConstellation() {
   const { t, i18n } = useTranslation('common');
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [points, setPoints] = useState<ConstellationPoint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = usePortfolio();
 
-  useEffect(() => {
-    if (user) fetchConstellation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, i18n.language]);
-
-  const fetchConstellation = async () => {
-    try {
-      setLoading(true);
-      const { data: projects } = await supabase
-        .from('projects')
-        .select('id, name, morphology, team_size, dna_code')
-        .eq('user_id', user!.id)
-        .not('morphology', 'is', null);
-
-      const assessed = (projects || []).filter((p) => p.morphology);
-      const ids = assessed.map((p) => p.id);
-      const openByProject: Record<string, number> = {};
-      if (ids.length > 0) {
-        const { data: blindSpots } = await supabase
-          .from('blind_spots')
-          .select('project_id, status')
-          .in('project_id', ids);
-        (blindSpots || []).forEach((bs: any) => {
-          if (bs.status !== 'addressed') {
-            openByProject[bs.project_id] = (openByProject[bs.project_id] || 0) + 1;
-          }
-        });
+  const points = useMemo<ConstellationPoint[]>(() => {
+    if (!data) return [];
+    const openByProject: Record<string, number> = {};
+    data.blindSpots.forEach((bs) => {
+      if (bs.status !== 'addressed') {
+        openByProject[bs.project_id] = (openByProject[bs.project_id] || 0) + 1;
       }
+    });
 
-      const mapped: ConstellationPoint[] = assessed.map((p: any) => {
-        const complexity = readDim(p.morphology, 'complexity') ?? 'complex';
-        const organizational = readDim(p.morphology, 'organizational') ?? 'orange';
-        const development = (readDim(p.morphology, 'development') ?? 'thinking') as FocusKey;
-        const focus = (FOCUS as readonly string[]).includes(development) ? development : 'thinking';
-        const xIndex = Math.max(0, COMPLEXITY.indexOf(complexity as (typeof COMPLEXITY)[number]));
-        const yIndex = Math.max(0, ORG_STAGE.indexOf(organizational as (typeof ORG_STAGE)[number]));
-        const radar = calculateIDGScoresFromMorphology(p.morphology).radarScores;
-        const idg = Math.round(
-          (radar.being + radar.thinking + radar.relating + radar.collaborating + radar.acting) / 5
-        );
-        const nameField = p.name as { en?: string; da?: string } | string | null;
-        const name =
-          typeof nameField === 'string'
-            ? nameField
-            : nameField?.[i18n.language as 'en' | 'da'] || nameField?.en || t('common.untitled', 'Untitled');
-        return {
-          id: p.id,
-          name,
-          x: xIndex + jitter(p.id),
-          y: yIndex + jitter(p.id + 'y'),
-          team: p.team_size || 3,
-          blind: openByProject[p.id] || 0,
-          focus,
-          idg,
-        };
-      });
-      setPoints(mapped);
-    } catch (error) {
-      console.error('Error building project constellation:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return data.projects.map((p) => {
+      const complexity = readDim(p.morphology, 'complexity') ?? 'complex';
+      const organizational = readDim(p.morphology, 'organizational') ?? 'orange';
+      const development = (readDim(p.morphology, 'development') ?? 'thinking') as FocusKey;
+      const focus = (FOCUS as readonly string[]).includes(development) ? development : 'thinking';
+      const xIndex = Math.max(0, COMPLEXITY.indexOf(complexity as (typeof COMPLEXITY)[number]));
+      const yIndex = Math.max(0, ORG_STAGE.indexOf(organizational as (typeof ORG_STAGE)[number]));
+      const radar = calculateIDGScoresFromMorphology(p.morphology).radarScores;
+      const idg = Math.round(
+        (radar.being + radar.thinking + radar.relating + radar.collaborating + radar.acting) / 5
+      );
+      const nameField = p.name as { en?: string; da?: string } | string | null;
+      const name =
+        typeof nameField === 'string'
+          ? nameField
+          : nameField?.[i18n.language as 'en' | 'da'] || nameField?.en || t('common.untitled', 'Untitled');
+      return {
+        id: p.id,
+        name,
+        x: xIndex + jitter(p.id),
+        y: yIndex + jitter(p.id + 'y'),
+        team: p.team_size || 3,
+        blind: openByProject[p.id] || 0,
+        focus,
+        idg,
+      };
+    });
+  }, [data, i18n.language, t]);
 
   const summary = useMemo(() => {
     const total = points.length;
@@ -136,7 +107,7 @@ export function ProjectConstellation() {
     return { total, openBlind, atRisk, avgIdg };
   }, [points]);
 
-  if (loading) return <Skeleton className="h-[520px] w-full" />;
+  if (isLoading) return <Skeleton className="h-[520px] w-full" />;
   if (points.length === 0) return null;
 
   return (
