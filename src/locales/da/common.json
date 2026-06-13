@@ -977,6 +977,13 @@
       "legend": {
         "blindSpots": "Åbne blinde vinkler"
       }
+    },
+    "portfolioIdg": {
+      "title": "Portefølje IDG-radar",
+      "description": "Den stiplede pentagon er dit porteføljes gennemsnitlige indre-udviklingskapacitet på tværs af alle vurderede projekter. Læg et projekt over for at se hvor det ligger i forhold til den kollektive norm.",
+      "overlayLabel": "Læg projekt over",
+      "stats": { "portfolioAvg": "Portefølje gns.", "projectAvg": "Dette projekt gns.", "strongest": "Stærkeste vs gns.", "biggestGap": "Største gap vs gns." },
+      "legend": { "portfolio": "Portefølje gennemsnit", "project": "Valgt projekt" }
     }
   },
   "insights": {

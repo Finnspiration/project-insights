@@ -977,6 +977,13 @@
       "legend": {
         "blindSpots": "Open blind spots"
       }
+    },
+    "portfolioIdg": {
+      "title": "Portfolio IDG radar",
+      "description": "The dashed pentagon is your portfolio average inner-development capacity across all assessed projects. Overlay any project to see where it leads or lags the collective norm.",
+      "overlayLabel": "Overlay project",
+      "stats": { "portfolioAvg": "Portfolio avg", "projectAvg": "This project avg", "strongest": "Strongest vs avg", "biggestGap": "Biggest gap vs avg" },
+      "legend": { "portfolio": "Portfolio average", "project": "Selected project" }
     }
   },
   "insights": {
