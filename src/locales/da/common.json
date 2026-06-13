@@ -960,9 +960,11 @@
         "documentEvidence": "Evidens fra Dokumenter"
       }
     },
+    "askAi": "Spørg AI",
     "constellation": {
       "title": "Portefølje-konstellation",
       "description": "Hvert vurderet projekt kortlagt efter kompleksitet og organisatorisk fase. Boblestørrelse er teamstørrelse, farve er det primære IDG-fokus, og en rød ring markerer åbne blinde vinkler. Klik på et projekt for at åbne det.",
+      "aiPrompt": "Analysér min projektporteføljes konstellation: hvilke klynger af projekter deler profil, og hvilke kræver opmærksomhed ud fra kompleksitet, organisatorisk stadie og åbne blinde vinkler?",
       "stats": {
         "projects": "Projekter",
         "openBlindSpots": "Åbne blinde vinkler",
@@ -981,6 +983,7 @@
     "portfolioIdg": {
       "title": "Portefølje IDG-radar",
       "description": "Den stiplede pentagon er dit porteføljes gennemsnitlige indre-udviklingskapacitet på tværs af alle vurderede projekter. Læg et projekt over for at se hvor det ligger i forhold til den kollektive norm.",
+      "aiPrompt": "På tværs af hele min portefølje: hvilken IDG-dimension er samlet set svagest, og hvilket udviklingsfokus ville løfte den?",
       "overlayLabel": "Læg projekt over",
       "stats": { "portfolioAvg": "Portefølje gns.", "projectAvg": "Dette projekt gns.", "strongest": "Stærkeste vs gns.", "biggestGap": "Største gap vs gns." },
       "legend": { "portfolio": "Portefølje gennemsnit", "project": "Valgt projekt" }
@@ -988,6 +991,7 @@
     "riskMatrix": {
       "title": "Risikomatrix for blinde vinkler",
       "description": "Alle opdagede blinde vinkler på tværs af din portefølje, placeret efter detektionssikkerhed og prioritet. Det markerede øverste højre felt er handl-nu-zonen: høj prioritet, høj sikkerhed, stadig ikke adresseret. Klik på et punkt for at åbne projektet.",
+      "aiPrompt": "Hvilke blinde vinkler i min portefølje bør jeg handle på først (høj prioritet og høj sikkerhed, stadig ikke adresseret), og hvad er første skridt for hver?",
       "stats": {
         "open": "Åbne blinde vinkler",
         "actNow": "Handl nu",
@@ -1001,6 +1005,22 @@
       "legend": {
         "actNow": "Handl-nu-zone"
       }
+    },
+    "theoryUMap": {
+      "title": "Theory-U porteføljekort",
+      "description": "Hvor hvert vurderet projekt befinder sig på Scharmers U ud fra dets nuværende fase. Projekter højt til venstre er endnu ikke gået i dybden; bunden er presencing; højre side bevæger sig mod handling.",
+      "aiPrompt": "Med udgangspunkt i min portefølje på Theory U: hvilke projekter sidder fast tidligt (downloading/seeing), og hvad kan hjælpe dem videre mod presencing og handling?",
+      "stats": { "onTheU": "På U'et", "early": "Tidligt (ikke i dybden)", "action": "Mod handling", "avgConfidence": "Gns. sikkerhed" },
+      "axis": { "depth": "Dybde i U'et" },
+      "depth": { "deep": "Dyb", "surface": "Overflade" },
+      "zones": { "early": "Tidligt (downloading–sensing)", "pivot": "Presencing", "action": "Handling (crystallizing–performing)" },
+      "phases": { "downloading": "Downloading", "seeing": "Seeing", "sensing": "Sensing", "presencing": "Presencing", "crystallizing": "Crystallizing", "prototyping": "Prototyping", "performing": "Performing" }
+    },
+    "dnaBarcode": {
+      "title": "Projekt-DNA stregkoder",
+      "description": "Hvert projekts morfologi-DNA som en 12-bånds stregkode, et bånd per dimension. Lignende genomer giver lignende mønstre — spæjd efter klynger og afvigere. Klik på et projekt for at åbne det.",
+      "aiPrompt": "Sammenlign morfologi-DNA for mine projekter: hvilke projekter ligner hinanden mest, hvilket er den største afviger, og hvad antyder det?",
+      "legend": "Hvert bånd er en morfologidimension; farveintensiteten afspejler det valgte niveau på dimensionens skala."
     }
   },
   "insights": {
