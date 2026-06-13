@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,8 +15,7 @@ import {
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { usePortfolio } from '@/hooks/usePortfolio';
 
 const PRIORITY = ['low', 'medium', 'high'] as const;
 const STATUS = ['unaddressed', 'acknowledged', 'addressed'] as const;
@@ -53,59 +52,28 @@ function jitter(seed: string): number {
 export function BlindSpotRiskMatrix() {
   const { t, i18n } = useTranslation('common');
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [spots, setSpots] = useState<SpotPoint[]>([]);
+  const { data, isLoading } = usePortfolio();
   const [hidden, setHidden] = useState<Set<StatusKey>>(new Set());
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) fetchSpots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, i18n.language]);
-
-  const fetchSpots = async () => {
-    try {
-      setLoading(true);
-      const { data: projects } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('user_id', user!.id);
-
-      const ids = (projects || []).map((p) => p.id);
-      if (ids.length === 0) {
-        setSpots([]);
-        return;
-      }
-
-      const { data: blindSpots } = await supabase
-        .from('blind_spots')
-        .select('id, project_id, title, priority, confidence, status')
-        .in('project_id', ids);
-
-      const mapped: SpotPoint[] = (blindSpots || []).map((bs: any) => {
-        const status = (STATUS as readonly string[]).includes(bs.status)
-          ? (bs.status as StatusKey)
-          : 'unaddressed';
-        const priorityIndex = Math.max(0, PRIORITY.indexOf(bs.priority as (typeof PRIORITY)[number]));
-        const confidence = Math.round((bs.confidence ?? 0.5) * 100);
-        return {
-          id: bs.id,
-          projectId: bs.project_id,
-          title: readText(bs.title, i18n.language, t('blindSpots.untitled', 'Blind spot')),
-          x: confidence,
-          y: priorityIndex + jitter(bs.id),
-          status,
-          confidence,
-        };
-      });
-
-      setSpots(mapped);
-    } catch (error) {
-      console.error('Error building blind spot risk matrix:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const spots = useMemo<SpotPoint[]>(() => {
+    if (!data) return [];
+    return data.blindSpots.map((bs) => {
+      const status = (STATUS as readonly string[]).includes(bs.status ?? '')
+        ? (bs.status as StatusKey)
+        : 'unaddressed';
+      const priorityIndex = Math.max(0, PRIORITY.indexOf(bs.priority as (typeof PRIORITY)[number]));
+      const confidence = Math.round((bs.confidence ?? 0.5) * 100);
+      return {
+        id: bs.id,
+        projectId: bs.project_id,
+        title: readText(bs.title, i18n.language, t('blindSpots.untitled', 'Blind spot')),
+        x: confidence,
+        y: priorityIndex + jitter(bs.id),
+        status,
+        confidence,
+      };
+    });
+  }, [data, i18n.language, t]);
 
   const summary = useMemo(() => {
     const open = spots.filter((s) => s.status !== 'addressed');
