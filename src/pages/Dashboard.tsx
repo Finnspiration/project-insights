@@ -16,6 +16,8 @@ import type { Project } from '@/types/project';
 import { ProjectConstellation } from '@/components/visualizations/ProjectConstellation';
 import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar';
 import { BlindSpotRiskMatrix } from '@/components/visualizations/BlindSpotRiskMatrix';
+import { TheoryUPortfolioMap } from '@/components/visualizations/TheoryUPortfolioMap';
+import { DNABarcodeStrip } from '@/components/visualizations/DNABarcodeStrip';
 
 interface ProjectStats {
   total: number;
