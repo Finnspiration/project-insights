@@ -317,6 +317,22 @@
   "morphology": {
     "title": "Morphological Assessment",
     "subtitle": "Characterize your project across 12 key dimensions",
+    "aggregate": "Aggregate from Documents",
+    "aggregateError": "Failed to aggregate morphology",
+    "aggregateSuccess": "Morphology aggregated from your documents!",
+    "resetToSaved": "Reset to saved values",
+    "resetSuccess": "Reset to saved values",
+    "comparison": {
+      "title": "Comparison: Your Choices vs AI Suggestions",
+      "subtitle": "See how your choices align with the AI analysis recommendations",
+      "agreements": "Agree",
+      "disagreements": "Disagree",
+      "agreement": "Agreement",
+      "yourChoice": "Your Choice",
+      "aiChoice": "AI Suggestion",
+      "noSuggestion": "No suggestion",
+      "difference": "You chose differently from the AI's recommendation. This may be based on your context and experience."
+    },
     "selectOption": "Select an option",
     "updateSuccess": "Morphology updated successfully",
     "updateError": "Failed to update morphology",
