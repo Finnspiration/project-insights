@@ -1049,6 +1049,58 @@
         "actNow": "Handl-nu-zone"
       }
     },
+    "weatherLegend": {
+      "title": "Temperatur, tryk & fronter",
+      "temperatureZones": "Temperaturzoner",
+      "idgAreas": "Store blobs = IDG områder",
+      "colorStrength": "Farve indikerer styrke (rød=lav, gul=middel, grøn=høj)",
+      "pressureSystems": "Tryksystemer",
+      "highPressureRisk": "Højtryk (risiko)",
+      "highPressureBlindSpot": "Højtryk (blind spot)",
+      "lowPressure": "Lavtryk",
+      "fronts": "Fronter",
+      "coldFront": "Kold front",
+      "warmFront": "Varm front",
+      "intensityNote": "Mørkere farver = højere intensitet"
+    },
+    "pressureSystems": {
+      "highPressure": "Højtrykssystem",
+      "lowPressure": "Lavtrykssystem",
+      "intensity": "Intensitet: {{value}}/10",
+      "criticalBlindSpot": "⚠️ Kritisk blind vinkel",
+      "coldFront": "❄️ Kold front",
+      "warmFront": "🌡️ Varm front",
+      "stakeholderDynamics": "Stakeholder-dynamik"
+    },
+    "precipitationEvents": {
+      "unknownEvent": "Ukendt hændelse",
+      "noDescription": "Ingen beskrivelse",
+      "sourceLabel": "Kilde:",
+      "sourceBlindSpot": "Blind vinkel",
+      "sourceRecommendation": "Anbefaling",
+      "sourceIntervention": "Intervention",
+      "priorityLabel": "Prioritet:",
+      "priorityHigh": "Høj",
+      "priorityMedium": "Mellem",
+      "priorityLow": "Lav"
+    },
+    "miniSlider": {
+      "affects": "Påvirker:",
+      "impact": {
+        "complexity": { "description": "Antal skyer i himlen", "elements": ["☁️ Sky-tæthed"] },
+        "organizational": { "description": "Baggrundsfarve gradient", "elements": ["🎨 Baggrund", "☁️ Skyfarve"] },
+        "cultural": { "description": "Temperatur nuancer", "elements": ["🌡️ Varme-zoner"] },
+        "information": { "description": "Vindretning og mønster", "elements": ["🌬️ Vindlinjer", "↗️ Retning"] },
+        "temporal": { "description": "Vindhastighed animation", "elements": ["💨 Hastighed", "⚡ Animation"] },
+        "risk": { "description": "Antal højtryksområder (H)", "elements": ["🔴 H-zoner", "⭕ Isobarer"] },
+        "stakeholder": { "description": "Antal fronter og spændinger", "elements": ["〰️ Fronter", "❄️ Kold/varm"] },
+        "knowledge": { "description": "Skytæthed og type", "elements": ["☁️ Skyer", "🌥️ Dække"] },
+        "challenge": { "description": "Nedbørsintensitet", "elements": ["🌧️ Regn", "⛈️ Torden"] },
+        "change": { "description": "Nedbørstype og intensitet", "elements": ["💧 Nedbør", "❄️ Sne"] },
+        "resources": { "description": "Trykforskelle", "elements": ["📊 Tryk-gradienter"] },
+        "development": { "description": "IDG kompetencer", "elements": ["🧠 Radar", "📈 Scores"] }
+      }
+    },
     "theoryUMap": {
       "title": "Theory-U porteføljekort",
       "description": "Hvor hvert vurderet projekt befinder sig på Scharmers U ud fra dets nuværende fase. Projekter højt til venstre er endnu ikke gået i dybden; bunden er presencing; højre side bevæger sig mod handling.",
