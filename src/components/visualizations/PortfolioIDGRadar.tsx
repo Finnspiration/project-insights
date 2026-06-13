@@ -25,35 +25,17 @@ const avg = (values: number[]) =>
 
 export function PortfolioIDGRadar() {
   const { t, i18n } = useTranslation('common');
-  const { user } = useAuth();
-  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const { data, isLoading } = usePortfolio();
   const [selectedId, setSelectedId] = useState<string>('');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) fetchProjects();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, i18n.language]);
-
-  const fetchProjects = async () => {
-    try {
-      setLoading(true);
-      const { data } = await supabase
-        .from('projects').select('id, name, morphology')
-        .eq('user_id', user!.id).not('morphology', 'is', null);
-      const mapped: PortfolioProject[] = (data || [])
-        .filter((p) => p.morphology)
-        .map((p) => ({
-          id: p.id,
-          name: readName(p.name, i18n.language, t('common.untitled', 'Untitled')),
-          scores: calculateIDGScoresFromMorphology(p.morphology).radarScores as Scores,
-        }));
-      setProjects(mapped);
-      setSelectedId((prev) => (mapped.some((p) => p.id === prev) ? prev : mapped[0]?.id || ''));
-    } catch (error) {
-      console.error('Error building portfolio IDG radar:', error);
-    } finally { setLoading(false); }
-  };
+  const projects = useMemo<PortfolioProject[]>(() => {
+    if (!data) return [];
+    return data.projects.map((p) => ({
+      id: p.id,
+      name: readName(p.name, i18n.language, t('common.untitled', 'Untitled')),
+      scores: calculateIDGScoresFromMorphology(p.morphology).radarScores as Scores,
+    }));
+  }, [data, i18n.language, t]);
 
   const portfolioScores = useMemo(() => {
     const result = { being: 0, thinking: 0, relating: 0, collaborating: 0, acting: 0 };
@@ -61,7 +43,8 @@ export function PortfolioIDGRadar() {
     return result;
   }, [projects]);
 
-  const selected = projects.find((p) => p.id === selectedId);
+  const effectiveId = projects.some((p) => p.id === selectedId) ? selectedId : projects[0]?.id || '';
+  const selected = projects.find((p) => p.id === effectiveId);
   const chartData = IDG_DIMENSIONS.map((dim) => ({
     dimension: t(`visualizations.idgRadar.dimensions.${dim}`),
     portfolio: portfolioScores[dim],
