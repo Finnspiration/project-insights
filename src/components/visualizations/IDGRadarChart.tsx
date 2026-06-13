@@ -28,7 +28,7 @@ export function IDGRadarChart({ morphology, documents = [], precalculatedScores 
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+          <p className="text-muted-foreground">{t('visualizations.noMorphologyData')}</p>
         </CardContent>
       </Card>
     );
