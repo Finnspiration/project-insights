@@ -239,7 +239,7 @@ export function ProjectConstellation() {
               <Scatter
                 data={points}
                 onClick={(node: any) => {
-                  const point = node as unknown as ConstellationPoint;
+                  const point = (node?.payload ?? node) as ConstellationPoint;
                   if (point?.id) navigate(`/projects/${point.id}`);
                 }}
                 style={{ cursor: 'pointer' }}

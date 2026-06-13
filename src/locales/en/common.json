@@ -971,7 +971,7 @@
       },
       "tooltip": {
         "team": "team of {{count}}",
-        "blindSpots": "{{count}} open blind spot",
+        "blindSpots_one": "{{count}} open blind spot",
         "blindSpots_other": "{{count}} open blind spots"
       },
       "legend": {
