@@ -947,6 +947,12 @@
         "debating": "Debat",
         "dialogue": "Dialog",
         "collective_creativity": "Kollektiv Kreativitet"
+      },
+      "evidenceBreakdown": {
+        "title": "Bevisoversigt",
+        "dimensions": "dimensioner",
+        "description": "Disse morfologiske dimensioner har bidraget til placeringen i",
+        "hint": "Ændr morfologiske valg i Morphological Box for at se hvordan det påvirker Theory U-positionen"
       }
     },
     "idgRadar": {
