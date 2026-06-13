@@ -203,13 +203,13 @@ export function PrecipitationEvents({ events }: PrecipitationEventsProps) {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{getEventEmoji(event.type)}</span>
-                    <p className="font-semibold text-sm">{safeRenderText(event.title, 'Ukendt hændelse')}</p>
+                    <p className="font-semibold text-sm">{safeRenderText(event.title, t('visualizations.precipitationEvents.unknownEvent'))}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{safeRenderText(event.description, 'Ingen beskrivelse')}</p>
+                  <p className="text-xs text-muted-foreground">{safeRenderText(event.description, t('visualizations.precipitationEvents.noDescription'))}</p>
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="capitalize">Kilde: {event.source === 'blindspot' ? 'Blind vinkel' : event.source === 'recommendation' ? 'Anbefaling' : 'Intervention'}</span>
+                    <span className="capitalize">{t('visualizations.precipitationEvents.sourceLabel')} {event.source === 'blindspot' ? t('visualizations.precipitationEvents.sourceBlindSpot') : event.source === 'recommendation' ? t('visualizations.precipitationEvents.sourceRecommendation') : t('visualizations.precipitationEvents.sourceIntervention')}</span>
                     <span className="text-muted-foreground">•</span>
-                    <span className="capitalize">Prioritet: {event.priority === 'high' ? 'Høj' : event.priority === 'medium' ? 'Mellem' : 'Lav'}</span>
+                    <span className="capitalize">{t('visualizations.precipitationEvents.priorityLabel')} {event.priority === 'high' ? t('visualizations.precipitationEvents.priorityHigh') : event.priority === 'medium' ? t('visualizations.precipitationEvents.priorityMedium') : t('visualizations.precipitationEvents.priorityLow')}</span>
                   </div>
                 </div>
               </TooltipContent>
