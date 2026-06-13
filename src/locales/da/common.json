@@ -317,6 +317,22 @@
   "morphology": {
     "title": "Morfologisk Vurdering",
     "subtitle": "Karakteriser dit projekt på tværs af 12 nøgledimensioner",
+    "aggregate": "Saml fra dokumenter",
+    "aggregateError": "Kunne ikke samle morfologi",
+    "aggregateSuccess": "Morfologi samlet fra dine dokumenter!",
+    "resetToSaved": "Nulstil til gemte værdier",
+    "resetSuccess": "Nulstillet til gemte værdier",
+    "comparison": {
+      "title": "Sammenligning: Dine valg vs AI-forslag",
+      "subtitle": "Se hvordan dine valg stemmer overens med AI-analysens anbefalinger",
+      "agreements": "Enige",
+      "disagreements": "Uenige",
+      "agreement": "Enighed",
+      "yourChoice": "Dit valg",
+      "aiChoice": "AI-forslag",
+      "noSuggestion": "Ingen forslag",
+      "difference": "Du valgte anderledes end AI'ens anbefaling. Det kan være baseret på din kontekst og erfaring."
+    },
     "selectOption": "Vælg en mulighed",
     "updateSuccess": "Morfologi opdateret succesfuldt",
     "updateError": "Kunne ikke opdatere morfologi",
