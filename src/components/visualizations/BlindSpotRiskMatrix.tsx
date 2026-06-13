@@ -96,7 +96,7 @@ export function BlindSpotRiskMatrix() {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return <Skeleton className="h-[480px] w-full" />;
   }
 
