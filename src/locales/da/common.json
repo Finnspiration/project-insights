@@ -1149,6 +1149,8 @@
     "rateLimit": "Grænse overskredet. Prøv igen senere.",
     "noCredits": "AI-kredit opbrugt. Tilføj venligst kredit.",
     "noData": "Ingen indsigter genereret endnu. Klik 'Generer Indsigter' for at analysere dit projekt.",
+    "citations": "Kilder",
+    "success": "Indsigter genereret og gemt!",
     "recommendations": {
       "title": "Strategiske Anbefalinger",
       "description": "Handlingsorienterede anbefalinger til at forbedre projektsucces",
