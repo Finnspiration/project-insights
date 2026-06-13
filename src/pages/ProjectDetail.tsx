@@ -25,7 +25,9 @@ import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { calculateIDGScoresFromMorphology, IDGScoresCalculation } from '@/lib/idgScoring';
+import { ProjectProgress } from '@/components/projects/ProjectProgress';
 import type { Project } from '@/types/project';
+
 
 interface Document {
   id: string;
@@ -377,8 +379,26 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
+        {/* Project Progress */}
+        <Card>
+          <CardContent className="pt-6">
+            <ProjectProgress
+              variant="full"
+              flags={{
+                hasMorphology: !!project.morphology && Object.keys(project.morphology || {}).length >= 12,
+                hasDocuments: documents.length > 0,
+                hasDna: !!project.dna_code,
+                hasReviewedActions: blindSpots.some(
+                  (bs) => bs.status === 'acknowledged' || bs.status === 'addressed',
+                ),
+              }}
+            />
+          </CardContent>
+        </Card>
+
         {/* Tabs */}
         <Tabs defaultValue="documents" className="space-y-6">
+
           <TabsList>
             <TabsTrigger value="documents">{t('projectDetail.tabs.documents')} ({documents.length})</TabsTrigger>
             <TabsTrigger value="morphology" disabled={!project.dna_code}>

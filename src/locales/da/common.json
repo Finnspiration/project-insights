@@ -141,7 +141,8 @@
       "step2Desc": "Se skjulte mønstre",
       "step3": "Opdag",
       "step3Desc": "Afslør blinde vinkler"
-    }
+    },
+    "eyebrow": "Kom i gang"
   },
   "settings": {
     "title": "Indstillinger",
@@ -168,7 +169,8 @@
     "emptyState": {
       "title": "Ingen Projekter Endnu",
       "description": "Opret dit første projekt for at begynde at afsløre usynlige dimensioner",
-      "action": "Opret Projekt"
+      "action": "Opret Projekt",
+      "eyebrow": "Din portefølje"
     },
     "card": {
       "teamSize": "Teamstørrelse",
@@ -177,7 +179,8 @@
       "status": "Status",
       "edit": "Rediger",
       "delete": "Slet",
-      "view": "Se Detaljer"
+      "view": "Se Detaljer",
+      "demoBadge": "Demo"
     },
     "delete": {
       "title": "Slet Projekt",
@@ -985,8 +988,16 @@
       "description": "Den stiplede pentagon er dit porteføljes gennemsnitlige indre-udviklingskapacitet på tværs af alle vurderede projekter. Læg et projekt over for at se hvor det ligger i forhold til den kollektive norm.",
       "aiPrompt": "På tværs af hele min portefølje: hvilken IDG-dimension er samlet set svagest, og hvilket udviklingsfokus ville løfte den?",
       "overlayLabel": "Læg projekt over",
-      "stats": { "portfolioAvg": "Portefølje gns.", "projectAvg": "Dette projekt gns.", "strongest": "Stærkeste vs gns.", "biggestGap": "Største gap vs gns." },
-      "legend": { "portfolio": "Portefølje gennemsnit", "project": "Valgt projekt" }
+      "stats": {
+        "portfolioAvg": "Portefølje gns.",
+        "projectAvg": "Dette projekt gns.",
+        "strongest": "Stærkeste vs gns.",
+        "biggestGap": "Største gap vs gns."
+      },
+      "legend": {
+        "portfolio": "Portefølje gennemsnit",
+        "project": "Valgt projekt"
+      }
     },
     "riskMatrix": {
       "title": "Risikomatrix for blinde vinkler",
@@ -1010,11 +1021,33 @@
       "title": "Theory-U porteføljekort",
       "description": "Hvor hvert vurderet projekt befinder sig på Scharmers U ud fra dets nuværende fase. Projekter højt til venstre er endnu ikke gået i dybden; bunden er presencing; højre side bevæger sig mod handling.",
       "aiPrompt": "Med udgangspunkt i min portefølje på Theory U: hvilke projekter sidder fast tidligt (downloading/seeing), og hvad kan hjælpe dem videre mod presencing og handling?",
-      "stats": { "onTheU": "På U'et", "early": "Tidligt (ikke i dybden)", "action": "Mod handling", "avgConfidence": "Gns. sikkerhed" },
-      "axis": { "depth": "Dybde i U'et" },
-      "depth": { "deep": "Dyb", "surface": "Overflade" },
-      "zones": { "early": "Tidligt (downloading–sensing)", "pivot": "Presencing", "action": "Handling (crystallizing–performing)" },
-      "phases": { "downloading": "Downloading", "seeing": "Seeing", "sensing": "Sensing", "presencing": "Presencing", "crystallizing": "Crystallizing", "prototyping": "Prototyping", "performing": "Performing" }
+      "stats": {
+        "onTheU": "På U'et",
+        "early": "Tidligt (ikke i dybden)",
+        "action": "Mod handling",
+        "avgConfidence": "Gns. sikkerhed"
+      },
+      "axis": {
+        "depth": "Dybde i U'et"
+      },
+      "depth": {
+        "deep": "Dyb",
+        "surface": "Overflade"
+      },
+      "zones": {
+        "early": "Tidligt (downloading–sensing)",
+        "pivot": "Presencing",
+        "action": "Handling (crystallizing–performing)"
+      },
+      "phases": {
+        "downloading": "Downloading",
+        "seeing": "Seeing",
+        "sensing": "Sensing",
+        "presencing": "Presencing",
+        "crystallizing": "Crystallizing",
+        "prototyping": "Prototyping",
+        "performing": "Performing"
+      }
     },
     "dnaBarcode": {
       "title": "Projekt-DNA stregkoder",
@@ -1087,7 +1120,11 @@
     "markedAsAcknowledged": "Markeret som anerkendt",
     "markedAsAddressed": "Markeret som adresseret",
     "addressedOn": "Adresseret den",
-    "updateError": "Kunne ikke opdatere blind vinkel"
+    "updateError": "Kunne ikke opdatere blind vinkel",
+    "empty": {
+      "title": "Ingen blinde vinkler endnu",
+      "description": "Upload dokumenter eller generér AI-indsigter for at afdække, hvad teamet kan have overset."
+    }
   },
   "aiChat": {
     "title": "PRISM AI Assistent",
@@ -1224,5 +1261,41 @@
     "processing": "Behandler...",
     "documents_uploaded": "dokumenter uploadet",
     "loading_documents": "Indlæser dokumenter..."
+  },
+  "welcome": {
+    "eyebrow": "Velkommen",
+    "title": "Velkommen til PRISM",
+    "subtitle": "Lad os vise dig, hvordan PRISM afdækker de usynlige dimensioner i dine projekter — på cirka 60 sekunder.",
+    "steps": {
+      "characterize": {
+        "title": "Karakteriser dit projekt",
+        "description": "Tolv morfologiske dimensioner beskriver dets kultur, politik og dynamik."
+      },
+      "visualize": {
+        "title": "Se det fra nye vinkler",
+        "description": "Kultur-vejr, Teori U-rejse, IDG-radar og en 3D morfologi-blob."
+      },
+      "askAi": {
+        "title": "Spørg AI'en om alt",
+        "description": "Brug den flydende chat til at gå i dybden med enhver visualisering eller indsigt."
+      }
+    },
+    "exploreDemo": "Udforsk demo-projekt",
+    "skip": "Spring over og opret mit eget",
+    "seeding": "Forbereder dit demo…",
+    "demoReadyToast": "Dit demo-projekt er klar.",
+    "demoError": "Kunne ikke forberede demo-projektet. Prøv igen."
+  },
+  "projectProgress": {
+    "eyebrow": "Projekt-fremdrift",
+    "summary": "{{completed}} af {{total}} trin",
+    "nextLabel": "Næste trin",
+    "steps": {
+      "created": "Projekt oprettet",
+      "morphology": "Morfologi udfyldt",
+      "documents": "Dokumenter uploadet",
+      "dna": "AI-indsigt genereret",
+      "reviewed": "Handlinger gennemgået"
+    }
   }
 }

@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, FolderPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
+import { EmptyState } from '@/components/empty/EmptyState';
 import type { Project } from '@/types/project';
+
 
 
 export default function Projects() {
@@ -90,25 +92,18 @@ export default function Projects() {
 
         {/* Projects Grid */}
         {projects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-            <div className="relative mb-8">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl rounded-full" />
-              <Sparkles className="relative h-24 w-24 text-primary" />
-            </div>
-            
-            <h2 className="text-2xl font-bold mb-4">
-              {t('projects.emptyState.title')}
-            </h2>
-            
-            <p className="text-muted-foreground mb-8 max-w-md">
-              {t('projects.emptyState.description')}
-            </p>
-            
-            <Button size="lg" onClick={() => setCreateDialogOpen(true)} className="gap-2">
-              <Plus className="h-5 w-5" />
-              {t('projects.emptyState.action')}
-            </Button>
-          </div>
+          <EmptyState
+            icon={FolderPlus}
+            eyebrow={t('projects.emptyState.eyebrow')}
+            title={t('projects.emptyState.title')}
+            description={t('projects.emptyState.description')}
+            primaryAction={{
+              label: t('projects.emptyState.action'),
+              onClick: () => setCreateDialogOpen(true),
+              icon: Plus,
+            }}
+          />
+
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (

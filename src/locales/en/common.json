@@ -141,7 +141,8 @@
       "step2Desc": "See hidden patterns",
       "step3": "Discover",
       "step3Desc": "Uncover blind spots"
-    }
+    },
+    "eyebrow": "Get started"
   },
   "settings": {
     "title": "Settings",
@@ -168,7 +169,8 @@
     "emptyState": {
       "title": "No Projects Yet",
       "description": "Create your first project to start revealing invisible dimensions",
-      "action": "Create Project"
+      "action": "Create Project",
+      "eyebrow": "Your portfolio"
     },
     "card": {
       "teamSize": "Team Size",
@@ -177,7 +179,8 @@
       "status": "Status",
       "edit": "Edit",
       "delete": "Delete",
-      "view": "View Details"
+      "view": "View Details",
+      "demoBadge": "Demo"
     },
     "delete": {
       "title": "Delete Project",
@@ -985,8 +988,16 @@
       "description": "The dashed pentagon is your portfolio average inner-development capacity across all assessed projects. Overlay any project to see where it leads or lags the collective norm.",
       "aiPrompt": "Across my whole portfolio, which Inner Development Goal dimension is collectively weakest, and what facilitation or development focus would lift it?",
       "overlayLabel": "Overlay project",
-      "stats": { "portfolioAvg": "Portfolio avg", "projectAvg": "This project avg", "strongest": "Strongest vs avg", "biggestGap": "Biggest gap vs avg" },
-      "legend": { "portfolio": "Portfolio average", "project": "Selected project" }
+      "stats": {
+        "portfolioAvg": "Portfolio avg",
+        "projectAvg": "This project avg",
+        "strongest": "Strongest vs avg",
+        "biggestGap": "Biggest gap vs avg"
+      },
+      "legend": {
+        "portfolio": "Portfolio average",
+        "project": "Selected project"
+      }
     },
     "riskMatrix": {
       "title": "Blind spot risk matrix",
@@ -1010,11 +1021,33 @@
       "title": "Theory-U portfolio map",
       "description": "Where each assessed project sits on Scharmer's U by its current phase. Projects high on the left have not yet gone deep; the bottom is presencing; the right side is moving into action.",
       "aiPrompt": "Looking at my portfolio on Theory U, which projects are stuck early (downloading/seeing) and what would help them move toward presencing and action?",
-      "stats": { "onTheU": "On the U", "early": "Early (not yet deep)", "action": "Moving to action", "avgConfidence": "Avg confidence" },
-      "axis": { "depth": "Depth of the U" },
-      "depth": { "deep": "Deep", "surface": "Surface" },
-      "zones": { "early": "Early (downloading–sensing)", "pivot": "Presencing", "action": "Action (crystallizing–performing)" },
-      "phases": { "downloading": "Downloading", "seeing": "Seeing", "sensing": "Sensing", "presencing": "Presencing", "crystallizing": "Crystallizing", "prototyping": "Prototyping", "performing": "Performing" }
+      "stats": {
+        "onTheU": "On the U",
+        "early": "Early (not yet deep)",
+        "action": "Moving to action",
+        "avgConfidence": "Avg confidence"
+      },
+      "axis": {
+        "depth": "Depth of the U"
+      },
+      "depth": {
+        "deep": "Deep",
+        "surface": "Surface"
+      },
+      "zones": {
+        "early": "Early (downloading–sensing)",
+        "pivot": "Presencing",
+        "action": "Action (crystallizing–performing)"
+      },
+      "phases": {
+        "downloading": "Downloading",
+        "seeing": "Seeing",
+        "sensing": "Sensing",
+        "presencing": "Presencing",
+        "crystallizing": "Crystallizing",
+        "prototyping": "Prototyping",
+        "performing": "Performing"
+      }
     },
     "dnaBarcode": {
       "title": "Project DNA barcodes",
@@ -1087,7 +1120,11 @@
     "markedAsAcknowledged": "Marked as acknowledged",
     "markedAsAddressed": "Marked as addressed",
     "addressedOn": "Addressed on",
-    "updateError": "Failed to update blind spot"
+    "updateError": "Failed to update blind spot",
+    "empty": {
+      "title": "No blind spots yet",
+      "description": "Upload documents or generate AI insights to surface what your team may be missing."
+    }
   },
   "aiChat": {
     "title": "PRISM AI Assistant",
@@ -1224,5 +1261,41 @@
     "processing": "Processing...",
     "documents_uploaded": "documents uploaded",
     "loading_documents": "Loading documents..."
+  },
+  "welcome": {
+    "eyebrow": "Welcome",
+    "title": "Welcome to PRISM",
+    "subtitle": "Let's show you how PRISM reveals the invisible dimensions of your projects — in about 60 seconds.",
+    "steps": {
+      "characterize": {
+        "title": "Characterize your project",
+        "description": "Twelve morphological dimensions describe its culture, politics and dynamics."
+      },
+      "visualize": {
+        "title": "See it from new angles",
+        "description": "Cultural weather, Theory-U journey, IDG radar and a 3D morphology blob."
+      },
+      "askAi": {
+        "title": "Ask the AI anything",
+        "description": "Use the floating chat to drill into any visualization or insight."
+      }
+    },
+    "exploreDemo": "Explore demo project",
+    "skip": "Skip and create my own",
+    "seeding": "Preparing your demo…",
+    "demoReadyToast": "Your demo project is ready.",
+    "demoError": "Could not prepare the demo project. Please try again."
+  },
+  "projectProgress": {
+    "eyebrow": "Project progress",
+    "summary": "{{completed}} of {{total}} steps",
+    "nextLabel": "Next step",
+    "steps": {
+      "created": "Project created",
+      "morphology": "Morphology completed",
+      "documents": "Documents uploaded",
+      "dna": "AI insight generated",
+      "reviewed": "Actions reviewed"
+    }
   }
 }
