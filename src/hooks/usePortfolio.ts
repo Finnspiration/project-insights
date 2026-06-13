@@ -11,6 +11,7 @@ export interface PortfolioProject {
   morphology: any;
   team_size: number | null;
   dna_code: string | null;
+  theory_u_analysis: any;
 }
 
 export interface PortfolioBlindSpot {
