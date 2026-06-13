@@ -498,7 +498,7 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
                 className={`gap-2 ${hasChanges ? 'text-muted-foreground hover:text-foreground' : 'opacity-50'}`}
               >
                 <RotateCcw className="h-4 w-4" />
-                {i18n.language === 'da' ? 'Nulstil til gemte værdier' : 'Reset to saved values'}
+                {t('morphology.resetToSaved')}
               </Button>
             </div>
           )}
