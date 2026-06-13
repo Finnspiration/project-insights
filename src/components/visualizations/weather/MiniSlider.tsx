@@ -10,20 +10,13 @@ interface MiniSliderProps {
   onChange: (index: number) => void;
 }
 
-const IMPACT_DESCRIPTIONS: Record<DimensionKey, { da: string; elements: string[] }> = {
-  complexity: { da: 'Antal skyer i himlen', elements: ['☁️ Sky-tæthed'] },
-  organizational: { da: 'Baggrundsfarve gradient', elements: ['🎨 Baggrund', '☁️ Skyfarve'] },
-  cultural: { da: 'Temperatur nuancer', elements: ['🌡️ Varme-zoner'] },
-  information: { da: 'Vindretning og mønster', elements: ['🌬️ Vindlinjer', '↗️ Retning'] },
-  temporal: { da: 'Vindhastighed animation', elements: ['💨 Hastighed', '⚡ Animation'] },
-  risk: { da: 'Antal højtryksområder (H)', elements: ['🔴 H-zoner', '⭕ Isobarer'] },
-  stakeholder: { da: 'Antal fronter og spændinger', elements: ['〰️ Fronter', '❄️ Kold/varm'] },
-  knowledge: { da: 'Skytæthed og type', elements: ['☁️ Skyer', '🌥️ Dække'] },
-  challenge: { da: 'Nedbørsintensitet', elements: ['🌧️ Regn', '⛈️ Torden'] },
-  change: { da: 'Nedbørstype og intensitet', elements: ['💧 Nedbør', '❄️ Sne'] },
-  resources: { da: 'Trykforskelle', elements: ['📊 Tryk-gradienter'] },
-  development: { da: 'IDG kompetencer', elements: ['🧠 Radar', '📈 Scores'] }
-};
+// Dimensions that have an "affects the weather" explanation in the tooltip.
+// The descriptions and element labels live in the locale files under
+// visualizations.miniSlider.impact.<dimensionKey>.
+const IMPACT_DIMENSIONS: DimensionKey[] = [
+  'complexity', 'organizational', 'cultural', 'information', 'temporal', 'risk',
+  'stakeholder', 'knowledge', 'challenge', 'change', 'resources', 'development',
+];
 
 export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProps) {
   const { t } = useTranslation('common');
@@ -48,14 +41,14 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
                   <p className="text-[10px] text-muted-foreground">
                     {dimension.options.map(opt => t(opt.translationKey)).join(' → ')}
                   </p>
-                  {IMPACT_DESCRIPTIONS[dimension.key] && (
+                  {IMPACT_DIMENSIONS.includes(dimension.key) && (
                     <div className="pt-1.5 mt-1.5 border-t border-border">
-                      <p className="text-[10px] font-medium text-primary mb-0.5">Påvirker:</p>
+                      <p className="text-[10px] font-medium text-primary mb-0.5">{t('visualizations.miniSlider.affects')}</p>
                       <p className="text-[9px] text-muted-foreground mb-1">
-                        {IMPACT_DESCRIPTIONS[dimension.key].da}
+                        {t(`visualizations.miniSlider.impact.${dimension.key}.description`)}
                       </p>
                       <div className="flex flex-wrap gap-1">
-                        {IMPACT_DESCRIPTIONS[dimension.key].elements.map(el => (
+                        {(t(`visualizations.miniSlider.impact.${dimension.key}.elements`, { returnObjects: true }) as string[]).map(el => (
                           <span key={el} className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                             {el}
                           </span>

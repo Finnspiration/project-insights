@@ -37,7 +37,7 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
           <CardTitle>{t('visualizations.blob.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+          <p className="text-muted-foreground">{t('visualizations.noMorphologyData')}</p>
         </CardContent>
       </Card>
     );
@@ -116,8 +116,8 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
   // Reset local morphology to saved values (from morphological box)
   const handleResetToOriginal = useCallback(() => {
     setLocalMorphology({ ...normalizedMorphology });
-    toast.success(i18n.language === 'da' ? 'Nulstillet til gemte værdier' : 'Reset to saved values');
-  }, [normalizedMorphology, i18n.language]);
+    toast.success(t('morphology.resetSuccess'));
+  }, [normalizedMorphology, t]);
   
   // Demo mode handlers
   const handleDemoMorphologyChange = useCallback((newMorphology: Record<string, string>) => {
@@ -498,7 +498,7 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
                 className={`gap-2 ${hasChanges ? 'text-muted-foreground hover:text-foreground' : 'opacity-50'}`}
               >
                 <RotateCcw className="h-4 w-4" />
-                {i18n.language === 'da' ? 'Nulstil til gemte værdier' : 'Reset to saved values'}
+                {t('morphology.resetToSaved')}
               </Button>
             </div>
           )}

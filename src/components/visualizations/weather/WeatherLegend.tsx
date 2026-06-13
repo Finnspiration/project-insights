@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export function WeatherLegend() {
+  const { t } = useTranslation('common');
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -17,7 +19,7 @@ export function WeatherLegend() {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors rounded-t-lg"
       >
-        <h3 className="text-xs font-semibold text-foreground">Temperatur, tryk & fronter</h3>
+        <h3 className="text-xs font-semibold text-foreground">{t('visualizations.weatherLegend.title')}</h3>
         {isExpanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
@@ -38,22 +40,22 @@ export function WeatherLegend() {
         
         {/* Temperature Zones Section */}
         <div>
-          <h4 className="text-xs font-semibold text-foreground mb-1">Temperaturzoner</h4>
+          <h4 className="text-xs font-semibold text-foreground mb-1">{t('visualizations.weatherLegend.temperatureZones')}</h4>
           <div className="flex items-center gap-2 text-xs mb-0.5">
             <svg width="24" height="24" viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="10" fill="hsl(0, 80%, 60%)" opacity="0.4" />
               <circle cx="14" cy="14" r="6" fill="hsl(0, 80%, 60%)" opacity="0.6" />
               <circle cx="14" cy="14" r="2.5" fill="hsl(0, 80%, 60%)" opacity="0.8" />
             </svg>
-            <span className="text-muted-foreground">Store blobs = IDG områder</span>
+            <span className="text-muted-foreground">{t('visualizations.weatherLegend.idgAreas')}</span>
           </div>
           <p className="text-[10px] text-muted-foreground italic pl-1">
-            Farve indikerer styrke (rød=lav, gul=middel, grøn=høj)
+            {t('visualizations.weatherLegend.colorStrength')}
           </p>
         </div>
 
         <div className="border-t border-border pt-1.5">
-          <h4 className="text-xs font-semibold text-foreground mb-1">Tryksystemer</h4>
+          <h4 className="text-xs font-semibold text-foreground mb-1">{t('visualizations.weatherLegend.pressureSystems')}</h4>
         
         {/* High Pressure */}
         <div className="flex items-center gap-2 text-xs mb-0.5">
@@ -64,7 +66,7 @@ export function WeatherLegend() {
               <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">H</text>
             </svg>
           </div>
-          <span className="text-muted-foreground">Højtryk (risiko)</span>
+          <span className="text-muted-foreground">{t('visualizations.weatherLegend.highPressureRisk')}</span>
         </div>
 
         {/* High Pressure from Blind Spot */}
@@ -76,7 +78,7 @@ export function WeatherLegend() {
               <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">H</text>
             </svg>
           </div>
-          <span className="text-muted-foreground">Højtryk (blind spot)</span>
+          <span className="text-muted-foreground">{t('visualizations.weatherLegend.highPressureBlindSpot')}</span>
         </div>
 
         {/* Low Pressure */}
@@ -88,12 +90,12 @@ export function WeatherLegend() {
               <text x="14" y="16" textAnchor="middle" className="fill-white text-[10px] font-bold">L</text>
             </svg>
           </div>
-          <span className="text-muted-foreground">Lavtryk</span>
+          <span className="text-muted-foreground">{t('visualizations.weatherLegend.lowPressure')}</span>
         </div>
         </div>
 
         <div className="border-t border-border pt-1.5">
-          <h4 className="text-xs font-semibold text-foreground mb-1">Fronter</h4>
+          <h4 className="text-xs font-semibold text-foreground mb-1">{t('visualizations.weatherLegend.fronts')}</h4>
           
           {/* Cold Front */}
           <div className="flex items-center gap-2 text-xs mb-0.5">
@@ -102,7 +104,7 @@ export function WeatherLegend() {
               <polygon points="8,4 9,8 10,4" fill="hsl(220, 80%, 50%)" opacity="0.9" />
               <polygon points="18,4 19,8 20,4" fill="hsl(220, 80%, 50%)" opacity="0.9" />
             </svg>
-            <span className="text-muted-foreground">Kold front</span>
+            <span className="text-muted-foreground">{t('visualizations.weatherLegend.coldFront')}</span>
           </div>
 
           {/* Warm Front */}
@@ -112,12 +114,12 @@ export function WeatherLegend() {
               <circle cx="9" cy="6" r="1.5" fill="hsl(0, 80%, 50%)" opacity="0.9" />
               <circle cx="19" cy="6" r="1.5" fill="hsl(0, 80%, 50%)" opacity="0.9" />
             </svg>
-            <span className="text-muted-foreground">Varm front</span>
+            <span className="text-muted-foreground">{t('visualizations.weatherLegend.warmFront')}</span>
           </div>
         </div>
 
         <p className="text-[10px] text-muted-foreground mt-2 italic">
-          Mørkere farver = højere intensitet
+          {t('visualizations.weatherLegend.intensityNote')}
         </p>
             </div>
           </motion.div>

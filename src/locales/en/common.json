@@ -4,7 +4,13 @@
     "close": "Close",
     "save": "Save",
     "cancel": "Cancel",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "untitled": "Untitled",
+    "continue": "Continue",
+    "updating": "Updating...",
+    "error": "Error",
+    "success": "Success",
+    "notAvailable": "N/A"
   },
   "nav": {
     "features": "Features",
@@ -311,6 +317,22 @@
   "morphology": {
     "title": "Morphological Assessment",
     "subtitle": "Characterize your project across 12 key dimensions",
+    "aggregate": "Aggregate from Documents",
+    "aggregateError": "Failed to aggregate morphology",
+    "aggregateSuccess": "Morphology aggregated from your documents!",
+    "resetToSaved": "Reset to saved values",
+    "resetSuccess": "Reset to saved values",
+    "comparison": {
+      "title": "Comparison: Your Choices vs AI Suggestions",
+      "subtitle": "See how your choices align with the AI analysis recommendations",
+      "agreements": "Agree",
+      "disagreements": "Disagree",
+      "agreement": "Agreement",
+      "yourChoice": "Your Choice",
+      "aiChoice": "AI Suggestion",
+      "noSuggestion": "No suggestion",
+      "difference": "You chose differently from the AI's recommendation. This may be based on your context and experience."
+    },
     "selectOption": "Select an option",
     "updateSuccess": "Morphology updated successfully",
     "updateError": "Failed to update morphology",
@@ -513,6 +535,7 @@
   },
   "visualizations": {
     "title": "Visualizations",
+    "noMorphologyData": "No morphology data available yet.",
     "blob": {
       "title": "Morphology Blob",
       "description": "A living, generative form that visualizes your project's 'energy'. Color, shape, movement, and patterns reflect the 12 morphological dimensions. See how the project 'breathes' and evolves.",
@@ -924,6 +947,12 @@
         "debating": "Debating",
         "dialogue": "Dialogue",
         "collective_creativity": "Collective Creativity"
+      },
+      "evidenceBreakdown": {
+        "title": "Evidence Breakdown",
+        "dimensions": "dimensions",
+        "description": "These morphological dimensions contributed to the placement in",
+        "hint": "Change morphological choices in the Morphological Box to see how it affects the Theory U position"
       }
     },
     "idgRadar": {
@@ -938,6 +967,9 @@
       },
       "score": "Score",
       "target": "Target",
+      "averageScore": "Average Score",
+      "primaryFocus": "Primary Focus",
+      "orgStage": "Org Stage",
       "evidence": {
         "title": "IDG Evidence Breakdown",
         "description": "See how morphological dimensions contribute to each IDG score",
@@ -1017,6 +1049,58 @@
         "actNow": "Act-now zone"
       }
     },
+    "weatherLegend": {
+      "title": "Temperature, pressure & fronts",
+      "temperatureZones": "Temperature zones",
+      "idgAreas": "Large blobs = IDG areas",
+      "colorStrength": "Colour indicates strength (red=low, yellow=medium, green=high)",
+      "pressureSystems": "Pressure systems",
+      "highPressureRisk": "High pressure (risk)",
+      "highPressureBlindSpot": "High pressure (blind spot)",
+      "lowPressure": "Low pressure",
+      "fronts": "Fronts",
+      "coldFront": "Cold front",
+      "warmFront": "Warm front",
+      "intensityNote": "Darker colours = higher intensity"
+    },
+    "pressureSystems": {
+      "highPressure": "High-pressure system",
+      "lowPressure": "Low-pressure system",
+      "intensity": "Intensity: {{value}}/10",
+      "criticalBlindSpot": "⚠️ Critical blind spot",
+      "coldFront": "❄️ Cold front",
+      "warmFront": "🌡️ Warm front",
+      "stakeholderDynamics": "Stakeholder dynamics"
+    },
+    "precipitationEvents": {
+      "unknownEvent": "Unknown event",
+      "noDescription": "No description",
+      "sourceLabel": "Source:",
+      "sourceBlindSpot": "Blind spot",
+      "sourceRecommendation": "Recommendation",
+      "sourceIntervention": "Intervention",
+      "priorityLabel": "Priority:",
+      "priorityHigh": "High",
+      "priorityMedium": "Medium",
+      "priorityLow": "Low"
+    },
+    "miniSlider": {
+      "affects": "Affects:",
+      "impact": {
+        "complexity": { "description": "Number of clouds in the sky", "elements": ["☁️ Cloud density"] },
+        "organizational": { "description": "Background colour gradient", "elements": ["🎨 Background", "☁️ Cloud colour"] },
+        "cultural": { "description": "Temperature shades", "elements": ["🌡️ Heat zones"] },
+        "information": { "description": "Wind direction and pattern", "elements": ["🌬️ Wind lines", "↗️ Direction"] },
+        "temporal": { "description": "Wind speed animation", "elements": ["💨 Speed", "⚡ Animation"] },
+        "risk": { "description": "Number of high-pressure areas (H)", "elements": ["🔴 H zones", "⭕ Isobars"] },
+        "stakeholder": { "description": "Number of fronts and tensions", "elements": ["〰️ Fronts", "❄️ Cold/warm"] },
+        "knowledge": { "description": "Cloud density and type", "elements": ["☁️ Clouds", "🌥️ Cover"] },
+        "challenge": { "description": "Precipitation intensity", "elements": ["🌧️ Rain", "⛈️ Thunder"] },
+        "change": { "description": "Precipitation type and intensity", "elements": ["💧 Precipitation", "❄️ Snow"] },
+        "resources": { "description": "Pressure differences", "elements": ["📊 Pressure gradients"] },
+        "development": { "description": "IDG competencies", "elements": ["🧠 Radar", "📈 Scores"] }
+      }
+    },
     "theoryUMap": {
       "title": "Theory-U portfolio map",
       "description": "Where each assessed project sits on Scharmer's U by its current phase. Projects high on the left have not yet gone deep; the bottom is presencing; the right side is moving into action.",
@@ -1065,6 +1149,8 @@
     "rateLimit": "Rate limit exceeded. Please try again later.",
     "noCredits": "AI credits exhausted. Please add credits.",
     "noData": "No insights generated yet. Click 'Generate Insights' to analyze your project.",
+    "citations": "Citations",
+    "success": "Insights generated and saved successfully!",
     "recommendations": {
       "title": "Strategic Recommendations",
       "description": "Actionable recommendations to improve project success",
@@ -1095,6 +1181,7 @@
     "description": "Potential blind spots and overlooked dimensions detected in your project",
     "loading": "Loading blind spots...",
     "noData": "No blind spots detected yet. Generate insights to discover potential blind spots.",
+    "untitled": "Blind spot",
     "unaddressed": "Unaddressed",
     "acknowledged": "Acknowledged",
     "addressed": "Addressed",

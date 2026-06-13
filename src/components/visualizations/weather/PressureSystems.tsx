@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { PressureZone, PressureFront } from './weatherDataMapper';
 import { AlertTriangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -12,6 +13,7 @@ interface PressureSystemsProps {
 }
 
 export function PressureSystems({ systems }: PressureSystemsProps) {
+  const { t } = useTranslation('common');
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [hoveredFront, setHoveredFront] = useState<string | null>(null);
 
@@ -223,14 +225,14 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">
-                    {zone.type === 'H' ? 'Højtrykssystem' : 'Lavtrykssystem'}
+                    {zone.type === 'H' ? t('visualizations.pressureSystems.highPressure') : t('visualizations.pressureSystems.lowPressure')}
                   </span>
                   {zone.metadata?.source === 'blind_spot' && (
                     <AlertTriangle className="w-4 h-4 text-destructive" />
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Intensitet: {zone.intensity}/10
+                  {t('visualizations.pressureSystems.intensity', { value: zone.intensity })}
                 </p>
                 {zone.metadata?.blindSpotTitle && (
                   <p className="text-sm font-medium">{zone.metadata.blindSpotTitle}</p>
@@ -239,7 +241,7 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                   <p className="text-xs text-muted-foreground">{zone.metadata.description}</p>
                 )}
                 {zone.metadata?.source === 'blind_spot' && (
-                  <p className="text-xs text-destructive">⚠️ Kritisk blind vinkel</p>
+                  <p className="text-xs text-destructive">{t('visualizations.pressureSystems.criticalBlindSpot')}</p>
                 )}
               </div>
             </TooltipContent>
@@ -269,14 +271,14 @@ export function PressureSystems({ systems }: PressureSystemsProps) {
                 <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg max-w-xs">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-sm">
-                      {front.type === 'cold' ? '❄️ Kold Front' : '🌡️ Varm Front'}
+                      {front.type === 'cold' ? t('visualizations.pressureSystems.coldFront') : t('visualizations.pressureSystems.warmFront')}
                     </h4>
                     <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                      Intensitet: {front.intensity}/10
+                      {t('visualizations.pressureSystems.intensity', { value: front.intensity })}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {front.metadata?.description || 'Stakeholder dynamik'}
+                    {front.metadata?.description || t('visualizations.pressureSystems.stakeholderDynamics')}
                   </p>
                 </div>
               </motion.div>
