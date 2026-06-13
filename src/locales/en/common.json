@@ -1100,7 +1100,6 @@
         "resources": { "description": "Pressure differences", "elements": ["📊 Pressure gradients"] },
         "development": { "description": "IDG competencies", "elements": ["🧠 Radar", "📈 Scores"] }
       }
-    }
     },
     "theoryUMap": {
       "title": "Theory-U portfolio map",
