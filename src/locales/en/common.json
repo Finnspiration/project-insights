@@ -967,6 +967,9 @@
       },
       "score": "Score",
       "target": "Target",
+      "averageScore": "Average Score",
+      "primaryFocus": "Primary Focus",
+      "orgStage": "Org Stage",
       "evidence": {
         "title": "IDG Evidence Breakdown",
         "description": "See how morphological dimensions contribute to each IDG score",
