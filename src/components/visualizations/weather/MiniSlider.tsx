@@ -41,14 +41,14 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
                   <p className="text-[10px] text-muted-foreground">
                     {dimension.options.map(opt => t(opt.translationKey)).join(' → ')}
                   </p>
-                  {IMPACT_DESCRIPTIONS[dimension.key] && (
+                  {IMPACT_DIMENSIONS.includes(dimension.key) && (
                     <div className="pt-1.5 mt-1.5 border-t border-border">
-                      <p className="text-[10px] font-medium text-primary mb-0.5">Påvirker:</p>
+                      <p className="text-[10px] font-medium text-primary mb-0.5">{t('visualizations.miniSlider.affects')}</p>
                       <p className="text-[9px] text-muted-foreground mb-1">
-                        {IMPACT_DESCRIPTIONS[dimension.key].da}
+                        {t(`visualizations.miniSlider.impact.${dimension.key}.description`)}
                       </p>
                       <div className="flex flex-wrap gap-1">
-                        {IMPACT_DESCRIPTIONS[dimension.key].elements.map(el => (
+                        {(t(`visualizations.miniSlider.impact.${dimension.key}.elements`, { returnObjects: true }) as string[]).map(el => (
                           <span key={el} className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                             {el}
                           </span>
