@@ -280,6 +280,12 @@ export default function Dashboard() {
             {/* Blind Spot Risk Matrix */}
             {stats.assessed > 0 && <BlindSpotRiskMatrix />}
 
+            {/* Theory-U Portfolio Map */}
+            {stats.assessed > 0 && <TheoryUPortfolioMap />}
+
+            {/* DNA Barcode Strip */}
+            {stats.assessed > 1 && <DNABarcodeStrip />}
+
             {/* Recent Projects */}
             {recentProjects.length > 0 && (
               <div>
