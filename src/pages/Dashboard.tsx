@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { da } from 'date-fns/locale';
 import type { Project } from '@/types/project';
+import { ProjectConstellation } from '@/components/visualizations/ProjectConstellation';
 
 interface ProjectStats {
   total: number;
@@ -265,6 +266,9 @@ export default function Dashboard() {
                 </Card>
               </div>
             </div>
+
+            {/* Portfolio Constellation */}
+            <ProjectConstellation />
 
             {/* Recent Projects */}
             {recentProjects.length > 0 && (
