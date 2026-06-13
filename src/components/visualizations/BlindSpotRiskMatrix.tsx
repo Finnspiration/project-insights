@@ -12,10 +12,12 @@ import {
   ReferenceArea,
   ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePortfolio } from '@/hooks/usePortfolio';
+import { askAIChat } from '@/lib/aiChat';
 
 const PRIORITY = ['low', 'medium', 'high'] as const;
 const STATUS = ['unaddressed', 'acknowledged', 'addressed'] as const;
@@ -107,11 +109,23 @@ export function BlindSpotRiskMatrix() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-primary" />
-          {t('visualizations.riskMatrix.title')}
-        </CardTitle>
-        <CardDescription>{t('visualizations.riskMatrix.description')}</CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-primary" />
+              {t('visualizations.riskMatrix.title')}
+            </CardTitle>
+            <CardDescription>{t('visualizations.riskMatrix.description')}</CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => askAIChat(t('visualizations.riskMatrix.aiPrompt'))}
+          >
+            <Sparkles className="h-4 w-4 mr-1.5" />
+            {t('visualizations.askAi')}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

@@ -11,6 +11,7 @@ export interface PortfolioProject {
   morphology: any;
   team_size: number | null;
   dna_code: string | null;
+  theory_u_analysis: any;
 }
 
 export interface PortfolioBlindSpot {
@@ -30,7 +31,7 @@ export interface PortfolioData {
 async function fetchPortfolio(userId: string): Promise<PortfolioData> {
   const { data: projects, error: projectsError } = await supabase
     .from('projects')
-    .select('id, name, morphology, team_size, dna_code')
+    .select('id, name, morphology, team_size, dna_code, theory_u_analysis')
     .eq('user_id', userId)
     .not('morphology', 'is', null);
 

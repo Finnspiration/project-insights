@@ -16,6 +16,8 @@ import type { Project } from '@/types/project';
 import { ProjectConstellation } from '@/components/visualizations/ProjectConstellation';
 import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar';
 import { BlindSpotRiskMatrix } from '@/components/visualizations/BlindSpotRiskMatrix';
+import { TheoryUPortfolioMap } from '@/components/visualizations/TheoryUPortfolioMap';
+import { DNABarcodeStrip } from '@/components/visualizations/DNABarcodeStrip';
 
 interface ProjectStats {
   total: number;
@@ -277,6 +279,12 @@ export default function Dashboard() {
 
             {/* Blind Spot Risk Matrix */}
             {stats.assessed > 0 && <BlindSpotRiskMatrix />}
+
+            {/* Theory-U Portfolio Map */}
+            {stats.assessed > 0 && <TheoryUPortfolioMap />}
+
+            {/* DNA Barcode Strip */}
+            {stats.assessed > 1 && <DNABarcodeStrip />}
 
             {/* Recent Projects */}
             {recentProjects.length > 0 && (

@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend,
 } from 'recharts';
-import { Target } from 'lucide-react';
+import { Target, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePortfolio } from '@/hooks/usePortfolio';
+import { askAIChat } from '@/lib/aiChat';
 import { calculateIDGScoresFromMorphology } from '@/lib/idgScoring';
 
 const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'] as const;
@@ -85,13 +87,25 @@ export function PortfolioIDGRadar() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          {t('visualizations.portfolioIdg.title')}
-        </CardTitle>
-        <CardDescription>
-          {t('visualizations.portfolioIdg.description')}
-        </CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              {t('visualizations.portfolioIdg.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('visualizations.portfolioIdg.description')}
+            </CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => askAIChat(t('visualizations.portfolioIdg.aiPrompt'))}
+          >
+            <Sparkles className="h-4 w-4 mr-1.5" />
+            {t('visualizations.askAi')}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
