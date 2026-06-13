@@ -165,7 +165,7 @@ export function PortfolioIDGRadar() {
               </p>
             </div>
             <div className="p-4 bg-muted rounded-lg text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-lg font-bold text-success">
                 {deltas ? `${deltas.strongest.label} +${deltas.strongest.delta}` : '—'}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -173,7 +173,7 @@ export function PortfolioIDGRadar() {
               </p>
             </div>
             <div className="p-4 bg-muted rounded-lg text-center">
-              <div className="text-2xl font-bold text-orange-500">
+              <div className="text-lg font-bold text-warning">
                 {deltas ? `${deltas.weakest.label} ${deltas.weakest.delta}` : '—'}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
