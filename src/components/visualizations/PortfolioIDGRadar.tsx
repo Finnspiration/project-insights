@@ -87,13 +87,25 @@ export function PortfolioIDGRadar() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          {t('visualizations.portfolioIdg.title')}
-        </CardTitle>
-        <CardDescription>
-          {t('visualizations.portfolioIdg.description')}
-        </CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              {t('visualizations.portfolioIdg.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('visualizations.portfolioIdg.description')}
+            </CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => askAIChat(t('visualizations.portfolioIdg.aiPrompt'))}
+          >
+            <Sparkles className="h-4 w-4 mr-1.5" />
+            {t('visualizations.askAi')}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
