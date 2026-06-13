@@ -153,9 +153,10 @@ export default function Dashboard() {
               <Sparkles className="relative h-24 w-24 text-primary" />
             </div>
             
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h2 className="font-display text-5xl font-semibold tracking-tight mb-4 text-foreground">
               {t('dashboard.welcome')}
             </h2>
+            <div className="h-[2px] w-16 bg-secondary mx-auto mb-6" />
             
             <p className="text-lg text-muted-foreground mb-8 max-w-md">
               {t('dashboard.emptyState')}
@@ -188,9 +189,12 @@ export default function Dashboard() {
           <>
             {/* Project Statistics */}
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold">{t('dashboard.overview')}</h2>
-                <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary mb-2">Portfolio</p>
+                  <h2 className="font-display text-3xl font-semibold tracking-tight">{t('dashboard.overview')}</h2>
+                </div>
+                <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
                   <Plus className="h-4 w-4" />
                   {t('dashboard.createProject')}
                 </Button>
@@ -199,72 +203,60 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <Folder className="h-5 w-5 text-primary" />
-                    </div>
+                    <Folder className="h-5 w-5 text-primary" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{stats.total}</div>
+                    <div className="font-display text-3xl font-semibold">{stats.total}</div>
                     <p className="text-sm text-muted-foreground">{t('dashboard.stats.totalProjects')}</p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    </div>
+                    <CheckCircle className="h-5 w-5 text-success" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{stats.assessed}</div>
+                    <div className="font-display text-3xl font-semibold">{stats.assessed}</div>
                     <p className="text-sm text-muted-foreground">{t('dashboard.stats.assessed')}</p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <AlertCircle className="h-5 w-5 text-orange-500" />
-                    </div>
+                    <AlertCircle className="h-5 w-5 text-warning" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{stats.unassessed}</div>
+                    <div className="font-display text-3xl font-semibold">{stats.unassessed}</div>
                     <p className="text-sm text-muted-foreground">{t('dashboard.stats.unassessed')}</p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <FileText className="h-5 w-5 text-blue-500" />
-                    </div>
+                    <FileText className="h-5 w-5 text-accent" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{stats.documents}</div>
+                    <div className="font-display text-3xl font-semibold">{stats.documents}</div>
                     <p className="text-sm text-muted-foreground">{t('dashboard.stats.documents')}</p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <MessageSquare className="h-5 w-5 text-purple-500" />
-                    </div>
+                    <MessageSquare className="h-5 w-5 text-primary" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{aiMessagesUsed}</div>
+                    <div className="font-display text-3xl font-semibold">{aiMessagesUsed}</div>
                     <p className="text-sm text-muted-foreground">{t('dashboard.stats.aiUsed')}</p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <Sparkles className="h-5 w-5 text-secondary" />
-                    </div>
+                    <Sparkles className="h-5 w-5 text-secondary" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{getAiMessagesRemaining()}</div>
+                    <div className="font-display text-3xl font-semibold">{getAiMessagesRemaining()}</div>
                     <p className="text-sm text-muted-foreground">{t('dashboard.stats.aiRemaining')}</p>
                   </CardContent>
                 </Card>
@@ -289,7 +281,7 @@ export default function Dashboard() {
             {/* Recent Projects */}
             {recentProjects.length > 0 && (
               <div>
-                <h3 className="text-2xl font-bold mb-4">{t('dashboard.recentProjects')}</h3>
+                <h3 className="font-display text-2xl font-semibold tracking-tight mb-4">{t('dashboard.recentProjects')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {recentProjects.map(project => (
                     <Card key={project.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/projects/${project.id}`)}>
@@ -325,14 +317,14 @@ export default function Dashboard() {
             {/* Recommended Actions */}
             {recommendations.length > 0 && (
               <div>
-                <h3 className="text-2xl font-bold mb-4">{t('dashboard.recommendedActions')}</h3>
+                <h3 className="font-display text-2xl font-semibold tracking-tight mb-4">{t('dashboard.recommendedActions')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {recommendations.map((rec, index) => (
                     <Card key={index}>
                       <CardHeader>
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <rec.icon className="h-5 w-5 text-primary" />
+                          <div className="p-2 rounded-lg bg-secondary/10">
+                            <rec.icon className="h-5 w-5 text-secondary" />
                           </div>
                           <CardTitle className="text-lg">{rec.title}</CardTitle>
                         </div>

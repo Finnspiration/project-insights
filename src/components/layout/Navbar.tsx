@@ -27,8 +27,8 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="text-2xl font-bold text-gradient">
-              PRISM
+            <a href="/" className="font-display text-2xl font-bold tracking-tight text-foreground inline-flex items-center gap-1.5">
+              PRISM<span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2" />
             </a>
           </div>
 
@@ -77,7 +77,7 @@ export default function Navbar() {
               <Button variant="ghost">{t('nav.signIn')}</Button>
             </Link>
             <Link to="/auth">
-              <Button className="gradient-primary text-white">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                 {t('nav.startFree')}
               </Button>
             </Link>
@@ -145,7 +145,7 @@ export default function Navbar() {
               </Button>
             </Link>
             <Link to="/auth" className="block">
-              <Button className="w-full gradient-primary text-white">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                 {t('nav.startFree')}
               </Button>
             </Link>

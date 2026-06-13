@@ -5,13 +5,15 @@ export default function Footer() {
   const { t } = useTranslation('common');
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-[hsl(158_50%_7%)] text-[hsl(45_40%_94%)]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Column 1: Brand */}
           <div>
-            <h3 className="text-2xl font-bold text-gradient mb-3">PRISM</h3>
-            <p className="text-gray-400 text-sm">
+            <h3 className="font-display text-2xl font-bold tracking-tight mb-3 inline-flex items-center gap-1.5">
+              PRISM<span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2" />
+            </h3>
+            <p className="text-[hsl(45_30%_75%)] text-sm">
               {t('footer.tagline')}
             </p>
           </div>

@@ -44,8 +44,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <SidebarTrigger />
               
               <div className="flex-1">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  PRISM
+                <h1 className="font-display text-xl font-bold tracking-tight text-foreground inline-flex items-center gap-1.5">
+                  PRISM<span className="w-1.5 h-1.5 rounded-full bg-secondary mt-2" />
                 </h1>
               </div>
 

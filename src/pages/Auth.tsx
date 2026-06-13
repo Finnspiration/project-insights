@@ -132,7 +132,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-secondary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-secondary/10 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -140,8 +140,8 @@ export default function Auth() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-            PRISM
+          <h1 className="font-display text-4xl font-bold tracking-tight text-foreground mb-2 inline-flex items-center gap-2">
+            PRISM<span className="w-2 h-2 rounded-full bg-secondary mt-3" />
           </h1>
           <p className="text-muted-foreground">{t('hero.headline')}</p>
         </div>

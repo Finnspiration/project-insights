@@ -29,18 +29,18 @@ export default function CallToAction() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          <h2 className="font-display text-4xl md:text-5xl font-semibold text-primary-foreground mb-8 tracking-tight">
             {t('cta.ready')}
           </h2>
 
           <Button
             size="lg"
-            className="bg-white text-primary hover:bg-white/90 font-semibold px-8 py-6 text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold px-8 py-6 text-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
           >
             {t('cta.startFree')}
           </Button>
 
-          <p className="mt-4 text-white/90 text-sm">
+          <p className="mt-4 text-primary-foreground/80 text-sm">
             {t('cta.noCard')}
           </p>
         </motion.div>

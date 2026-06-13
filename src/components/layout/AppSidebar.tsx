@@ -38,7 +38,7 @@ export function AppSidebar() {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink to={item.url} end className="hover:bg-accent" activeClassName="bg-accent text-accent-foreground font-medium">
+                    <NavLink to={item.url} end className="hover:bg-sidebar-accent border-l-2 border-transparent" activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-secondary">
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{t(item.titleKey)}</span>}
                     </NavLink>
@@ -49,7 +49,7 @@ export function AppSidebar() {
               {isAdmin && (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Admin Panel">
-                    <NavLink to="/admin" className="hover:bg-accent" activeClassName="bg-accent text-accent-foreground font-medium">
+                    <NavLink to="/admin" className="hover:bg-sidebar-accent border-l-2 border-transparent" activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-secondary">
                       <Shield className="h-4 w-4" />
                       {!collapsed && <span>{t('admin.title')}</span>}
                     </NavLink>
