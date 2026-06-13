@@ -27,13 +27,15 @@ import { Calendar, Users, Edit, Trash2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Project } from '@/types/project';
+import { ProjectProgress } from './ProjectProgress';
 
 interface ProjectCardProps {
-  project: Project;
+  project: Project & { is_demo?: boolean | null; documentCount?: number; hasReviewedActions?: boolean };
   onEdit: (project: Project) => void;
   onDelete: () => void;
   onAssess?: (project: Project) => void;
 }
+
 
 export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCardProps) {
   const { t } = useTranslation('common');
@@ -71,12 +73,19 @@ export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCard
     <>
       <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
         <CardHeader>
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
+          <div className="flex justify-between items-start gap-2">
+            <div className="flex-1 min-w-0">
               <CardTitle className="text-xl mb-2">{projectName}</CardTitle>
-              <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
-                {project.status}
-              </Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
+                  {project.status}
+                </Badge>
+                {project.is_demo && (
+                  <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                    {t('projects.card.demoBadge')}
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
           {projectDescription && (
@@ -85,6 +94,7 @@ export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCard
             </CardDescription>
           )}
         </CardHeader>
+
 
         <CardContent className="space-y-3">
           {/* DNA Code Badge */}
@@ -114,7 +124,18 @@ export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCard
               </span>
             </div>
           )}
+
+          <ProjectProgress
+            variant="compact"
+            flags={{
+              hasMorphology: !!project.morphology && Object.keys(project.morphology || {}).length >= 12,
+              hasDocuments: (project.documentCount ?? 0) > 0,
+              hasDna: !!project.dna_code,
+              hasReviewedActions: !!project.hasReviewedActions,
+            }}
+          />
         </CardContent>
+
 
         <CardFooter className="gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
           {!project.dna_code && onAssess && (
