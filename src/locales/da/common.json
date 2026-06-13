@@ -1181,6 +1181,7 @@
     "description": "Potentielle blinde vinkler og oversete dimensioner opdaget i dit projekt",
     "loading": "Indlæser blinde vinkler...",
     "noData": "Ingen blinde vinkler opdaget endnu. Generer indsigter for at opdage potentielle blinde vinkler.",
+    "untitled": "Blind vinkel",
     "unaddressed": "Ikke Adresseret",
     "acknowledged": "Anerkendt",
     "addressed": "Adresseret",
