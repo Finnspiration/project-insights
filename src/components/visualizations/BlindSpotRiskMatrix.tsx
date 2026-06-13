@@ -247,7 +247,7 @@ export function BlindSpotRiskMatrix() {
                     fillOpacity={0.8}
                     className="cursor-pointer"
                     onClick={(node: any) => {
-                      const point = node?.payload as SpotPoint | undefined;
+                      const point = (node?.payload ?? node) as SpotPoint | undefined;
                       if (point?.projectId) navigate(`/projects/${point.projectId}`);
                     }}
                   />

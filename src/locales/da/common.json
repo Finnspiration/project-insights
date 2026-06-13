@@ -971,7 +971,7 @@
       },
       "tooltip": {
         "team": "team på {{count}}",
-        "blindSpots": "{{count}} åben blind vinkel",
+        "blindSpots_one": "{{count}} åben blind vinkel",
         "blindSpots_other": "{{count}} åbne blinde vinkler"
       },
       "legend": {

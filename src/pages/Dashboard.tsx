@@ -270,13 +270,13 @@ export default function Dashboard() {
             </div>
 
             {/* Portfolio Constellation */}
-            <ProjectConstellation />
+            {stats.assessed > 0 && <ProjectConstellation />}
 
             {/* Portfolio IDG Radar */}
-            <PortfolioIDGRadar />
+            {stats.assessed > 1 && <PortfolioIDGRadar />}
 
             {/* Blind Spot Risk Matrix */}
-            <BlindSpotRiskMatrix />
+            {stats.assessed > 0 && <BlindSpotRiskMatrix />}
 
             {/* Recent Projects */}
             {recentProjects.length > 0 && (
