@@ -5,6 +5,8 @@ import { AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { BlindSpotCard } from './BlindSpotCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EmptyState } from '@/components/empty/EmptyState';
+
 
 interface BlindSpot {
   id: string;
@@ -69,24 +71,22 @@ export function BlindSpotsPanel({ projectId }: BlindSpotsPanelProps) {
   if (blindSpots.length === 0) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-primary" />
-            {t('blindSpots.title') || 'Blind Spots'}
-          </CardTitle>
-          <CardDescription>
-            {t('blindSpots.description') || 'Potential blind spots and overlooked dimensions'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center py-12">
-          <AlertTriangle className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">
-            {t('blindSpots.noData') || 'No blind spots detected yet. Generate insights to discover potential blind spots.'}
-          </p>
+        <CardContent className="p-0">
+          <EmptyState
+            icon={AlertTriangle}
+            eyebrow={t('blindSpots.title') || 'Blind Spots'}
+            title={t('blindSpots.empty.title') || 'No blind spots yet'}
+            description={
+              t('blindSpots.empty.description') ||
+              'Upload documents or generate AI insights to surface what your team may be missing.'
+            }
+            compact
+          />
         </CardContent>
       </Card>
     );
   }
+
 
   return (
     <div className="space-y-6">
