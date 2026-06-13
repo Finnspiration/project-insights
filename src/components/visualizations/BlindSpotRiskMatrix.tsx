@@ -12,10 +12,12 @@ import {
   ReferenceArea,
   ResponsiveContainer,
 } from 'recharts';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePortfolio } from '@/hooks/usePortfolio';
+import { askAIChat } from '@/lib/aiChat';
 
 const PRIORITY = ['low', 'medium', 'high'] as const;
 const STATUS = ['unaddressed', 'acknowledged', 'addressed'] as const;
