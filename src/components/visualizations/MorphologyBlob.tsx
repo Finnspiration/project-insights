@@ -37,7 +37,7 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
           <CardTitle>{t('visualizations.blob.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+          <p className="text-muted-foreground">{t('visualizations.noMorphologyData')}</p>
         </CardContent>
       </Card>
     );
