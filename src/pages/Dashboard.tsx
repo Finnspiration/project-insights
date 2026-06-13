@@ -18,6 +18,9 @@ import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar
 import { BlindSpotRiskMatrix } from '@/components/visualizations/BlindSpotRiskMatrix';
 import { TheoryUPortfolioMap } from '@/components/visualizations/TheoryUPortfolioMap';
 import { DNABarcodeStrip } from '@/components/visualizations/DNABarcodeStrip';
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
+import { EmptyState } from '@/components/empty/EmptyState';
+
 
 interface ProjectStats {
   total: number;
@@ -146,45 +149,19 @@ export default function Dashboard() {
             <Skeleton className="h-64" />
           </div>
         ) : isEmpty ? (
-          // Empty State
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-2xl mx-auto">
-            <div className="relative mb-8">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl rounded-full" />
-              <Sparkles className="relative h-24 w-24 text-primary" />
-            </div>
-            
-            <h2 className="font-display text-5xl font-semibold tracking-tight mb-4 text-foreground">
-              {t('dashboard.welcome')}
-            </h2>
-            <div className="h-[2px] w-16 bg-secondary mx-auto mb-6" />
-            
-            <p className="text-lg text-muted-foreground mb-8 max-w-md">
-              {t('dashboard.emptyState')}
-            </p>
-            
-            <Button size="lg" className="gap-2" onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="h-5 w-5" />
-              {t('dashboard.createProject')}
-            </Button>
+          <EmptyState
+            icon={Sparkles}
+            eyebrow={t('dashboard.eyebrow')}
+            title={t('dashboard.welcome')}
+            description={t('dashboard.emptyState')}
+            primaryAction={{
+              label: t('dashboard.createProject'),
+              onClick: () => setCreateDialogOpen(true),
+              icon: Plus,
+            }}
+            className="max-w-2xl mx-auto"
+          />
 
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-              <div className="p-4 border rounded-lg bg-card">
-                <div className="text-3xl mb-2">🎯</div>
-                <h3 className="font-semibold mb-1">{t('dashboard.quickStart.step1')}</h3>
-                <p className="text-sm text-muted-foreground">{t('dashboard.quickStart.step1Desc')}</p>
-              </div>
-              <div className="p-4 border rounded-lg bg-card">
-                <div className="text-3xl mb-2">📊</div>
-                <h3 className="font-semibold mb-1">{t('dashboard.quickStart.step2')}</h3>
-                <p className="text-sm text-muted-foreground">{t('dashboard.quickStart.step2Desc')}</p>
-              </div>
-              <div className="p-4 border rounded-lg bg-card">
-                <div className="text-3xl mb-2">💡</div>
-                <h3 className="font-semibold mb-1">{t('dashboard.quickStart.step3')}</h3>
-                <p className="text-sm text-muted-foreground">{t('dashboard.quickStart.step3Desc')}</p>
-              </div>
-            </div>
-          </div>
         ) : (
           <>
             {/* Project Statistics */}
@@ -352,6 +329,9 @@ export default function Dashboard() {
             fetchDashboardData();
           }}
         />
+
+        <WelcomeModal onCreateOwn={() => setCreateDialogOpen(true)} />
+
       </div>
     </DashboardLayout>
   );

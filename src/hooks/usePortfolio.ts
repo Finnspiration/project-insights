@@ -12,6 +12,9 @@ export interface PortfolioProject {
   team_size: number | null;
   dna_code: string | null;
   theory_u_analysis: any;
+  is_demo?: boolean | null;
+  documentCount?: number;
+  hasReviewedActions?: boolean;
 }
 
 export interface PortfolioBlindSpot {
@@ -31,7 +34,7 @@ export interface PortfolioData {
 async function fetchPortfolio(userId: string): Promise<PortfolioData> {
   const { data: projects, error: projectsError } = await supabase
     .from('projects')
-    .select('id, name, morphology, team_size, dna_code, theory_u_analysis')
+    .select('id, name, morphology, team_size, dna_code, theory_u_analysis, is_demo')
     .eq('user_id', userId)
     .not('morphology', 'is', null);
 
@@ -44,15 +47,42 @@ async function fetchPortfolio(userId: string): Promise<PortfolioData> {
     return { projects: assessed, blindSpots: [] };
   }
 
-  const { data: blindSpots, error: blindSpotsError } = await supabase
-    .from('blind_spots')
-    .select('id, project_id, title, priority, confidence, status')
-    .in('project_id', ids);
+  const [blindSpotsRes, documentsRes] = await Promise.all([
+    supabase
+      .from('blind_spots')
+      .select('id, project_id, title, priority, confidence, status')
+      .in('project_id', ids),
+    supabase
+      .from('documents')
+      .select('project_id')
+      .in('project_id', ids),
+  ]);
 
-  if (blindSpotsError) throw blindSpotsError;
+  if (blindSpotsRes.error) throw blindSpotsRes.error;
 
-  return { projects: assessed, blindSpots: (blindSpots || []) as PortfolioBlindSpot[] };
+  const blindSpots = (blindSpotsRes.data || []) as PortfolioBlindSpot[];
+  const docs = documentsRes.data || [];
+
+  // Per-project enrichment for progress indicator.
+  const docCountByProject = new Map<string, number>();
+  for (const d of docs) {
+    docCountByProject.set(d.project_id, (docCountByProject.get(d.project_id) || 0) + 1);
+  }
+  const reviewedByProject = new Map<string, boolean>();
+  for (const bs of blindSpots) {
+    if (bs.status === 'acknowledged' || bs.status === 'addressed') {
+      reviewedByProject.set(bs.project_id, true);
+    }
+  }
+
+  for (const p of assessed) {
+    p.documentCount = docCountByProject.get(p.id) || 0;
+    p.hasReviewedActions = reviewedByProject.get(p.id) || false;
+  }
+
+  return { projects: assessed, blindSpots };
 }
+
 
 // Shared across ProjectConstellation, PortfolioIDGRadar and BlindSpotRiskMatrix so
 // the dashboard makes one projects + one blind_spots request instead of three each.
