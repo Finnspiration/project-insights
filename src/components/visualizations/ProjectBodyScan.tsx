@@ -26,7 +26,7 @@ export function ProjectBodyScan({ morphology, documents = [], projectPatterns }:
           <CardTitle>{t('visualizations.bodyScan.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Ingen morfologi data tilgængelig endnu.</p>
+          <p className="text-muted-foreground">{t('visualizations.noMorphologyData')}</p>
         </CardContent>
       </Card>
     );
