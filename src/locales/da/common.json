@@ -967,6 +967,9 @@
       },
       "score": "Score",
       "target": "Mål",
+      "averageScore": "Gennemsnitlig score",
+      "primaryFocus": "Primært fokus",
+      "orgStage": "Organisatorisk stadie",
       "evidence": {
         "title": "IDG Evidens Breakdown",
         "description": "Se hvordan morfologiske dimensioner bidrager til hver IDG-score",
