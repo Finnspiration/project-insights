@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,6 +34,10 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 export default function Auth() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Preserve a same-origin relative return path (used by the OAuth consent flow).
+  const nextParam = searchParams.get('next');
+  const redirectTo = nextParam && /^\/(?!\/)/.test(nextParam) ? nextParam : '/dashboard';
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -52,9 +56,9 @@ export default function Auth() {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/dashboard', { replace: true });
+      navigate(redirectTo, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, redirectTo]);
 
   const handleSignIn = async (data: SignInFormData) => {
     setIsSigningIn(true);
@@ -73,7 +77,7 @@ export default function Auth() {
         return;
       }
 
-      navigate('/dashboard');
+      navigate(redirectTo);
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -88,7 +92,7 @@ export default function Auth() {
   const handleSignUp = async (data: SignUpFormData) => {
     setIsSigningUp(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}${redirectTo}`;
 
       const { error } = await supabase.auth.signUp({
         email: data.email,
@@ -119,7 +123,7 @@ export default function Auth() {
         description: t('auth.success.welcome'),
       });
       
-      navigate('/dashboard');
+      navigate(redirectTo);
     } catch (error) {
       toast({
         variant: 'destructive',

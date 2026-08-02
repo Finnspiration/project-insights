@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ztyogejxlprnqxgoekml.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "project-insights",
+      "version": "0.1.0",
+      "title": "Project Insights"
+    },
+    "tools": [
+      {
+        "name": "list_projects",
+        "title": "List projects",
+        "description": "List the signed-in user's PRISM projects with their status, DNA code and whether a morphological assessment exists.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Optional status filter, e.g. 'active'."
+            },
+            "language": {
+              "type": "string",
+              "description": "Language for names/descriptions: 'en' or 'da'. Defaults to 'en'."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_project",
+        "title": "Get project details",
+        "description": "Get one PRISM project in full: morphological assessment (12 dimensions), DNA code, detected patterns and Theory-U analysis.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The project id."
+            },
+            "language": {
+              "type": "string",
+              "description": "Language for names/descriptions: 'en' or 'da'. Defaults to 'en'."
+            }
+          },
+          "required": [
+            "project_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_blind_spots",
+        "title": "List blind spots",
+        "description": "List AI-detected blind spots for one project, with priority, confidence, consequences and recommended actions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The project id."
+            },
+            "status": {
+              "type": "string",
+              "description": "Optional status filter: 'unaddressed', 'acknowledged' or 'addressed'."
+            },
+            "priority": {
+              "type": "string",
+              "description": "Optional priority filter: 'high', 'medium' or 'low'."
+            },
+            "language": {
+              "type": "string",
+              "description": "Language for text fields: 'en' or 'da'. Defaults to 'en'."
+            }
+          },
+          "required": [
+            "project_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_blind_spot_status",
+        "title": "Update blind spot status",
+        "description": "Set a blind spot's status to unaddressed, acknowledged or addressed for the signed-in user's project.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "blind_spot_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The blind spot id."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "unaddressed",
+                "acknowledged",
+                "addressed"
+              ],
+              "description": "The new status."
+            }
+          },
+          "required": [
+            "blind_spot_id",
+            "status"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_project_documents",
+        "title": "List project documents",
+        "description": "List the documents uploaded to a project. Optionally include the extracted text content (truncated per document).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The project id."
+            },
+            "include_content": {
+              "type": "boolean",
+              "description": "Include extracted text content for each processed document. Defaults to false."
+            }
+          },
+          "required": [
+            "project_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
