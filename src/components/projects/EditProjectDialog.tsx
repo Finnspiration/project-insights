@@ -113,10 +113,10 @@ export function EditProjectDialog({ open, onOpenChange, project, onSuccess }: Ed
   useEffect(() => {
     if (project) {
       form.reset({
-        nameEn: project.name.en || '',
-        nameDa: project.name.da || '',
-        descriptionEn: project.description?.en || '',
-        descriptionDa: project.description?.da || '',
+        nameEn: localized(project.name, 'en'),
+        nameDa: localized(project.name, 'da'),
+        descriptionEn: localized(project.description, 'en'),
+        descriptionDa: localized(project.description, 'da'),
         timeline_start: project.timeline_start || '',
         timeline_end: project.timeline_end || '',
         team_size: project.team_size || undefined,
