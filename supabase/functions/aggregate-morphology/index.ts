@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { assertOwnsProject, corsHeaders, errorResponse, requireUser, serviceClient } from "../_shared/auth.ts";
+import { assertOwnsProject, corsHeaders, errorResponse, HttpError, requireUser, serviceClient } from "../_shared/auth.ts";
 import { generateDnaCode, normalizeMorphology } from "../_shared/morphology.ts";
 
 serve(async (req) => {
@@ -8,14 +8,17 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate before looking at the payload, so an unauthenticated
+    // caller always gets 401 rather than a validation error.
+    const supabase = serviceClient();
+    const user = await requireUser(req, supabase);
+
     const { projectId } = await req.json();
 
     if (!projectId) {
-      throw new Error('Project ID is required');
+      throw new HttpError(400, 'Project ID is required');
     }
 
-    const supabase = serviceClient();
-    const user = await requireUser(req, supabase);
     await assertOwnsProject(supabase, projectId, user.id);
 
     console.log('Aggregating morphology for project:', projectId);

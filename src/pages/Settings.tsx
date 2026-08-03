@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
+import { formatAiMessageLimit } from '@shared/subscription.ts';
 
 export default function Settings() {
   const { profile, updateProfile } = useAuth();
@@ -83,7 +84,7 @@ export default function Settings() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t('settings.subscription.aiMessages')}:</span>
-                  <span className="font-medium">{profile?.ai_messages_used_this_month || 0} / {profile?.subscription_tier === 'free' ? '20' : profile?.subscription_tier === 'professional' ? '500' : '∞'}</span>
+                  <span className="font-medium">{profile?.ai_messages_used_this_month || 0} / {formatAiMessageLimit(profile?.subscription_tier)}</span>
                 </div>
               </div>
             </CardContent>

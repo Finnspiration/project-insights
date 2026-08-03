@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkles, Folder, CheckCircle, AlertCircle, FileText, MessageSquare, ArrowRight, Upload, Brain } from 'lucide-react';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { supabase } from '@/integrations/supabase/client';
+import { formatAiMessageLimit, formatAiMessagesRemaining } from '@shared/subscription.ts';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
@@ -58,10 +59,16 @@ export default function Dashboard() {
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
 
-      // Fetch documents count
-      const { count: documentCount } = await supabase
-        .from('documents')
-        .select('*', { count: 'exact', head: true });
+      const projectIds = (projects || []).map((p) => p.id);
+
+      // Count documents in this user's projects. Without the filter an admin,
+      // whose RLS policy spans every project, counted the whole instance.
+      const { count: documentCount } = projectIds.length
+        ? await supabase
+            .from('documents')
+            .select('*', { count: 'exact', head: true })
+            .in('project_id', projectIds)
+        : { count: 0 };
 
       // Fetch user profile for AI usage
       const { data: profile } = await supabase
@@ -88,17 +95,12 @@ export default function Dashboard() {
     }
   };
 
-  const getAiMessageLimit = () => {
-    if (subscriptionTier === 'team') return '∞';
-    if (subscriptionTier === 'pro') return '500';
-    return '20';
-  };
+  // Tier limits come from @shared/subscription.ts, which the backend and the
+  // database mirror. This page used to check for 'pro' while settings and the
+  // backend used 'professional', so paying users were shown the free quota.
+  const getAiMessageLimit = () => formatAiMessageLimit(subscriptionTier);
 
-  const getAiMessagesRemaining = () => {
-    if (subscriptionTier === 'team') return '∞';
-    const limit = subscriptionTier === 'pro' ? 500 : 20;
-    return Math.max(0, limit - aiMessagesUsed);
-  };
+  const getAiMessagesRemaining = () => formatAiMessagesRemaining(subscriptionTier, aiMessagesUsed);
 
   const getProjectName = (project: Project) => {
     if (typeof project.name === 'string') return project.name;

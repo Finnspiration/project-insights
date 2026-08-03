@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -7,6 +7,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -20,7 +21,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    // Carry the intended destination through the login round-trip; Auth
+    // reads ?next= and only honours same-origin relative paths. Without this
+    // a deep link to a project always landed on the dashboard after signing in.
+    const next = `${location.pathname}${location.search}${location.hash}`;
+    const target = next && next !== '/' ? `/auth?next=${encodeURIComponent(next)}` : '/auth';
+    return <Navigate to={target} replace />;
   }
 
   return <>{children}</>;

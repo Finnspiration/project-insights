@@ -93,11 +93,13 @@
       "confirmRequired": "Bekræft venligst din adgangskode",
       "signInFailed": "Ugyldig e-mail eller adgangskode",
       "signUpFailed": "Tilmelding mislykkedes. Prøv venligst igen.",
-      "userExists": "En konto med denne e-mail eksisterer allerede"
+      "userExists": "En konto med denne e-mail eksisterer allerede",
+      "unexpected": "Der opstod en uventet fejl"
     },
     "success": {
       "signUp": "Konto oprettet! Logger dig ind...",
-      "welcome": "Velkommen til PRISM!"
+      "welcome": "Velkommen til PRISM!",
+      "checkEmail": "Tjek din indbakke for at bekræfte din e-mailadresse, før du logger ind."
     },
     "accessPlatform": "Få adgang til din projektintelligensplatform"
   },
@@ -302,6 +304,16 @@
     "error": "Fejl"
   },
   "projectDetail": {
+    "loading": "Indlæser projekt...",
+    "notFound": "Projektet blev ikke fundet",
+    "backToProjects": "Tilbage til projekter",
+    "teamSize": "Teamstørrelse",
+    "unsavedChanges": {
+      "title": "Du har ugemte ændringer",
+      "description": "Dine ændringer til dette projekt er ikke gemt endnu. Forlader du siden nu, går de tabt.",
+      "stay": "Bliv på siden",
+      "leave": "Forlad uden at gemme"
+    },
     "projectInformation": "Projektinformation",
     "description": "Beskrivelse",
     "edit": "Rediger",

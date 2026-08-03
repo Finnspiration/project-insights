@@ -7,6 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { DocumentUpload } from '@/components/projects/DocumentUpload';
@@ -71,6 +81,7 @@ export default function ProjectDetail() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalMorphology, setOriginalMorphology] = useState<any>(null);
   const [activeVisualizationTab, setActiveVisualizationTab] = useState<string>('weather');
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   
   // IDG scores calculated from morphology (both scales)
   const [projectIDGScores, setProjectIDGScores] = useState<IDGScoresCalculation | null>(null);
@@ -259,6 +270,17 @@ export default function ProjectDetail() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
+  // beforeunload only covers reloads and tab closes — react-router navigation
+  // never triggers it, so leaving via the in-page controls used to discard
+  // unsaved edits silently. Route those clicks through here instead.
+  const requestNavigation = (path: string) => {
+    if (hasUnsavedChanges) {
+      setPendingNavigation(path);
+      return;
+    }
+    navigate(path);
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -266,7 +288,7 @@ export default function ProjectDetail() {
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading project...</p>
+              <p className="text-muted-foreground">{t('projectDetail.loading')}</p>
             </div>
           </div>
         </div>
@@ -278,8 +300,8 @@ export default function ProjectDetail() {
     return (
       <DashboardLayout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Project not found</h2>
-          <Button onClick={() => navigate('/projects')}>Back to Projects</Button>
+          <h2 className="text-2xl font-bold mb-4">{t('projectDetail.notFound')}</h2>
+          <Button onClick={() => navigate('/projects')}>{t('projectDetail.backToProjects')}</Button>
         </div>
       </DashboardLayout>
     );
@@ -293,7 +315,7 @@ export default function ProjectDetail() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/projects')}>
+          <Button variant="ghost" size="icon" onClick={() => requestNavigation('/projects')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1">
@@ -350,7 +372,7 @@ export default function ProjectDetail() {
               {project.team_size && (
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Team Size: {project.team_size}</span>
+                  <span className="text-sm">{t('projectDetail.teamSize')}: {project.team_size}</span>
                 </div>
               )}
             </div>
@@ -421,10 +443,10 @@ export default function ProjectDetail() {
                     })
                     .eq('id', id);
 
-                  if (error) {
-                    console.error('Failed to save morphology:', error);
-                    return;
-                  }
+                  // Throw rather than return: MorphologicalBox awaits this
+                  // before regenerating the Theory U analysis, and must not
+                  // regenerate against a row that was never written.
+                  if (error) throw error;
 
                   setProject(prev => prev ? {
                     ...prev,
@@ -554,6 +576,33 @@ export default function ProjectDetail() {
           projectId={project.id}
           onSuccess={fetchProject}
         />
+
+        <AlertDialog
+          open={pendingNavigation !== null}
+          onOpenChange={(open) => { if (!open) setPendingNavigation(null); }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('projectDetail.unsavedChanges.title')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('projectDetail.unsavedChanges.description')}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t('projectDetail.unsavedChanges.stay')}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  const target = pendingNavigation;
+                  setPendingNavigation(null);
+                  setHasUnsavedChanges(false);
+                  if (target) navigate(target);
+                }}
+              >
+                {t('projectDetail.unsavedChanges.leave')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <EditProjectDialog
           open={editDialogOpen}

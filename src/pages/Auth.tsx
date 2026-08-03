@@ -82,7 +82,7 @@ export default function Auth() {
       toast({
         variant: 'destructive',
         title: t('auth.errors.signInFailed'),
-        description: 'An unexpected error occurred',
+        description: t('auth.errors.unexpected'),
       });
     } finally {
       setIsSigningIn(false);
@@ -94,7 +94,7 @@ export default function Auth() {
     try {
       const redirectUrl = `${window.location.origin}${redirectTo}`;
 
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -118,17 +118,29 @@ export default function Auth() {
         return;
       }
 
+      // With email confirmation enabled, signUp returns no session. Navigating
+      // to a protected route in that state just bounces the user straight back
+      // here with no explanation, so tell them to check their inbox instead.
+      if (!signUpData.session) {
+        toast({
+          title: t('auth.success.signUp'),
+          description: t('auth.success.checkEmail'),
+        });
+        signUpForm.reset();
+        return;
+      }
+
       toast({
         title: t('auth.success.signUp'),
         description: t('auth.success.welcome'),
       });
-      
+
       navigate(redirectTo);
     } catch (error) {
       toast({
         variant: 'destructive',
         title: t('auth.errors.signUpFailed'),
-        description: 'An unexpected error occurred',
+        description: t('auth.errors.unexpected'),
       });
     } finally {
       setIsSigningUp(false);

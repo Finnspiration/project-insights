@@ -93,11 +93,13 @@
       "confirmRequired": "Please confirm your password",
       "signInFailed": "Invalid email or password",
       "signUpFailed": "Sign up failed. Please try again.",
-      "userExists": "An account with this email already exists"
+      "userExists": "An account with this email already exists",
+      "unexpected": "An unexpected error occurred"
     },
     "success": {
       "signUp": "Account created successfully! Signing you in...",
-      "welcome": "Welcome to PRISM!"
+      "welcome": "Welcome to PRISM!",
+      "checkEmail": "Check your inbox to confirm your email address before signing in."
     },
     "accessPlatform": "Access your project intelligence platform"
   },
@@ -302,6 +304,16 @@
     "error": "Error"
   },
   "projectDetail": {
+    "loading": "Loading project...",
+    "notFound": "Project not found",
+    "backToProjects": "Back to Projects",
+    "teamSize": "Team Size",
+    "unsavedChanges": {
+      "title": "You have unsaved changes",
+      "description": "Your changes to this project have not been saved yet. If you leave now they will be lost.",
+      "stay": "Stay on page",
+      "leave": "Leave without saving"
+    },
     "projectInformation": "Project Information",
     "description": "Description",
     "edit": "Edit",

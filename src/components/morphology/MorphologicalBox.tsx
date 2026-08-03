@@ -21,7 +21,7 @@ interface MorphologicalBoxProps {
   morphology: Record<string, string>;
   dnaCode: string;
   onReassess?: () => void;
-  onMorphologyChange?: (morphology: Record<string, string>) => void;
+  onMorphologyChange?: (morphology: Record<string, string>) => void | Promise<void>;
   projectId?: string;
   language?: 'en' | 'da';
 }
@@ -46,15 +46,19 @@ export function MorphologicalBox({
     // Normalize first: merging a plain string into a map that still holds
     // legacy { selectedValue } objects would leave a half-converted row.
     const updatedMorphology = { ...normalizeMorphology(morphology), [dimensionKey]: value };
-    onMorphologyChange?.(updatedMorphology);
-    
-    // Auto-sync Theory U data when morphology changes
+
+    // Await the save before regenerating: the Theory U analysis is computed
+    // server-side from the stored row, so firing it on a timer raced the write
+    // and could score the previous morphology on a slow connection.
+    try {
+      await onMorphologyChange?.(updatedMorphology);
+    } catch (error) {
+      console.error('Failed to save morphology change:', error);
+      return;
+    }
+
     if (projectId) {
-      console.log('🔄 Auto-syncing Theory U data after morphology change...');
-      // Wait a bit for the database to update before regenerating
-      setTimeout(() => {
-        regenerateMorphologyScoring();
-      }, 500);
+      await regenerateMorphologyScoring();
     }
   };
 

@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { assertOwnsProject, corsHeaders, errorResponse, requireUser, serviceClient } from "../_shared/auth.ts";
+import { assertOwnsProject, corsHeaders, errorResponse, HttpError, requireUser, serviceClient } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -7,19 +7,19 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate before looking at the payload, so an unauthenticated
+    // caller always gets 401 rather than a validation error. The service-role
+    // client bypasses RLS, so the caller must also own the project before any
+    // of its documents are read or its patterns overwritten.
+    const supabaseAdmin = serviceClient();
+    const user = await requireUser(req, supabaseAdmin);
+
     const { morphology, language = "en", projectName, projectId } = await req.json();
 
     if (!morphology) {
-      return new Response(
-        JSON.stringify({ error: "Morphology data is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      throw new HttpError(400, "Morphology data is required");
     }
 
-    // Service-role client bypasses RLS, so the caller must own the project
-    // before any of its documents are read or its patterns overwritten.
-    const supabaseAdmin = serviceClient();
-    const user = await requireUser(req, supabaseAdmin);
     if (projectId) {
       await assertOwnsProject(supabaseAdmin, projectId, user.id);
     }

@@ -8,16 +8,11 @@ import {
   serviceClient,
   type SupabaseClient,
 } from "../_shared/auth.ts";
+import { aiMessageLimit } from "../_shared/subscription.ts";
 
-// Fallback limits, used only if consume_ai_message() is not available yet.
-// The database function is the authoritative source (see the RLS migration).
-const FALLBACK_LIMITS: Record<string, number> = {
-  free: 20,
-  pro: 500,
-  professional: 500,
-  team: Number.MAX_SAFE_INTEGER,
-};
-
+// Tier limits live in ../_shared/subscription.ts and are mirrored by
+// public.ai_message_limit(). The database function is authoritative; this is
+// only used if consume_ai_message() is not available yet.
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -334,8 +329,7 @@ async function consumeAiMessage(
 
   console.warn('consume_ai_message() unavailable, falling back to direct update:', error?.message);
 
-  const tier = (profile.subscription_tier || 'free').toLowerCase();
-  const limit = FALLBACK_LIMITS[tier] ?? FALLBACK_LIMITS.free;
+  const limit = aiMessageLimit(profile.subscription_tier);
   const used = profile.ai_messages_used_this_month ?? 0;
 
   if (used >= limit) {
