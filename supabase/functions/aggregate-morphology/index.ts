@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { assertOwnsProject, corsHeaders, errorResponse, requireUser, serviceClient } from "../_shared/auth.ts";
+import { generateDnaCode, normalizeMorphology } from "../_shared/morphology.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -167,17 +168,9 @@ serve(async (req) => {
       ? agreementScores.reduce((a, b) => a + b, 0) / agreementScores.length
       : 0;
 
-    // Generate DNA code
-    const dimensionOrder = [
-      'complexity', 'stakeholder', 'knowledge', 'cultural', 'temporal',
-      'organizational', 'challenge', 'development', 'resources', 
-      'change', 'information', 'risk'
-    ];
-    
-    const dnaCode = dimensionOrder
-      .map(dim => aggregatedMorphology[dim])
-      .filter(Boolean)
-      .join('-');
+    // Generate DNA code from the canonical dimension order
+    const normalizedMorphology = normalizeMorphology(aggregatedMorphology);
+    const dnaCode = generateDnaCode(normalizedMorphology);
 
     console.log(`Aggregation complete. Overall confidence: ${(overallConfidence * 100).toFixed(1)}%`);
     console.log(`Overall agreement: ${(overallAgreement * 100).toFixed(1)}%`);
@@ -186,7 +179,7 @@ serve(async (req) => {
     const { error: updateError } = await supabase
       .from('projects')
       .update({
-        morphology: aggregatedMorphology,
+        morphology: normalizedMorphology,
         dna_code: dnaCode,
         patterns: {
           aggregationMetadata: {

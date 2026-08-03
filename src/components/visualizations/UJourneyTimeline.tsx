@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Loader2, RefreshCw, Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle2, XCircle, Clock, ExternalLink, BookOpen, Video, GraduationCap, MapPin, Lightbulb, BarChart3, FileText, Heart, Star, X, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { normalizeMorphology } from '@shared/morphology.ts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
@@ -391,13 +392,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
       console.log('🔄 Regenerating quotes with new AI analysis...');
       
       // Normalize morphology to new format
-      const normalizedMorphology: Record<string, string> = {};
-      Object.keys(morphology).forEach(key => {
-        const value = morphology[key];
-        normalizedMorphology[key] = typeof value === 'object' && value?.selectedValue 
-          ? value.selectedValue 
-          : value;
-      });
+      const normalizedMorphology = normalizeMorphology(morphology);
       
       const {
         data,
@@ -457,13 +452,7 @@ export function UJourneyTimeline({ morphology, projectId, projectName }: UJourne
 
       // Call edge function
       // Normalize morphology to new format
-      const normalizedMorphology: Record<string, string> = {};
-      Object.keys(morphology).forEach(key => {
-        const value = morphology[key];
-        normalizedMorphology[key] = typeof value === 'object' && value?.selectedValue 
-          ? value.selectedValue 
-          : value;
-      });
+      const normalizedMorphology = normalizeMorphology(morphology);
       
       const {
         data: analysisData,
