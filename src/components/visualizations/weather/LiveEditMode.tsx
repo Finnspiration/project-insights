@@ -3,8 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
-import { getWeatherImpacts, getIDGImpacts } from './impactMapping';
-import { ImpactIndicator } from './ImpactIndicator';
+import { DimensionImpact } from './DimensionImpact';
 import { useMemo } from 'react';
 import type { RawMorphology, Morphology } from '@shared/morphology.ts';
 import type { IDGScores } from '@/types/project';
@@ -87,7 +86,6 @@ export function LiveEditMode({
               {MORPHOLOGY_DIMENSIONS.map((dimension) => {
                 const currentIndex = getCurrentIndex(dimension.key);
                 const currentValue = dimension.options[currentIndex]?.value || '';
-                const impacts = getWeatherImpacts(dimension.key, currentValue);
 
                 return (
                   <div key={dimension.key} className="space-y-2">
@@ -120,10 +118,10 @@ export function LiveEditMode({
                       ))}
                     </div>
 
-                    <ImpactIndicator 
-                      dimension={dimension.key} 
-                      value={currentValue} 
-                      impacts={impacts}
+                    <DimensionImpact
+                      dimension={dimension.key}
+                      value={currentValue}
+                      className="text-xs"
                     />
                   </div>
                 );
@@ -141,7 +139,6 @@ export function LiveEditMode({
             <div className="space-y-6 pt-2">
               {['being', 'thinking', 'relating', 'collaborating', 'acting'].map((dimension) => {
                 const score = idgScores[dimension as keyof typeof idgScores];
-                const impacts = getIDGImpacts(dimension, score, language);
 
                 return (
                   <div key={dimension} className="space-y-2">
@@ -175,11 +172,6 @@ export function LiveEditMode({
                       <span>{language === 'da' ? 'Høj' : 'High'}</span>
                     </div>
 
-                    <ImpactIndicator 
-                      dimension={dimension} 
-                      value={score.toString()} 
-                      impacts={impacts}
-                    />
                   </div>
                 );
               })}

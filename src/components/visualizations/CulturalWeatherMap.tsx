@@ -1,32 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, CloudRain } from 'lucide-react';
-import { BaseClimate } from './weather/BaseClimate';
-import { WindPatterns } from './weather/WindPatterns';
-import { TemperatureZones } from './weather/TemperatureZones';
-import { PressureSystems } from './weather/PressureSystems';
-import { PrecipitationEvents } from './weather/PrecipitationEvents';
-import { WeatherForecast } from './weather/WeatherForecast';
-import { WeatherParticles } from './weather/WeatherParticles';
-import { LayerControls } from './weather/LayerControls';
-import { WeatherLegend } from './weather/WeatherLegend';
+import { SlidersHorizontal, X } from 'lucide-react';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { WeatherReadingBand } from './weather/WeatherReadingBand';
+import { WeatherField } from './weather/WeatherField';
+import { DimensionStrip } from './weather/DimensionStrip';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
-import { CompactSplitLayout } from './weather/CompactSplitLayout';
-import { CulturalTexture } from './weather/CulturalTexture';
-import { IDGOverlay } from './weather/IDGOverlay';
-import { mapProjectToWeatherData } from './weather/weatherDataMapper';
-import { aggregateIDGScoresFromDocuments, hasIDGAnalysis } from '@/lib/idgAggregation';
+import { readWeather } from '@/lib/weatherReading';
 import type { RawMorphology, Morphology } from '@shared/morphology.ts';
-import type { BlindSpot, IDGScores, ProjectDocument, TheoryUAnalysis } from '@/types/project';
+import type { BlindSpot, IDGScores, Language, ProjectDocument } from '@/types/project';
+
+// Rewritten from the layered version, which stacked seven toggleable layers —
+// 12 morphology circles, 5 IDG bubbles, 4 pressure markers, isobars, an
+// 8-line wind starburst, a fabricated 3-day forecast and two floating panels
+// that covered the map they explained. It rendered every dimension and read
+// none of them.
+//
+// The structure is now: read it (band) → look at it (field) → see the inputs
+// (strip). Editing lives behind one button instead of six layer toggles.
 
 interface CulturalWeatherMapProps {
   morphology: RawMorphology;
-  idgProfile?: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
-  theoryUAnalysis?: TheoryUAnalysis | null;
-  recommendations?: unknown[];
-  interventions?: unknown[];
+  idgProfile?: IDGScores;
   blindSpots?: BlindSpot[];
   projectId?: string;
   documents?: ProjectDocument[];
@@ -36,15 +33,13 @@ interface CulturalWeatherMapProps {
   onReset?: () => void;
   hasChanges?: boolean;
   showControlPanel?: boolean;
+  onSelectBlindSpot?: (blindSpot: BlindSpot) => void;
 }
 
-export function CulturalWeatherMap({ 
-  morphology, 
-  idgProfile, 
-  theoryUAnalysis,
-  recommendations,
-  interventions,
-  blindSpots,
+export function CulturalWeatherMap({
+  morphology,
+  idgProfile,
+  blindSpots = [],
   projectId,
   documents = [],
   onMorphologyChange,
@@ -53,207 +48,62 @@ export function CulturalWeatherMap({
   onReset,
   hasChanges,
   showControlPanel = false,
+  onSelectBlindSpot,
 }: CulturalWeatherMapProps) {
   const { t, i18n } = useTranslation('common');
-  
-  // Calculate document-averaged IDG scores
-  const documentAverageIDG = aggregateIDGScoresFromDocuments(documents);
-  const hasDocumentIDG = hasIDGAnalysis(documents);
+  const language = i18n.language as Language;
+  const [editorOpen, setEditorOpen] = useState(false);
 
-  // Layer visibility state
-  const [layers, setLayers] = useState({
-    windPatterns: true,
-    pressureSystems: true,
-    temperatureZones: true,
-    precipitation: true,
-    forecast: true,
-    particles: true,
-    idgOverlay: true,
-  });
-
-  const [showPanels, setShowPanels] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<'compact' | 'detailed'>(() => {
-    return (localStorage.getItem('weatherControlLayout') as 'compact' | 'detailed') || 'compact';
-  });
-  
-  // Initialize IDG scores - use idgProfile if provided, otherwise defaults
-  const [idgScores, setIdgScores] = useState(() => {
-    const defaultScores = { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 };
-    console.log('📊 CulturalWeatherMap - IDG Initialization:', {
-      idgProfile,
-      willUse: idgProfile || defaultScores
-    });
-    return idgProfile || defaultScores;
-  });
-
-  // Update IDG scores when idgProfile prop changes
-  useEffect(() => {
-    if (idgProfile) {
-      console.log('📊 CulturalWeatherMap - Updating IDG from prop:', idgProfile);
-      setIdgScores(idgProfile);
-    }
-  }, [idgProfile]);
-
-  // Use default IDG profile if not provided
-  const defaultIDG = {
-    being: 5,
-    thinking: 7,
-    relating: 6,
-    collaborating: 5,
-    acting: 6,
-  };
-
-  const weatherData = mapProjectToWeatherData(
-    morphology,
-    idgProfile || defaultIDG,
-    theoryUAnalysis,
-    recommendations,
-    interventions,
-    blindSpots
+  const reading = useMemo(
+    () => readWeather(morphology, blindSpots, documents),
+    [morphology, blindSpots, documents],
   );
 
-  const handleLayerToggle = (layer: 'windPatterns' | 'pressureSystems' | 'temperatureZones' | 'precipitation' | 'forecast' | 'particles' | 'idgOverlay') => {
-    setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
-  };
-
-  const handleTogglePanels = () => {
-    setShowPanels(!showPanels);
-  };
-
-  // Weather map content (to be used in split layout)
-  const weatherMapContent = (
-    <div className="relative w-full h-full rounded-lg overflow-visible border border-border">
-      {/* Layer 1: Base Climate (always visible) */}
-      <BaseClimate data={weatherData.baseClimate} />
-
-      {/* Layer 1.5: Cultural Texture Overlay (follows temperatureZones toggle) */}
-      {layers.temperatureZones && (
-        <CulturalTexture 
-          key={`cultural-${typeof morphology.cultural === 'object' ? morphology.cultural?.selectedValue : morphology.cultural || 'mono'}-${Date.now()}`}
-          culturalContext={morphology.cultural || 'mono'} 
-        />
-      )}
-
-      {/* Layer 2: Weather Particles (follows windPatterns toggle) */}
-      {layers.windPatterns && (
-        <WeatherParticles
-          key={`particles-${morphology.organizational}-${morphology.temporal}`}
-          temporalDynamics={morphology.temporal || morphology.temporal_dynamics || 'project'}
-          organizationalStage={morphology.organizational || 'orange'}
-        />
-      )}
-
-      {/* Layer 3: Wind Patterns (toggleable) */}
-      {layers.windPatterns && (
-        <div className="absolute inset-0 z-45 pointer-events-none">
-          <WindPatterns
-            key={`wind-${morphology.information_flow}-${morphology.temporal_dynamics}`}
-            pattern={weatherData.windPatterns} 
-          />
-        </div>
-      )}
-
-      {/* Layer 4: Temperature Zones (toggleable) */}
-      {layers.temperatureZones && (
-        <TemperatureZones zones={weatherData.temperatureZones} />
-      )}
-
-      {/* Layer 4.5: IDG Overlay (toggleable) */}
-      {layers.idgOverlay && (
-        <IDGOverlay 
-          idgScores={idgScores}
-          language={i18n.language as 'en' | 'da'}
-        />
-      )}
-
-      {/* Layer 5: Pressure Systems (toggleable) */}
-      {layers.pressureSystems && (
-        <PressureSystems systems={weatherData.pressureSystems} />
-      )}
-
-      {/* Layer 6: Precipitation (toggleable) */}
-      {layers.precipitation && (
-        <PrecipitationEvents events={weatherData.precipitation} />
-      )}
-
-      {/* Layer 7: Forecast (toggleable) */}
-      {showPanels && layers.forecast && (
-        <WeatherForecast forecast={weatherData.forecast} />
-      )}
-
-      {/* Layer Controls - Only when panels are shown */}
-      {showPanels && (
-        <LayerControls 
-          layers={layers} 
-          onLayerToggle={handleLayerToggle}
-          showPanels={showPanels}
-          onTogglePanels={handleTogglePanels}
-        />
-      )}
-      
-      {/* Weather Legend - Only when panels are shown */}
-      {showPanels && <WeatherLegend />}
-
-      {/* Toggle Panels Button */}
-      {!showPanels && (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleTogglePanels}
-          className="absolute bottom-4 right-4 z-[60] shadow-lg"
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          Vis paneler
-        </Button>
-      )}
-    </div>
-  );
+  const canEdit = showControlPanel && !!projectId && !!morphology && !!onMorphologyChange;
 
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CloudRain className="h-5 w-5 text-primary" />
-            {t('visualizations.culturalWeather.title')}
-          </CardTitle>
-          <CardDescription>
-            Multi-lags vejrsystem der viser organisatorisk klima, temperaturzoner, og vejrudsigt
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {showControlPanel && layoutMode === 'compact' && projectId && morphology && onMorphologyChange ? (
-            <CompactSplitLayout
-              morphology={morphology}
-              onMorphologyChange={onMorphologyChange}
-              weatherMapContent={weatherMapContent}
-              idgScores={idgScores}
-              onIdgScoresChange={(newScores) => {
-                setIdgScores(newScores);
-                if (onIDGChange) onIDGChange(newScores);
-              }}
-            />
-          ) : (
-            <div className="relative w-full h-[600px]">
-              {weatherMapContent}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <TooltipProvider delayDuration={150}>
+      <div className="space-y-4">
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <WeatherReadingBand reading={reading} />
 
-      {/* Interactive Control Panel (Detailed Mode) */}
-      {showControlPanel && showPanels && projectId && morphology && (
-        <WeatherControlPanel
-          projectId={projectId}
-          morphology={morphology}
-          idgProfile={idgProfile}
-          onMorphologyChange={onMorphologyChange}
-          onIDGChange={onIDGChange}
-          onSaveChanges={onSaveChanges}
-          onReset={onReset}
-          hasChanges={hasChanges}
-        />
-      )}
-    </div>
+            <WeatherField
+              reading={reading}
+              blindSpots={blindSpots}
+              language={language}
+              onSelectBlindSpot={onSelectBlindSpot}
+            />
+
+            <DimensionStrip
+              morphology={morphology}
+              onSelect={canEdit ? () => setEditorOpen(true) : undefined}
+            />
+          </CardContent>
+        </Card>
+
+        {canEdit && (
+          <div className="flex justify-end">
+            <Button variant={editorOpen ? 'secondary' : 'outline'} size="sm" onClick={() => setEditorOpen(!editorOpen)}>
+              {editorOpen ? <X className="mr-2 h-4 w-4" /> : <SlidersHorizontal className="mr-2 h-4 w-4" />}
+              {t(editorOpen ? 'visualizations.weatherReading.closeEditor' : 'visualizations.weatherReading.openEditor')}
+            </Button>
+          </div>
+        )}
+
+        {canEdit && editorOpen && (
+          <WeatherControlPanel
+            projectId={projectId!}
+            morphology={morphology}
+            idgProfile={idgProfile}
+            onMorphologyChange={onMorphologyChange}
+            onIDGChange={onIDGChange}
+            onSaveChanges={onSaveChanges}
+            onReset={onReset}
+            hasChanges={hasChanges}
+          />
+        )}
+      </div>
+    </TooltipProvider>
   );
 }

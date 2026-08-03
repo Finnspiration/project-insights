@@ -1,22 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { DimensionConfig, DimensionKey } from '@/lib/morphologyConfig';
+import { DimensionConfig } from '@/lib/morphologyConfig';
 import { Info } from 'lucide-react';
+import { DimensionImpact } from './DimensionImpact';
 
 interface MiniSliderProps {
   dimension: DimensionConfig;
   currentIndex: number;
   onChange: (index: number) => void;
 }
-
-// Dimensions that have an "affects the weather" explanation in the tooltip.
-// The descriptions and element labels live in the locale files under
-// visualizations.miniSlider.impact.<dimensionKey>.
-const IMPACT_DIMENSIONS: DimensionKey[] = [
-  'complexity', 'organizational', 'cultural', 'information', 'temporal', 'risk',
-  'stakeholder', 'knowledge', 'challenge', 'change', 'resources', 'development',
-];
 
 export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProps) {
   const { t } = useTranslation('common');
@@ -41,21 +34,14 @@ export function MiniSlider({ dimension, currentIndex, onChange }: MiniSliderProp
                   <p className="text-[10px] text-muted-foreground">
                     {dimension.options.map(opt => t(opt.translationKey)).join(' → ')}
                   </p>
-                  {IMPACT_DIMENSIONS.includes(dimension.key) && (
-                    <div className="pt-1.5 mt-1.5 border-t border-border">
-                      <p className="text-[10px] font-medium text-primary mb-0.5">{t('visualizations.miniSlider.affects')}</p>
-                      <p className="text-[9px] text-muted-foreground mb-1">
-                        {t(`visualizations.miniSlider.impact.${dimension.key}.description`)}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {(t(`visualizations.miniSlider.impact.${dimension.key}.elements`, { returnObjects: true }) as string[]).map(el => (
-                          <span key={el} className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                            {el}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <div className="pt-1.5 mt-1.5 border-t border-border">
+                    <p className="text-[10px] font-medium text-primary mb-0.5">{t('visualizations.miniSlider.affects')}</p>
+                    <DimensionImpact
+                      dimension={dimension.key}
+                      value={currentOption?.value}
+                      className="text-[10px]"
+                    />
+                  </div>
                 </div>
               </TooltipContent>
             </Tooltip>

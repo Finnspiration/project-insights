@@ -1065,20 +1065,6 @@
         "actNow": "Handl-nu-zone"
       }
     },
-    "weatherLegend": {
-      "title": "Temperatur, tryk & fronter",
-      "temperatureZones": "Temperaturzoner",
-      "idgAreas": "Store blobs = IDG områder",
-      "colorStrength": "Farve indikerer styrke (rød=lav, gul=middel, grøn=høj)",
-      "pressureSystems": "Tryksystemer",
-      "highPressureRisk": "Højtryk (risiko)",
-      "highPressureBlindSpot": "Højtryk (blind spot)",
-      "lowPressure": "Lavtryk",
-      "fronts": "Fronter",
-      "coldFront": "Kold front",
-      "warmFront": "Varm front",
-      "intensityNote": "Mørkere farver = højere intensitet"
-    },
     "pressureSystems": {
       "highPressure": "Højtrykssystem",
       "lowPressure": "Lavtrykssystem",
@@ -1101,21 +1087,7 @@
       "priorityLow": "Lav"
     },
     "miniSlider": {
-      "affects": "Påvirker:",
-      "impact": {
-        "complexity": { "description": "Antal skyer i himlen", "elements": ["☁️ Sky-tæthed"] },
-        "organizational": { "description": "Baggrundsfarve gradient", "elements": ["🎨 Baggrund", "☁️ Skyfarve"] },
-        "cultural": { "description": "Temperatur nuancer", "elements": ["🌡️ Varme-zoner"] },
-        "information": { "description": "Vindretning og mønster", "elements": ["🌬️ Vindlinjer", "↗️ Retning"] },
-        "temporal": { "description": "Vindhastighed animation", "elements": ["💨 Hastighed", "⚡ Animation"] },
-        "risk": { "description": "Antal højtryksområder (H)", "elements": ["🔴 H-zoner", "⭕ Isobarer"] },
-        "stakeholder": { "description": "Antal fronter og spændinger", "elements": ["〰️ Fronter", "❄️ Kold/varm"] },
-        "knowledge": { "description": "Skytæthed og type", "elements": ["☁️ Skyer", "🌥️ Dække"] },
-        "challenge": { "description": "Nedbørsintensitet", "elements": ["🌧️ Regn", "⛈️ Torden"] },
-        "change": { "description": "Nedbørstype og intensitet", "elements": ["💧 Nedbør", "❄️ Sne"] },
-        "resources": { "description": "Trykforskelle", "elements": ["📊 Tryk-gradienter"] },
-        "development": { "description": "IDG kompetencer", "elements": ["🧠 Radar", "📈 Scores"] }
-      }
+      "affects": "Påvirker:"
     },
     "theoryUMap": {
       "title": "Theory-U porteføljekort",
@@ -1154,6 +1126,121 @@
       "description": "Hvert projekts morfologi-DNA som en 12-bånds stregkode, et bånd per dimension. Lignende genomer giver lignende mønstre — spæjd efter klynger og afvigere. Klik på et projekt for at åbne det.",
       "aiPrompt": "Sammenlign morfologi-DNA for mine projekter: hvilke projekter ligner hinanden mest, hvilket er den største afviger, og hvad antyder det?",
       "legend": "Hvert bånd er en morfologidimension; farveintensiteten afspejler det valgte niveau på dimensionens skala."
+    },
+    "weatherReading": {
+      "indices": {
+        "pressure": "Tryk",
+        "temperature": "Temperatur",
+        "visibility": "Sigtbarhed",
+        "wind": "Vind"
+      },
+      "drivenBy": "Hvad tallet kommer af",
+      "dimensionStrip": "De 12 dimensioner · klik for at ændre",
+      "unanswered": "Ikke besvaret endnu",
+      "noBlindSpots": "Ingen åbne blinde vinkler. Feltet er klart — kør en analyse for at lede efter det I kan overse.",
+      "scaleCool": "Kølig",
+      "scaleWarm": "Varm",
+      "scaleCaption": "farve = spænding",
+      "openEditor": "Juster vurdering",
+      "closeEditor": "Luk editor",
+      "qualifiers": {
+        "pressure": {
+          "high": "Stigende spænding",
+          "mid": "Håndterbar spænding",
+          "low": "Lidt modstand"
+        },
+        "temperature": {
+          "high": "Varm, høj energi",
+          "mid": "Stabilt tempo",
+          "low": "Kølig, langsom brand"
+        },
+        "visibility": {
+          "high": "Klart udsyn",
+          "mid": "Delvist skyet",
+          "low": "Tåget — uklar retning"
+        }
+      },
+      "wind": {
+        "centralized": "Information går gennem ét punkt",
+        "hierarchical": "Information går oppefra og ned",
+        "network": "Information flyder sidelæns, ikke ned",
+        "distributed": "Information bevæger sig alle steder på én gang"
+      },
+      "drivers": {
+        "blindSpots": "Åbne blinde vinkler",
+        "documents": "Analyserede dokumenter"
+      },
+      "headlines": {
+        "settled": "Stille vejr",
+        "settled_detail": "Intet i vurderingen skiller sig ud. Det er værd at efterprøve frem for at stole på — en flad aflæsning betyder ofte at vurderingen ikke er skarp endnu.",
+        "pressure_high": "Højt tryk",
+        "pressure_high_detail": "Der bygger sig spænding op mellem mennesker og rammer omkring projektet.",
+        "pressure_low": "Lavt tryk",
+        "pressure_low_detail": "Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed.",
+        "temperature_high": "Kører varmt",
+        "temperature_high_detail": "Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti.",
+        "temperature_low": "Kører køligt",
+        "temperature_low_detail": "En langsom brand. Fremdriften skal passes bevidst.",
+        "visibility_high": "Klart udsyn",
+        "visibility_high_detail": "Billedet er til at læse. Det er nu, I kan binde jer til en retning.",
+        "visibility_low": "Lav sigtbarhed",
+        "visibility_low_detail": "Retningen er uklar — ikke nødvendigvis af mangel på data.",
+        "pressure_high__temperature_high": "Højt tryk, kører varmt",
+        "pressure_high__temperature_high_detail": "Der bygger sig spænding op mellem mennesker og rammer omkring projektet. Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti.",
+        "pressure_high__temperature_low": "Højt tryk, kører køligt",
+        "pressure_high__temperature_low_detail": "Der bygger sig spænding op mellem mennesker og rammer omkring projektet. En langsom brand. Fremdriften skal passes bevidst.",
+        "pressure_high__visibility_high": "Højt tryk, klart udsyn",
+        "pressure_high__visibility_high_detail": "Der bygger sig spænding op mellem mennesker og rammer omkring projektet. Billedet er til at læse. Det er nu, I kan binde jer til en retning.",
+        "pressure_high__visibility_low": "Højt tryk, lav sigtbarhed",
+        "pressure_high__visibility_low_detail": "Der bygger sig spænding op mellem mennesker og rammer omkring projektet. Retningen er uklar — ikke nødvendigvis af mangel på data.",
+        "pressure_low__temperature_high": "Lavt tryk, kører varmt",
+        "pressure_low__temperature_high_detail": "Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed. Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti.",
+        "pressure_low__temperature_low": "Lavt tryk, kører køligt",
+        "pressure_low__temperature_low_detail": "Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed. En langsom brand. Fremdriften skal passes bevidst.",
+        "pressure_low__visibility_high": "Lavt tryk, klart udsyn",
+        "pressure_low__visibility_high_detail": "Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed. Billedet er til at læse. Det er nu, I kan binde jer til en retning.",
+        "pressure_low__visibility_low": "Lavt tryk, lav sigtbarhed",
+        "pressure_low__visibility_low_detail": "Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed. Retningen er uklar — ikke nødvendigvis af mangel på data.",
+        "temperature_high__pressure_high": "Kører varmt, højt tryk",
+        "temperature_high__pressure_high_detail": "Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti. Der bygger sig spænding op mellem mennesker og rammer omkring projektet.",
+        "temperature_high__pressure_low": "Kører varmt, lavt tryk",
+        "temperature_high__pressure_low_detail": "Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti. Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed.",
+        "temperature_high__visibility_high": "Kører varmt, klart udsyn",
+        "temperature_high__visibility_high_detail": "Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti. Billedet er til at læse. Det er nu, I kan binde jer til en retning.",
+        "temperature_high__visibility_low": "Kører varmt, lav sigtbarhed",
+        "temperature_high__visibility_low_detail": "Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti. Retningen er uklar — ikke nødvendigvis af mangel på data.",
+        "temperature_low__pressure_high": "Kører køligt, højt tryk",
+        "temperature_low__pressure_high_detail": "En langsom brand. Fremdriften skal passes bevidst. Der bygger sig spænding op mellem mennesker og rammer omkring projektet.",
+        "temperature_low__pressure_low": "Kører køligt, lavt tryk",
+        "temperature_low__pressure_low_detail": "En langsom brand. Fremdriften skal passes bevidst. Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed.",
+        "temperature_low__visibility_high": "Kører køligt, klart udsyn",
+        "temperature_low__visibility_high_detail": "En langsom brand. Fremdriften skal passes bevidst. Billedet er til at læse. Det er nu, I kan binde jer til en retning.",
+        "temperature_low__visibility_low": "Kører køligt, lav sigtbarhed",
+        "temperature_low__visibility_low_detail": "En langsom brand. Fremdriften skal passes bevidst. Retningen er uklar — ikke nødvendigvis af mangel på data.",
+        "visibility_high__pressure_high": "Klart udsyn, højt tryk",
+        "visibility_high__pressure_high_detail": "Billedet er til at læse. Det er nu, I kan binde jer til en retning. Der bygger sig spænding op mellem mennesker og rammer omkring projektet.",
+        "visibility_high__pressure_low": "Klart udsyn, lavt tryk",
+        "visibility_high__pressure_low_detail": "Billedet er til at læse. Det er nu, I kan binde jer til en retning. Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed.",
+        "visibility_high__temperature_high": "Klart udsyn, kører varmt",
+        "visibility_high__temperature_high_detail": "Billedet er til at læse. Det er nu, I kan binde jer til en retning. Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti.",
+        "visibility_high__temperature_low": "Klart udsyn, kører køligt",
+        "visibility_high__temperature_low_detail": "Billedet er til at læse. Det er nu, I kan binde jer til en retning. En langsom brand. Fremdriften skal passes bevidst.",
+        "visibility_low__pressure_high": "Lav sigtbarhed, højt tryk",
+        "visibility_low__pressure_high_detail": "Retningen er uklar — ikke nødvendigvis af mangel på data. Der bygger sig spænding op mellem mennesker og rammer omkring projektet.",
+        "visibility_low__pressure_low": "Lav sigtbarhed, lavt tryk",
+        "visibility_low__pressure_low_detail": "Retningen er uklar — ikke nødvendigvis af mangel på data. Lidt modstand i systemet. Energien skal komme fra noget andet end nødvendighed.",
+        "visibility_low__temperature_high": "Lav sigtbarhed, kører varmt",
+        "visibility_low__temperature_high_detail": "Retningen er uklar — ikke nødvendigvis af mangel på data. Højt tempo og høj energi. Bæredygtigt i en sprint, dyrt over et årti.",
+        "visibility_low__temperature_low": "Lav sigtbarhed, kører køligt",
+        "visibility_low__temperature_low_detail": "Retningen er uklar — ikke nødvendigvis af mangel på data. En langsom brand. Fremdriften skal passes bevidst."
+      },
+      "noImpact": "Ingen målbar effekt på aflæsningen",
+      "windNames": {
+        "centralized": "Centraliseret",
+        "hierarchical": "Oppefra og ned",
+        "network": "Netværk",
+        "distributed": "Distribueret"
+      }
     }
   },
   "insights": {

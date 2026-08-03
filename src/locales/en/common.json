@@ -1065,20 +1065,6 @@
         "actNow": "Act-now zone"
       }
     },
-    "weatherLegend": {
-      "title": "Temperature, pressure & fronts",
-      "temperatureZones": "Temperature zones",
-      "idgAreas": "Large blobs = IDG areas",
-      "colorStrength": "Colour indicates strength (red=low, yellow=medium, green=high)",
-      "pressureSystems": "Pressure systems",
-      "highPressureRisk": "High pressure (risk)",
-      "highPressureBlindSpot": "High pressure (blind spot)",
-      "lowPressure": "Low pressure",
-      "fronts": "Fronts",
-      "coldFront": "Cold front",
-      "warmFront": "Warm front",
-      "intensityNote": "Darker colours = higher intensity"
-    },
     "pressureSystems": {
       "highPressure": "High-pressure system",
       "lowPressure": "Low-pressure system",
@@ -1101,21 +1087,7 @@
       "priorityLow": "Low"
     },
     "miniSlider": {
-      "affects": "Affects:",
-      "impact": {
-        "complexity": { "description": "Number of clouds in the sky", "elements": ["☁️ Cloud density"] },
-        "organizational": { "description": "Background colour gradient", "elements": ["🎨 Background", "☁️ Cloud colour"] },
-        "cultural": { "description": "Temperature shades", "elements": ["🌡️ Heat zones"] },
-        "information": { "description": "Wind direction and pattern", "elements": ["🌬️ Wind lines", "↗️ Direction"] },
-        "temporal": { "description": "Wind speed animation", "elements": ["💨 Speed", "⚡ Animation"] },
-        "risk": { "description": "Number of high-pressure areas (H)", "elements": ["🔴 H zones", "⭕ Isobars"] },
-        "stakeholder": { "description": "Number of fronts and tensions", "elements": ["〰️ Fronts", "❄️ Cold/warm"] },
-        "knowledge": { "description": "Cloud density and type", "elements": ["☁️ Clouds", "🌥️ Cover"] },
-        "challenge": { "description": "Precipitation intensity", "elements": ["🌧️ Rain", "⛈️ Thunder"] },
-        "change": { "description": "Precipitation type and intensity", "elements": ["💧 Precipitation", "❄️ Snow"] },
-        "resources": { "description": "Pressure differences", "elements": ["📊 Pressure gradients"] },
-        "development": { "description": "IDG competencies", "elements": ["🧠 Radar", "📈 Scores"] }
-      }
+      "affects": "Affects:"
     },
     "theoryUMap": {
       "title": "Theory-U portfolio map",
@@ -1154,6 +1126,121 @@
       "description": "Each project's morphology DNA as a 12-band barcode, one band per dimension. Similar genomes produce similar patterns — scan for clusters and outliers. Click a project to open it.",
       "aiPrompt": "Compare the morphology DNA of my projects: which projects are most similar, which is the biggest outlier, and what does that suggest?",
       "legend": "Each band is a morphology dimension; colour intensity reflects the chosen option along that dimension's scale."
+    },
+    "weatherReading": {
+      "indices": {
+        "pressure": "Pressure",
+        "temperature": "Temperature",
+        "visibility": "Visibility",
+        "wind": "Wind"
+      },
+      "drivenBy": "What produced this number",
+      "dimensionStrip": "The 12 dimensions · click to adjust",
+      "unanswered": "Not answered yet",
+      "noBlindSpots": "No open blind spots. The field is clear — run an analysis to look for what you might be missing.",
+      "scaleCool": "Cool",
+      "scaleWarm": "Warm",
+      "scaleCaption": "colour = tension",
+      "openEditor": "Adjust assessment",
+      "closeEditor": "Close editor",
+      "qualifiers": {
+        "pressure": {
+          "high": "Rising tension",
+          "mid": "Manageable tension",
+          "low": "Little friction"
+        },
+        "temperature": {
+          "high": "Hot, high energy",
+          "mid": "Steady pace",
+          "low": "Cool, slow burn"
+        },
+        "visibility": {
+          "high": "Clear view",
+          "mid": "Partly clouded",
+          "low": "Foggy — unclear direction"
+        }
+      },
+      "wind": {
+        "centralized": "Information runs through one point",
+        "hierarchical": "Information runs top-down",
+        "network": "Information moves sideways, not down",
+        "distributed": "Information moves everywhere at once"
+      },
+      "drivers": {
+        "blindSpots": "Open blind spots",
+        "documents": "Analysed documents"
+      },
+      "headlines": {
+        "settled": "Settled weather",
+        "settled_detail": "Nothing in the assessment stands out. That is worth checking rather than trusting — a flat reading often means the assessment has not been sharpened yet.",
+        "pressure_high": "High pressure",
+        "pressure_high_detail": "Tension is building between the people and constraints around this project.",
+        "pressure_low": "Low pressure",
+        "pressure_low_detail": "Little friction in the system. Energy will have to come from somewhere other than urgency.",
+        "temperature_high": "Running hot",
+        "temperature_high_detail": "High energy and pace. Sustainable for a sprint, expensive for a decade.",
+        "temperature_low": "Running cool",
+        "temperature_low_detail": "A slow burn. Momentum will need deliberate tending.",
+        "visibility_high": "Clear view",
+        "visibility_high_detail": "The picture is legible. This is the moment to commit to a direction.",
+        "visibility_low": "Low visibility",
+        "visibility_low_detail": "The direction is unclear — not necessarily for lack of data.",
+        "pressure_high__temperature_high": "High pressure, running hot",
+        "pressure_high__temperature_high_detail": "Tension is building between the people and constraints around this project. High energy and pace. Sustainable for a sprint, expensive for a decade.",
+        "pressure_high__temperature_low": "High pressure, running cool",
+        "pressure_high__temperature_low_detail": "Tension is building between the people and constraints around this project. A slow burn. Momentum will need deliberate tending.",
+        "pressure_high__visibility_high": "High pressure, clear view",
+        "pressure_high__visibility_high_detail": "Tension is building between the people and constraints around this project. The picture is legible. This is the moment to commit to a direction.",
+        "pressure_high__visibility_low": "High pressure, low visibility",
+        "pressure_high__visibility_low_detail": "Tension is building between the people and constraints around this project. The direction is unclear — not necessarily for lack of data.",
+        "pressure_low__temperature_high": "Low pressure, running hot",
+        "pressure_low__temperature_high_detail": "Little friction in the system. Energy will have to come from somewhere other than urgency. High energy and pace. Sustainable for a sprint, expensive for a decade.",
+        "pressure_low__temperature_low": "Low pressure, running cool",
+        "pressure_low__temperature_low_detail": "Little friction in the system. Energy will have to come from somewhere other than urgency. A slow burn. Momentum will need deliberate tending.",
+        "pressure_low__visibility_high": "Low pressure, clear view",
+        "pressure_low__visibility_high_detail": "Little friction in the system. Energy will have to come from somewhere other than urgency. The picture is legible. This is the moment to commit to a direction.",
+        "pressure_low__visibility_low": "Low pressure, low visibility",
+        "pressure_low__visibility_low_detail": "Little friction in the system. Energy will have to come from somewhere other than urgency. The direction is unclear — not necessarily for lack of data.",
+        "temperature_high__pressure_high": "Running hot, high pressure",
+        "temperature_high__pressure_high_detail": "High energy and pace. Sustainable for a sprint, expensive for a decade. Tension is building between the people and constraints around this project.",
+        "temperature_high__pressure_low": "Running hot, low pressure",
+        "temperature_high__pressure_low_detail": "High energy and pace. Sustainable for a sprint, expensive for a decade. Little friction in the system. Energy will have to come from somewhere other than urgency.",
+        "temperature_high__visibility_high": "Running hot, clear view",
+        "temperature_high__visibility_high_detail": "High energy and pace. Sustainable for a sprint, expensive for a decade. The picture is legible. This is the moment to commit to a direction.",
+        "temperature_high__visibility_low": "Running hot, low visibility",
+        "temperature_high__visibility_low_detail": "High energy and pace. Sustainable for a sprint, expensive for a decade. The direction is unclear — not necessarily for lack of data.",
+        "temperature_low__pressure_high": "Running cool, high pressure",
+        "temperature_low__pressure_high_detail": "A slow burn. Momentum will need deliberate tending. Tension is building between the people and constraints around this project.",
+        "temperature_low__pressure_low": "Running cool, low pressure",
+        "temperature_low__pressure_low_detail": "A slow burn. Momentum will need deliberate tending. Little friction in the system. Energy will have to come from somewhere other than urgency.",
+        "temperature_low__visibility_high": "Running cool, clear view",
+        "temperature_low__visibility_high_detail": "A slow burn. Momentum will need deliberate tending. The picture is legible. This is the moment to commit to a direction.",
+        "temperature_low__visibility_low": "Running cool, low visibility",
+        "temperature_low__visibility_low_detail": "A slow burn. Momentum will need deliberate tending. The direction is unclear — not necessarily for lack of data.",
+        "visibility_high__pressure_high": "Clear view, high pressure",
+        "visibility_high__pressure_high_detail": "The picture is legible. This is the moment to commit to a direction. Tension is building between the people and constraints around this project.",
+        "visibility_high__pressure_low": "Clear view, low pressure",
+        "visibility_high__pressure_low_detail": "The picture is legible. This is the moment to commit to a direction. Little friction in the system. Energy will have to come from somewhere other than urgency.",
+        "visibility_high__temperature_high": "Clear view, running hot",
+        "visibility_high__temperature_high_detail": "The picture is legible. This is the moment to commit to a direction. High energy and pace. Sustainable for a sprint, expensive for a decade.",
+        "visibility_high__temperature_low": "Clear view, running cool",
+        "visibility_high__temperature_low_detail": "The picture is legible. This is the moment to commit to a direction. A slow burn. Momentum will need deliberate tending.",
+        "visibility_low__pressure_high": "Low visibility, high pressure",
+        "visibility_low__pressure_high_detail": "The direction is unclear — not necessarily for lack of data. Tension is building between the people and constraints around this project.",
+        "visibility_low__pressure_low": "Low visibility, low pressure",
+        "visibility_low__pressure_low_detail": "The direction is unclear — not necessarily for lack of data. Little friction in the system. Energy will have to come from somewhere other than urgency.",
+        "visibility_low__temperature_high": "Low visibility, running hot",
+        "visibility_low__temperature_high_detail": "The direction is unclear — not necessarily for lack of data. High energy and pace. Sustainable for a sprint, expensive for a decade.",
+        "visibility_low__temperature_low": "Low visibility, running cool",
+        "visibility_low__temperature_low_detail": "The direction is unclear — not necessarily for lack of data. A slow burn. Momentum will need deliberate tending."
+      },
+      "noImpact": "No measurable effect on the reading",
+      "windNames": {
+        "centralized": "Centralized",
+        "hierarchical": "Top-down",
+        "network": "Network",
+        "distributed": "Distributed"
+      }
     }
   },
   "insights": {

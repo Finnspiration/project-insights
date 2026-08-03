@@ -383,9 +383,6 @@ export default function ProjectDetail() {
                       <CulturalWeatherMap 
                         morphology={previewMorphology || project.morphology}
                         idgProfile={previewIDG ?? idg.weather}
-                        theoryUAnalysis={project.theory_u_analysis}
-                        recommendations={project.patterns?.recommendations || []}
-                        interventions={project.patterns?.interventions || []}
                         blindSpots={blindSpots}
                         projectId={project.id}
                         documents={documents}
