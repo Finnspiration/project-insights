@@ -14,6 +14,7 @@ import { EnhancedBlob3DLegend } from './blob3d/EnhancedBlob3DLegend';
 import { BlobDemoMode } from './blob3d/BlobDemoMode';
 import { ParameterBanner } from './blob3d/ParameterBanner';
 import { BlobReadingGuide } from './blob3d/BlobReadingGuide';
+import { MORPHOLOGY_DIMENSION_KEYS, normalizeMorphology } from '@shared/morphology.ts';
 
 interface MorphologyBlobProps {
   morphology: any;
@@ -28,63 +29,41 @@ type ViewMode =
 
 export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
   const { t, i18n } = useTranslation('common');
-  
-  // Defensive check for morphology
-  if (!morphology) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">{t('visualizations.noMorphologyData')}</p>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  // Helper to safely extract morphology value (handles both string and object formats)
-  const getMorphologyValue = (key: string): string => {
-    const value = morphology[key];
-    if (typeof value === 'object' && value !== null) {
-      return value.selectedValue || '';
+
+  // NOTE: every hook in this component must run before the guard clauses at
+  // the end of this block. Returning early — as this component used to do for
+  // missing morphology and for a failing mapMorphologyToBlob() — changes the
+  // number of hooks between renders, and React then throws "Rendered fewer
+  // hooks than expected" and unmounts the whole tab.
+
+  // All 12 dimensions as strings, empty where unanswered. The blob mapper
+  // treats '' and undefined identically, and keeping every key present makes
+  // the localMorphology comparison below stable.
+  //
+  const normalizedMorphology = useMemo(() => {
+    const normalized = normalizeMorphology(morphology);
+    return Object.fromEntries(
+      MORPHOLOGY_DIMENSION_KEYS.map((key) => [key, normalized[key] ?? '']),
+    ) as Record<string, string>;
+  }, [morphology]);
+
+  // Identifies the assessment by its values, so a re-fetch that returns the
+  // same answers does not discard the user's local experimentation below.
+  const morphologyKey = MORPHOLOGY_DIMENSION_KEYS
+    .map((key) => normalizedMorphology[key])
+    .join('|');
+
+  // Errors are captured as state rather than thrown, so the render below can
+  // decide what to show without skipping hooks.
+  const blobData = useMemo(() => {
+    try {
+      return mapMorphologyToBlob(normalizedMorphology);
+    } catch (error) {
+      console.error('Error mapping morphology to blob:', error);
+      return null;
     }
-    return value || '';
-  };
-  
-  // Normalize morphology early - ensures all values are strings
-  const normalizedMorphology = {
-    complexity: getMorphologyValue('complexity'),
-    stakeholder: getMorphologyValue('stakeholder'),
-    knowledge: getMorphologyValue('knowledge'),
-    cultural: getMorphologyValue('cultural'),
-    organizational: getMorphologyValue('organizational'),
-    temporal: getMorphologyValue('temporal'),
-    development: getMorphologyValue('development'),
-    risk: getMorphologyValue('risk'),
-    challenge: getMorphologyValue('challenge') || getMorphologyValue('primary'),
-    change: getMorphologyValue('change'),
-    information: getMorphologyValue('information'),
-    resources: getMorphologyValue('resources') || getMorphologyValue('resource')
-  };
-  
-  let blobData;
-  try {
-    blobData = mapMorphologyToBlob(normalizedMorphology);
-  } catch (error) {
-    console.error('Error mapping morphology to blob:', error);
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-destructive">Fejl ved generering af morfologi blob.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-  
+  }, [normalizedMorphology]);
+
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [viewMode, setViewMode] = useState<ViewMode>({ type: 'idle' });
@@ -104,7 +83,8 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
   // Sync local morphology when the actual morphology (from morphological box) changes
   useEffect(() => {
     setLocalMorphology({ ...normalizedMorphology });
-  }, [JSON.stringify(normalizedMorphology)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the values, not the object identity
+  }, [morphologyKey]);
   
   // Detect if user has made LOCAL changes from the saved morphology
   const hasChanges = useMemo(() => {
@@ -247,6 +227,34 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [viewMode]);
+
+  // ---- Guard clauses: everything above this line must run on every render ----
+
+  if (!morphology) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{t('visualizations.noMorphologyData')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!blobData) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('visualizations.blob.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive">{t('visualizations.blob.noData')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Only show skeleton on initial load, not during updates
   if (!archetype && isLoadingArchetype) {

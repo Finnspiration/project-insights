@@ -2434,9 +2434,6 @@ function CoreSphere({
     }
   });
   
-  // Very low visibility = don't render
-  if (coreVisibility < 0.1) return null;
-  
   // Starburst rays
   const starburstRays = useMemo(() => {
     if (coreShape !== 'starburst') return null;
@@ -2455,7 +2452,13 @@ function CoreSphere({
     }
     return rays;
   }, [coreShape, coreRings]);
-  
+
+  // Very low visibility = don't render. This has to come after every hook:
+  // coreVisibility is derived from the morphology, so crossing the threshold
+  // would otherwise change the hook count between renders and make React
+  // throw "Rendered fewer hooks than expected".
+  if (coreVisibility < 0.1) return null;
+
   return (
     <group ref={groupRef}>
       <mesh ref={meshRef} geometry={geometry}>
