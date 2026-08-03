@@ -6,7 +6,7 @@ import { Target } from 'lucide-react';
 import { calculateIDG } from '@/lib/idgScoring';
 import { IDGEvidenceBreakdownPanel } from './idg/IDGEvidenceBreakdownPanel';
 import { IDG_DIMENSIONS, type IDGScores, type ProjectDocument } from '@/types/project';
-import type { RawMorphology } from '@shared/morphology.ts';
+import { morphologyValue, type RawMorphology } from '@shared/morphology.ts';
 
 interface IDGRadarChartProps {
   morphology: RawMorphology;
@@ -133,13 +133,13 @@ export function IDGRadarChart({ morphology, documents = [], precalculatedScores 
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-muted-foreground mb-1">{t('visualizations.idgRadar.primaryFocus')}</p>
               <p className="font-medium capitalize">
-                {morphology?.development?.selectedValue || morphology?.development || t('common.notAvailable')}
+                {morphologyValue(morphology, 'development') || t('common.notAvailable')}
               </p>
             </div>
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-muted-foreground mb-1">{t('visualizations.idgRadar.orgStage')}</p>
               <p className="font-medium capitalize">
-                {morphology?.organizational?.selectedValue || morphology?.organizational || t('common.notAvailable')}
+                {morphologyValue(morphology, 'organizational') || t('common.notAvailable')}
               </p>
             </div>
           </div>

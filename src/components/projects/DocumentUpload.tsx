@@ -32,7 +32,7 @@ interface Document {
   uploaded_at: string;
   processed: boolean | null;
   content: string | null;
-  metadata: any;
+  metadata?: any;
 }
 
 interface DocumentUploadProps {

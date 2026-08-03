@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { localized } from '@/types/project';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
@@ -45,8 +46,8 @@ export function ProjectCard({ project, onEdit, onDelete, onAssess }: ProjectCard
   const [isDeleting, setIsDeleting] = useState(false);
 
   const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
-  const projectName = project.name[userLanguage] || project.name.en;
-  const projectDescription = project.description?.[userLanguage] || project.description?.en || '';
+  const projectName = localized(project.name, userLanguage);
+  const projectDescription = localized(project.description, userLanguage);
 
   const handleDelete = async () => {
     setIsDeleting(true);

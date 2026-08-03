@@ -289,7 +289,6 @@ export default function Dashboard() {
           onOpenChange={setCreateDialogOpen}
           onSuccess={() => {
             setCreateDialogOpen(false);
-            fetchDashboardData();
           }}
         />
 

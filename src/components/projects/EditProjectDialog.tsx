@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { LocalizedText } from '@/types/project';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,7 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Project {
   id: string;
-  name: { en: string; da: string };
+  name: LocalizedText;
   description?: { en: string; da: string };
   timeline_start?: string;
   timeline_end?: string;
