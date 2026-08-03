@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Sparkles, AlertTriangle, Lightbulb, RefreshCw, TrendingUp } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { RawMorphology } from '@shared/morphology.ts';
 
 interface Citation {
   document: string;
@@ -44,7 +45,7 @@ interface Insight {
 interface InsightsPanelProps {
   projectId: string;
   projectName: string;
-  morphology: any;
+  morphology: RawMorphology;
 }
 
 export function InsightsPanel({ projectId, projectName, morphology }: InsightsPanelProps) {

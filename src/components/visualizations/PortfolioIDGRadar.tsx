@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { askAIChat } from '@/lib/aiChat';
-import { calculateIDGScoresFromMorphology } from '@/lib/idgScoring';
+import { calculateIDG } from '@/lib/idgScoring';
 
 const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'] as const;
 type DimensionKey = (typeof IDG_DIMENSIONS)[number];
@@ -35,7 +35,7 @@ export function PortfolioIDGRadar() {
     return data.projects.map((p) => ({
       id: p.id,
       name: readName(p.name, i18n.language, t('common.untitled', 'Untitled')),
-      scores: calculateIDGScoresFromMorphology(p.morphology).radarScores as Scores,
+      scores: calculateIDG(p.morphology).radar as Scores,
     }));
   }, [data, i18n.language, t]);
 

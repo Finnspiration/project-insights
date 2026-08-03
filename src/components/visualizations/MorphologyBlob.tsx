@@ -15,9 +15,10 @@ import { BlobDemoMode } from './blob3d/BlobDemoMode';
 import { ParameterBanner } from './blob3d/ParameterBanner';
 import { BlobReadingGuide } from './blob3d/BlobReadingGuide';
 import { MORPHOLOGY_DIMENSION_KEYS, normalizeMorphology } from '@shared/morphology.ts';
+import type { RawMorphology } from '@shared/morphology.ts';
 
 interface MorphologyBlobProps {
-  morphology: any;
+  morphology: RawMorphology;
   projectId?: string;
 }
 

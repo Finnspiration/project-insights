@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { CATEGORY_COLORS, CATEGORY_ICONS } from '@/lib/morphologyConfig';
-import * as Icons from 'lucide-react';
 
 interface DimensionDetailDialogProps {
   open: boolean;
@@ -46,10 +45,7 @@ export function DimensionDetailDialog({
   }
 
   const categoryColor = CATEGORY_COLORS[dimension.category as keyof typeof CATEGORY_COLORS];
-  const categoryIconName = CATEGORY_ICONS[dimension.category as keyof typeof CATEGORY_ICONS];
-  
-  // Get the icon component
-  const IconComponent = Icons[categoryIconName as keyof typeof Icons] as React.ComponentType<{ className?: string }>;
+  const IconComponent = CATEGORY_ICONS[dimension.category as keyof typeof CATEGORY_ICONS];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

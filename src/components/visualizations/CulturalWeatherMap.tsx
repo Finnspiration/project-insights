@@ -18,18 +18,20 @@ import { CulturalTexture } from './weather/CulturalTexture';
 import { IDGOverlay } from './weather/IDGOverlay';
 import { mapProjectToWeatherData } from './weather/weatherDataMapper';
 import { aggregateIDGScoresFromDocuments, hasIDGAnalysis } from '@/lib/idgAggregation';
+import type { RawMorphology, Morphology } from '@shared/morphology.ts';
+import type { BlindSpot, IDGScores, ProjectDocument, TheoryUAnalysis } from '@/types/project';
 
 interface CulturalWeatherMapProps {
-  morphology: any;
+  morphology: RawMorphology;
   idgProfile?: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
-  theoryUAnalysis?: any;
-  recommendations?: any[];
-  interventions?: any[];
-  blindSpots?: any[];
+  theoryUAnalysis?: TheoryUAnalysis | null;
+  recommendations?: unknown[];
+  interventions?: unknown[];
+  blindSpots?: BlindSpot[];
   projectId?: string;
-  documents?: any[];
-  onMorphologyChange?: (newMorphology: any) => void;
-  onIDGChange?: (newIDG: any) => void;
+  documents?: ProjectDocument[];
+  onMorphologyChange?: (newMorphology: Morphology) => void;
+  onIDGChange?: (newIDG: IDGScores) => void;
   onSaveChanges?: () => Promise<void>;
   onReset?: () => void;
   hasChanges?: boolean;

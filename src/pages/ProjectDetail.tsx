@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/lib/i18n';
@@ -20,11 +20,19 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { DocumentUpload } from '@/components/projects/DocumentUpload';
-import { CulturalWeatherMap } from '@/components/visualizations/CulturalWeatherMap';
-import { UJourneyTimeline } from '@/components/visualizations/UJourneyTimeline';
-import { IDGRadarChart } from '@/components/visualizations/IDGRadarChart';
-import { ProjectBodyScan } from '@/components/visualizations/ProjectBodyScan';
-import { MorphologyBlob } from '@/components/visualizations/MorphologyBlob';
+// Only one visualization is mounted at a time, and three of them pull in
+// three.js or recharts. Loading them per tab keeps that weight out of the
+// initial ProjectDetail chunk.
+const CulturalWeatherMap = lazy(() =>
+  import('@/components/visualizations/CulturalWeatherMap').then((m) => ({ default: m.CulturalWeatherMap })));
+const UJourneyTimeline = lazy(() =>
+  import('@/components/visualizations/UJourneyTimeline').then((m) => ({ default: m.UJourneyTimeline })));
+const IDGRadarChart = lazy(() =>
+  import('@/components/visualizations/IDGRadarChart').then((m) => ({ default: m.IDGRadarChart })));
+const ProjectBodyScan = lazy(() =>
+  import('@/components/visualizations/ProjectBodyScan').then((m) => ({ default: m.ProjectBodyScan })));
+const MorphologyBlob = lazy(() =>
+  import('@/components/visualizations/MorphologyBlob').then((m) => ({ default: m.MorphologyBlob })));
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { BlindSpotsPanel } from '@/components/insights/BlindSpotsPanel';
 import { ArrowLeft, Calendar, Users, Sparkles, Edit } from 'lucide-react';
@@ -34,159 +42,88 @@ import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { calculateIDGScoresFromMorphology, IDGScoresCalculation } from '@/lib/idgScoring';
-import { generateDnaCode, isMorphologyComplete, normalizeMorphology } from '@shared/morphology.ts';
+import { calculateIDG } from '@/lib/idgScoring';
+import { isMorphologyComplete, normalizeMorphology, type Morphology } from '@shared/morphology.ts';
 import { ProjectProgress } from '@/components/projects/ProjectProgress';
-import type { Project } from '@/types/project';
+import { localized, type IDGScores, type Language } from '@/types/project';
+import {
+  useProject,
+  useProjectBlindSpots,
+  useProjectDocuments,
+  useSaveProjectAssessment,
+} from '@/hooks/queries/useProject';
+import { projectKeys } from '@/hooks/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
-
-interface Document {
-  id: string;
-  filename: string;
-  file_path: string;
-  file_type: string | null;
-  file_size: number | null;
-  uploaded_at: string;
-  processed: boolean | null;
-  content: string | null;
-  metadata: any;
-}
-
-interface BlindSpot {
-  id: string;
-  title: any;
-  description: any;
-  priority: string;
-  status: string;
-  evidence?: any;
-  consequences?: any;
-  recommendations?: any;
-}
+const VisualizationFallback = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation('common');
   const { profile } = useAuth();
-  const [project, setProject] = useState<Project | null>(null);
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [blindSpots, setBlindSpots] = useState<BlindSpot[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const { data: project, isLoading, isError } = useProject(id);
+  const { data: documents = [] } = useProjectDocuments(id);
+  const { data: blindSpots = [] } = useProjectBlindSpots(id);
+  const saveAssessment = useSaveProjectAssessment();
+  const queryClient = useQueryClient();
+
+  // The wizard, the edit dialog and the upload panel still write directly.
+  // Invalidating the project's subtree refreshes all three queries at once.
+  const refetchAll = () =>
+    queryClient.invalidateQueries({ queryKey: projectKeys.detail(id) });
+
   const [morphologyWizardOpen, setMorphologyWizardOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
-  // Preview state for live editing (separate from saved state)
-  const [previewMorphology, setPreviewMorphology] = useState<any>(null);
-  const [previewIDG, setPreviewIDG] = useState<any>(null);
+
+  // Preview state for live editing (separate from the saved project)
+  const [previewMorphology, setPreviewMorphology] = useState<Morphology | null>(null);
+  const [previewIDG, setPreviewIDG] = useState<IDGScores | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [originalMorphology, setOriginalMorphology] = useState<any>(null);
   const [activeVisualizationTab, setActiveVisualizationTab] = useState<string>('weather');
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
-  
-  // IDG scores calculated from morphology (both scales)
-  const [projectIDGScores, setProjectIDGScores] = useState<IDGScoresCalculation | null>(null);
 
-  const userLanguage = (profile?.preferred_language || 'en') as 'en' | 'da';
+  const userLanguage = (profile?.preferred_language || 'en') as Language;
 
-  const fetchProject = async () => {
-    if (!id) return;
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-
-      // Normalize on read so every consumer below sees the canonical flat
-      // format, whatever shape the row happens to be stored in.
-      if (data.morphology) {
-        data.morphology = normalizeMorphology(data.morphology);
-      }
-
-      // Repair DNA codes written by older code paths (either stringified
-      // objects, or a different dimension order).
-      const expectedDnaCode = generateDnaCode(data.morphology);
-      if (expectedDnaCode && data.dna_code !== expectedDnaCode) {
-        data.dna_code = expectedDnaCode;
-        const { error: repairError } = await supabase
-          .from('projects')
-          .update({ dna_code: expectedDnaCode })
-          .eq('id', id);
-        if (repairError) {
-          console.error('Failed to repair dna_code:', repairError);
-        }
-      }
-
-      setProject(data);
-
-      // Calculate IDG scores from morphology immediately
-      if (data.morphology) {
-        setProjectIDGScores(calculateIDGScoresFromMorphology(data.morphology));
-      }
-    } catch (error) {
-      console.error('Error fetching project:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Scores for the visualizations. Documents are included, so the radar, the
+  // weather map and the evidence breakdown all show the same numbers.
+  const idg = useMemo(
+    () => calculateIDG(previewMorphology ?? project?.morphology, documents),
+    [previewMorphology, project?.morphology, documents],
+  );
 
   const handleSaveChanges = async () => {
     // The weather map can change the morphology, the IDG profile, or both.
-    // Bailing out on a missing previewMorphology used to make "save" a silent
-    // no-op for anyone who had only moved the IDG sliders.
+    // Requiring a morphology change used to make "save" a silent no-op for
+    // anyone who had only moved the IDG sliders.
     if (!project || (!previewMorphology && !previewIDG)) return;
 
+    const { toast } = await import('@/hooks/use-toast');
+
     try {
-      const update: Record<string, unknown> = {
-        updated_at: new Date().toISOString(),
-      };
+      await saveAssessment.mutateAsync({
+        projectId: project.id,
+        morphology: previewMorphology ?? undefined,
+        idgProfile: previewIDG ?? undefined,
+        currentPatterns: project.patterns,
+      });
 
-      let normalized = project.morphology;
-      let newDnaCode = project.dna_code;
-
-      if (previewMorphology) {
-        normalized = normalizeMorphology(previewMorphology);
-        newDnaCode = generateDnaCode(normalized);
-        update.morphology = normalized;
-        update.dna_code = newDnaCode;
-      }
-
-      // idg_profile lives inside `patterns` alongside insights and
-      // recommendations, so merge rather than replace.
-      const patterns = previewIDG
-        ? { ...(project.patterns || {}), idg_profile: previewIDG }
-        : project.patterns;
-
-      if (previewIDG) {
-        update.patterns = patterns;
-      }
-
-      const { error } = await supabase
-        .from('projects')
-        .update(update)
-        .eq('id', project.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setProject({ ...project, morphology: normalized, dna_code: newDnaCode, patterns });
-      setOriginalMorphology(normalized);
       setHasUnsavedChanges(false);
       setPreviewMorphology(null);
       setPreviewIDG(null);
 
-      const { toast } = await import('@/hooks/use-toast');
       toast({
         title: t('common.success'),
         description: t('weather_control.changes_saved'),
       });
     } catch (error) {
       console.error('Error saving changes:', error);
-      const { toast } = await import('@/hooks/use-toast');
       toast({
         title: t('common.error'),
         description: t('weather_control.save_failed'),
@@ -201,71 +138,26 @@ export default function ProjectDetail() {
     setHasUnsavedChanges(false);
 
     import('@/hooks/use-toast').then(({ toast }) => {
-      toast({
-        title: t('morphology.resetSuccess'),
-      });
+      toast({ title: t('morphology.resetSuccess') });
     });
   };
 
-  // Initialize preview state when project loads
+  // Drop unsaved previews when navigating to a different project.
   useEffect(() => {
-    if (project?.morphology) {
-      setPreviewMorphology(null);
-      setPreviewIDG(null);
-      setOriginalMorphology(project.morphology);
-      setHasUnsavedChanges(false);
-    }
-  }, [project?.id]);
-
-  const fetchDocuments = async () => {
-    if (!id) return;
-
-    try {
-    const { data, error } = await supabase
-      .from('documents')
-      .select('id, filename, file_path, file_type, file_size, uploaded_at, processed, content, metadata')
-      .eq('project_id', id)
-      .order('uploaded_at', { ascending: false });
-
-      if (error) throw error;
-      setDocuments(data || []);
-    } catch (error) {
-      console.error('Error fetching documents:', error);
-    }
-  };
-
-  const fetchBlindSpots = async () => {
-    if (!id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('blind_spots')
-        .select('*')
-        .eq('project_id', id)
-        .order('priority', { ascending: false });
-
-      if (error) throw error;
-      setBlindSpots(data || []);
-    } catch (error) {
-      console.error('Error fetching blind spots:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchProject();
-    fetchDocuments();
-    fetchBlindSpots();
+    setPreviewMorphology(null);
+    setPreviewIDG(null);
+    setHasUnsavedChanges(false);
   }, [id]);
 
-  // Warn about unsaved changes before leaving page
+  // Warn about unsaved changes before leaving the page
   useEffect(() => {
     if (!hasUnsavedChanges) return;
-    
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = '';
     };
-    
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
@@ -281,7 +173,7 @@ export default function ProjectDetail() {
     navigate(path);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <div className="container mx-auto px-4 py-8">
@@ -296,19 +188,24 @@ export default function ProjectDetail() {
     );
   }
 
-  if (!project) {
+  // isError covers a genuine failure (network, RLS); !project covers a project
+  // that does not exist. The old code showed "not found" for both, which hid
+  // permission and connectivity problems behind a wrong message.
+  if (isError || !project) {
     return (
       <DashboardLayout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">{t('projectDetail.notFound')}</h2>
+          <h2 className="text-2xl font-bold mb-4">
+            {isError ? t('projectDetail.loadFailed') : t('projectDetail.notFound')}
+          </h2>
           <Button onClick={() => navigate('/projects')}>{t('projectDetail.backToProjects')}</Button>
         </div>
       </DashboardLayout>
     );
   }
 
-  const projectName = project.name[userLanguage] || project.name.en;
-  const projectDescription = project.description?.[userLanguage] || project.description?.en || '';
+  const projectName = localized(project.name, userLanguage);
+  const projectDescription = localized(project.description, userLanguage);
 
   return (
     <DashboardLayout>
@@ -419,7 +316,7 @@ export default function ProjectDetail() {
             <DocumentUpload
               projectId={project.id}
               documents={documents}
-              onUploadSuccess={fetchDocuments}
+              onUploadSuccess={refetchAll}
             />
           </TabsContent>
 
@@ -432,27 +329,13 @@ export default function ProjectDetail() {
                 projectId={project.id}
                 language={i18n.language as 'en' | 'da'}
                 onMorphologyChange={async (updatedMorphology) => {
-                  const normalized = normalizeMorphology(updatedMorphology);
-                  const newDnaCode = generateDnaCode(normalized);
-
-                  const { error } = await supabase
-                    .from('projects')
-                    .update({
-                      morphology: normalized,
-                      dna_code: newDnaCode
-                    })
-                    .eq('id', id);
-
-                  // Throw rather than return: MorphologicalBox awaits this
-                  // before regenerating the Theory U analysis, and must not
-                  // regenerate against a row that was never written.
-                  if (error) throw error;
-
-                  setProject(prev => prev ? {
-                    ...prev,
-                    morphology: normalized,
-                    dna_code: newDnaCode
-                  } : null);
+                  // mutateAsync rejects on failure, and MorphologicalBox awaits
+                  // this before regenerating the Theory U analysis — it must
+                  // not regenerate against a row that was never written.
+                  await saveAssessment.mutateAsync({
+                    projectId: project.id,
+                    morphology: normalizeMorphology(updatedMorphology),
+                  });
                 }}
               />
             )}
@@ -496,13 +379,10 @@ export default function ProjectDetail() {
                 <div className="min-h-[400px]">
                   {activeVisualizationTab === 'weather' && (
                     <ErrorBoundary>
+                      <Suspense fallback={<VisualizationFallback />}>
                       <CulturalWeatherMap 
                         morphology={previewMorphology || project.morphology}
-                        idgProfile={
-                          previewIDG || 
-                          projectIDGScores?.weatherScores || 
-                          project.patterns?.idg_profile
-                        }
+                        idgProfile={previewIDG ?? idg.weather}
                         theoryUAnalysis={project.theory_u_analysis}
                         recommendations={project.patterns?.recommendations || []}
                         interventions={project.patterns?.interventions || []}
@@ -522,45 +402,54 @@ export default function ProjectDetail() {
                         hasChanges={hasUnsavedChanges}
                         showControlPanel={true}
                       />
+                      </Suspense>
                     </ErrorBoundary>
                   )}
                   
                   {activeVisualizationTab === 'ujourney' && (
                     <ErrorBoundary>
+                      <Suspense fallback={<VisualizationFallback />}>
                       <UJourneyTimeline 
                         morphology={project.morphology}
                         projectId={project.id}
                         projectName={projectName}
                       />
+                      </Suspense>
                     </ErrorBoundary>
                   )}
                   
                   {activeVisualizationTab === 'idg' && (
                     <ErrorBoundary>
+                      <Suspense fallback={<VisualizationFallback />}>
                       <IDGRadarChart 
                         morphology={previewMorphology || project.morphology} 
                         documents={documents}
-                        precalculatedScores={projectIDGScores?.radarScores}
+                        precalculatedScores={idg.radar}
                       />
+                      </Suspense>
                     </ErrorBoundary>
                   )}
                   
                   {activeVisualizationTab === 'bodyscan' && (
                     <ErrorBoundary>
+                      <Suspense fallback={<VisualizationFallback />}>
                       <ProjectBodyScan 
                         morphology={project.morphology}
                         documents={documents}
                         projectPatterns={project.patterns}
                       />
+                      </Suspense>
                     </ErrorBoundary>
                   )}
                   
                   {activeVisualizationTab === 'blob' && (
                     <ErrorBoundary>
+                      <Suspense fallback={<VisualizationFallback />}>
                       <MorphologyBlob 
                         morphology={project.morphology} 
                         projectId={project.id}
                       />
+                      </Suspense>
                     </ErrorBoundary>
                   )}
                 </div>
@@ -574,7 +463,7 @@ export default function ProjectDetail() {
           open={morphologyWizardOpen}
           onOpenChange={setMorphologyWizardOpen}
           projectId={project.id}
-          onSuccess={fetchProject}
+          onSuccess={refetchAll}
         />
 
         <AlertDialog
@@ -608,7 +497,7 @@ export default function ProjectDetail() {
           open={editDialogOpen}
           onOpenChange={setEditDialogOpen}
           project={project}
-          onSuccess={fetchProject}
+          onSuccess={refetchAll}
         />
       </div>
     </DashboardLayout>

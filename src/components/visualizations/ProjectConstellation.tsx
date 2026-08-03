@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { askAIChat } from '@/lib/aiChat';
-import { calculateIDGScoresFromMorphology } from '@/lib/idgScoring';
+import { calculateIDG } from '@/lib/idgScoring';
 
 const COMPLEXITY = ['simple', 'complicated', 'complex', 'chaotic'] as const;
 const ORG_STAGE = ['red', 'amber', 'orange', 'green', 'teal'] as const;
@@ -79,7 +79,7 @@ export function ProjectConstellation() {
       const focus = (FOCUS as readonly string[]).includes(development) ? development : 'thinking';
       const xIndex = Math.max(0, COMPLEXITY.indexOf(complexity as (typeof COMPLEXITY)[number]));
       const yIndex = Math.max(0, ORG_STAGE.indexOf(organizational as (typeof ORG_STAGE)[number]));
-      const radar = calculateIDGScoresFromMorphology(p.morphology).radarScores;
+      const radar = calculateIDG(p.morphology).radar;
       const idg = Math.round(
         (radar.being + radar.thinking + radar.relating + radar.collaborating + radar.acting) / 5
       );

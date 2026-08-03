@@ -7,10 +7,12 @@ import { Thermometer, Wind, CloudRain, Gauge, Heart, RotateCcw } from 'lucide-re
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import type { RawMorphology, Morphology } from '@shared/morphology.ts';
+import type { IDGScores } from '@/types/project';
 
 interface GroupedControlsProps {
-  morphology: any;
-  onMorphologyChange: (newMorphology: any) => void;
+  morphology: RawMorphology;
+  onMorphologyChange: (newMorphology: Morphology) => void;
   idgScores?: {
     being: number;
     thinking: number;
@@ -18,7 +20,7 @@ interface GroupedControlsProps {
     collaborating: number;
     acting: number;
   };
-  onIdgScoresChange?: (newScores: any) => void;
+  onIdgScoresChange?: (newScores: IDGScores) => void;
   documentAverageIDG?: {
     being: number;
     thinking: number;

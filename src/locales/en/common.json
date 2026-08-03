@@ -173,6 +173,9 @@
     }
   },
   "projects": {
+    "loading": "Loading projects...",
+    "count": "{{count}} project",
+    "count_other": "{{count}} projects",
     "title": "Projects",
     "emptyState": {
       "title": "No Projects Yet",
@@ -304,6 +307,7 @@
     "error": "Error"
   },
   "projectDetail": {
+    "loadFailed": "Could not load this project",
     "loading": "Loading project...",
     "notFound": "Project not found",
     "backToProjects": "Back to Projects",

@@ -12,7 +12,7 @@ import { DNAHelixVisualization } from './DNAHelixVisualization';
 import { MorphologyScoringTable } from './MorphologyScoringTable';
 import { RegenerateDNAButton } from '../projects/RegenerateDNAButton';
 import { AggregationDetailsDialog } from './AggregationDetailsDialog';
-import { Copy, ChevronDown, RefreshCw, Globe, Brain, Zap, Shield, Dna, List, BarChart3, Combine } from 'lucide-react';
+import { Copy, ChevronDown, RefreshCw, Dna, List, BarChart3, Combine } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,13 +75,6 @@ export function MorphologicalBox({
     acc[dimension.category].push(dimension);
     return acc;
   }, {} as Record<CategoryType, typeof MORPHOLOGY_DIMENSIONS>);
-
-  const iconMap: Record<string, React.ElementType> = {
-    Globe,
-    Brain,
-    Zap,
-    Shield,
-  };
 
   // Auto-regenerate morphology scoring if missing
   const regenerateMorphologyScoring = async () => {
@@ -231,7 +224,7 @@ export function MorphologicalBox({
                   style={{ backgroundColor: `hsl(${CATEGORY_COLORS[category]})` }}
                 >
                   {(() => {
-                    const IconComponent = iconMap[CATEGORY_ICONS[category]];
+                    const IconComponent = CATEGORY_ICONS[category];
                     return <IconComponent className="h-4 w-4 text-white" />;
                   })()}
                 </div>

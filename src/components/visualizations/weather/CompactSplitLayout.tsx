@@ -2,13 +2,15 @@ import { ReactNode } from 'react';
 import { GroupedControls } from './GroupedControls';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import type { RawMorphology, Morphology } from '@shared/morphology.ts';
+import type { IDGScores } from '@/types/project';
 
 interface CompactSplitLayoutProps {
-  morphology: any;
-  onMorphologyChange: (newMorphology: any) => void;
+  morphology: RawMorphology;
+  onMorphologyChange: (newMorphology: Morphology) => void;
   weatherMapContent: ReactNode;
   idgScores?: any;
-  onIdgScoresChange?: (newScores: any) => void;
+  onIdgScoresChange?: (newScores: IDGScores) => void;
 }
 
 export function CompactSplitLayout({ 

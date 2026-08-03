@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import type { RawMorphology } from '@shared/morphology.ts';
+import type { ProjectDocument } from '@/types/project';
 
 interface BodyPartExplanationProps {
   part: 'head' | 'face' | 'shoulders' | 'torso' | 'belly' | 'spine' | 'legs';
   data: any;
-  morphology: any;
-  documents?: any[];
+  morphology: RawMorphology;
+  documents?: ProjectDocument[];
   isHovered: boolean;
   onHover: () => void;
   onLeave: () => void;

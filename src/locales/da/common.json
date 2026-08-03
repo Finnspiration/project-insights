@@ -173,6 +173,9 @@
     }
   },
   "projects": {
+    "loading": "Indlæser projekter...",
+    "count": "{{count}} projekt",
+    "count_other": "{{count}} projekter",
     "title": "Projekter",
     "emptyState": {
       "title": "Ingen Projekter Endnu",
@@ -304,6 +307,7 @@
     "error": "Fejl"
   },
   "projectDetail": {
+    "loadFailed": "Projektet kunne ikke indlæses",
     "loading": "Indlæser projekt...",
     "notFound": "Projektet blev ikke fundet",
     "backToProjects": "Tilbage til projekter",

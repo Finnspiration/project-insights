@@ -1,52 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Plus, FolderPlus } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologyWizard } from '@/components/projects/MorphologyWizard';
 import { EmptyState } from '@/components/empty/EmptyState';
 import type { Project } from '@/types/project';
+import { useProjectsFull } from '@/hooks/queries/useProject';
+import { projectKeys } from '@/hooks/queries/keys';
 
 
 
 export default function Projects() {
   const { t } = useTranslation('common');
-  const { user } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: projects = [], isLoading } = useProjectsFull();
+  const queryClient = useQueryClient();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [morphologyWizardOpen, setMorphologyWizardOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const fetchProjects = async () => {
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProjects(data || []);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProjects();
-  }, [user]);
+  // The create/edit/assess dialogs still write directly; invalidating the
+  // project queries refreshes this list and any open detail page at once.
+  const fetchProjects = () => queryClient.invalidateQueries({ queryKey: projectKeys.all });
 
   const handleEdit = (project: Project) => {
     setSelectedProject(project);
@@ -58,14 +38,14 @@ export default function Projects() {
     setMorphologyWizardOpen(true);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading projects...</p>
+              <p className="text-muted-foreground">{t('projects.loading')}</p>
             </div>
           </div>
         </div>
@@ -81,7 +61,7 @@ export default function Projects() {
           <div>
             <h1 className="text-3xl font-bold mb-2">{t('projects.title')}</h1>
             <p className="text-muted-foreground">
-              {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+              {t('projects.count', { count: projects.length })}
             </p>
           </div>
           <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">

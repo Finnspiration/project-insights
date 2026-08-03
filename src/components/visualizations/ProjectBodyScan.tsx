@@ -7,11 +7,13 @@ import { BodyPartExplanation } from './body-scan/BodyPartExplanation';
 import { RecommendationCard } from './body-scan/RecommendationCard';
 import { InterventionCard } from './body-scan/InterventionCard';
 import { calculateBodyData } from './body-scan/bodyDataCalculator';
+import type { RawMorphology } from '@shared/morphology.ts';
+import type { ProjectDocument, ProjectPatterns } from '@/types/project';
 
 interface ProjectBodyScanProps {
-  morphology: any;
-  documents?: any[];
-  projectPatterns?: any;
+  morphology: RawMorphology;
+  documents?: ProjectDocument[];
+  projectPatterns?: ProjectPatterns | null;
 }
 
 export function ProjectBodyScan({ morphology, documents = [], projectPatterns }: ProjectBodyScanProps) {

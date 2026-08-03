@@ -1,3 +1,4 @@
+import { Brain, Globe, Shield, Zap, type LucideIcon } from 'lucide-react';
 import { MORPHOLOGY_DIMENSION_KEYS, type MorphologyDimensionKey } from '@shared/morphology.ts';
 
 // The dimension order lives in @shared/morphology.ts because the DNA code is
@@ -107,9 +108,12 @@ export const CATEGORY_COLORS: Record<CategoryType, string> = {
   challenge_and_resources: '30, 90%, 50%',  // Orange
 };
 
-export const CATEGORY_ICONS: Record<CategoryType, string> = {
-  context: 'Globe',
-  capacity: 'Brain',
-  dynamics: 'Zap',
-  challenge_and_resources: 'Shield',
+// The icon components themselves, not their names. Looking icons up by name
+// through `import * as Icons from 'lucide-react'` defeats tree-shaking and
+// pulled the entire icon library — ~1.2 MB of source — into the bundle.
+export const CATEGORY_ICONS: Record<CategoryType, LucideIcon> = {
+  context: Globe,
+  capacity: Brain,
+  dynamics: Zap,
+  challenge_and_resources: Shield,
 };

@@ -1,4 +1,17 @@
-interface IDGContribution {
+import { morphologyValue, type RawMorphology } from '@shared/morphology.ts';
+import { IDG_DIMENSIONS, type IDGDimension, type IDGScores } from '@/types/project';
+import type { ProjectDocument } from '@/types/project';
+
+// One IDG model.
+//
+// There used to be three: calculateIDGScoresFromMorphology() for the radar and
+// weather map, calculateIDGWithEvidence() for the "why this number" panel, and
+// a third copy inlined in IDGRadarChart. Only the evidence version counted the
+// document analysis, so the radar could show 65 while its own breakdown summed
+// to 74. The scores below are now derived from the evidence, so the number and
+// its explanation cannot disagree.
+
+export interface IDGContribution {
   source: string;
   sourceKey: string;
   value: number;
@@ -7,7 +20,7 @@ interface IDGContribution {
 }
 
 export interface IDGEvidence {
-  dimension: string;
+  dimension: IDGDimension;
   dimensionKey: string;
   baseScore: number;
   contributions: IDGContribution[];
@@ -18,84 +31,20 @@ export interface IDGEvidence {
   documentEvidence?: string;
 }
 
-// New interface for calculated scores in both scales
-export interface IDGScoresCalculation {
-  radarScores: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
-  weatherScores: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
+export interface IDGCalculation {
+  /** 0-100, used by the radar chart and the portfolio views. */
+  radar: IDGScores;
+  /** 0-10, used by the cultural weather map. */
+  weather: IDGScores;
+  evidence: IDGEvidence[];
+  /** True when at least one document contributed to the scores. */
+  usedDocuments: boolean;
 }
 
-// Calculate IDG scores from morphology - returns both 0-100 (radar) and 0-10 (weather) scales
-export function calculateIDGScoresFromMorphology(morphology: any): IDGScoresCalculation {
-  try {
-    const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
-    const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
-    const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
+const BASE_SCORE = 50;
 
-    // Base scores (0-100 scale)
-    const radarScores: Record<string, number> = {
-      being: 50,
-      thinking: 50,
-      relating: 50,
-      collaborating: 50,
-      acting: 50,
-    };
-
-    // Boost primary development dimension
-    if (development && radarScores[development] !== undefined) {
-      radarScores[development] += 30;
-    }
-
-    // Organizational stage influences
-    if (organizational === 'green' || organizational === 'teal') {
-      radarScores.relating += 15;
-      radarScores.collaborating += 15;
-    }
-    if (organizational === 'orange') {
-      radarScores.thinking += 15;
-      radarScores.acting += 10;
-    }
-    if (organizational === 'red' || organizational === 'amber') {
-      radarScores.acting += 15;
-    }
-
-    // Challenge type influences
-    if (challenge === 'cognitive') {
-      radarScores.thinking += 10;
-    }
-    if (challenge === 'social') {
-      radarScores.relating += 10;
-    }
-    if (challenge === 'adaptive') {
-      radarScores.being += 10;
-    }
-
-    // Normalize to 0-100
-    Object.keys(radarScores).forEach((key) => {
-      radarScores[key] = Math.min(100, Math.max(0, radarScores[key]));
-    });
-
-    // Convert to 0-10 scale for weather map
-    const weatherScores = {
-      being: radarScores.being / 10,
-      thinking: radarScores.thinking / 10,
-      relating: radarScores.relating / 10,
-      collaborating: radarScores.collaborating / 10,
-      acting: radarScores.acting / 10,
-    };
-
-    return {
-      radarScores: radarScores as any,
-      weatherScores: weatherScores as any,
-    };
-  } catch (error) {
-    console.error('Error calculating IDG scores from morphology:', error);
-    // Return safe defaults
-    return {
-      radarScores: { being: 50, thinking: 50, relating: 50, collaborating: 50, acting: 50 },
-      weatherScores: { being: 5, thinking: 5, relating: 5, collaborating: 5, acting: 5 },
-    };
-  }
-}
+/** Share of a document's IDG score that is allowed to move the morphology-based score. */
+const DOCUMENT_WEIGHT = 0.3;
 
 const REASONING_KEYS = {
   developmentBoost: 'visualizations.idgRadar.evidence.reasoning.developmentBoost',
@@ -115,131 +64,206 @@ const SOURCE_KEYS = {
   documents: 'visualizations.idgRadar.evidence.sources.documents',
 };
 
-export function calculateIDGWithEvidence(morphology: any, documents?: any[]): IDGEvidence[] {
-  const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
-  const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
-  const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
+interface Rule {
+  /** Dimensions this rule applies to. */
+  dimensions: IDGDimension[];
+  points: number;
+  source: string;
+  sourceKey: string;
+  reasoning: string;
+  reasoningKey: string;
+}
 
-  const dimensions = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
-  const evidence: IDGEvidence[] = [];
+/** Rules keyed by the morphology answer that triggers them. */
+const DEVELOPMENT_RULE = (dimension: IDGDimension): Rule => ({
+  dimensions: [dimension],
+  points: 30,
+  source: 'Primary Development Focus',
+  sourceKey: SOURCE_KEYS.development,
+  reasoning: `${dimension} receives +30 because it's your primary development focus`,
+  reasoningKey: REASONING_KEYS.developmentBoost,
+});
 
-  // Aggregate document-based IDG scores
-  const documentScores = aggregateDocumentIDGScores(documents || []);
+const ORGANIZATIONAL_RULES: Record<string, Rule[]> = {
+  green: [
+    {
+      dimensions: ['relating'],
+      points: 15,
+      source: 'Organizational Stage',
+      sourceKey: SOURCE_KEYS.organizational,
+      reasoning: 'Relating receives +15 because Green/Teal organizations emphasize relationships and collaboration',
+      reasoningKey: REASONING_KEYS.organizationalGreen,
+    },
+    {
+      dimensions: ['collaborating'],
+      points: 15,
+      source: 'Organizational Stage',
+      sourceKey: SOURCE_KEYS.organizational,
+      reasoning: 'Collaborating receives +15 because Green/Teal organizations emphasize self-management and collective decision-making',
+      reasoningKey: REASONING_KEYS.organizationalGreen,
+    },
+  ],
+  orange: [
+    {
+      dimensions: ['thinking'],
+      points: 15,
+      source: 'Organizational Stage',
+      sourceKey: SOURCE_KEYS.organizational,
+      reasoning: 'Thinking receives +15 because Orange organizations emphasize rational analysis and strategic thinking',
+      reasoningKey: REASONING_KEYS.organizationalOrange,
+    },
+    {
+      dimensions: ['acting'],
+      points: 10,
+      source: 'Organizational Stage',
+      sourceKey: SOURCE_KEYS.organizational,
+      reasoning: 'Acting receives +10 because Orange organizations emphasize results and achievement',
+      reasoningKey: REASONING_KEYS.organizationalOrange,
+    },
+  ],
+  red: [
+    {
+      dimensions: ['acting'],
+      points: 15,
+      source: 'Organizational Stage',
+      sourceKey: SOURCE_KEYS.organizational,
+      reasoning: 'Acting receives +15 because Red/Amber organizations emphasize immediate action and control',
+      reasoningKey: REASONING_KEYS.organizationalRedAmber,
+    },
+  ],
+};
+ORGANIZATIONAL_RULES.teal = ORGANIZATIONAL_RULES.green;
+ORGANIZATIONAL_RULES.amber = ORGANIZATIONAL_RULES.red;
 
-  for (const dimension of dimensions) {
+const CHALLENGE_RULES: Record<string, Rule[]> = {
+  cognitive: [
+    {
+      dimensions: ['thinking'],
+      points: 10,
+      source: 'Challenge Type',
+      sourceKey: SOURCE_KEYS.challenge,
+      reasoning: 'Thinking receives +10 because your project faces cognitive challenges requiring analytical reasoning',
+      reasoningKey: REASONING_KEYS.challengeCognitive,
+    },
+  ],
+  social: [
+    {
+      dimensions: ['relating'],
+      points: 10,
+      source: 'Challenge Type',
+      sourceKey: SOURCE_KEYS.challenge,
+      reasoning: 'Relating receives +10 because your project faces social challenges requiring interpersonal skills',
+      reasoningKey: REASONING_KEYS.challengeSocial,
+    },
+  ],
+  adaptive: [
+    {
+      dimensions: ['being'],
+      points: 10,
+      source: 'Challenge Type',
+      sourceKey: SOURCE_KEYS.challenge,
+      reasoning: 'Being receives +10 because your project requires adaptive capacity and self-awareness',
+      reasoningKey: REASONING_KEYS.challengeAdaptive,
+    },
+  ],
+};
+
+interface AggregatedDocumentScore {
+  score: number;
+  confidence: number;
+  evidence: string;
+}
+
+/** Confidence-weighted average of the per-document IDG analyses. */
+function aggregateDocumentIDGScores(
+  documents: ProjectDocument[] | undefined,
+): Partial<Record<IDGDimension, AggregatedDocumentScore>> {
+  const totals: Record<string, { weighted: number; confidence: number; count: number; evidence: string }> = {};
+  for (const dimension of IDG_DIMENSIONS) {
+    totals[dimension] = { weighted: 0, confidence: 0, count: 0, evidence: '' };
+  }
+
+  for (const doc of documents ?? []) {
+    const analysis = doc?.metadata?.idgAnalysis;
+    if (!analysis) continue;
+
+    for (const dimension of IDG_DIMENSIONS) {
+      const entry = analysis[dimension];
+      if (!entry || typeof entry.score !== 'number') continue;
+
+      const confidence = typeof entry.confidence === 'number' ? entry.confidence : 1;
+      totals[dimension].weighted += entry.score * confidence;
+      totals[dimension].confidence += confidence;
+      totals[dimension].count += 1;
+
+      if (entry.evidence && !totals[dimension].evidence) {
+        totals[dimension].evidence = entry.evidence;
+      }
+    }
+  }
+
+  const result: Partial<Record<IDGDimension, AggregatedDocumentScore>> = {};
+  for (const dimension of IDG_DIMENSIONS) {
+    const data = totals[dimension];
+    if (data.count === 0 || data.confidence === 0) continue;
+    result[dimension] = {
+      score: Math.round(data.weighted / data.confidence),
+      confidence: Math.round((data.confidence / data.count) * 100) / 100,
+      evidence: data.evidence,
+    };
+  }
+
+  return result;
+}
+
+function clamp(score: number): number {
+  return Math.min(100, Math.max(0, score));
+}
+
+/**
+ * Scores the five IDG dimensions from the morphological assessment, and from
+ * the uploaded documents when they carry an IDG analysis.
+ *
+ * Pass `documents` wherever they are available. Portfolio-level views that do
+ * not load documents can omit them; `usedDocuments` then reports false so the
+ * UI can say the score is based on the assessment alone.
+ */
+export function calculateIDG(
+  morphology: RawMorphology,
+  documents?: ProjectDocument[],
+): IDGCalculation {
+  const development = morphologyValue(morphology, 'development') ?? 'thinking';
+  const organizational = morphologyValue(morphology, 'organizational') ?? 'orange';
+  const challenge = morphologyValue(morphology, 'challenge') ?? 'technical';
+
+  const documentScores = aggregateDocumentIDGScores(documents);
+  const rules: Rule[] = [
+    ...(IDG_DIMENSIONS.includes(development as IDGDimension)
+      ? [DEVELOPMENT_RULE(development as IDGDimension)]
+      : []),
+    ...(ORGANIZATIONAL_RULES[organizational] ?? []),
+    ...(CHALLENGE_RULES[challenge] ?? []),
+  ];
+
+  const evidence: IDGEvidence[] = IDG_DIMENSIONS.map((dimension) => {
     const contributions: IDGContribution[] = [];
-    let score = 50; // Base score
+    let score = BASE_SCORE;
 
-    // Primary development dimension boost
-    if (development === dimension) {
+    for (const rule of rules) {
+      if (!rule.dimensions.includes(dimension)) continue;
       contributions.push({
-        source: 'Primary Development Focus',
-        sourceKey: SOURCE_KEYS.development,
-        value: 30,
-        reasoning: `${dimension} receives +30 because it's your primary development focus`,
-        reasoningKey: REASONING_KEYS.developmentBoost,
+        source: rule.source,
+        sourceKey: rule.sourceKey,
+        value: rule.points,
+        reasoning: rule.reasoning,
+        reasoningKey: rule.reasoningKey,
       });
-      score += 30;
+      score += rule.points;
     }
 
-    // Organizational stage influences
-    if (organizational === 'green' || organizational === 'teal') {
-      if (dimension === 'relating') {
-        contributions.push({
-          source: 'Organizational Stage',
-          sourceKey: SOURCE_KEYS.organizational,
-          value: 15,
-          reasoning: 'Relating receives +15 because Green/Teal organizations emphasize relationships and collaboration',
-          reasoningKey: REASONING_KEYS.organizationalGreen,
-        });
-        score += 15;
-      }
-      if (dimension === 'collaborating') {
-        contributions.push({
-          source: 'Organizational Stage',
-          sourceKey: SOURCE_KEYS.organizational,
-          value: 15,
-          reasoning: 'Collaborating receives +15 because Green/Teal organizations emphasize self-management and collective decision-making',
-          reasoningKey: REASONING_KEYS.organizationalGreen,
-        });
-        score += 15;
-      }
-    }
-
-    if (organizational === 'orange') {
-      if (dimension === 'thinking') {
-        contributions.push({
-          source: 'Organizational Stage',
-          sourceKey: SOURCE_KEYS.organizational,
-          value: 15,
-          reasoning: 'Thinking receives +15 because Orange organizations emphasize rational analysis and strategic thinking',
-          reasoningKey: REASONING_KEYS.organizationalOrange,
-        });
-        score += 15;
-      }
-      if (dimension === 'acting') {
-        contributions.push({
-          source: 'Organizational Stage',
-          sourceKey: SOURCE_KEYS.organizational,
-          value: 10,
-          reasoning: 'Acting receives +10 because Orange organizations emphasize results and achievement',
-          reasoningKey: REASONING_KEYS.organizationalOrange,
-        });
-        score += 10;
-      }
-    }
-
-    if (organizational === 'red' || organizational === 'amber') {
-      if (dimension === 'acting') {
-        contributions.push({
-          source: 'Organizational Stage',
-          sourceKey: SOURCE_KEYS.organizational,
-          value: 15,
-          reasoning: 'Acting receives +15 because Red/Amber organizations emphasize immediate action and control',
-          reasoningKey: REASONING_KEYS.organizationalRedAmber,
-        });
-        score += 15;
-      }
-    }
-
-    // Challenge type influences
-    if (challenge === 'cognitive' && dimension === 'thinking') {
-      contributions.push({
-        source: 'Challenge Type',
-        sourceKey: SOURCE_KEYS.challenge,
-        value: 10,
-        reasoning: 'Thinking receives +10 because your project faces cognitive challenges requiring analytical reasoning',
-        reasoningKey: REASONING_KEYS.challengeCognitive,
-      });
-      score += 10;
-    }
-
-    if (challenge === 'social' && dimension === 'relating') {
-      contributions.push({
-        source: 'Challenge Type',
-        sourceKey: SOURCE_KEYS.challenge,
-        value: 10,
-        reasoning: 'Relating receives +10 because your project faces social challenges requiring interpersonal skills',
-        reasoningKey: REASONING_KEYS.challengeSocial,
-      });
-      score += 10;
-    }
-
-    if (challenge === 'adaptive' && dimension === 'being') {
-      contributions.push({
-        source: 'Challenge Type',
-        sourceKey: SOURCE_KEYS.challenge,
-        value: 10,
-        reasoning: 'Being receives +10 because your project requires adaptive capacity and self-awareness',
-        reasoningKey: REASONING_KEYS.challengeAdaptive,
-      });
-      score += 10;
-    }
-
-    // Document-based contribution (if available)
     const docData = documentScores[dimension];
-    if (docData && docData.score > 0) {
-      const docBoost = Math.round((docData.score - 50) * 0.3); // 30% weight from documents
+    if (docData) {
+      const docBoost = Math.round((docData.score - BASE_SCORE) * DOCUMENT_WEIGHT);
       if (docBoost !== 0) {
         contributions.push({
           source: 'Document Analysis',
@@ -252,65 +276,33 @@ export function calculateIDGWithEvidence(morphology: any, documents?: any[]): ID
       }
     }
 
-    // Normalize to 0-100
-    const totalScore = Math.min(100, Math.max(0, score));
+    const totalScore = clamp(score);
 
-    evidence.push({
+    return {
       dimension,
       dimensionKey: `visualizations.idgRadar.dimensions.${dimension}`,
-      baseScore: 50,
+      baseScore: BASE_SCORE,
       contributions,
       totalScore,
       percentage: totalScore,
       documentScore: docData?.score,
       documentConfidence: docData?.confidence,
       documentEvidence: docData?.evidence,
-    });
-  }
+    };
+  });
 
-  return evidence;
-}
+  const radar = Object.fromEntries(
+    evidence.map((item) => [item.dimension, item.totalScore]),
+  ) as IDGScores;
 
-function aggregateDocumentIDGScores(documents: any[]): Record<string, { score: number; confidence: number; evidence: string }> {
-  const dimensions = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
-  const aggregated: Record<string, { score: number; confidence: number; evidence: string; count: number }> = {};
+  const weather = Object.fromEntries(
+    evidence.map((item) => [item.dimension, item.totalScore / 10]),
+  ) as IDGScores;
 
-  for (const dimension of dimensions) {
-    aggregated[dimension] = { score: 0, confidence: 0, evidence: '', count: 0 };
-  }
-
-  // Aggregate scores from all documents with IDG analysis
-  for (const doc of documents) {
-    const idgAnalysis = doc?.metadata?.idgAnalysis;
-    if (!idgAnalysis) continue;
-
-    for (const dimension of dimensions) {
-      const dimData = idgAnalysis[dimension];
-      if (dimData && dimData.score) {
-        aggregated[dimension].score += dimData.score * (dimData.confidence || 1);
-        aggregated[dimension].confidence += (dimData.confidence || 1);
-        aggregated[dimension].count++;
-        
-        // Keep the most recent evidence (or concatenate if needed)
-        if (dimData.evidence && !aggregated[dimension].evidence) {
-          aggregated[dimension].evidence = dimData.evidence;
-        }
-      }
-    }
-  }
-
-  // Calculate weighted averages
-  const result: Record<string, { score: number; confidence: number; evidence: string }> = {};
-  for (const dimension of dimensions) {
-    const data = aggregated[dimension];
-    if (data.count > 0) {
-      result[dimension] = {
-        score: Math.round(data.score / data.confidence),
-        confidence: Math.round((data.confidence / data.count) * 100) / 100,
-        evidence: data.evidence,
-      };
-    }
-  }
-
-  return result;
+  return {
+    radar,
+    weather,
+    evidence,
+    usedDocuments: Object.keys(documentScores).length > 0,
+  };
 }

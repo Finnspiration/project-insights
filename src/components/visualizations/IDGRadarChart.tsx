@@ -1,21 +1,30 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Target } from 'lucide-react';
-import { calculateIDGWithEvidence } from '@/lib/idgScoring';
+import { calculateIDG } from '@/lib/idgScoring';
 import { IDGEvidenceBreakdownPanel } from './idg/IDGEvidenceBreakdownPanel';
+import { IDG_DIMENSIONS, type IDGScores, type ProjectDocument } from '@/types/project';
+import type { RawMorphology } from '@shared/morphology.ts';
 
 interface IDGRadarChartProps {
-  morphology: any;
-  documents?: any[];
-  precalculatedScores?: { being: number; thinking: number; relating: number; collaborating: number; acting: number };
+  morphology: RawMorphology;
+  documents?: ProjectDocument[];
+  precalculatedScores?: IDGScores;
 }
-
-const IDG_DIMENSIONS = ['being', 'thinking', 'relating', 'collaborating', 'acting'];
 
 export function IDGRadarChart({ morphology, documents = [], precalculatedScores }: IDGRadarChartProps) {
   const { t } = useTranslation('common');
+
+  // One calculation feeds the chart, the average and the breakdown panel, so
+  // the number and its explanation cannot disagree. precalculatedScores lets
+  // the parent pass a result it has already computed (e.g. from a live edit).
+  const { radar, evidence } = useMemo(
+    () => calculateIDG(morphology, documents),
+    [morphology, documents],
+  );
+  const scores = precalculatedScores ?? radar;
 
   // Defensive check for morphology
   if (!morphology) {
@@ -32,83 +41,6 @@ export function IDGRadarChart({ morphology, documents = [], precalculatedScores 
         </CardContent>
       </Card>
     );
-  }
-
-  // Calculate scores based on morphology with defensive defaults
-  const calculateScores = (): Record<string, number> => {
-    try {
-      const development = morphology?.development?.selectedValue || morphology?.development || 'thinking';
-      const organizational = morphology?.organizational?.selectedValue || morphology?.organizational || 'orange';
-      const challenge = morphology?.challenge?.selectedValue || morphology?.challenge || 'technical';
-
-      // Base scores
-      const scores: Record<string, number> = {
-        being: 50,
-        thinking: 50,
-        relating: 50,
-        collaborating: 50,
-        acting: 50,
-      };
-
-      // Boost primary development dimension
-      if (development && scores[development] !== undefined) {
-        scores[development] += 30;
-      }
-
-      // Organizational stage influences
-      if (organizational === 'green' || organizational === 'teal') {
-        scores.relating += 15;
-        scores.collaborating += 15;
-      }
-      if (organizational === 'orange') {
-        scores.thinking += 15;
-        scores.acting += 10;
-      }
-      if (organizational === 'red' || organizational === 'amber') {
-        scores.acting += 15;
-      }
-
-      // Challenge type influences
-      if (challenge === 'cognitive') {
-        scores.thinking += 10;
-      }
-      if (challenge === 'social') {
-        scores.relating += 10;
-      }
-      if (challenge === 'adaptive') {
-        scores.being += 10;
-      }
-
-      // Normalize to 0-100
-      Object.keys(scores).forEach((key) => {
-        scores[key] = Math.min(100, Math.max(0, scores[key]));
-      });
-
-      return scores;
-    } catch (error) {
-      console.error('Error calculating IDG scores:', error);
-      // Return safe defaults
-      return {
-        being: 50,
-        thinking: 50,
-        relating: 50,
-        collaborating: 50,
-        acting: 50,
-      };
-    }
-  };
-
-  // Use precalculated scores if provided, otherwise calculate
-  const scores = precalculatedScores || calculateScores();
-  
-  // Safely calculate evidence with error handling
-  let evidence = [];
-  try {
-    evidence = calculateIDGWithEvidence(morphology, documents || []);
-  } catch (error) {
-    console.error('Error calculating IDG evidence:', error);
-    // Provide empty evidence if calculation fails
-    evidence = [];
   }
 
   // Ensure all data points have valid numeric values for Recharts

@@ -9,16 +9,18 @@ import { DocumentViewMode } from './DocumentViewMode';
 import { toast } from 'sonner';
 import { CompactSplitLayout } from './CompactSplitLayout';
 import { normalizeMorphology } from '@shared/morphology.ts';
+import type { RawMorphology, Morphology } from '@shared/morphology.ts';
+import type { IDGScores } from '@/types/project';
 
 interface WeatherControlPanelProps {
   projectId: string;
-  morphology: any;
-  idgProfile?: any;
+  morphology: RawMorphology;
+  idgProfile?: IDGScores;
   documentAverageIDG?: any;
   hasIDGData?: boolean;
   documents?: any[];
   onMorphologyChange: (newMorphology: any) => void;
-  onIDGChange?: (newIDG: any) => void;
+  onIDGChange?: (newIDG: IDGScores) => void;
   onSaveChanges?: () => Promise<void>;
   onReset?: () => void;
   hasChanges?: boolean;

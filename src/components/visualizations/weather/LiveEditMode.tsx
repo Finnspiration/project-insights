@@ -6,14 +6,16 @@ import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
 import { getWeatherImpacts, getIDGImpacts } from './impactMapping';
 import { ImpactIndicator } from './ImpactIndicator';
 import { useMemo } from 'react';
+import type { RawMorphology, Morphology } from '@shared/morphology.ts';
+import type { IDGScores } from '@/types/project';
 
 interface LiveEditModeProps {
-  morphology: any;
-  idgProfile?: any;
-  documentAverageIDG?: any;
+  morphology: RawMorphology;
+  idgProfile?: Partial<IDGScores>;
+  documentAverageIDG?: IDGScores;
   hasIDGData?: boolean;
-  onMorphologyChange: (newMorphology: any) => void;
-  onIDGChange?: (newIDG: any) => void;
+  onMorphologyChange: (newMorphology: Morphology) => void;
+  onIDGChange?: (newIDG: IDGScores) => void;
 }
 
 export function LiveEditMode({ 

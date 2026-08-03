@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -7,13 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkles, Folder, CheckCircle, AlertCircle, FileText, MessageSquare, ArrowRight, Upload, Brain } from 'lucide-react';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
-import { supabase } from '@/integrations/supabase/client';
 import { formatAiMessageLimit, formatAiMessagesRemaining } from '@shared/subscription.ts';
+import { useProjects, type ProjectListItem } from '@/hooks/queries/useProject';
+import { useDocumentCount, useUserProfile } from '@/hooks/queries/useDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { da } from 'date-fns/locale';
-import type { Project } from '@/types/project';
+import { localized, type Language } from '@/types/project';
 import { ProjectConstellation } from '@/components/visualizations/ProjectConstellation';
 import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar';
 import { BlindSpotRiskMatrix } from '@/components/visualizations/BlindSpotRiskMatrix';
@@ -36,64 +37,26 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<ProjectStats>({ total: 0, assessed: 0, unassessed: 0, documents: 0 });
-  const [recentProjects, setRecentProjects] = useState<Project[]>([]);
-  const [aiMessagesUsed, setAiMessagesUsed] = useState(0);
-  const [subscriptionTier, setSubscriptionTier] = useState('free');
 
-  useEffect(() => {
-    if (user) {
-      fetchDashboardData();
-    }
-  }, [user]);
+  const { data: projects = [], isLoading: projectsLoading } = useProjects();
+  const { data: documentCount = 0, isLoading: documentsLoading } = useDocumentCount(
+    projects.map((p) => p.id),
+    !projectsLoading,
+  );
+  const { data: profile } = useUserProfile();
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
+  const loading = projectsLoading || documentsLoading;
+  const aiMessagesUsed = profile?.ai_messages_used_this_month ?? 0;
+  const subscriptionTier = profile?.subscription_tier ?? 'free';
 
-      // Fetch projects
-      const { data: projects } = await supabase
-        .from('projects')
-        .select('id, name, description, dna_code, status, created_at')
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
+  const stats = useMemo<ProjectStats>(() => ({
+    total: projects.length,
+    assessed: projects.filter((p) => p.dna_code).length,
+    unassessed: projects.filter((p) => !p.dna_code).length,
+    documents: documentCount,
+  }), [projects, documentCount]);
 
-      const projectIds = (projects || []).map((p) => p.id);
-
-      // Count documents in this user's projects. Without the filter an admin,
-      // whose RLS policy spans every project, counted the whole instance.
-      const { count: documentCount } = projectIds.length
-        ? await supabase
-            .from('documents')
-            .select('*', { count: 'exact', head: true })
-            .in('project_id', projectIds)
-        : { count: 0 };
-
-      // Fetch user profile for AI usage
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('ai_messages_used_this_month, subscription_tier')
-        .eq('id', user?.id)
-        .single();
-
-      const projectList = projects || [];
-      setStats({
-        total: projectList.length,
-        assessed: projectList.filter(p => p.dna_code).length,
-        unassessed: projectList.filter(p => !p.dna_code).length,
-        documents: documentCount || 0,
-      });
-
-      setRecentProjects(projectList.slice(0, 3));
-      setAiMessagesUsed(profile?.ai_messages_used_this_month || 0);
-      setSubscriptionTier(profile?.subscription_tier || 'free');
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const recentProjects = useMemo(() => projects.slice(0, 3), [projects]);
 
   // Tier limits come from @shared/subscription.ts, which the backend and the
   // database mirror. This page used to check for 'pro' while settings and the
@@ -102,10 +65,8 @@ export default function Dashboard() {
 
   const getAiMessagesRemaining = () => formatAiMessagesRemaining(subscriptionTier, aiMessagesUsed);
 
-  const getProjectName = (project: Project) => {
-    if (typeof project.name === 'string') return project.name;
-    return project.name?.[i18n.language] || project.name?.en || 'Unnamed Project';
-  };
+  const getProjectName = (project: ProjectListItem) =>
+    localized(project.name, i18n.language as Language) || t('common.untitled');
 
   const recommendations = [];
   if (stats.unassessed > 0) {

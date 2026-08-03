@@ -16,8 +16,9 @@ import { useToast } from '@/hooks/use-toast';
 import goldenUBackground from '@/assets/golden-u-background.jpg';
 
 import { EvidenceBreakdownPanel } from './theory-u/EvidenceBreakdownPanel';
+import type { RawMorphology } from '@shared/morphology.ts';
 interface UJourneyTimelineProps {
-  morphology: any;
+  morphology: RawMorphology;
   projectId: string;
   projectName: string;
 }
