@@ -356,7 +356,7 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
       <CardContent className="space-y-0">
         {/* Full-width Blob Canvas */}
         <div className="relative">
-          <div ref={blobContainerRef} className="w-full aspect-square sm:aspect-[4/3] min-h-[400px] max-h-[620px] bg-gradient-to-br from-background via-muted/20 to-background rounded-t-lg overflow-hidden relative border border-border/30 border-b-0">
+          <div ref={blobContainerRef} className="mx-auto w-full max-w-[560px] lg:max-w-[660px] aspect-square bg-gradient-to-br from-background via-muted/20 to-background rounded-t-lg overflow-hidden relative border border-border/30 border-b-0">
             <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Skeleton className="w-32 h-32 rounded-full" /></div>}>
               <div className={`w-full h-full transition-opacity duration-500 ${isFetching ? 'opacity-80' : 'opacity-100'}`}>
                 <Blob3DScene 

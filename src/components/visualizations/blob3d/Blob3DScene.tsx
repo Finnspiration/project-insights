@@ -19,6 +19,9 @@ interface Blob3DSceneProps {
 // colour now rims the body instead (see Lights).
 const BACKGROUND_TINT = 0.12;
 
+/** The stage stays legible on a calm project, where risk contributes nothing. */
+const HALO_FLOOR = 0.22;
+
 function SceneBackground({ topColor }: { topColor: string }) {
   const { scene } = useThree();
   const color = useMemo(() => {
@@ -33,7 +36,8 @@ function SceneBackground({ topColor }: { topColor: string }) {
   return null;
 }
 
-// Soft halo behind the form, scaled with risk.
+// Soft halo behind the form: coloured by the organizational stage,
+// sized and strengthened by risk.
 function AtmosphericHaze({ 
   color, 
   intensity 
@@ -50,24 +54,20 @@ function AtmosphericHaze({
     meshRef.current.rotation.z = time * 0.05;
     
     const material = meshRef.current.material as THREE.MeshBasicMaterial;
-    // Much higher opacity for visibility
-    material.opacity = (0.15 + Math.sin(time * 0.5) * 0.08) * intensity;
+    // Risk pulses the halo above its floor.
+    material.opacity = HALO_FLOOR + (0.26 + Math.sin(time * 0.5) * 0.05) * intensity;
   });
-  
-  // Lower threshold - show even at low risk
-  if (intensity < 0.1) return null;
   
   return (
     <group>
-      {/* Halo behind the form. Radius 5 spanned 10 units across a frame only
-          3.7 units tall, so it was not a haze — it was the background. */}
+      {/* Radius 5 spanned 10 units across a frame 3.7 units tall: not a haze,
+          a background. 1.8 reads as a disc the form sits in front of. */}
       <mesh ref={meshRef} position={[0, 0, -2]}>
-        <circleGeometry args={[2.4, 64]} />
+        <circleGeometry args={[1.8, 64]} />
         <meshBasicMaterial
           color={threeColor}
           transparent
-          opacity={0.2 * intensity}
-          blending={THREE.AdditiveBlending}
+          opacity={HALO_FLOOR + 0.3 * intensity}
         />
       </mesh>
     </group>
@@ -185,7 +185,7 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
     <div className={`w-full h-full min-h-[400px] ${className || ''}`}>
       <Canvas
         ref={canvasRef}
-        camera={{ position: [0, 0, 4.0], fov: 45 }}
+        camera={{ position: [0, 0.95, 3.85], fov: 45 }}
         dpr={[1, 2]}
         gl={{ 
           antialias: true,
@@ -199,7 +199,7 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
           
           {/* Atmospheric haze for high risk (separate from background) */}
           <AtmosphericHaze 
-            color={data.outerAuraColor} 
+            color={data.backgroundColors.top} 
             intensity={data.outerAuraIntensity} 
           />
           
@@ -223,6 +223,7 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
           
           {/* Camera controls */}
           <OrbitControls
+            target={[0, 0, 0]}
             enablePan={false}
             enableZoom={true}
             minDistance={2.5}
