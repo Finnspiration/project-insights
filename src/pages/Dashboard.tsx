@@ -20,6 +20,7 @@ import { PortfolioIDGRadar } from '@/components/visualizations/PortfolioIDGRadar
 import { BlindSpotRiskMatrix } from '@/components/visualizations/BlindSpotRiskMatrix';
 import { TheoryUPortfolioMap } from '@/components/visualizations/TheoryUPortfolioMap';
 import { DNABarcodeStrip } from '@/components/visualizations/DNABarcodeStrip';
+import { ProjectSignatureGallery } from '@/components/visualizations/ProjectSignatureGallery';
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { EmptyState } from '@/components/empty/EmptyState';
 
@@ -217,6 +218,9 @@ export default function Dashboard() {
 
             {/* DNA Barcode Strip */}
             {stats.assessed > 1 && <DNABarcodeStrip />}
+
+            {/* Per-project PRISM signatures */}
+            {stats.assessed > 0 && <ProjectSignatureGallery />}
 
             {/* Recent Projects */}
             {recentProjects.length > 0 && (

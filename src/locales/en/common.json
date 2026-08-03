@@ -1292,6 +1292,22 @@
           "body": "Visibility is high and pressure is low. This is the cheapest moment to commit to a direction — the window rarely stays open."
         }
       }
+    },
+    "projectSignatures": {
+      "eyebrow": "Per project",
+      "title": "Project signatures",
+      "description": "Each assessed project rendered as its PRISM signature: the morphology DNA barcode, the Inner Development Goals radar and the current weather indices — all derived from the stored assessment.",
+      "aiPrompt": "Walk me through the PRISM signatures of my projects: which project's DNA, IDG profile and weather reading are most out of balance, and what should I do first?",
+      "dna": "Morphology DNA",
+      "idg": "Inner Development Goals",
+      "weather": "Weather reading",
+      "openProject": "Open project {{name}}",
+      "wind": {
+        "centralized": "Centralized information flow",
+        "hierarchical": "Hierarchical information flow",
+        "network": "Networked information flow",
+        "distributed": "Distributed information flow"
+      }
     }
   },
   "insights": {

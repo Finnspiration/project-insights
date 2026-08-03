@@ -30,7 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 interface Project {
   id: string;
   name: LocalizedText;
-  description?: { en: string; da: string };
+  description?: LocalizedText | null;
   timeline_start?: string;
   timeline_end?: string;
   team_size?: number;
