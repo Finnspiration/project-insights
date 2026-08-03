@@ -400,9 +400,10 @@ export function RiskRing({
                 />
               </mesh>
             ))}
-            {/* Inner hexagon glow */}
+            {/* Inner glow ring. Six segments made this a hexagon, which read
+                as a flat angular slab rather than a ring. */}
             <mesh rotation={[Math.PI / 2, 0, 0]}>
-              <ringGeometry args={[config.radius * 0.85, config.radius, 6]} />
+              <ringGeometry args={[config.radius * 0.85, config.radius, 64]} />
               <meshBasicMaterial
                 color={config.secondaryColor}
                 transparent

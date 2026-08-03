@@ -244,15 +244,6 @@ export function IDGOuterManifestation({
   const CollaboratingFields = () => {
     const groupRef = useRef<THREE.Group>(null);
     
-    const fields = useMemo(() => {
-      return [
-        { radius: radius * 0.8, axis: new THREE.Vector3(1, 0, 0), opacity: 0.15 },
-        { radius: radius * 0.75, axis: new THREE.Vector3(0, 1, 0), opacity: 0.12 },
-        { radius: radius * 0.85, axis: new THREE.Vector3(0, 0, 1), opacity: 0.1 },
-        { radius: radius * 0.7, axis: new THREE.Vector3(1, 1, 0).normalize(), opacity: 0.08 },
-      ];
-    }, [radius]);
-    
     useFrame((state) => {
       if (!groupRef.current) return;
       const time = state.clock.elapsedTime;
@@ -265,19 +256,6 @@ export function IDGOuterManifestation({
     
     return (
       <group ref={groupRef}>
-        {fields.map((field, i) => (
-          <mesh key={i} rotation={[field.axis.x, field.axis.y, field.axis.z]}>
-            <sphereGeometry args={[field.radius, 24, 24]} />
-            <meshBasicMaterial
-              color={threeColor}
-              transparent
-              opacity={field.opacity * intensity}
-              side={THREE.DoubleSide}
-              blending={THREE.AdditiveBlending}
-              wireframe
-            />
-          </mesh>
-        ))}
         {/* Floating collaboration particles */}
         {Array.from({ length: Math.min(particleCount, 60) }).map((_, i) => (
           <CollaborationParticle
