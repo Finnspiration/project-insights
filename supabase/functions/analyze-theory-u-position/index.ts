@@ -1,11 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import { assertOwnsProject, corsHeaders, errorResponse, requireUser, serviceClient } from "../_shared/auth.ts";
 import { calculateTheoryUPosition, getDominantPhase, calculateOpenMHW } from "./morphologyMapping.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -22,9 +17,9 @@ serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = serviceClient();
+    const user = await requireUser(req, supabase);
+    await assertOwnsProject(supabase, projectId, user.id);
 
     // Fetch documents
     const { data: documents } = await supabase
@@ -176,11 +171,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return errorResponse(error, 'Error analyzing Theory U position:');
   }
 });
 

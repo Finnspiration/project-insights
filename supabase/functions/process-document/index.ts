@@ -1,11 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 import { getDocument } from "https://esm.sh/pdfjs-serverless@0.2.0";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { assertOwnsDocument, corsHeaders, errorResponse, HttpError, requireUser, serviceClient } from "../_shared/auth.ts";
 
 // Character limit for extracted text
 const MAX_CHARS = 50000;
@@ -216,16 +211,20 @@ serve(async (req) => {
 
   const processingStartTime = Date.now();
 
+  // Kept outside the try so the error handler can flag the document without
+  // re-reading the request body (the stream is already consumed by then).
+  let documentId: string | undefined;
+  const supabase = serviceClient();
+
   try {
-    const { documentId } = await req.json();
-    
+    ({ documentId } = await req.json());
+
     if (!documentId) {
-      throw new Error('Document ID is required');
+      throw new HttpError(400, 'Document ID is required');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const user = await requireUser(req, supabase);
+    await assertOwnsDocument(supabase, documentId, user.id);
 
     console.log('Processing document:', documentId);
 
@@ -356,15 +355,13 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error processing document:', error);
-    
-    // Try to update document with error status
-    try {
-      const { documentId } = await req.json();
-      if (documentId) {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
-        
+
+    // Only flag the document once the caller has been confirmed as its owner —
+    // an auth/ownership failure must not write to someone else's row.
+    const isAccessError = error instanceof HttpError;
+
+    if (documentId && !isAccessError) {
+      try {
         await supabase
           .from('documents')
           .update({
@@ -376,20 +373,11 @@ serve(async (req) => {
             }
           })
           .eq('id', documentId);
+      } catch (updateError) {
+        console.error('Failed to update error status:', updateError);
       }
-    } catch (updateError) {
-      console.error('Failed to update error status:', updateError);
     }
-    
-    return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        details: error instanceof Error ? error.stack : undefined
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
-    );
+
+    return errorResponse(error, 'Error processing document:');
   }
 });

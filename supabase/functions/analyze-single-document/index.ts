@@ -1,10 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { assertOwnsDocument, corsHeaders, errorResponse, requireUser, serviceClient } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,14 +8,14 @@ serve(async (req) => {
 
   try {
     const { documentId, language = 'en' } = await req.json();
-    
+
     if (!documentId) {
       throw new Error('Document ID is required');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = serviceClient();
+    const user = await requireUser(req, supabase);
+    await assertOwnsDocument(supabase, documentId, user.id);
 
     console.log('Analyzing single document:', documentId);
 
@@ -425,13 +420,6 @@ Returner JSON med denne struktur:
     );
 
   } catch (error) {
-    console.error('Error analyzing single document:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
-    );
+    return errorResponse(error, 'Error analyzing single document:');
   }
 });

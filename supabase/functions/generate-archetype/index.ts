@@ -1,10 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, errorResponse, HttpError, requireUser, serviceClient } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,20 +7,25 @@ serve(async (req) => {
   }
 
   try {
+    // This endpoint spends AI credits and writes to a shared table, so it must
+    // never be reachable anonymously (see verify_jwt in supabase/config.toml).
+    const supabase = serviceClient();
+    await requireUser(req, supabase);
+
     const { morphology, language } = await req.json();
-    
+
+    if (!morphology || typeof morphology !== 'object') {
+      throw new HttpError(400, 'Morphology data is required');
+    }
+
     console.log('Generating archetype for morphology:', morphology);
-    
+
     // 1. Generate hash from morphology
     const morphologyHash = generateMorphologyHash(morphology);
     console.log('Morphology hash:', morphologyHash);
-    
+
     // 2. Check if archetype already exists
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
-    
+
     const { data: existing, error: fetchError } = await supabase
       .from('morphology_archetypes')
       .select('*')
@@ -173,11 +173,7 @@ Returner KUN valid JSON:
     });
     
   } catch (error) {
-    console.error('Error in generate-archetype:', error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    return errorResponse(error, 'Error in generate-archetype:');
   }
 });
 

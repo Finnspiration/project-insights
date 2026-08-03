@@ -1,10 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { assertOwnsProject, corsHeaders, errorResponse, requireUser, serviceClient } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -13,12 +8,20 @@ serve(async (req) => {
 
   try {
     const { morphology, language = "en", projectName, projectId } = await req.json();
-    
+
     if (!morphology) {
       return new Response(
         JSON.stringify({ error: "Morphology data is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Service-role client bypasses RLS, so the caller must own the project
+    // before any of its documents are read or its patterns overwritten.
+    const supabaseAdmin = serviceClient();
+    const user = await requireUser(req, supabaseAdmin);
+    if (projectId) {
+      await assertOwnsProject(supabaseAdmin, projectId, user.id);
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -36,17 +39,7 @@ serve(async (req) => {
     let documentMetadata: { count: number; excerpts: Array<{ filename: string; excerpt: string }> } = { count: 0, excerpts: [] };
     if (projectId) {
       try {
-        // Get supabase admin client to bypass RLS
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false
-          }
-        });
-
-        // Fetch documents with content using admin client
+        // Fetch documents with content using admin client (ownership already verified)
         const { data: documents, error: docsError } = await supabaseAdmin
           .from('documents')
           .select('filename, content')
@@ -392,9 +385,7 @@ KRITISK: Generer indsigter MED SPECIFIKKE CITATER fra de uploadede dokumenter ov
 
     // Store insights and blind spots in database if projectId is provided
     if (projectId) {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
+      const supabase = supabaseAdmin;
 
       // Store full insights in patterns field of projects table
       console.log(`Storing insights for project ${projectId}`);
@@ -463,10 +454,6 @@ KRITISK: Generer indsigter MED SPECIFIKKE CITATER fra de uploadede dokumenter ov
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in generate-insights function:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse(error, "Error in generate-insights function:");
   }
 });

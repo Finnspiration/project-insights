@@ -1,9 +1,21 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import {
+  assertOwnsProject,
+  corsHeaders,
+  errorResponse,
+  HttpError,
+  requireUser,
+  serviceClient,
+  type SupabaseClient,
+} from "../_shared/auth.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Fallback limits, used only if consume_ai_message() is not available yet.
+// The database function is the authoritative source (see the RLS migration).
+const FALLBACK_LIMITS: Record<string, number> = {
+  free: 20,
+  pro: 500,
+  professional: 500,
+  team: Number.MAX_SAFE_INTEGER,
 };
 
 serve(async (req) => {
@@ -12,31 +24,16 @@ serve(async (req) => {
   }
 
   try {
-    const { message, context } = await req.json();
-    
-    // Regular client for user operations (respects RLS)
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+    const { message, context = {} } = await req.json();
 
-    // Admin client for profile creation (bypasses RLS)
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Admin client: reads document content and profiles across RLS. Every use
+    // is gated on an explicit ownership check below.
+    const supabaseAdmin = serviceClient();
 
-    // Get user info and language preference
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
+    const user = await requireUser(req, supabaseAdmin);
 
     // Get user profile for language preference
-    let { data: profile } = await supabase
+    let { data: profile } = await supabaseAdmin
       .from('user_profiles')
       .select('preferred_language, ai_messages_used_this_month, subscription_tier')
       .eq('id', user.id)
@@ -90,30 +87,29 @@ serve(async (req) => {
       throw new Error('User profile not found');
     }
 
-    // Check usage limits
-    const limits = {
-      free: 20,
-      professional: 500,
-      team: 999999 // unlimited
-    };
+    const language = profile.preferred_language || 'en';
 
-    const limit = limits[profile.subscription_tier as keyof typeof limits] || limits.free;
+    // Reserve one message BEFORE calling the model. consume_ai_message() rolls
+    // the counter over at the start of each month, applies the tier limit and
+    // increments atomically under a row lock, so parallel requests cannot both
+    // slip past the last allowed message.
+    const quota = await consumeAiMessage(supabaseAdmin, user.id, profile);
 
-    if (profile.ai_messages_used_this_month >= limit) {
+    if (!quota.allowed) {
       return new Response(
-        JSON.stringify({ 
-          error: profile.preferred_language === 'da' 
+        JSON.stringify({
+          error: language === 'da'
             ? 'Du har nået din månedlige grænse for AI-beskeder. Opgrader din plan for at fortsætte.'
-            : 'You have reached your monthly AI message limit. Upgrade your plan to continue.'
+            : 'You have reached your monthly AI message limit. Upgrade your plan to continue.',
+          used: quota.used,
+          limit: quota.limit,
         }),
-        { 
+        {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
-
-    const language = profile.preferred_language || 'en';
 
     // Build context-aware system prompt
     let contextPrompt = '';
@@ -171,23 +167,28 @@ Vær indsigtsfuld, kortfattet og hjælpsom. Referer til specifikke PRISM-koncept
     // Get project context if available
     let projectContext = '';
     if (context.projectId) {
-      const { data: project } = await supabase
+      // The document fetch below bypasses RLS, so the caller must own the
+      // project — otherwise any signed-in user could read another user's files
+      // simply by passing their project id.
+      await assertOwnsProject(supabaseAdmin, context.projectId, user.id);
+
+      const { data: project } = await supabaseAdmin
         .from('projects')
         .select('name, description, dna_code, morphology')
         .eq('id', context.projectId)
         .single();
 
       if (project) {
-        const projectName = typeof project.name === 'string' 
-          ? project.name 
-          : project.name[language] || project.name.en;
-        
+        const projectName = typeof project.name === 'string'
+          ? project.name
+          : project.name?.[language] || project.name?.en || '';
+
         projectContext = language === 'da'
           ? `\n\nAktuelt projekt: ${projectName}\nDNA Kode: ${project.dna_code || 'Ikke vurderet endnu'}`
           : `\n\nCurrent project: ${projectName}\nDNA Code: ${project.dna_code || 'Not assessed yet'}`;
       }
-      
-      // **NEW: Fetch project documents using admin client (bypasses RLS)**
+
+      // Fetch project documents using admin client (ownership verified above)
       const { data: documents, error: docError } = await supabaseAdmin
         .from('documents')
         .select('filename, content, metadata, processed')
@@ -279,31 +280,78 @@ Vær indsigtsfuld, kortfattet og hjælpsom. Referer til specifikke PRISM-koncept
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
-    // Increment usage counter
-    await supabase
-      .from('user_profiles')
-      .update({ 
-        ai_messages_used_this_month: profile.ai_messages_used_this_month + 1 
-      })
-      .eq('id', user.id);
-
+    // The usage counter was already incremented by consume_ai_message() above.
     console.log('Chat assistant response generated for user:', user.id);
 
     return new Response(
-      JSON.stringify({ response: aiResponse }),
-      { 
+      JSON.stringify({ response: aiResponse, used: quota.used, limit: quota.limit }),
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
   } catch (error) {
-    console.error('Error in chat-assistant function:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+    return errorResponse(error, 'Error in chat-assistant function:');
   }
 });
+
+interface QuotaResult {
+  allowed: boolean;
+  used: number;
+  limit: number;
+}
+
+interface ProfileRow {
+  preferred_language: string | null;
+  ai_messages_used_this_month: number;
+  subscription_tier: string | null;
+}
+
+/**
+ * Atomically reserves one AI message for the user.
+ *
+ * Uses the consume_ai_message() database function, which owns the monthly
+ * rollover and the tier limits. If that function has not been applied to the
+ * database yet, it degrades to a non-atomic read/check/increment through the
+ * service-role client — still enforced, just racy under concurrency.
+ */
+async function consumeAiMessage(
+  admin: SupabaseClient,
+  userId: string,
+  profile: ProfileRow,
+): Promise<QuotaResult> {
+  const { data, error } = await admin.rpc('consume_ai_message', { _user_id: userId });
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!error && row) {
+    return {
+      allowed: Boolean(row.allowed),
+      used: Number(row.used ?? 0),
+      limit: Number(row.monthly_limit ?? 0),
+    };
+  }
+
+  console.warn('consume_ai_message() unavailable, falling back to direct update:', error?.message);
+
+  const tier = (profile.subscription_tier || 'free').toLowerCase();
+  const limit = FALLBACK_LIMITS[tier] ?? FALLBACK_LIMITS.free;
+  const used = profile.ai_messages_used_this_month ?? 0;
+
+  if (used >= limit) {
+    return { allowed: false, used, limit };
+  }
+
+  const { error: updateError } = await admin
+    .from('user_profiles')
+    .update({ ai_messages_used_this_month: used + 1 })
+    .eq('id', userId);
+
+  if (updateError) {
+    // Never hand out a free message because bookkeeping failed.
+    console.error('Failed to record AI usage:', updateError);
+    throw new HttpError(500, 'Could not record AI usage');
+  }
+
+  return { allowed: true, used: used + 1, limit };
+}
