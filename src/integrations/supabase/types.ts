@@ -266,6 +266,7 @@ export type Database = {
       user_profiles: {
         Row: {
           ai_messages_used_this_month: number
+          ai_usage_period_start: string | null
           created_at: string
           id: string
           onboarded_at: string | null
@@ -277,6 +278,7 @@ export type Database = {
         }
         Insert: {
           ai_messages_used_this_month?: number
+          ai_usage_period_start?: string | null
           created_at?: string
           id: string
           onboarded_at?: string | null
@@ -288,6 +290,7 @@ export type Database = {
         }
         Update: {
           ai_messages_used_this_month?: number
+          ai_usage_period_start?: string | null
           created_at?: string
           id?: string
           onboarded_at?: string | null
@@ -328,6 +331,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ai_message_limit: { Args: { _tier: string }; Returns: number }
+      consume_ai_message: {
+        Args: { _user_id: string }
+        Returns: {
+          allowed: boolean
+          monthly_limit: number
+          used: number
+        }[]
+      }
+      current_jwt_role: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
