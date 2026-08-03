@@ -13,7 +13,19 @@ deno test --no-check --sloppy-imports --config tests/deno.json src/lib/
 ```
 
 `--no-check` skips type-checking the React-flavoured imports Deno does not
-resolve; `bunx tsc --noEmit` covers types for the same files.
+resolve; `bun run typecheck` covers types for the same files.
+
+## Typechecking
+
+```sh
+bun run typecheck   # tsc -p tsconfig.app.json --noEmit
+```
+
+Use the script, not `tsc --noEmit`. The root `tsconfig.json` is a
+solution-style config with `"files": []` and project references, so running
+`tsc` against it checks **zero files** and exits 0 — it looks like a passing
+typecheck while verifying nothing. That silence let a refactor ship with
+missing `useRef` imports; the correct invocation catches it as TS2304.
 
 Current coverage:
 

@@ -1,7 +1,7 @@
 // Risk layer: the warning ring, its arcs and particles.
 // Extracted verbatim from MetaballBlob.tsx, which had grown to 2,944 lines.
 
-import { useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 

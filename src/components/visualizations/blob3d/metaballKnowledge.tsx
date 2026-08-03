@@ -1,7 +1,7 @@
 // Knowledge-intensity layer: the orbiting shell, its glow and the inner pattern.
 // Extracted verbatim from MetaballBlob.tsx, which had grown to 2,944 lines.
 
-import { useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
