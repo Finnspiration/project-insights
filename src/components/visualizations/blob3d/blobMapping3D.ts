@@ -1,3 +1,6 @@
+import { gestureValues, lerp } from '@/lib/blobGestures';
+import type { RawMorphology } from '@shared/morphology.ts';
+
 // 3D Blob mapping - converts morphology to 3D visual properties
 // Maps ALL 12 PRISM morphology dimensions to visual blob properties
 
@@ -695,6 +698,65 @@ function getValue(morphology: any, key: string): string {
 
 // Main 3D mapping function
 export function mapMorphologyTo3DBlob(morphology: any): Blob3DData {
+  return applyGestures(buildRawBlobData(morphology), morphology);
+}
+
+/**
+ * Bends the 76 raw parameters so the five gestures actually govern what you
+ * see, and everything that competed with them steps back.
+ *
+ * The raw mapping is kept rather than replaced: it still gives each project a
+ * unique fingerprint, and the seven dimensions outside the gestures still
+ * colour and detail it. What changes is who is allowed to be loud.
+ */
+function applyGestures(data: Blob3DData, morphology: any): Blob3DData {
+  const g = gestureValues(morphology as RawMorphology);
+
+  return {
+    ...data,
+
+    // WHOLE <-> SPLIT APART. One body at high cohesion, lobes drifting at low.
+    lobeCount: Math.max(1, Math.round(lerp(7, 1, g.cohesion))),
+    lobeSpread: lerp(1.25, 0.1, g.cohesion),
+    lobesTouching: g.cohesion > 0.6,
+    connectionThickness: lerp(0, 0.05, g.cohesion),
+    lobeMovementPattern: g.cohesion > 0.75 ? 'gentle' : g.cohesion > 0.4 ? 'diverging' : 'chaotic',
+
+    // SMOOTH <-> AGITATED. One continuous surface property instead of four
+    // discrete solids; see Lobe, which no longer switches geometry family.
+    deformationIntensity: lerp(0.02, 0.85, g.roughness),
+    noiseIntensity: lerp(0.05, 0.8, g.roughness),
+    spikeCount: Math.round(lerp(0, 14, g.roughness)),
+    spikeLength: lerp(0.05, 0.35, g.roughness),
+
+    // OPAQUE <-> SEE-THROUGH.
+    transmission: lerp(0.05, 0.85, g.clarity),
+    thickness: lerp(0.2, 1.4, g.clarity),
+    wireframeOpacity: lerp(0, 0.28, 1 - g.clarity),
+
+    // STILL <-> CIRCLING.
+    rotationSpeed: lerp(0.02, 0.5, g.orbit),
+    pulseSpeed: lerp(0.1, 1.1, g.orbit),
+    idgOuterIntensity: lerp(0.12, 0.9, g.orbit),
+    idgOuterParticleCount: Math.round(lerp(0, 40, g.orbit)),
+    idgOuterAnimationSpeed: lerp(0.15, 1.4, g.orbit),
+
+    // CALM <-> UNDER PRESSURE.
+    glowIntensity: lerp(0.15, 0.95, g.strain),
+    outerAuraIntensity: lerp(0.15, 0.95, g.strain),
+    emissiveIntensity: lerp(0.1, 0.5, g.strain),
+
+    // Retired: these produced the black voids and the second shell that made a
+    // busy project unreadable. Detail belongs on the surface, not as holes
+    // punched through it or a cage drawn around it.
+    hasHolesInSurface: false,
+    holeCount: 0,
+    knowledgeShapeIntensity: 0,
+    outerParticleCount: Math.round(lerp(0, 26, g.orbit)),
+  };
+}
+
+function buildRawBlobData(morphology: any): Blob3DData {
   const complexity = getValue(morphology, 'complexity');
   const stakeholder = getValue(morphology, 'stakeholder');
   const resources = getValue(morphology, 'resource') || getValue(morphology, 'resources');

@@ -59,98 +59,49 @@ export function Lobe({
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   const threeGlowColor = useMemo(() => new THREE.Color(glowColor), [glowColor]);
   
+  // One surface family, deformed continuously.
+  //
+  // This used to switch between four solids: a sphere, a 1.6-unit *cube*, a
+  // dodecahedron and a noisy sphere. Six overlapping translucent cubes is
+  // exactly what a complicated project rendered as — flat plates intersecting
+  // each other, which no amount of framing could turn into a body. Large flat
+  // faces read as slabs under a glass material; only curvature reads as volume.
+  //
+  // Now the body is always a subdivided icosphere and `deformationIntensity`
+  // (the roughness gesture) decides how disturbed it is: smooth at 0,
+  // agitated at 1. Same object, one spectrum.
   const geometry = useMemo(() => {
-    let geo: THREE.BufferGeometry;
-    
-    switch (baseShape) {
-      case 'sphere':
-        // Perfect smooth sphere for Simple
-        geo = new THREE.SphereGeometry(1, 64, 64);
-        break;
-        
-      case 'regular_crystal':
-        // Regular crystal - cube shape for complicated
-        geo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
-        break;
-        
-      case 'irregular_crystal':
-        // Irregular crystal - deformed platonic solid
-        geo = new THREE.DodecahedronGeometry(1, 0);
-        break;
-        
-      case 'chaotic_blob':
-        // Chaotic blob - organic deformed sphere base
-        geo = new THREE.SphereGeometry(1, 24, 24);
-        break;
-        
-      default:
-        geo = new THREE.SphereGeometry(1, 32, 32);
-    }
-    
+    const geo = new THREE.IcosahedronGeometry(1, 4);
     const positions = geo.attributes.position;
-    
-    // Apply deformation based on complexity type
-    if (baseShape === 'irregular_crystal' && deformationIntensity > 0) {
-      // Asymmetric deformation for irregular crystals
+
+    if (deformationIntensity > 0.001) {
       for (let i = 0; i < positions.count; i++) {
         const x = positions.getX(i);
         const y = positions.getY(i);
         const z = positions.getZ(i);
-        
-        // Unique deformation per vertex with index-based variation
-        const noise1 = Math.sin(x * 4 + index * 1.7) * Math.cos(y * 3.5) * 0.3;
-        const noise2 = Math.cos(z * 5 + index * 2.1) * Math.sin(x * 2.8) * 0.25;
-        const noise3 = Math.sin(y * 3.2 + z * 4.1 + index) * 0.2;
-        
-        const deformation = 1 + (noise1 + noise2 + noise3) * deformationIntensity * 0.5;
-        
-        positions.setXYZ(i, x * deformation, y * deformation, z * deformation);
-      }
-    } else if (baseShape === 'chaotic_blob') {
-      // Chaotic deformation with bulges, indentations, and asymmetry
-      for (let i = 0; i < positions.count; i++) {
-        const x = positions.getX(i);
-        const y = positions.getY(i);
-        const z = positions.getZ(i);
-        
-        // Multiple noise frequencies for organic chaos
-        const lowFreq = Math.sin(x * 2 + index) * Math.cos(y * 2.3) * Math.sin(z * 1.8) * 0.4;
-        const midFreq = Math.sin(x * 5 + y * 4 + index * 0.7) * 0.25;
-        const highFreq = Math.sin(x * 10 + z * 8 + index * 1.3) * Math.cos(y * 9) * 0.15;
-        
-        // Add bulges (positive) and craters (negative)
-        const bulgeAngle = Math.atan2(z, x);
-        const bulgeMask = Math.sin(bulgeAngle * 3 + index) * 0.3;
-        
-        let deformation = 1 + (lowFreq + midFreq + highFreq + bulgeMask) * deformationIntensity;
-        
-        // Add crater-like depressions
-        if (hasCraters) {
-          const craterNoise = Math.sin(x * 7 + index * 2.5) * Math.sin(y * 7) * Math.sin(z * 7);
-          if (craterNoise > 0.5) {
-            deformation *= 0.7; // Create indentation
-          }
+
+        // Three octaves: broad lobes, surface swell, fine agitation. The index
+        // term keeps sibling lobes from being identical.
+        const low = Math.sin(x * 2 + index) * Math.cos(y * 2.3) * Math.sin(z * 1.8) * 0.40;
+        const mid = Math.sin(x * 5 + y * 4 + index * 0.7) * 0.22;
+        const high = Math.sin(x * 11 + z * 9 + index * 1.3) * Math.cos(y * 10) * 0.12;
+
+        let deformation = 1 + (low + mid + high) * deformationIntensity;
+
+        if (hasCraters && deformationIntensity > 0.4) {
+          const crater = Math.sin(x * 7 + index * 2.5) * Math.sin(y * 7) * Math.sin(z * 7);
+          if (crater > 0.55) deformation *= 1 - 0.22 * deformationIntensity;
         }
-        
+
         positions.setXYZ(i, x * deformation, y * deformation, z * deformation);
-      }
-    } else if (baseShape === 'regular_crystal') {
-      // Slight uniform variation to keep it clean but not perfect
-      for (let i = 0; i < positions.count; i++) {
-        const x = positions.getX(i);
-        const y = positions.getY(i);
-        const z = positions.getZ(i);
-        
-        const subtleNoise = 1 + Math.sin(index * 0.5) * 0.05;
-        positions.setXYZ(i, x * subtleNoise, y * subtleNoise, z * subtleNoise);
       }
     }
-    
+
     positions.needsUpdate = true;
     geo.computeVertexNormals();
-    
+
     return geo;
-  }, [baseShape, deformationIntensity, index, hasCraters]);
+  }, [deformationIntensity, index, hasCraters]);
   
   useFrame((state) => {
     if (!meshRef.current) return;

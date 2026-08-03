@@ -36,3 +36,4 @@ Current coverage:
 | `src/lib/idgScoring.ts` | That the radar, weather and evidence numbers agree, and the scoring rules |
 | `src/lib/weatherReading.ts` | The four weather indices: bounds, headroom for evidence, and that each explains itself |
 | `src/lib/weatherInsights.ts` | That each interpretation rule fires for the right reason — and stays quiet otherwise |
+| `src/lib/blobGestures.ts` | The five blob gestures: bounds, direction, and that each names its own drivers |
