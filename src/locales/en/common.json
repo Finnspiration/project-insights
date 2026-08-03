@@ -1240,6 +1240,57 @@
         "hierarchical": "Top-down",
         "network": "Network",
         "distributed": "Distributed"
+      },
+      "meaning": "What the weather means",
+      "noInsights": "Nothing stands out in this reading. Add documents or run an analysis to give it something to work with.",
+      "blindSpotDialogTitle": "Blind spot",
+      "actions": {
+        "blindSpots": "See the blind spots",
+        "documents": "Open documents",
+        "morphology": "Adjust the assessment",
+        "insights": "Open AI insights"
+      },
+      "insights": {
+        "incompleteAssessment": {
+          "title": "{{count}} of {{total}} dimensions are unanswered",
+          "body": "Every number above is resting on default values for those dimensions. Finish the assessment before reading anything into the weather."
+        },
+        "heatWithoutClarity": {
+          "title": "Moving fast in fog",
+          "body": "High pace and low visibility together. Speed is only an advantage when you can see where you are going — this is the combination that produces expensive rework."
+        },
+        "tensionWithoutEnergy": {
+          "title": "Tension with no momentum",
+          "body": "The pressure is real but the pace is low, so nothing is currently resolving it. Left alone this does not settle — it accumulates."
+        },
+        "unaddressedHighPriority": {
+          "title": "{{count}} high-priority blind spots are still open",
+          "body": "Of {{total}} open blind spots, {{count}} are high priority. They are the largest single thing you can act on this week."
+        },
+        "pressureSource": {
+          "title": "Most of the pressure has one source",
+          "body": "{{dimension}} contributes {{points}} on its own — more than any other answer. If the pressure needs to come down, that is where to look first."
+        },
+        "fogFromMissingEvidence": {
+          "title": "The fog may just be missing evidence",
+          "body": "Visibility is low and no documents have been analysed. Before concluding that the project is unclear, give the analysis something to read."
+        },
+        "fogDespiteEvidence": {
+          "title": "The fog is not a lack of data",
+          "body": "{{count}} documents have been analysed and visibility is still low. {{dimension}} is what is clouding the picture — that is a structural issue, not an information one."
+        },
+        "windPaceMismatch": {
+          "title": "Sideways decisions on a sprint clock",
+          "body": "Information moves through the network rather than down a line, which takes longer, while the timeline is set to sprint. Expect decisions to arrive late unless one of the two changes."
+        },
+        "calmButUnexamined": {
+          "title": "Flat weather, no evidence",
+          "body": "Every index sits near the middle, with no documents and no blind spots behind it. That usually means an unexamined project rather than a calm one."
+        },
+        "clearAndCalm": {
+          "title": "Clear view, little friction",
+          "body": "Visibility is high and pressure is low. This is the cheapest moment to commit to a direction — the window rarely stays open."
+        }
       }
     }
   },

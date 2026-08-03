@@ -86,6 +86,7 @@ export default function ProjectDetail() {
   const [previewMorphology, setPreviewMorphology] = useState<Morphology | null>(null);
   const [previewIDG, setPreviewIDG] = useState<IDGScores | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('documents');
   const [activeVisualizationTab, setActiveVisualizationTab] = useState<string>('weather');
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
@@ -294,7 +295,7 @@ export default function ProjectDetail() {
         </Card>
 
         {/* Tabs */}
-        <Tabs defaultValue="documents" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
 
           <TabsList>
             <TabsTrigger value="documents">{t('projectDetail.tabs.documents')} ({documents.length})</TabsTrigger>
@@ -398,6 +399,12 @@ export default function ProjectDetail() {
                         onReset={handleReset}
                         hasChanges={hasUnsavedChanges}
                         showControlPanel={true}
+                        onBlindSpotUpdate={refetchAll}
+                        onNavigate={(action) => {
+                          if (action === 'blindSpots') setActiveTab('blind-spots');
+                          if (action === 'documents') setActiveTab('documents');
+                          if (action === 'insights') setActiveTab('insights');
+                        }}
                       />
                       </Suspense>
                     </ErrorBoundary>

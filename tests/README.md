@@ -22,3 +22,5 @@ Current coverage:
 | `_shared/morphology.ts` | DNA code generation, the legacy `{selectedValue}` shape, key ordering |
 | `_shared/subscription.ts` | Tier limits, including the `pro` / `professional` spelling split |
 | `src/lib/idgScoring.ts` | That the radar, weather and evidence numbers agree, and the scoring rules |
+| `src/lib/weatherReading.ts` | The four weather indices: bounds, headroom for evidence, and that each explains itself |
+| `src/lib/weatherInsights.ts` | That each interpretation rule fires for the right reason — and stays quiet otherwise |

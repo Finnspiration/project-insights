@@ -6,9 +6,12 @@ import { SlidersHorizontal, X } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { WeatherReadingBand } from './weather/WeatherReadingBand';
 import { WeatherField } from './weather/WeatherField';
+import { WeatherInsightRail } from './weather/WeatherInsightRail';
 import { DimensionStrip } from './weather/DimensionStrip';
+import { BlindSpotDialog } from './weather/BlindSpotDialog';
 import { WeatherControlPanel } from './weather/WeatherControlPanel';
 import { readWeather } from '@/lib/weatherReading';
+import { deriveWeatherInsights, type InsightAction } from '@/lib/weatherInsights';
 import type { RawMorphology, Morphology } from '@shared/morphology.ts';
 import type { BlindSpot, IDGScores, Language, ProjectDocument } from '@/types/project';
 
@@ -18,8 +21,9 @@ import type { BlindSpot, IDGScores, Language, ProjectDocument } from '@/types/pr
 // that covered the map they explained. It rendered every dimension and read
 // none of them.
 //
-// The structure is now: read it (band) → look at it (field) → see the inputs
-// (strip). Editing lives behind one button instead of six layer toggles.
+// The structure is: read it (band) → look at it (field) → understand it
+// (rail) → see the inputs (strip). Editing lives behind one button instead of
+// six layer toggles.
 
 interface CulturalWeatherMapProps {
   morphology: RawMorphology;
@@ -33,7 +37,10 @@ interface CulturalWeatherMapProps {
   onReset?: () => void;
   hasChanges?: boolean;
   showControlPanel?: boolean;
-  onSelectBlindSpot?: (blindSpot: BlindSpot) => void;
+  /** Refresh the project queries after a blind spot's status changes. */
+  onBlindSpotUpdate?: () => void;
+  /** Navigate to another tab when an insight offers a next step. */
+  onNavigate?: (action: InsightAction) => void;
 }
 
 export function CulturalWeatherMap({
@@ -48,18 +55,34 @@ export function CulturalWeatherMap({
   onReset,
   hasChanges,
   showControlPanel = false,
-  onSelectBlindSpot,
+  onBlindSpotUpdate,
+  onNavigate,
 }: CulturalWeatherMapProps) {
   const { t, i18n } = useTranslation('common');
   const language = i18n.language as Language;
   const [editorOpen, setEditorOpen] = useState(false);
+  const [selectedBlindSpot, setSelectedBlindSpot] = useState<BlindSpot | null>(null);
 
   const reading = useMemo(
     () => readWeather(morphology, blindSpots, documents),
     [morphology, blindSpots, documents],
   );
 
+  const insights = useMemo(
+    () => deriveWeatherInsights(reading, morphology, blindSpots, documents),
+    [reading, morphology, blindSpots, documents],
+  );
+
   const canEdit = showControlPanel && !!projectId && !!morphology && !!onMorphologyChange;
+
+  const handleNavigate = (action: InsightAction) => {
+    // "Adjust the assessment" is right here; everything else lives on another tab.
+    if (action === 'morphology' && canEdit) {
+      setEditorOpen(true);
+      return;
+    }
+    onNavigate?.(action);
+  };
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -68,12 +91,15 @@ export function CulturalWeatherMap({
           <CardContent className="p-0">
             <WeatherReadingBand reading={reading} />
 
-            <WeatherField
-              reading={reading}
-              blindSpots={blindSpots}
-              language={language}
-              onSelectBlindSpot={onSelectBlindSpot}
-            />
+            <div className="grid lg:grid-cols-[1.5fr_1fr]">
+              <WeatherField
+                reading={reading}
+                blindSpots={blindSpots}
+                language={language}
+                onSelectBlindSpot={setSelectedBlindSpot}
+              />
+              <WeatherInsightRail insights={insights} onAction={handleNavigate} />
+            </div>
 
             <DimensionStrip
               morphology={morphology}
@@ -103,6 +129,12 @@ export function CulturalWeatherMap({
             hasChanges={hasChanges}
           />
         )}
+
+        <BlindSpotDialog
+          blindSpot={selectedBlindSpot}
+          onOpenChange={(open) => !open && setSelectedBlindSpot(null)}
+          onUpdate={onBlindSpotUpdate}
+        />
       </div>
     </TooltipProvider>
   );

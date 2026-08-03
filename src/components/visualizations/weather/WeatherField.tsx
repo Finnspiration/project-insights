@@ -64,7 +64,7 @@ export function WeatherField({ reading, blindSpots, language, onSelectBlindSpot 
   return (
     <>
     <div
-      className="relative h-[220px] w-full overflow-hidden sm:h-[360px]"
+      className="relative h-[220px] w-full overflow-hidden sm:h-[360px] lg:h-full lg:min-h-[360px]"
       style={{
         background: `
           radial-gradient(58% 62% at 26% 32%, hsla(4, 62%, 50%, ${(warmth / 100) * 0.42}), transparent 66%),

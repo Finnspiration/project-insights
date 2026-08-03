@@ -1240,6 +1240,57 @@
         "hierarchical": "Oppefra og ned",
         "network": "Netværk",
         "distributed": "Distribueret"
+      },
+      "meaning": "Hvad vejret betyder",
+      "noInsights": "Intet skiller sig ud i denne aflæsning. Tilføj dokumenter eller kør en analyse, så der er noget at arbejde med.",
+      "blindSpotDialogTitle": "Blind vinkel",
+      "actions": {
+        "blindSpots": "Se de blinde vinkler",
+        "documents": "Åbn dokumenter",
+        "morphology": "Juster vurderingen",
+        "insights": "Åbn AI-indsigter"
+      },
+      "insights": {
+        "incompleteAssessment": {
+          "title": "{{count}} af {{total}} dimensioner er ikke besvaret",
+          "body": "Alle tallene ovenfor hviler på standardværdier for de dimensioner. Færdiggør vurderingen, før I læser noget ud af vejret."
+        },
+        "heatWithoutClarity": {
+          "title": "I bevæger jer hurtigt i tåge",
+          "body": "Højt tempo og lav sigtbarhed på én gang. Fart er kun en fordel, når man kan se hvor man er på vej hen — det er den kombination, der giver dyrt omarbejde."
+        },
+        "tensionWithoutEnergy": {
+          "title": "Spænding uden fremdrift",
+          "body": "Trykket er reelt, men tempoet er lavt, så der er intet der aktuelt løser det. Det lægger sig ikke af sig selv — det hober sig op."
+        },
+        "unaddressedHighPriority": {
+          "title": "{{count}} blinde vinkler med høj prioritet er stadig åbne",
+          "body": "Ud af {{total}} åbne blinde vinkler har {{count}} høj prioritet. De er det største enkeltstående, I kan gøre noget ved i denne uge."
+        },
+        "pressureSource": {
+          "title": "Det meste af trykket har én kilde",
+          "body": "{{dimension}} bidrager med {{points}} alene — mere end noget andet svar. Skal trykket ned, er det dér, I skal kigge først."
+        },
+        "fogFromMissingEvidence": {
+          "title": "Tågen kan være manglende evidens",
+          "body": "Sigtbarheden er lav, og ingen dokumenter er analyseret. Før I konkluderer at projektet er uklart, så giv analysen noget at læse."
+        },
+        "fogDespiteEvidence": {
+          "title": "Tågen er ikke mangel på data",
+          "body": "{{count}} dokumenter er analyseret, og sigtbarheden er stadig lav. Det er {{dimension}}, der slører billedet — det er et strukturelt problem, ikke et informationsproblem."
+        },
+        "windPaceMismatch": {
+          "title": "Sidelæns beslutninger på sprint-ur",
+          "body": "Information bevæger sig gennem netværket frem for ned ad en linje, hvilket tager længere tid, mens tidsplanen er sat til sprint. Regn med at beslutninger kommer for sent, medmindre en af de to ændrer sig."
+        },
+        "calmButUnexamined": {
+          "title": "Fladt vejr, ingen evidens",
+          "body": "Alle indekser ligger tæt på midten, uden dokumenter og uden blinde vinkler bag sig. Det betyder som regel et ubearbejdet projekt frem for et roligt et."
+        },
+        "clearAndCalm": {
+          "title": "Klart udsyn, lidt modstand",
+          "body": "Sigtbarheden er høj og trykket lavt. Det er det billigste tidspunkt at binde sig til en retning — vinduet står sjældent åbent længe."
+        }
       }
     }
   },
