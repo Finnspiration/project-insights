@@ -1,16 +1,12 @@
-export type DimensionKey = 
-  | 'complexity' 
-  | 'stakeholder' 
-  | 'knowledge' 
-  | 'cultural' 
-  | 'temporal' 
-  | 'organizational' 
-  | 'challenge' 
-  | 'development' 
-  | 'resources' 
-  | 'change' 
-  | 'information' 
-  | 'risk';
+import { MORPHOLOGY_DIMENSION_KEYS, type MorphologyDimensionKey } from '@shared/morphology.ts';
+
+// The dimension order lives in @shared/morphology.ts because the DNA code is
+// built from it in both the browser and the edge functions. This file only adds
+// the presentation layer: which category a dimension belongs to and which
+// options it offers. MORPHOLOGY_DIMENSIONS is derived from the shared key list,
+// so the two can no longer drift apart.
+
+export type DimensionKey = MorphologyDimensionKey;
 
 export type CategoryType = 'context' | 'capacity' | 'dynamics' | 'challenge_and_resources';
 
@@ -26,143 +22,83 @@ export interface DimensionConfig {
   options: DimensionOption[];
 }
 
-export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = [
-  {
-    key: 'complexity',
-    translationKey: 'morphology.dimensions.complexity.title',
+interface DimensionDefinition {
+  category: CategoryType;
+  /** Option values in display order; also the i18n key suffix. */
+  options: string[];
+}
+
+// Every dimension must appear here — Record<DimensionKey, …> makes a missing
+// one a compile error rather than a dimension that silently vanishes from the
+// morphological box.
+const DIMENSION_DEFINITIONS: Record<DimensionKey, DimensionDefinition> = {
+  complexity: {
     category: 'context',
-    options: [
-      { value: 'simple', translationKey: 'morphology.dimensions.complexity.options.simple' },
-      { value: 'complicated', translationKey: 'morphology.dimensions.complexity.options.complicated' },
-      { value: 'complex', translationKey: 'morphology.dimensions.complexity.options.complex' },
-      { value: 'chaotic', translationKey: 'morphology.dimensions.complexity.options.chaotic' },
-    ]
+    options: ['simple', 'complicated', 'complex', 'chaotic'],
   },
-  {
-    key: 'stakeholder',
-    translationKey: 'morphology.dimensions.stakeholder.title',
+  stakeholder: {
     category: 'context',
-    options: [
-      { value: 'unified', translationKey: 'morphology.dimensions.stakeholder.options.unified' },
-      { value: 'cooperative', translationKey: 'morphology.dimensions.stakeholder.options.cooperative' },
-      { value: 'competitive', translationKey: 'morphology.dimensions.stakeholder.options.competitive' },
-      { value: 'adversarial', translationKey: 'morphology.dimensions.stakeholder.options.adversarial' },
-    ]
+    options: ['unified', 'cooperative', 'competitive', 'adversarial'],
   },
-  {
-    key: 'knowledge',
-    translationKey: 'morphology.dimensions.knowledge.title',
+  knowledge: {
     category: 'capacity',
-    options: [
-      { value: 'routine', translationKey: 'morphology.dimensions.knowledge.options.routine' },
-      { value: 'adaptive', translationKey: 'morphology.dimensions.knowledge.options.adaptive' },
-      { value: 'innovative', translationKey: 'morphology.dimensions.knowledge.options.innovative' },
-      { value: 'breakthrough', translationKey: 'morphology.dimensions.knowledge.options.breakthrough' },
-    ]
+    options: ['routine', 'adaptive', 'innovative', 'breakthrough'],
   },
-  {
-    key: 'cultural',
-    translationKey: 'morphology.dimensions.cultural.title',
+  cultural: {
     category: 'context',
-    options: [
-      { value: 'mono', translationKey: 'morphology.dimensions.cultural.options.mono' },
-      { value: 'crossfunctional', translationKey: 'morphology.dimensions.cultural.options.crossfunctional' },
-      { value: 'crossorg', translationKey: 'morphology.dimensions.cultural.options.crossorg' },
-      { value: 'crosscultural', translationKey: 'morphology.dimensions.cultural.options.crosscultural' },
-    ]
+    options: ['mono', 'crossfunctional', 'crossorg', 'crosscultural'],
   },
-  {
-    key: 'temporal',
-    translationKey: 'morphology.dimensions.temporal.title',
+  temporal: {
     category: 'dynamics',
-    options: [
-      { value: 'sprint', translationKey: 'morphology.dimensions.temporal.options.sprint' },
-      { value: 'project', translationKey: 'morphology.dimensions.temporal.options.project' },
-      { value: 'program', translationKey: 'morphology.dimensions.temporal.options.program' },
-      { value: 'transformation', translationKey: 'morphology.dimensions.temporal.options.transformation' },
-    ]
+    options: ['sprint', 'project', 'program', 'transformation'],
   },
-  {
-    key: 'organizational',
-    translationKey: 'morphology.dimensions.organizational.title',
+  organizational: {
     category: 'capacity',
-    options: [
-      { value: 'red', translationKey: 'morphology.dimensions.organizational.options.red' },
-      { value: 'amber', translationKey: 'morphology.dimensions.organizational.options.amber' },
-      { value: 'orange', translationKey: 'morphology.dimensions.organizational.options.orange' },
-      { value: 'green', translationKey: 'morphology.dimensions.organizational.options.green' },
-      { value: 'teal', translationKey: 'morphology.dimensions.organizational.options.teal' },
-    ]
+    options: ['red', 'amber', 'orange', 'green', 'teal'],
   },
-  {
-    key: 'challenge',
-    translationKey: 'morphology.dimensions.challenge.title',
+  challenge: {
     category: 'challenge_and_resources',
-    options: [
-      { value: 'technical', translationKey: 'morphology.dimensions.challenge.options.technical' },
-      { value: 'social', translationKey: 'morphology.dimensions.challenge.options.social' },
-      { value: 'political', translationKey: 'morphology.dimensions.challenge.options.political' },
-      { value: 'cognitive', translationKey: 'morphology.dimensions.challenge.options.cognitive' },
-      { value: 'adaptive', translationKey: 'morphology.dimensions.challenge.options.adaptive' },
-    ]
+    options: ['technical', 'social', 'political', 'cognitive', 'adaptive'],
   },
-  {
-    key: 'development',
-    translationKey: 'morphology.dimensions.development.title',
+  development: {
     category: 'capacity',
-    options: [
-      { value: 'being', translationKey: 'morphology.dimensions.development.options.being' },
-      { value: 'thinking', translationKey: 'morphology.dimensions.development.options.thinking' },
-      { value: 'relating', translationKey: 'morphology.dimensions.development.options.relating' },
-      { value: 'collaborating', translationKey: 'morphology.dimensions.development.options.collaborating' },
-      { value: 'acting', translationKey: 'morphology.dimensions.development.options.acting' },
-    ]
+    options: ['being', 'thinking', 'relating', 'collaborating', 'acting'],
   },
-  {
-    key: 'resources',
-    translationKey: 'morphology.dimensions.resources.title',
+  resources: {
     category: 'challenge_and_resources',
-    options: [
-      { value: 'rich', translationKey: 'morphology.dimensions.resources.options.rich' },
-      { value: 'balanced', translationKey: 'morphology.dimensions.resources.options.balanced' },
-      { value: 'constrained', translationKey: 'morphology.dimensions.resources.options.constrained' },
-      { value: 'scarce', translationKey: 'morphology.dimensions.resources.options.scarce' },
-    ]
+    options: ['rich', 'balanced', 'constrained', 'scarce'],
   },
-  {
-    key: 'change',
-    translationKey: 'morphology.dimensions.change.title',
+  change: {
     category: 'dynamics',
-    options: [
-      { value: 'incremental', translationKey: 'morphology.dimensions.change.options.incremental' },
-      { value: 'transitional', translationKey: 'morphology.dimensions.change.options.transitional' },
-      { value: 'transformational', translationKey: 'morphology.dimensions.change.options.transformational' },
-      { value: 'disruptive', translationKey: 'morphology.dimensions.change.options.disruptive' },
-    ]
+    options: ['incremental', 'transitional', 'transformational', 'disruptive'],
   },
-  {
-    key: 'information',
-    translationKey: 'morphology.dimensions.information.title',
+  information: {
     category: 'dynamics',
-    options: [
-      { value: 'centralized', translationKey: 'morphology.dimensions.information.options.centralized' },
-      { value: 'hierarchical', translationKey: 'morphology.dimensions.information.options.hierarchical' },
-      { value: 'network', translationKey: 'morphology.dimensions.information.options.network' },
-      { value: 'distributed', translationKey: 'morphology.dimensions.information.options.distributed' },
-    ]
+    options: ['centralized', 'hierarchical', 'network', 'distributed'],
   },
-  {
-    key: 'risk',
-    translationKey: 'morphology.dimensions.risk.title',
+  risk: {
     category: 'challenge_and_resources',
-    options: [
-      { value: 'low', translationKey: 'morphology.dimensions.risk.options.low' },
-      { value: 'moderate', translationKey: 'morphology.dimensions.risk.options.moderate' },
-      { value: 'high', translationKey: 'morphology.dimensions.risk.options.high' },
-      { value: 'extreme', translationKey: 'morphology.dimensions.risk.options.extreme' },
-    ]
+    options: ['low', 'moderate', 'high', 'extreme'],
   },
-];
+};
+
+export const MORPHOLOGY_DIMENSIONS: DimensionConfig[] = MORPHOLOGY_DIMENSION_KEYS.map((key) => {
+  const definition = DIMENSION_DEFINITIONS[key];
+  return {
+    key,
+    translationKey: `morphology.dimensions.${key}.title`,
+    category: definition.category,
+    options: definition.options.map((value) => ({
+      value,
+      translationKey: `morphology.dimensions.${key}.options.${value}`,
+    })),
+  };
+});
+
+/** Option values for one dimension, in display order. */
+export function getDimensionOptions(key: DimensionKey): string[] {
+  return DIMENSION_DEFINITIONS[key].options;
+}
 
 export const CATEGORY_COLORS: Record<CategoryType, string> = {
   context: '220, 70%, 50%',       // Blue

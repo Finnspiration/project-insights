@@ -15,6 +15,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { MorphologyComparisonDialog } from './MorphologyComparisonDialog';
+import { getDimensionOptions, type DimensionKey } from '@/lib/morphologyConfig';
+import {
+  generateDnaCode,
+  MORPHOLOGY_DIMENSION_KEYS,
+  morphologyValue,
+  type Morphology,
+} from '@shared/morphology.ts';
 
 interface MorphologyWizardProps {
   open: boolean;
@@ -23,49 +30,9 @@ interface MorphologyWizardProps {
   onSuccess?: () => void;
 }
 
-type DimensionKey = 
-  | 'complexity' 
-  | 'stakeholder' 
-  | 'knowledge' 
-  | 'cultural' 
-  | 'temporal' 
-  | 'organizational' 
-  | 'challenge' 
-  | 'development' 
-  | 'resources' 
-  | 'change' 
-  | 'information' 
-  | 'risk';
+type MorphologyData = Morphology;
 
-interface MorphologyData {
-  complexity?: string;
-  stakeholder?: string;
-  knowledge?: string;
-  cultural?: string;
-  temporal?: string;
-  organizational?: string;
-  challenge?: string;
-  development?: string;
-  resources?: string;
-  change?: string;
-  information?: string;
-  risk?: string;
-}
-
-const DIMENSIONS: DimensionKey[] = [
-  'complexity',
-  'stakeholder',
-  'knowledge',
-  'cultural',
-  'temporal',
-  'organizational',
-  'challenge',
-  'development',
-  'resources',
-  'change',
-  'information',
-  'risk',
-];
+const DIMENSIONS: DimensionKey[] = [...MORPHOLOGY_DIMENSION_KEYS];
 
 export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: MorphologyWizardProps) {
   const { t, i18n } = useTranslation('common');
@@ -126,17 +93,10 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
     setMorphology({ ...morphology, [currentDimension]: value });
   };
 
-  const generateDNACode = (data: MorphologyData): string => {
-    return DIMENSIONS
-      .map(dim => data[dim])
-      .filter(Boolean)
-      .join('-');
-  };
-
   const handleFinish = async () => {
     setIsSubmitting(true);
     try {
-      const dnaCode = generateDNACode(morphology);
+      const dnaCode = generateDnaCode(morphology);
 
       const { error } = await supabase
         .from('projects')
@@ -182,35 +142,13 @@ export function MorphologyWizard({ open, onOpenChange, projectId, onSuccess }: M
   };
 
   const getOptions = (dimension: DimensionKey) => {
-    const optionsPath = `morphology.dimensions.${dimension}.options`;
-    const optionsKeys = ['simple', 'complicated', 'complex', 'chaotic'];
-    
-    // Define option keys for each dimension
-    const dimensionOptions: Record<DimensionKey, string[]> = {
-      complexity: ['simple', 'complicated', 'complex', 'chaotic'],
-      stakeholder: ['unified', 'cooperative', 'competitive', 'adversarial'],
-      knowledge: ['routine', 'adaptive', 'innovative', 'breakthrough'],
-      cultural: ['mono', 'crossfunctional', 'crossorg', 'crosscultural'],
-      temporal: ['sprint', 'project', 'program', 'transformation'],
-      organizational: ['red', 'amber', 'orange', 'green', 'teal'],
-      challenge: ['technical', 'social', 'political', 'cognitive', 'adaptive'],
-      development: ['being', 'thinking', 'relating', 'collaborating', 'acting'],
-      resources: ['rich', 'balanced', 'constrained', 'scarce'],
-      change: ['incremental', 'transitional', 'transformational', 'disruptive'],
-      information: ['centralized', 'hierarchical', 'network', 'distributed'],
-      risk: ['low', 'moderate', 'high', 'extreme'],
-    };
-
-    return dimensionOptions[dimension].map(key => ({
+    return getDimensionOptions(dimension).map(key => ({
       value: key,
-      label: t(`${optionsPath}.${key}`),
+      label: t(`morphology.dimensions.${dimension}.options.${key}`),
     }));
   };
 
-  const getCurrentValue = (dim: string) => {
-    const value = morphology[dim];
-    return typeof value === 'object' ? value?.selectedValue : value;
-  };
+  const getCurrentValue = (dim: string) => morphologyValue(morphology, dim);
   
   const isStepComplete = getCurrentValue(currentDimension) !== undefined;
   const canFinish = DIMENSIONS.every(dim => getCurrentValue(dim) !== undefined);

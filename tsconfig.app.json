@@ -23,10 +23,14 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@shared/*": [
+        "./supabase/functions/_shared/*"
       ]
     }
   },
   "include": [
-    "src"
+    "src",
+    "supabase/functions/_shared/morphology.ts"
   ]
 }

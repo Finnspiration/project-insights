@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Code shared verbatim with the Supabase edge functions, so the browser
+      // and the backend can never drift on the morphology format.
+      "@shared": path.resolve(__dirname, "./supabase/functions/_shared"),
     },
   },
   build: {

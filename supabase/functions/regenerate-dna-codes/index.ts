@@ -1,47 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
+import { corsHeaders } from '../_shared/auth.ts';
+import { generateDnaCode, normalizeMorphology } from '../_shared/morphology.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-// CRITICAL: This order MUST match MORPHOLOGY_DIMENSIONS in src/lib/morphologyConfig.ts
-const DIMENSION_KEYS_IN_ORDER = [
-  'complexity',
-  'stakeholder',
-  'knowledge',
-  'cultural',
-  'temporal',
-  'organizational',
-  'challenge',
-  'development',
-  'resources',
-  'change',
-  'information',
-  'risk',
-];
-
-interface MorphologyData {
-  complexity?: string;
-  stakeholder?: string;
-  knowledge?: string;
-  cultural?: string;
-  temporal?: string;
-  organizational?: string;
-  challenge?: string;
-  development?: string;
-  resources?: string;
-  change?: string;
-  information?: string;
-  risk?: string;
-}
-
-function generateDNACode(morphology: MorphologyData): string {
-  return DIMENSION_KEYS_IN_ORDER
-    .map(key => morphology[key as keyof MorphologyData])
-    .filter(Boolean)
-    .join('-');
-}
+// This function used to index morphology values directly, which produced
+// "[object Object]-[object Object]-…" for every row stored in the legacy
+// { selectedValue } shape — the corruption the frontend then had to patch
+// around on load. generateDnaCode() normalizes first, so both shapes are safe.
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -135,11 +99,15 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        const morphology = project.morphology as MorphologyData;
-        const newDnaCode = generateDNACode(morphology);
+        // Also converts legacy { selectedValue } rows to the flat format, so
+        // the row stops being a source of new corruption.
+        const normalized = normalizeMorphology(project.morphology);
+        const newDnaCode = generateDnaCode(normalized);
         const oldDnaCode = project.dna_code;
+        const morphologyChanged =
+          JSON.stringify(normalized) !== JSON.stringify(project.morphology);
 
-        if (newDnaCode === oldDnaCode) {
+        if (newDnaCode === oldDnaCode && !morphologyChanged) {
           console.log(`Skipping project ${project.id} - DNA code already correct`);
           results.skipped++;
           results.details.push({
@@ -156,10 +124,10 @@ Deno.serve(async (req) => {
           newDnaCode
         });
 
-        // Update the project with new DNA code
+        // Update the project with new DNA code (and the normalized morphology)
         const { error: updateError } = await supabaseClient
           .from('projects')
-          .update({ dna_code: newDnaCode })
+          .update({ dna_code: newDnaCode, morphology: normalized })
           .eq('id', project.id);
 
         if (updateError) {

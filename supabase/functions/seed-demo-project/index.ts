@@ -3,6 +3,7 @@
 // If the user already has an is_demo=true project, returns it instead of creating a new one.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { generateDnaCode } from '../_shared/morphology.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,25 +12,23 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-// 12 morphology dimensions in the {selectedIndex, selectedValue} shape used everywhere.
+// 12 morphology dimensions in the canonical flat format (@shared/morphology.ts).
 const DEMO_MORPHOLOGY = {
-  complexity: { selectedIndex: 2, selectedValue: 'complex' },
-  stakeholder: { selectedIndex: 1, selectedValue: 'cooperative' },
-  knowledge: { selectedIndex: 2, selectedValue: 'innovative' },
-  cultural: { selectedIndex: 2, selectedValue: 'crossorg' },
-  temporal: { selectedIndex: 3, selectedValue: 'transformation' },
-  organizational: { selectedIndex: 3, selectedValue: 'green' },
-  challenge: { selectedIndex: 4, selectedValue: 'adaptive' },
-  development: { selectedIndex: 2, selectedValue: 'relating' },
-  resources: { selectedIndex: 1, selectedValue: 'balanced' },
-  change: { selectedIndex: 2, selectedValue: 'transformational' },
-  information: { selectedIndex: 2, selectedValue: 'network' },
-  risk: { selectedIndex: 1, selectedValue: 'moderate' },
+  complexity: 'complex',
+  stakeholder: 'cooperative',
+  knowledge: 'innovative',
+  cultural: 'crossorg',
+  temporal: 'transformation',
+  organizational: 'green',
+  challenge: 'adaptive',
+  development: 'relating',
+  resources: 'balanced',
+  change: 'transformational',
+  information: 'network',
+  risk: 'moderate',
 };
 
-const DEMO_DNA = Object.values(DEMO_MORPHOLOGY)
-  .map((v) => v.selectedValue)
-  .join('-');
+const DEMO_DNA = generateDnaCode(DEMO_MORPHOLOGY);
 
 const DEMO_NAME = {
   en: 'Demo: Sustainable Urban Transition',

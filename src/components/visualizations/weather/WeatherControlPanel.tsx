@@ -8,6 +8,7 @@ import { LiveEditMode } from './LiveEditMode';
 import { DocumentViewMode } from './DocumentViewMode';
 import { toast } from 'sonner';
 import { CompactSplitLayout } from './CompactSplitLayout';
+import { normalizeMorphology } from '@shared/morphology.ts';
 
 interface WeatherControlPanelProps {
   projectId: string;
@@ -65,13 +66,10 @@ export function WeatherControlPanel({
   };
 
   const handleApplySuggestion = (dimension: string, value: string) => {
-    // Update morphology with the new value
+    // Flat string, per the canonical format in @shared/morphology.ts.
     const updatedMorphology = {
-      ...morphology,
-      [dimension]: {
-        ...morphology[dimension],
-        selectedValue: value
-      }
+      ...normalizeMorphology(morphology),
+      [dimension]: value
     };
     onMorphologyChange(updatedMorphology);
     toast.success(language === 'da' ? 'Forslag anvendt' : 'Suggestion applied');

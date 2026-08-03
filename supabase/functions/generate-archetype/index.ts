@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, errorResponse, HttpError, requireUser, serviceClient } from "../_shared/auth.ts";
+import { generateDnaCode, normalizeMorphology } from "../_shared/morphology.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -78,7 +79,8 @@ Returner KUN valid JSON:
 }`
     };
     
-    const morphologyDescription = Object.entries(morphology)
+    const normalizedMorphology = normalizeMorphology(morphology);
+    const morphologyDescription = Object.entries(normalizedMorphology)
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
     
@@ -125,7 +127,7 @@ Returner KUN valid JSON:
       icon: generated.icon,
       color: generated.color,
       description: { [language]: generated.description },
-      morphology_data: morphology,
+      morphology_data: normalizedMorphology,
       usage_count: 1
     };
     
@@ -177,8 +179,10 @@ Returner KUN valid JSON:
   }
 });
 
-function generateMorphologyHash(morphology: any): string {
-  // Sort keys alphabetically for consistency
-  const keys = Object.keys(morphology).sort();
-  return keys.map(k => morphology[k]).join('-').toLowerCase();
+function generateMorphologyHash(morphology: unknown): string {
+  // Normalize first: indexing the raw object used to yield "[object Object]"
+  // for every legacy { selectedValue } row, so all of them collided onto a
+  // single archetype. Canonical dimension order also makes the hash
+  // independent of how the morphology object was assembled.
+  return generateDnaCode(morphology as Record<string, unknown>).toLowerCase();
 }

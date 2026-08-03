@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { MORPHOLOGY_DIMENSIONS, DimensionKey, DimensionConfig } from '@/lib/morphologyConfig';
+import { morphologyValue, normalizeMorphology } from '@shared/morphology.ts';
 import { MiniSlider } from './MiniSlider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Thermometer, Wind, CloudRain, Gauge, Heart, RotateCcw } from 'lucide-react';
@@ -88,47 +89,26 @@ export function GroupedControls({
     const newOption = dimension.options[newValueIndex];
     if (!newOption) return;
 
+    // Flat string, per the canonical format in @shared/morphology.ts. Writing
+    // { selectedValue, selectedIndex } here is what used to leak the object
+    // shape into the database when the user saved live edits.
     onMorphologyChange({
-      ...morphology,
-      [dimensionKey]: {
-        selectedValue: newOption.value,
-        selectedIndex: newValueIndex
-      }
+      ...normalizeMorphology(morphology),
+      [dimensionKey]: newOption.value
     });
   };
 
   const getCurrentIndex = (dimensionKey: string) => {
     const dimension = MORPHOLOGY_DIMENSIONS.find(d => d.key === dimensionKey);
     if (!dimension) return 0;
-    
-    const currentData = morphology?.[dimensionKey];
-    
-    // If morphology data exists in object format
-    if (typeof currentData === 'object') {
-      // PRIORITIZE selectedValue - find its index in options
-      if (currentData?.selectedValue) {
-        const correctIndex = dimension.options.findIndex(
-          opt => opt.value === currentData.selectedValue
-        );
-        if (correctIndex !== -1) {
-          return correctIndex;
-        }
-      }
-      // Fallback to selectedIndex if value lookup fails
-      if (currentData?.selectedIndex !== undefined) {
-        return currentData.selectedIndex;
-      }
-    }
-    
-    // Legacy fallback: if it's a string value, find its index
-    if (typeof currentData === 'string') {
-      const correctIndex = dimension.options.findIndex(
-        opt => opt.value === currentData
-      );
-      return correctIndex !== -1 ? correctIndex : 0;
-    }
-    
-    return 0;
+
+    // morphologyValue handles both the flat format and legacy
+    // { selectedValue } rows, so no shape-specific branches are needed here.
+    const currentValue = morphologyValue(morphology, dimensionKey);
+    if (!currentValue) return 0;
+
+    const index = dimension.options.findIndex(opt => opt.value === currentValue);
+    return index !== -1 ? index : 0;
   };
 
   return (

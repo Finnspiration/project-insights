@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MORPHOLOGY_DIMENSIONS, CATEGORY_COLORS, CATEGORY_ICONS, CategoryType } from '@/lib/morphologyConfig';
+import { morphologyValue, normalizeMorphology } from '@shared/morphology.ts';
 import { DimensionRow } from './DimensionRow';
 import { MorphologyDescription } from './MorphologyDescription';
 import { DNAHelixVisualization } from './DNAHelixVisualization';
@@ -42,7 +43,9 @@ export function MorphologicalBox({
   const [isAggregating, setIsAggregating] = useState(false);
 
   const handleSelect = async (dimensionKey: string, value: string) => {
-    const updatedMorphology = { ...morphology, [dimensionKey]: value };
+    // Normalize first: merging a plain string into a map that still holds
+    // legacy { selectedValue } objects would leave a half-converted row.
+    const updatedMorphology = { ...normalizeMorphology(morphology), [dimensionKey]: value };
     onMorphologyChange?.(updatedMorphology);
     
     // Auto-sync Theory U data when morphology changes
@@ -237,18 +240,7 @@ export function MorphologicalBox({
               {/* Dimensions in this category */}
               <div className="bg-card border border-border rounded-lg overflow-hidden">
                 {dimensionsByCategory[category].map((dimension) => {
-                  const value = morphology[dimension.key];
-                  let selectedValue: string | undefined;
-                  if (value !== null && value !== undefined) {
-                    if (typeof value === 'object') {
-                      const objValue = value as { selectedValue?: string };
-                      if ('selectedValue' in objValue) {
-                        selectedValue = objValue.selectedValue;
-                      }
-                    } else if (typeof value === 'string') {
-                      selectedValue = value;
-                    }
-                  }
+                  const selectedValue = morphologyValue(morphology, dimension.key);
                   return (
                     <DimensionRow
                       key={dimension.key}
@@ -344,18 +336,7 @@ export function MorphologicalBox({
                   <TabsContent value="list" className="mt-4">
                     <div className="flex flex-wrap gap-2">
                       {MORPHOLOGY_DIMENSIONS.map((dimension) => {
-                        const value = morphology[dimension.key];
-                        let selectedValue: string | undefined;
-                        if (value !== null && value !== undefined) {
-                          if (typeof value === 'object') {
-                            const objValue = value as { selectedValue?: string };
-                            if ('selectedValue' in objValue) {
-                              selectedValue = objValue.selectedValue;
-                            }
-                          } else if (typeof value === 'string') {
-                            selectedValue = value;
-                          }
-                        }
+                        const selectedValue = morphologyValue(morphology, dimension.key);
                         if (!selectedValue) return null;
                         
                         const option = dimension.options.find(opt => opt.value === selectedValue);

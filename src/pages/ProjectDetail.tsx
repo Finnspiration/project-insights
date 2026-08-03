@@ -25,6 +25,7 @@ import { EditProjectDialog } from '@/components/projects/EditProjectDialog';
 import { MorphologicalBox } from '@/components/morphology/MorphologicalBox';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { calculateIDGScoresFromMorphology, IDGScoresCalculation } from '@/lib/idgScoring';
+import { generateDnaCode, isMorphologyComplete, normalizeMorphology } from '@shared/morphology.ts';
 import { ProjectProgress } from '@/components/projects/ProjectProgress';
 import type { Project } from '@/types/project';
 
@@ -88,32 +89,32 @@ export default function ProjectDetail() {
         .single();
 
       if (error) throw error;
-      
-      // Fix corrupted dna_code containing [object Object]
-      if (data.dna_code && data.dna_code.includes('[object Object]') && data.morphology) {
-        const fixedDnaCode = Object.entries(data.morphology as Record<string, any>)
-          .map(([_, value]) => {
-            if (value !== null && typeof value === 'object' && 'selectedValue' in value) {
-              return value.selectedValue;
-            }
-            return typeof value === 'string' ? value : '';
-          })
-          .filter(Boolean)
-          .join('-');
-        data.dna_code = fixedDnaCode;
-        // Also fix in database
-        supabase.from('projects').update({ dna_code: fixedDnaCode }).eq('id', id!).then(() => {
-          console.log('🔧 Fixed corrupted dna_code');
-        });
+
+      // Normalize on read so every consumer below sees the canonical flat
+      // format, whatever shape the row happens to be stored in.
+      if (data.morphology) {
+        data.morphology = normalizeMorphology(data.morphology);
       }
-      
+
+      // Repair DNA codes written by older code paths (either stringified
+      // objects, or a different dimension order).
+      const expectedDnaCode = generateDnaCode(data.morphology);
+      if (expectedDnaCode && data.dna_code !== expectedDnaCode) {
+        data.dna_code = expectedDnaCode;
+        const { error: repairError } = await supabase
+          .from('projects')
+          .update({ dna_code: expectedDnaCode })
+          .eq('id', id);
+        if (repairError) {
+          console.error('Failed to repair dna_code:', repairError);
+        }
+      }
+
       setProject(data);
-      
+
       // Calculate IDG scores from morphology immediately
       if (data.morphology) {
-        const idgScores = calculateIDGScoresFromMorphology(data.morphology);
-        setProjectIDGScores(idgScores);
-        console.log('📊 ProjectDetail - IDG Scores Calculated:', idgScores);
+        setProjectIDGScores(calculateIDGScoresFromMorphology(data.morphology));
       }
     } catch (error) {
       console.error('Error fetching project:', error);
@@ -122,69 +123,28 @@ export default function ProjectDetail() {
     }
   };
 
-  const updateProjectMorphology = async (newMorphology: any) => {
-    if (!project) return;
-    
-    // Optimistic update - no loading state flash
-    setProject({
-      ...project,
-      morphology: newMorphology
-    });
-    
-    // Generate new DNA code from morphology
-    const dimensionKeys = Object.keys(newMorphology);
-    const newDnaCode = dimensionKeys
-      .map(key => {
-        const val = newMorphology[key];
-        return typeof val === 'object' ? val?.selectedValue : val;
-      })
-      .filter(Boolean)
-      .join('-');
-    
-    // Save to database
-    const { error } = await supabase
-      .from('projects')
-      .update({
-        morphology: newMorphology,
-        dna_code: newDnaCode,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', project.id);
-    
-    if (error) {
-      console.error('Failed to save morphology:', error);
-    } else {
-      // Update local DNA code
-      setProject(prev => prev ? { ...prev, dna_code: newDnaCode } : prev);
-    }
-  };
-
   const handleSaveChanges = async () => {
     if (!previewMorphology || !project) return;
-    
+
     try {
-      // Generate new DNA code from preview morphology
-      const dimensionKeys = Object.keys(previewMorphology);
-      const newDnaCode = dimensionKeys
-        .map(key => previewMorphology[key]?.selectedValue || '')
-        .filter(Boolean)
-        .join('-');
-      
+      const normalized = normalizeMorphology(previewMorphology);
+      const newDnaCode = generateDnaCode(normalized);
+
       // Save to database
       const { error } = await supabase
         .from('projects')
         .update({
-          morphology: previewMorphology,
+          morphology: normalized,
           dna_code: newDnaCode,
           updated_at: new Date().toISOString()
         })
         .eq('id', project.id);
-      
+
       if (error) throw error;
-      
+
       // Update local state
-      setProject({ ...project, morphology: previewMorphology, dna_code: newDnaCode });
-      setOriginalMorphology(previewMorphology);
+      setProject({ ...project, morphology: normalized, dna_code: newDnaCode });
+      setOriginalMorphology(normalized);
       setHasUnsavedChanges(false);
       setPreviewMorphology(null);
       setPreviewIDG(null);
@@ -385,7 +345,7 @@ export default function ProjectDetail() {
             <ProjectProgress
               variant="full"
               flags={{
-                hasMorphology: !!project.morphology && Object.keys(project.morphology || {}).length >= 12,
+                hasMorphology: isMorphologyComplete(project.morphology),
                 hasDocuments: documents.length > 0,
                 hasDna: !!project.dna_code,
                 hasReviewedActions: blindSpots.some(
@@ -432,32 +392,27 @@ export default function ProjectDetail() {
                 projectId={project.id}
                 language={i18n.language as 'en' | 'da'}
                 onMorphologyChange={async (updatedMorphology) => {
-                  // Generate new DNA code
-                  const dnaSegments = Object.entries(updatedMorphology).map(([_, value]: [string, any]) => {
-                    if (value && typeof value === 'object' && 'selectedValue' in value) {
-                      return value.selectedValue;
-                    }
-                    return value;
-                  });
-                  const newDnaCode = dnaSegments.filter(Boolean).join('-');
-                  
-                  // Update database
+                  const normalized = normalizeMorphology(updatedMorphology);
+                  const newDnaCode = generateDnaCode(normalized);
+
                   const { error } = await supabase
                     .from('projects')
-                    .update({ 
-                      morphology: updatedMorphology,
-                      dna_code: newDnaCode 
+                    .update({
+                      morphology: normalized,
+                      dna_code: newDnaCode
                     })
                     .eq('id', id);
-                  
-                  if (!error) {
-                    // Update local state
-                    setProject(prev => prev ? { 
-                      ...prev, 
-                      morphology: updatedMorphology,
-                      dna_code: newDnaCode 
-                    } : null);
+
+                  if (error) {
+                    console.error('Failed to save morphology:', error);
+                    return;
                   }
+
+                  setProject(prev => prev ? {
+                    ...prev,
+                    morphology: normalized,
+                    dna_code: newDnaCode
+                  } : null);
                 }}
               />
             )}
