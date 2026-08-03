@@ -124,42 +124,61 @@ export default function ProjectDetail() {
   };
 
   const handleSaveChanges = async () => {
-    if (!previewMorphology || !project) return;
+    // The weather map can change the morphology, the IDG profile, or both.
+    // Bailing out on a missing previewMorphology used to make "save" a silent
+    // no-op for anyone who had only moved the IDG sliders.
+    if (!project || (!previewMorphology && !previewIDG)) return;
 
     try {
-      const normalized = normalizeMorphology(previewMorphology);
-      const newDnaCode = generateDnaCode(normalized);
+      const update: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
 
-      // Save to database
+      let normalized = project.morphology;
+      let newDnaCode = project.dna_code;
+
+      if (previewMorphology) {
+        normalized = normalizeMorphology(previewMorphology);
+        newDnaCode = generateDnaCode(normalized);
+        update.morphology = normalized;
+        update.dna_code = newDnaCode;
+      }
+
+      // idg_profile lives inside `patterns` alongside insights and
+      // recommendations, so merge rather than replace.
+      const patterns = previewIDG
+        ? { ...(project.patterns || {}), idg_profile: previewIDG }
+        : project.patterns;
+
+      if (previewIDG) {
+        update.patterns = patterns;
+      }
+
       const { error } = await supabase
         .from('projects')
-        .update({
-          morphology: normalized,
-          dna_code: newDnaCode,
-          updated_at: new Date().toISOString()
-        })
+        .update(update)
         .eq('id', project.id);
 
       if (error) throw error;
 
       // Update local state
-      setProject({ ...project, morphology: normalized, dna_code: newDnaCode });
+      setProject({ ...project, morphology: normalized, dna_code: newDnaCode, patterns });
       setOriginalMorphology(normalized);
       setHasUnsavedChanges(false);
       setPreviewMorphology(null);
       setPreviewIDG(null);
-      
+
       const { toast } = await import('@/hooks/use-toast');
       toast({
         title: t('common.success'),
-        description: 'Ændringer gemt!',
+        description: t('weather_control.changes_saved'),
       });
     } catch (error) {
       console.error('Error saving changes:', error);
       const { toast } = await import('@/hooks/use-toast');
       toast({
         title: t('common.error'),
-        description: 'Kunne ikke gemme ændringer',
+        description: t('weather_control.save_failed'),
         variant: 'destructive',
       });
     }
@@ -169,11 +188,10 @@ export default function ProjectDetail() {
     setPreviewMorphology(null);
     setPreviewIDG(null);
     setHasUnsavedChanges(false);
-    
+
     import('@/hooks/use-toast').then(({ toast }) => {
       toast({
-        title: 'Nulstillet',
-        description: 'Gået tilbage til original morfologi',
+        title: t('morphology.resetSuccess'),
       });
     });
   };

@@ -387,12 +387,22 @@ KRITISK: Generer indsigter MED SPECIFIKKE CITATER fra de uploadede dokumenter ov
     if (projectId) {
       const supabase = supabaseAdmin;
 
-      // Store full insights in patterns field of projects table
+      // Store full insights in patterns field of projects table.
+      // `patterns` is a shared bag — it also holds the user's saved
+      // idg_profile and the aggregation metadata — so merge into whatever is
+      // already there instead of replacing the whole object.
       console.log(`Storing insights for project ${projectId}`);
+      const { data: existing } = await supabase
+        .from('projects')
+        .select('patterns')
+        .eq('id', projectId)
+        .maybeSingle();
+
       const { error: updateError } = await supabase
         .from('projects')
         .update({
           patterns: {
+            ...(existing?.patterns ?? {}),
             ...insights,
             generated_at: new Date().toISOString(),
             language: language

@@ -175,13 +175,22 @@ serve(async (req) => {
     console.log(`Aggregation complete. Overall confidence: ${(overallConfidence * 100).toFixed(1)}%`);
     console.log(`Overall agreement: ${(overallAgreement * 100).toFixed(1)}%`);
 
-    // Update project with aggregated morphology
+    // Update project with aggregated morphology. `patterns` also holds the
+    // generated insights and the user's saved idg_profile, so merge instead
+    // of replacing the whole object.
+    const { data: existingProject } = await supabase
+      .from('projects')
+      .select('patterns')
+      .eq('id', projectId)
+      .maybeSingle();
+
     const { error: updateError } = await supabase
       .from('projects')
       .update({
         morphology: normalizedMorphology,
         dna_code: dnaCode,
         patterns: {
+          ...(existingProject?.patterns ?? {}),
           aggregationMetadata: {
             method: 'weighted_confidence',
             analyzedDocuments: documentSuggestions.length,
