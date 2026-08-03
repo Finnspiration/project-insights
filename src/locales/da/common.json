@@ -1292,6 +1292,22 @@
           "body": "Sigtbarheden er høj og trykket lavt. Det er det billigste tidspunkt at binde sig til en retning — vinduet står sjældent åbent længe."
         }
       }
+    },
+    "projectSignatures": {
+      "eyebrow": "Per projekt",
+      "title": "Projektsignaturer",
+      "description": "Hvert vurderet projekt vist som sin PRISM-signatur: morfologiens DNA-stregkode, radaren for Inner Development Goals og de aktuelle vejrindekser — alt udledt af den gemte vurdering.",
+      "aiPrompt": "Gennemgå PRISM-signaturerne for mine projekter: hvilket projekts DNA, IDG-profil og vejrlæsning er mest i ubalance, og hvad bør jeg gøre først?",
+      "dna": "Morfologi-DNA",
+      "idg": "Inner Development Goals",
+      "weather": "Vejrlæsning",
+      "openProject": "Åbn projektet {{name}}",
+      "wind": {
+        "centralized": "Centraliseret informationsflow",
+        "hierarchical": "Hierarkisk informationsflow",
+        "network": "Netværksbaseret informationsflow",
+        "distributed": "Distribueret informationsflow"
+      }
     }
   },
   "insights": {

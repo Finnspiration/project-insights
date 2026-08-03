@@ -29,6 +29,9 @@
       ]
     }
   },
+  "exclude": [
+    "src/**/*.test.ts"
+  ],
   "include": [
     "src",
     "supabase/functions/_shared/morphology.ts"

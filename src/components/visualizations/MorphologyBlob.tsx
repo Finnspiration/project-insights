@@ -293,7 +293,7 @@ export function MorphologyBlob({ morphology, projectId }: MorphologyBlobProps) {
       setViewMode({ 
         type: 'editing', 
         dimensionKey, 
-        tempValue: getMorphologyValue(dimensionKey) || '' 
+        tempValue: activeMorphology[dimensionKey] || '' 
       });
       return;
     }
