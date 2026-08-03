@@ -38,6 +38,26 @@ function SceneBackground({ topColor }: { topColor: string }) {
 
 // Soft halo behind the form: coloured by the organizational stage,
 // sized and strengthened by risk.
+/** Soft-edged disc: opaque at the centre, gone by the rim. */
+function useRadialFalloff() {
+  return useMemo(() => {
+    const size = 256;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.45, 'rgba(255,255,255,0.85)');
+    gradient.addColorStop(0.75, 'rgba(255,255,255,0.32)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+}
+
 function AtmosphericHaze({ 
   color, 
   intensity 
@@ -47,6 +67,7 @@ function AtmosphericHaze({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
+  const falloff = useRadialFalloff();
   
   const forward = useMemo(() => new THREE.Vector3(), []);
 
@@ -76,7 +97,9 @@ function AtmosphericHaze({
         <circleGeometry args={[2.3, 64]} />
         <meshBasicMaterial
           color={threeColor}
+          alphaMap={falloff}
           transparent
+          depthWrite={false}
           opacity={HALO_FLOOR + 0.3 * intensity}
         />
       </mesh>
