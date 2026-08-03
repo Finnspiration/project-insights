@@ -76,7 +76,9 @@ export interface Blob3DData {
   
   // NEW: IDG Outer Manifestation - energy extending beyond the blob
   idgOuterManifestation: 'aura' | 'geometric_rays' | 'connection_bands' | 'energy_fields' | 'explosive_rays';
-  idgOuterRadius: number;          // How far the outer effect extends (1.5-4.0)
+  idgOuterRadius: number;          // How far the outer effect extends (1.25-1.55).
+                                   // The visible half-frame is ~1.59 and the body ~1.15,
+                                   // so anything above that is drawn off-screen.
   idgOuterIntensity: number;       // 0-1 strength of outer effect
   idgOuterParticleCount: number;   // Particles for energy/rays
   idgOuterColor: string;           // Color for outer manifestation
@@ -563,31 +565,31 @@ function mapDevelopmentToCore(development?: string): {
     being: { 
       glow: 1.0, visibility: 1.0, transmission: 0.9,
       shape: 'sphere', rings: 0, rotationAxes: 0, emissivePattern: 'breathe', scale: 1.5,
-      outerManifestation: 'aura', outerRadius: 4.0, outerIntensity: 0.8, outerParticleCount: 0, outerAnimationSpeed: 0.2
+      outerManifestation: 'aura', outerRadius: 1.55, outerIntensity: 0.8, outerParticleCount: 0, outerAnimationSpeed: 0.2
     },
     // THINKING (Tænkning): Geometric lines/grid radiating from blob
     thinking: { 
       glow: 0.9, visibility: 0.9, transmission: 0.85,
       shape: 'octahedron', rings: 0, rotationAxes: 1, emissivePattern: 'pulse', scale: 1.2,
-      outerManifestation: 'geometric_rays', outerRadius: 3.0, outerIntensity: 0.7, outerParticleCount: 12, outerAnimationSpeed: 0.5
+      outerManifestation: 'geometric_rays', outerRadius: 1.35, outerIntensity: 0.7, outerParticleCount: 12, outerAnimationSpeed: 0.5
     },
     // RELATING (Relationsdannelse): Connection lines/bands circling around
     relating: { 
       glow: 0.7, visibility: 0.7, transmission: 0.75,
       shape: 'torus', rings: 2, rotationAxes: 2, emissivePattern: 'radiate', scale: 1.0,
-      outerManifestation: 'connection_bands', outerRadius: 2.5, outerIntensity: 0.6, outerParticleCount: 24, outerAnimationSpeed: 0.8
+      outerManifestation: 'connection_bands', outerRadius: 1.25, outerIntensity: 0.6, outerParticleCount: 24, outerAnimationSpeed: 0.8
     },
     // COLLABORATING (Samarbejde): Multiple overlapping energy fields
     collaborating: { 
       glow: 0.6, visibility: 0.6, transmission: 0.7,
       shape: 'icosahedron', rings: 0, rotationAxes: 3, emissivePattern: 'pulse', scale: 0.9,
-      outerManifestation: 'energy_fields', outerRadius: 3.2, outerIntensity: 0.75, outerParticleCount: 60, outerAnimationSpeed: 1.0
+      outerManifestation: 'energy_fields', outerRadius: 1.40, outerIntensity: 0.75, outerParticleCount: 60, outerAnimationSpeed: 1.0
     },
     // ACTING (Handling): Explosive energy rays extending to edges
     acting: { 
       glow: 0.5, visibility: 0.5, transmission: 0.5,
       shape: 'starburst', rings: 12, rotationAxes: 1, emissivePattern: 'explode', scale: 0.8,
-      outerManifestation: 'explosive_rays', outerRadius: 3.8, outerIntensity: 0.9, outerParticleCount: 36, outerAnimationSpeed: 2.0
+      outerManifestation: 'explosive_rays', outerRadius: 1.50, outerIntensity: 0.9, outerParticleCount: 36, outerAnimationSpeed: 2.0
     }
   };
   return map[development || 'relating'] || map.relating;

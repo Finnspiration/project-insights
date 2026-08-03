@@ -17,7 +17,7 @@ interface Blob3DSceneProps {
 // blob itself owned about fifteen percent. The stage is still readable here,
 // but as a wash the form can sit on top of — the saturated version of the
 // colour now rims the body instead (see Lights).
-const BACKGROUND_TINT = 0.12;
+const BACKGROUND_TINT = 0.16;
 
 /** The stage stays legible on a calm project, where risk contributes nothing. */
 const HALO_FLOOR = 0.22;
@@ -48,11 +48,19 @@ function AtmosphericHaze({
   const meshRef = useRef<THREE.Mesh>(null);
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   
+  const forward = useMemo(() => new THREE.Vector3(), []);
+
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
-    meshRef.current.rotation.z = time * 0.05;
-    
+
+    // Billboard: face the camera and sit directly behind the form, whatever
+    // angle autoRotate has swung to. As a fixed plane in world space this
+    // drifted out of frame and was seen edge-on.
+    state.camera.getWorldDirection(forward);
+    meshRef.current.position.copy(forward).multiplyScalar(2.2);
+    meshRef.current.quaternion.copy(state.camera.quaternion);
+
     const material = meshRef.current.material as THREE.MeshBasicMaterial;
     // Risk pulses the halo above its floor.
     material.opacity = HALO_FLOOR + (0.26 + Math.sin(time * 0.5) * 0.05) * intensity;
@@ -60,10 +68,12 @@ function AtmosphericHaze({
   
   return (
     <group>
-      {/* Radius 5 spanned 10 units across a frame 3.7 units tall: not a haze,
-          a background. 1.8 reads as a disc the form sits in front of. */}
-      <mesh ref={meshRef} position={[0, 0, -2]}>
-        <circleGeometry args={[1.8, 64]} />
+      {/* Sized in apparent terms, not world units: the halo sits 2.2 further
+          from the camera than the form, so radius 2.3 reads as a disc about a
+          fifth wider than the body. Radius 5 was a background; 1.8 would have
+          been hidden behind the body exactly. */}
+      <mesh ref={meshRef}>
+        <circleGeometry args={[2.3, 64]} />
         <meshBasicMaterial
           color={threeColor}
           transparent
