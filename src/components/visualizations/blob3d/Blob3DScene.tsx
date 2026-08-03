@@ -12,19 +12,28 @@ interface Blob3DSceneProps {
   className?: string;
 }
 
-// Component that sets scene.background color - fills ENTIRE viewport
+// The organizational stage used to paint the entire viewport at full
+// saturation, which meant one dimension owned roughly half the pixels and the
+// blob itself owned about fifteen percent. The stage is still readable here,
+// but as a wash the form can sit on top of — the saturated version of the
+// colour now rims the body instead (see Lights).
+const BACKGROUND_TINT = 0.12;
+
 function SceneBackground({ topColor }: { topColor: string }) {
   const { scene } = useThree();
-  const color = useMemo(() => new THREE.Color(topColor), [topColor]);
-  
+  const color = useMemo(() => {
+    const paper = new THREE.Color('#f7f6f2');
+    return paper.lerp(new THREE.Color(topColor), BACKGROUND_TINT);
+  }, [topColor]);
+
   useEffect(() => {
     scene.background = color;
   }, [scene, color]);
-  
+
   return null;
 }
 
-// Atmospheric fog/haze effect - ENHANCED for risk visibility
+// Soft halo behind the form, scaled with risk.
 function AtmosphericHaze({ 
   color, 
   intensity 
@@ -33,7 +42,6 @@ function AtmosphericHaze({
   intensity: number 
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   
   useFrame((state) => {
@@ -44,14 +52,6 @@ function AtmosphericHaze({
     const material = meshRef.current.material as THREE.MeshBasicMaterial;
     // Much higher opacity for visibility
     material.opacity = (0.15 + Math.sin(time * 0.5) * 0.08) * intensity;
-    
-    // Animate warning ring
-    if (ringRef.current) {
-      const ringMaterial = ringRef.current.material as THREE.MeshBasicMaterial;
-      const pulse = Math.sin(time * 3) * 0.5 + 0.5;
-      ringMaterial.opacity = pulse * intensity * 0.6;
-      ringRef.current.scale.setScalar(1.8 + pulse * 0.3);
-    }
   });
   
   // Lower threshold - show even at low risk
@@ -59,9 +59,10 @@ function AtmosphericHaze({
   
   return (
     <group>
-      {/* Main haze circle */}
+      {/* Halo behind the form. Radius 5 spanned 10 units across a frame only
+          3.7 units tall, so it was not a haze — it was the background. */}
       <mesh ref={meshRef} position={[0, 0, -2]}>
-        <circleGeometry args={[5, 64]} />
+        <circleGeometry args={[2.4, 64]} />
         <meshBasicMaterial
           color={threeColor}
           transparent
@@ -69,20 +70,6 @@ function AtmosphericHaze({
           blending={THREE.AdditiveBlending}
         />
       </mesh>
-      
-      {/* Pulsing warning ring for high risk */}
-      {intensity > 0.4 && (
-        <mesh ref={ringRef} position={[0, 0, -1]}>
-          <ringGeometry args={[1.6, 2.0, 64]} />
-          <meshBasicMaterial
-            color={threeColor}
-            transparent
-            opacity={0.3 * intensity}
-            blending={THREE.AdditiveBlending}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      )}
     </group>
   );
 }
@@ -90,8 +77,10 @@ function AtmosphericHaze({
 function Lights({ 
   glowColor, 
   glowIntensity,
-  coreGlow
+  coreGlow,
+  organizationalColor
 }: { 
+  organizationalColor: string;
   glowColor: string; 
   glowIntensity: number;
   coreGlow: number;
@@ -118,18 +107,20 @@ function Lights({
         color="#e0e8ff"
       />
       
-      {/* Rim light */}
+      {/* Rim light — carries the organizational stage now that the background
+          no longer shouts it, and outlining the silhouette is exactly what a
+          portrait needs. */}
       <directionalLight
         position={[0, -2, 5]}
         intensity={0.5}
         color="#ffffff"
       />
-      
-      {/* Back light */}
+
+      {/* Back rim in the stage colour */}
       <directionalLight
         position={[-2, 1, -5]}
-        intensity={0.4}
-        color="#8080ff"
+        intensity={1.1}
+        color={organizationalColor}
       />
       
       {/* Risk glow lights */}
@@ -194,7 +185,7 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
     <div className={`w-full h-full min-h-[400px] ${className || ''}`}>
       <Canvas
         ref={canvasRef}
-        camera={{ position: [0, 0, 4.5], fov: 45 }}
+        camera={{ position: [0, 0, 4.0], fov: 45 }}
         dpr={[1, 2]}
         gl={{ 
           antialias: true,
@@ -217,6 +208,7 @@ export function Blob3DScene({ data, onHover, selectedLobe, className }: Blob3DSc
             glowColor={data.glowColor} 
             glowIntensity={data.glowIntensity}
             coreGlow={data.coreGlow}
+            organizationalColor={data.backgroundColors.top}
         />
           
           {/* Environment for reflections - background disabled to show organizational color */}
