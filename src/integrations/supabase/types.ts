@@ -350,6 +350,9 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      morphology_dimension_keys: { Args: never; Returns: string[] }
+      morphology_dna_code: { Args: { _morphology: Json }; Returns: string }
+      normalize_morphology: { Args: { _morphology: Json }; Returns: Json }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "user"
