@@ -179,8 +179,31 @@ export function Lobe({
   );
 }
 
+// How bright the core is allowed to burn.
+//
+// It reads as development (IDG), so it has to stay legible across the five
+// stages — but it was lit as if it were a lamp rather than a form. Three things
+// stacked: an emissive floor of up to 1.3, a mirror-smooth clearcoat catching
+// the city environment at 2.5x, and its own point light at intensity 3, which
+// at the core's own radius (~0.75) delivers 5.3 — as much as every other light
+// in the scene put together (5.45), radiating from the middle outwards.
+//
+// The spacing between the stages is kept: being over acting was 1.30/0.55 =
+// 2.36 and is now 0.50/0.215 = 2.33. Only the absolute level moved, so the five
+// stages stay as distinguishable as they were — they just stop clipping.
+const CORE_EMISSIVE_FLOOR = 0.12;
+const CORE_EMISSIVE_RANGE = 0.38;
+/** Never at or above 1: the scene tone-maps with ACES, which turns an
+    over-driven emissive pale rather than bright, so the core loses its colour
+    exactly when it is trying hardest to have one. */
+const coreEmissive = (glow: number, visibility: number) =>
+  CORE_EMISSIVE_FLOOR + glow * visibility * CORE_EMISSIVE_RANGE;
+
+/** Lights the core from within; deliberately no longer reaches the lobes. */
+const CORE_LIGHT_GAIN = 0.8;
+
 // Central core sphere with IDG-based shape transformation
-export function CoreSphere({ 
+export function CoreSphere({
   color, 
   transmission, 
   pulseSpeed,
@@ -265,7 +288,7 @@ export function CoreSphere({
     if (coreRotationAxes >= 3) groupRef.current.rotation.z = time * 0.15;
     
     if (lightRef.current) {
-      lightRef.current.intensity = coreGlow * coreVisibility * 3 * emissiveMultiplier;
+      lightRef.current.intensity = coreGlow * coreVisibility * CORE_LIGHT_GAIN * emissiveMultiplier;
     }
   });
   
@@ -300,15 +323,15 @@ export function CoreSphere({
         <meshPhysicalMaterial
           color={threeColor}
           emissive={threeColor}
-          emissiveIntensity={coreGlow * coreVisibility + 0.3}
-          roughness={coreShape === 'sphere' ? 0.02 : 0.1}
+          emissiveIntensity={coreEmissive(coreGlow, coreVisibility)}
+          roughness={coreShape === 'sphere' ? 0.25 : 0.3}
           metalness={coreShape === 'octahedron' || coreShape === 'icosahedron' ? 0.3 : 0}
           transmission={transmission * (1 - coreVisibility * 0.3)}
           thickness={4}
           ior={2.0}
-          clearcoat={1}
-          clearcoatRoughness={0.02}
-          envMapIntensity={2.5}
+          clearcoat={0.35}
+          clearcoatRoughness={0.25}
+          envMapIntensity={0.9}
           transparent
           opacity={0.6 + coreVisibility * 0.3}
         />
@@ -321,8 +344,8 @@ export function CoreSphere({
           <meshPhysicalMaterial
             color={threeColor}
             emissive={threeColor}
-            emissiveIntensity={coreGlow * 0.8}
-            roughness={0.1}
+            emissiveIntensity={coreGlow * 0.3}
+            roughness={0.3}
             transparent
             opacity={0.7}
           />
@@ -336,19 +359,22 @@ export function CoreSphere({
           <meshPhysicalMaterial
             color={threeColor}
             emissive={threeColor}
-            emissiveIntensity={coreGlow * 0.5}
-            roughness={0.1}
+            emissiveIntensity={coreGlow * 0.2}
+            roughness={0.3}
             transparent
             opacity={0.5}
           />
         </mesh>
       )}
       
+      {/* distance 4 reached past the lobes, so the core was backlighting the
+          whole body from inside — the lobes are transmissive, so it came
+          straight through. 2.2 keeps it around the core. */}
       <pointLight
         ref={lightRef}
         color={threeColor}
-        intensity={coreGlow * coreVisibility * 3}
-        distance={4}
+        intensity={coreGlow * coreVisibility * CORE_LIGHT_GAIN}
+        distance={2.2}
         decay={2}
       />
     </group>
