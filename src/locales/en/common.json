@@ -1308,6 +1308,25 @@
         "network": "Networked information flow",
         "distributed": "Distributed information flow"
       }
+    },
+    "blobSignature": {
+      "title": "Portrait",
+      "cohesion": {
+        "whole": "one whole body",
+        "split": "split into parts"
+      },
+      "roughness": {
+        "smooth": "smooth surface",
+        "agitated": "agitated surface"
+      },
+      "strain": {
+        "calm": "little pressure",
+        "strained": "under pressure"
+      },
+      "orbit": {
+        "still": "nothing circling it",
+        "circling": "activity circling it"
+      }
     }
   },
   "insights": {

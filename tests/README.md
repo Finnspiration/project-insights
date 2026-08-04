@@ -37,3 +37,4 @@ Current coverage:
 | `src/lib/weatherReading.ts` | The four weather indices: bounds, headroom for evidence, and that each explains itself |
 | `src/lib/weatherInsights.ts` | That each interpretation rule fires for the right reason — and stays quiet otherwise |
 | `src/lib/blobGestures.ts` | The five blob gestures: bounds, direction, and that each names its own drivers |
+| `src/lib/blobSignature.ts` | The flat portrait mark: determinism, that shapes stay inside the box, and that two assessments never collapse onto the same mark |

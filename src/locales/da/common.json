@@ -1308,6 +1308,25 @@
         "network": "Netværksbaseret informationsflow",
         "distributed": "Distribueret informationsflow"
       }
+    },
+    "blobSignature": {
+      "title": "Portræt",
+      "cohesion": {
+        "whole": "én hel krop",
+        "split": "delt i flere"
+      },
+      "roughness": {
+        "smooth": "glat overflade",
+        "agitated": "urolig overflade"
+      },
+      "strain": {
+        "calm": "lidt tryk",
+        "strained": "under tryk"
+      },
+      "orbit": {
+        "still": "intet kredser om den",
+        "circling": "aktivitet kredser om den"
+      }
     }
   },
   "insights": {

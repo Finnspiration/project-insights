@@ -12,6 +12,7 @@ import { askAIChat } from '@/lib/aiChat';
 import { MORPHOLOGY_DIMENSIONS } from '@/lib/morphologyConfig';
 import { calculateIDG } from '@/lib/idgScoring';
 import { readWeather, type WeatherReading } from '@/lib/weatherReading';
+import { BlobSignatureMark } from './BlobSignatureMark';
 import { IDG_DIMENSIONS, localized, type Language, type BlindSpot } from '@/types/project';
 
 // One card per assessed project, rendering the three PRISM readings that can be
@@ -37,6 +38,7 @@ interface Band {
 interface Signature {
   id: string;
   name: string;
+  morphology: PortfolioProject['morphology'];
   bands: Band[];
   radar: { dimension: string; label: string; value: number }[];
   weather: WeatherReading;
@@ -81,6 +83,7 @@ export function ProjectSignatureGallery() {
         return {
           id: project.id,
           name: localized(project.name as never, language) || t('common.untitled'),
+          morphology: project.morphology,
           bands,
           radar: IDG_DIMENSIONS.map((dimension) => ({
             dimension,
@@ -141,6 +144,20 @@ export function ProjectSignatureGallery() {
                     {t('dashboard.view')}
                   </Button>
                 </div>
+
+                {/* Portrait */}
+                <section aria-labelledby={`portrait-${signature.id}`} className="space-y-2">
+                  <h5
+                    id={`portrait-${signature.id}`}
+                    className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {t('visualizations.blobSignature.title')}
+                  </h5>
+                  <BlobSignatureMark
+                    morphology={signature.morphology}
+                    className="mx-auto h-32 w-32"
+                  />
+                </section>
 
                 {/* DNA barcode */}
                 <section aria-labelledby={`dna-${signature.id}`} className="space-y-2">
