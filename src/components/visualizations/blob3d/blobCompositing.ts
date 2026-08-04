@@ -27,32 +27,48 @@ import * as THREE from 'three';
 //                  nearer layer occludes a farther one, which is what keeps two
 //                  overlapping elements looking like two elements.
 //
-//   ACCENT layers - small, sparse, genuinely light-like marks: orbiting
-//                  particles, thin rings, spark trails. Additive is right for
-//                  these and they cover too few pixels to stack. Their opacity
-//                  still passes through accentOpacity() so no single one can
-//                  blow out on its own.
+//   ACCENT layers - small marks: orbiting particles, rings, spikes. Same
+//                  compositing, but allowed a much higher alpha, because a
+//                  mark that only tints the background does not read as its
+//                  own colour and so does not carry its own dimension.
 //
-// The test in blobCompositing.test.ts holds the other half of the contract:
-// that every dimension still changes the picture, so none of the twelve is
-// silently doing nothing.
+// The test in blobMapping3D.test.ts holds the other half of the contract: that
+// every dimension still changes the picture, so none of the twelve is silently
+// doing nothing.
 
-/** For anything that covers area. Bounded: never brighter than its inputs. */
+// Second pass, after seeing it: additive is wrong here for ALL of them, not
+// just the big ones. Additive simulates light emitted into darkness, and this
+// scene's stage is paper — a pale tinted field. Over a light background the
+// only direction additive can go is white:
+//
+//   #FF6600 "intense orange" over the teal stage
+//     additive  a=0.33  ->  rgb(254,239,200)   pale cream
+//     additive  a=0.60  ->  rgb(255,255,200)   saturated; alpha does nothing now
+//     normal    a=0.85  ->  rgb(242,117,30)    orange, which is what it means
+//
+// So high risk was drawing itself as a soft cream band. The element was
+// visible — it just no longer said anything. Both tiers composite normally
+// now; what separates them is how much of the background they are allowed to
+// take, not how they combine with it.
+
+/** Anything covering a meaningful part of the silhouette. */
 export const AREA_BLENDING = THREE.NormalBlending;
 
-/** For small sparse light-like marks only. */
-export const ACCENT_BLENDING = THREE.AdditiveBlending;
+/** Small marks: rings, particles, spikes. Same maths, more of it. */
+export const ACCENT_BLENDING = THREE.NormalBlending;
 
 /**
- * Ceiling for a single additive accent.
+ * Ceiling for a mark.
  *
- * Chosen so that three accents can overlap before the sum reaches 1. Sparse
- * marks rarely stack three deep, so this is headroom rather than a limit that
- * bites in practice.
+ * High on purpose. Normal blending is bounded whatever the alpha, so the old
+ * additive budget of 0.33 is no longer protecting anything — it was only
+ * draining the colour out of every ring and particle. A mark has to reach
+ * roughly 0.8 before it reads as its own hue rather than a tint of whatever
+ * is behind it.
  */
-export const ACCENT_MAX_OPACITY = 0.33;
+export const ACCENT_MAX_OPACITY = 0.9;
 
-/** Clamp an accent's opacity into the additive budget. */
+/** Clamp a mark's opacity to the ceiling. */
 export function accentOpacity(value: number): number {
   return Math.min(ACCENT_MAX_OPACITY, Math.max(0, value));
 }
@@ -63,7 +79,7 @@ export function accentOpacity(value: number): number {
  * Below 1 on purpose: an area layer that can reach fully opaque hides whatever
  * is behind it, which loses an element just as effectively as burning it out.
  */
-export const AREA_MAX_OPACITY = 0.75;
+export const AREA_MAX_OPACITY = 0.55;
 
 /** Clamp an area layer's opacity so it always leaves what is behind it visible. */
 export function areaOpacity(value: number): number {
