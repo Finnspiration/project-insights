@@ -206,6 +206,38 @@ export type Database = {
         }
         Relationships: []
       }
+      project_dna_history: {
+        Row: {
+          dna_code: string | null
+          id: string
+          morphology: Json
+          project_id: string
+          recorded_at: string
+        }
+        Insert: {
+          dna_code?: string | null
+          id?: string
+          morphology: Json
+          project_id: string
+          recorded_at?: string
+        }
+        Update: {
+          dna_code?: string | null
+          id?: string
+          morphology?: Json
+          project_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_dna_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
