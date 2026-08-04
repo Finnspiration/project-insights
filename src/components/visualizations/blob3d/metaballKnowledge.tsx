@@ -4,6 +4,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { ACCENT_BLENDING, AREA_BLENDING, accentOpacity, areaOpacity } from './blobCompositing';
 
 // NEW: Knowledge Orbit - visible particles orbiting OUTSIDE the blob
 export function KnowledgeOrbit({
@@ -101,9 +102,9 @@ export function KnowledgeOrbit({
         size={baseSize}
         color={color}
         transparent
-        opacity={0.85}
+        opacity={accentOpacity(0.85)}
         sizeAttenuation
-        blending={THREE.AdditiveBlending}
+        blending={ACCENT_BLENDING}
       />
     </points>
   );
@@ -135,8 +136,12 @@ export function KnowledgeGlow({
         varying vec3 vNormal;
         varying vec3 vPosition;
         void main() {
-          vNormal = normalize(normalMatrix * normal);
-          vPosition = position;
+          // World space, both of them. vPosition used to be the raw object-space
+          // position while cameraPosition is world space, so viewDir was measured
+          // between two different frames and the rim landed wherever the object
+          // happened to sit rather than on its silhouette.
+          vNormal = normalize(mat3(modelMatrix) * normal);
+          vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
@@ -150,27 +155,28 @@ export function KnowledgeGlow({
         
         void main() {
           vec3 viewDir = normalize(cameraPosition - vPosition);
-          float fresnel = 1.0 - dot(viewDir, vNormal);
-          
+          // Clamped before the pow: the dot product goes negative around the
+          // limb, which drove fresnel past 1 and made the rim an unbounded
+          // additive contribution rather than a glow.
+          float fresnel = clamp(1.0 - dot(viewDir, normalize(vNormal)), 0.0, 1.0);
+
           // Sharpness controls the power of the fresnel
           float power = mix(1.0, 4.0, sharpness);
           fresnel = pow(fresnel, power);
-          
-          // Wider spread for lower sharpness
-          float spread = mix(1.5, 1.0, sharpness);
-          fresnel = fresnel * spread;
-          
+
           // Subtle pulse for diffuse glow
           float pulse = 1.0 + sin(time * 2.0) * 0.1 * (1.0 - sharpness);
-          
-          float alpha = fresnel * intensity * pulse;
-          gl_FragColor = vec4(glowColor, alpha * 0.6);
+
+          float alpha = clamp(fresnel * intensity * pulse, 0.0, 1.0);
+          gl_FragColor = vec4(glowColor, alpha * 0.33);
         }
       `,
       transparent: true,
       side: THREE.FrontSide,
       depthWrite: false,
-      blending: THREE.AdditiveBlending
+      // A rim, so an accent — but it covers the whole silhouette's edge, which
+      // is why its alpha is clamped in the shader above rather than trusted.
+      blending: ACCENT_BLENDING
     });
   }, [color, intensity, sharpness]);
   
@@ -305,9 +311,9 @@ export function InnerPattern({
           size={0.015}
           color={color}
           transparent
-          opacity={0.7}
+          opacity={accentOpacity(0.7)}
           sizeAttenuation
-          blending={THREE.AdditiveBlending}
+          blending={ACCENT_BLENDING}
         />
       </points>
     </group>
@@ -769,9 +775,9 @@ function Supernova({
           size={0.03}
           color={color}
           transparent
-          opacity={0.8 * intensity}
+          opacity={accentOpacity(0.8 * intensity)}
           sizeAttenuation
-          blending={THREE.AdditiveBlending}
+          blending={ACCENT_BLENDING}
         />
       </points>
       

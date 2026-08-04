@@ -42,7 +42,8 @@ export interface Blob3DData {
   // Effects - from risk, challenge, development
   glowColor: string;           // Outer glow color (risk)
   glowIntensity: number;       // Outer glow intensity (risk)
-  noiseIntensity: number;      // 0.2-0.9 noise particles (challenge)
+  noiseIntensity: number;      // 0.2-0.9 noise particles (complexity, via the roughness gesture)
+  challengeColor: string;      // Hue of the surface agitation (challenge)
   coreGlow: number;            // 0.3-1.0 core brightness (development)
   
   // Pattern - from knowledge
@@ -521,6 +522,27 @@ function mapOrganizationalToBackground(organizational?: string): {
 }
 
 // Challenge → Noise intensity AND spike contribution
+/**
+ * The colour of the surface agitation.
+ *
+ * challenge used to feed noiseIntensity, spikeCount and spikeLength — and the
+ * gesture pass overwrites all three from the roughness gesture, which reads
+ * complexity. So challenge drew nothing at all: twelve chips under the picture,
+ * eleven of them in it. Amount of agitation is complexity's to say; what kind
+ * of difficulty it is, is challenge's, and hue carries that without either one
+ * having to give up its channel.
+ */
+function mapChallengeToColor(challenge?: string): string {
+  const hues: Record<string, number> = {
+    technical: 200,   // cool, precise
+    social: 150,      // people
+    political: 35,    // friction
+    cognitive: 275,   // thought
+    adaptive: 100,    // growth
+  };
+  return hslToString(hues[challenge || 'technical'] ?? 200, 68, 58);
+}
+
 function mapChallengeToEffects(challenge?: string): { noise: number; spikeContribution: number } {
   const map: Record<string, { noise: number; spikeContribution: number }> = {
     technical: { noise: 0.2, spikeContribution: 0.1 },
@@ -832,6 +854,7 @@ function buildRawBlobData(morphology: any): Blob3DData {
     glowColor: riskEffects.color,
     glowIntensity: riskEffects.intensity,
     noiseIntensity: challengeEffects.noise,
+    challengeColor: mapChallengeToColor(challenge),
     coreGlow: developmentCore.glow,
     
     // Pattern

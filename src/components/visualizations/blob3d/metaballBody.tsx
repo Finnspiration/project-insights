@@ -4,6 +4,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { ACCENT_BLENDING, AREA_BLENDING, accentOpacity, areaOpacity } from './blobCompositing';
 
 // Single organic lobe/sphere with complexity-driven shape
 export function Lobe({ 
@@ -153,9 +154,15 @@ export function Lobe({
   const materialMetalness = baseShape === 'regular_crystal' ? 0.2 :
                             baseShape === 'irregular_crystal' ? 0.15 : 0;
   
-  // Neon effect: lower roughness and higher clearcoat for cultural diversity
-  const neonRoughness = Math.max(0.02, materialRoughness - culturalGlowIntensity * 0.1);
-  const neonClearcoat = Math.min(1.0, (baseShape === 'sphere' ? 1.0 : 0.6) + culturalGlowIntensity * 0.3);
+  // Neon effect: lower roughness and higher clearcoat for cultural diversity.
+  //
+  // Both are capped well short of a mirror. The scene lights the body with an
+  // Environment("city") HDRI — a bright sky — so a clearcoat of 1 at roughness
+  // 0.02 laid a sheet of untinted white over the whole silhouette, strongest
+  // where the surface faces the camera, which is the middle of the frame. The
+  // body's own colour was competing with a reflection of the sky and losing.
+  const neonRoughness = Math.max(0.18, materialRoughness - culturalGlowIntensity * 0.1);
+  const neonClearcoat = Math.min(0.35, (baseShape === 'sphere' ? 0.3 : 0.2) + culturalGlowIntensity * 0.15);
   
   return (
     <mesh ref={meshRef} position={position} geometry={geometry}>
@@ -170,8 +177,8 @@ export function Lobe({
         thickness={thickness}
         ior={ior}
         clearcoat={neonClearcoat}
-        clearcoatRoughness={baseShape === 'sphere' ? 0.02 : 0.15}
-        envMapIntensity={1.5 + culturalGlowIntensity * 0.5}
+        clearcoatRoughness={baseShape === 'sphere' ? 0.3 : 0.35}
+        envMapIntensity={0.45 + culturalGlowIntensity * 0.2}
         transparent
         opacity={0.95}
       />
@@ -540,9 +547,9 @@ export function CollisionFragments({
         size={0.06}
         color={color}
         transparent
-        opacity={0.7}
+        opacity={accentOpacity(0.7)}
         sizeAttenuation
-        blending={THREE.AdditiveBlending}
+        blending={ACCENT_BLENDING}
       />
     </points>
   );

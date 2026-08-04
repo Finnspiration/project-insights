@@ -4,6 +4,7 @@
 import { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { ACCENT_BLENDING, AREA_BLENDING, accentOpacity, areaOpacity } from './blobCompositing';
 
 // Risk Particles - floating particles around risk ring
 function RiskParticles({ 
@@ -67,9 +68,9 @@ function RiskParticles({
         size={chaotic ? 0.06 : 0.04}
         color={color}
         transparent
-        opacity={0.9}
+        opacity={accentOpacity(0.9)}
         sizeAttenuation
-        blending={THREE.AdditiveBlending}
+        blending={ACCENT_BLENDING}
       />
     </points>
   );
@@ -121,8 +122,8 @@ function ElectricArc({ color, radius }: { color: THREE.Color; radius: number }) 
             <meshBasicMaterial 
               color={color} 
               transparent 
-              opacity={0.9} 
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(0.9)} 
+              blending={ACCENT_BLENDING}
             />
           </mesh>
         );
@@ -322,8 +323,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.opacity}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.opacity)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           {/* Soft glow */}
@@ -332,8 +333,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.glowOpacity}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.glowOpacity)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
         </>
@@ -347,8 +348,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.opacity}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.opacity)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           {/* Outer glow ring */}
@@ -357,8 +358,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.secondaryColor}
               transparent
-              opacity={config.glowOpacity}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.glowOpacity)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           {/* Particles */}
@@ -386,7 +387,7 @@ export function RiskRing({
                   itemSize={3}
                 />
               </bufferGeometry>
-              <lineBasicMaterial color={config.color} linewidth={3} transparent opacity={config.opacity} />
+              <lineBasicMaterial color={config.color} linewidth={3} transparent opacity={accentOpacity(config.opacity)} />
             </line>
             {/* Hexagon vertices - glowing points */}
             {hexagonPoints.slice(0, 6).map((point, i) => (
@@ -396,7 +397,7 @@ export function RiskRing({
                   color={config.color} 
                   transparent 
                   opacity={1}
-                  blending={THREE.AdditiveBlending}
+                  blending={AREA_BLENDING}
                 />
               </mesh>
             ))}
@@ -407,9 +408,9 @@ export function RiskRing({
               <meshBasicMaterial
                 color={config.secondaryColor}
                 transparent
-                opacity={config.glowOpacity}
+                opacity={areaOpacity(config.glowOpacity)}
                 side={THREE.DoubleSide}
-                blending={THREE.AdditiveBlending}
+                blending={AREA_BLENDING}
               />
             </mesh>
           </group>
@@ -419,8 +420,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.opacity * 0.7}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.opacity * 0.7)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           {/* Fire particles */}
@@ -445,8 +446,8 @@ export function RiskRing({
                 <meshBasicMaterial
                   color={config.color}
                   transparent
-                  opacity={config.opacity}
-                  blending={THREE.AdditiveBlending}
+                  opacity={accentOpacity(config.opacity)}
+                  blending={ACCENT_BLENDING}
                 />
               </mesh>
             ))}
@@ -458,8 +459,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.opacity * 0.5}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.opacity * 0.5)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           <mesh ref={ring3Ref}>
@@ -467,8 +468,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.secondaryColor}
               transparent
-              opacity={config.opacity * 0.4}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.opacity * 0.4)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           
@@ -478,8 +479,8 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.opacity * 0.6}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(config.opacity * 0.6)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
           
@@ -503,9 +504,9 @@ export function RiskRing({
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={config.glowOpacity}
+              opacity={areaOpacity(config.glowOpacity)}
               side={THREE.BackSide}
-              blending={THREE.AdditiveBlending}
+              blending={AREA_BLENDING}
             />
           </mesh>
         </>
@@ -517,9 +518,9 @@ export function RiskRing({
         <meshBasicMaterial
           color={config.color}
           transparent
-          opacity={config.glowOpacity * 0.5}
+          opacity={areaOpacity(config.glowOpacity * 0.5)}
           side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
+          blending={AREA_BLENDING}
         />
       </mesh>
     </group>

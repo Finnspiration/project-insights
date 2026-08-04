@@ -120,7 +120,9 @@ export function MetaballBlob({ data, onHover, selectedLobe }: MetaballBlobProps)
   }, [lobePositions, data.colors, data.primaryColor]);
   
   const primaryThreeColor = useMemo(() => new THREE.Color(data.primaryColor), [data.primaryColor]);
-  const challengeColor = useMemo(() => new THREE.Color(data.glowColor), [data.glowColor]);
+  // The surface agitation's own hue. This was data.glowColor — which is risk's
+  // glow — so the variable was named for a dimension it never carried.
+  const challengeColor = useMemo(() => new THREE.Color(data.challengeColor), [data.challengeColor]);
   const knowledgeGlowColor = useMemo(() => new THREE.Color(data.knowledgeGlowColor || data.primaryColor), [data.knowledgeGlowColor, data.primaryColor]);
   
   return (

@@ -120,15 +120,18 @@ function Lights({
 }) {
   return (
     <>
-      {/* NEUTRAL ambient light - organizational stage only affects background now */}
+      {/* The rig delivered ~5.45 units of irradiance at the origin, against a
+          body that also mirrors an Environment("city") sky. Everything below
+          is roughly 40% of what it was; the environment map now carries more
+          of the fill, which is what it is for. */}
       
       {/* Base white ambient for visibility */}
-      <ambientLight intensity={0.35} />
+      <ambientLight intensity={0.28} />
       
       {/* Key light */}
       <directionalLight
         position={[5, 5, 5]}
-        intensity={1.4}
+        intensity={0.85}
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
@@ -136,7 +139,7 @@ function Lights({
       {/* Fill light */}
       <directionalLight
         position={[-3, 3, -3]}
-        intensity={0.7}
+        intensity={0.42}
         color="#e0e8ff"
       />
       
@@ -145,40 +148,40 @@ function Lights({
           portrait needs. */}
       <directionalLight
         position={[0, -2, 5]}
-        intensity={0.5}
+        intensity={0.32}
         color="#ffffff"
       />
 
       {/* Back rim in the stage colour */}
       <directionalLight
         position={[-2, 1, -5]}
-        intensity={1.1}
+        intensity={0.65}
         color={organizationalColor}
       />
       
       {/* Risk glow lights */}
       <pointLight
         position={[0, 3, 0]}
-        intensity={glowIntensity * 5}
+        intensity={glowIntensity * 2.2}
         color={glowColor}
         distance={15}
       />
       
       <pointLight
         position={[3, 0, 0]}
-        intensity={glowIntensity * 2.5}
+        intensity={glowIntensity * 1.1}
         color={glowColor}
         distance={10}
       />
       <pointLight
         position={[-3, 0, 0]}
-        intensity={glowIntensity * 2.5}
+        intensity={glowIntensity * 1.1}
         color={glowColor}
         distance={10}
       />
       <pointLight
         position={[0, 0, 3]}
-        intensity={glowIntensity * 2}
+        intensity={glowIntensity * 0.9}
         color={glowColor}
         distance={10}
       />
@@ -186,7 +189,7 @@ function Lights({
       {/* Bottom glow */}
       <pointLight
         position={[0, -3, 0]}
-        intensity={0.4 + coreGlow * 0.6}
+        intensity={0.2 + coreGlow * 0.3}
         color="#4080ff"
         distance={10}
       />

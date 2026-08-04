@@ -4,6 +4,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { ACCENT_BLENDING, AREA_BLENDING, accentOpacity, areaOpacity } from './blobCompositing';
 
 // NEW: IDG Outer Manifestation - energy extending beyond the blob
 export function IDGOuterManifestation({
@@ -55,9 +56,9 @@ export function IDGOuterManifestation({
           <meshBasicMaterial
             color={threeColor}
             transparent
-            opacity={0.12 * intensity}
+            opacity={areaOpacity(0.12 * intensity)}
             side={THREE.BackSide}
-            blending={THREE.AdditiveBlending}
+            blending={AREA_BLENDING}
           />
         </mesh>
         {/* Large outer aura */}
@@ -66,9 +67,9 @@ export function IDGOuterManifestation({
           <meshBasicMaterial
             color={threeColor}
             transparent
-            opacity={0.08 * intensity}
+            opacity={areaOpacity(0.08 * intensity)}
             side={THREE.BackSide}
-            blending={THREE.AdditiveBlending}
+            blending={AREA_BLENDING}
           />
         </mesh>
         {/* Subtle pulsing ring */}
@@ -77,8 +78,8 @@ export function IDGOuterManifestation({
           <meshBasicMaterial
             color={threeColor}
             transparent
-            opacity={0.3 * intensity}
-            blending={THREE.AdditiveBlending}
+            opacity={accentOpacity(0.3 * intensity)}
+            blending={ACCENT_BLENDING}
           />
         </mesh>
       </group>
@@ -149,7 +150,7 @@ export function IDGOuterManifestation({
             color={glowColor}
             transparent
             opacity={0.6}
-            blending={THREE.AdditiveBlending}
+            blending={ACCENT_BLENDING}
           />
         </mesh>
         
@@ -214,8 +215,8 @@ export function IDGOuterManifestation({
             <meshBasicMaterial
               color={threeColor}
               transparent
-              opacity={0.5 * intensity}
-              blending={THREE.AdditiveBlending}
+              opacity={accentOpacity(0.5 * intensity)}
+              blending={ACCENT_BLENDING}
             />
           </mesh>
         ))}
@@ -386,8 +387,8 @@ export function IDGOuterManifestation({
                   <meshBasicMaterial
                     color={threeColor}
                     transparent
-                    opacity={0.9 * intensity}
-                    blending={THREE.AdditiveBlending}
+                    opacity={accentOpacity(0.9 * intensity)}
+                    blending={ACCENT_BLENDING}
                   />
                 </mesh>
                 {/* Arrow tip - diamond shape */}
@@ -396,8 +397,8 @@ export function IDGOuterManifestation({
                   <meshBasicMaterial
                     color={threeColor}
                     transparent
-                    opacity={intensity}
-                    blending={THREE.AdditiveBlending}
+                    opacity={accentOpacity(intensity)}
+                    blending={ACCENT_BLENDING}
                   />
                 </mesh>
                 {/* Inner glow trail */}
@@ -406,8 +407,8 @@ export function IDGOuterManifestation({
                   <meshBasicMaterial
                     color={primaryColor}
                     transparent
-                    opacity={0.5 * intensity}
-                    blending={THREE.AdditiveBlending}
+                    opacity={accentOpacity(0.5 * intensity)}
+                    blending={ACCENT_BLENDING}
                   />
                 </mesh>
               </group>
@@ -420,8 +421,8 @@ export function IDGOuterManifestation({
           <meshBasicMaterial
             color={threeColor}
             transparent
-            opacity={0.6 * intensity}
-            blending={THREE.AdditiveBlending}
+            opacity={areaOpacity(0.6 * intensity)}
+            blending={AREA_BLENDING}
           />
         </mesh>
         {/* Inner core glow */}
@@ -430,8 +431,8 @@ export function IDGOuterManifestation({
           <meshBasicMaterial
             color={primaryColor}
             transparent
-            opacity={0.8 * intensity}
-            blending={THREE.AdditiveBlending}
+            opacity={areaOpacity(0.8 * intensity)}
+            blending={AREA_BLENDING}
           />
         </mesh>
       </group>
@@ -483,8 +484,8 @@ function FlowingParticle({
       <meshBasicMaterial
         color={color}
         transparent
-        opacity={0.7 * intensity}
-        blending={THREE.AdditiveBlending}
+        opacity={accentOpacity(0.7 * intensity)}
+        blending={ACCENT_BLENDING}
       />
     </mesh>
   );
@@ -531,8 +532,8 @@ function CollaborationParticle({
       <meshBasicMaterial
         color={color}
         transparent
-        opacity={0.5 * intensity}
-        blending={THREE.AdditiveBlending}
+        opacity={accentOpacity(0.5 * intensity)}
+        blending={ACCENT_BLENDING}
       />
     </mesh>
   );
