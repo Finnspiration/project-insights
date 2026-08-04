@@ -45,6 +45,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { calculateIDG } from '@/lib/idgScoring';
 import { isMorphologyComplete, normalizeMorphology, type Morphology } from '@shared/morphology.ts';
 import { ProjectProgress } from '@/components/projects/ProjectProgress';
+import { ProjectTimeline } from '@/components/visualizations/ProjectTimeline';
 import { localized, type IDGScores, type Language } from '@/types/project';
 import {
   useProject,
@@ -449,10 +450,14 @@ export default function ProjectDetail() {
                   {activeVisualizationTab === 'blob' && (
                     <ErrorBoundary>
                       <Suspense fallback={<VisualizationFallback />}>
-                      <MorphologyBlob 
-                        morphology={project.morphology} 
-                        projectId={project.id}
-                      />
+                        <div className="space-y-4">
+                          <MorphologyBlob
+                            morphology={project.morphology}
+                            projectId={project.id}
+                          />
+                          {/* Renders nothing until there are two snapshots to compare. */}
+                          <ProjectTimeline projectId={project.id} />
+                        </div>
                       </Suspense>
                     </ErrorBoundary>
                   )}

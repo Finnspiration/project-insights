@@ -1327,6 +1327,36 @@
         "still": "nothing circling it",
         "circling": "activity circling it"
       }
+    },
+    "timeline": {
+      "title": "How this project has changed",
+      "now": "Now",
+      "since": "Since {{date}}",
+      "noChange": "The assessment has not changed.",
+      "unanswered": "not answered",
+      "shapeMoved": "The portrait shows it:",
+      "gestures": {
+        "cohesion": {
+          "up": "the body has pulled together",
+          "down": "the body has split apart"
+        },
+        "roughness": {
+          "up": "the surface has grown more agitated",
+          "down": "the surface has settled"
+        },
+        "clarity": {
+          "up": "it has become easier to see into",
+          "down": "it has become harder to see into"
+        },
+        "orbit": {
+          "up": "more is circling it",
+          "down": "less is circling it"
+        },
+        "strain": {
+          "up": "it is under more pressure",
+          "down": "the pressure has eased"
+        }
+      }
     }
   },
   "insights": {

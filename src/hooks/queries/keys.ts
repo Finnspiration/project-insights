@@ -14,6 +14,7 @@ export const projectKeys = {
   detail: (projectId: string | undefined) => [...projectKeys.details(), projectId] as const,
   documents: (projectId: string | undefined) => [...projectKeys.detail(projectId), 'documents'] as const,
   blindSpots: (projectId: string | undefined) => [...projectKeys.detail(projectId), 'blindSpots'] as const,
+  dnaHistory: (projectId: string | undefined) => [...projectKeys.detail(projectId), 'dnaHistory'] as const,
 };
 
 export const profileKeys = {

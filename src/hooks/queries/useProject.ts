@@ -87,6 +87,43 @@ export function useProjectBlindSpots(projectId: string | undefined) {
   });
 }
 
+export interface DnaSnapshot {
+  id: string;
+  dna_code: string | null;
+  morphology: Morphology;
+  recorded_at: string;
+}
+
+/**
+ * The project's assessment over time, oldest first.
+ *
+ * Written by a database trigger on projects.morphology, so it captures every
+ * write path — the wizard, the morphological box, the weather-map editor and
+ * the edge functions — without any of them having to remember.
+ */
+export function useProjectDnaHistory(projectId: string | undefined) {
+  return useQuery({
+    queryKey: projectKeys.dnaHistory(projectId),
+    queryFn: async (): Promise<DnaSnapshot[]> => {
+      const { data, error } = await supabase
+        .from('project_dna_history')
+        .select('id, dna_code, morphology, recorded_at')
+        .eq('project_id', projectId!)
+        .order('recorded_at', { ascending: true });
+
+      // The table arrives with a migration; until it is applied the timeline
+      // should be absent, not an error page.
+      if (error) {
+        console.warn('DNA history unavailable:', error.message);
+        return [];
+      }
+      return (data ?? []) as unknown as DnaSnapshot[];
+    },
+    enabled: !!projectId,
+    retry: false,
+  });
+}
+
 export interface ProjectListItem {
   id: string;
   name: Project['name'];
@@ -171,6 +208,8 @@ export function useSaveProjectAssessment() {
       return update;
     },
     onSuccess: (_result, { projectId }) => {
+      // detail() is the parent key of documents, blindSpots and dnaHistory, so
+      // this refreshes the timeline the trigger has just appended to.
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },

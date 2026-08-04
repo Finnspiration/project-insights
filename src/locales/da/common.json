@@ -1327,6 +1327,36 @@
         "still": "intet kredser om den",
         "circling": "aktivitet kredser om den"
       }
+    },
+    "timeline": {
+      "title": "Sådan har projektet ændret sig",
+      "now": "Nu",
+      "since": "Siden {{date}}",
+      "noChange": "Vurderingen er ikke ændret.",
+      "unanswered": "ikke besvaret",
+      "shapeMoved": "Det kan ses på portrættet:",
+      "gestures": {
+        "cohesion": {
+          "up": "kroppen har samlet sig",
+          "down": "kroppen er splittet op"
+        },
+        "roughness": {
+          "up": "overfladen er blevet mere urolig",
+          "down": "overfladen har lagt sig"
+        },
+        "clarity": {
+          "up": "det er blevet lettere at se ind i",
+          "down": "det er blevet sværere at se ind i"
+        },
+        "orbit": {
+          "up": "mere kredser om det",
+          "down": "mindre kredser om det"
+        },
+        "strain": {
+          "up": "det er under mere tryk",
+          "down": "trykket har lettet"
+        }
+      }
     }
   },
   "insights": {
